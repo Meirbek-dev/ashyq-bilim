@@ -1,0 +1,132 @@
+# Dependencies
+node_modules
+**/node_modules
+
+# Build outputs
+.next
+**/.next
+out
+.out
+dist
+**/dist
+build
+
+# Logs
+logs
+*.log
+**/*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Cache directories
+.cache
+.parcel-cache
+.npm
+.eslintcache
+.nyc_output
+.pytest_cache/
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+**/*.tsbuildinfo
+**/.eslintcache
+**/__pycache__
+**/.ruff_cache
+
+# Coverage reports
+coverage
+*.lcov
+.coverage
+htmlcov/
+*.cover
+.hypothesis/
+coverage.xml
+
+# Test files
+.tox/
+nosetests.xml
+
+# Temporary files
+tmp/
+tmp
+temp/
+*.tmp
+.node_repl_history
+*.tgz
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+**.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+**/.gitignore
+.gitattributes
+.github
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+*docker-compose*
+dockers
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+**/.venv
+ENV/
+env.bak/
+venv.bak/
+
+# Database
+*.db
+*.sqlite3
+
+# Media files
+uploads/
+media/
+
+# Documentation
+README.md
+docs/
+*.md
+
+# Project specific
+**/.assets
+**/.temporary
+.logfire
+
+# Backups & restore data
+backups/
+temp-restore/
+apps/api/logs/
+apps/api/temp-restore/
+
+# Extra configs (mounted at runtime, not baked in)
+extra/.env
+extra/backup.env
+apps/api/.env
+apps/api/.env.*
+
+# Test output
+junit.xml
+test-results/

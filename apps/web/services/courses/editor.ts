@@ -1,0 +1,72 @@
+import { fetchResponseMetadata } from '@services/utils/ts/requests';
+import { getAPIUrl } from '@services/config/config';
+
+export interface CourseEditorResource<T> {
+  data: T | null;
+  status: number;
+  error: string | null;
+  available: boolean;
+}
+
+export interface CourseEditorBundle {
+  contributors: CourseEditorResource<any[]>;
+  linkedUserGroups: CourseEditorResource<any[]>;
+  certifications: CourseEditorResource<any[]>;
+}
+
+const createResource = <T>(
+  data: T | null,
+  status = 0,
+  error: string | null = null,
+  available = true,
+): CourseEditorResource<T> => ({
+  data,
+  status,
+  error,
+  available,
+});
+
+export const createEmptyCourseEditorBundle = (): CourseEditorBundle => ({
+  contributors: createResource<any[]>(null, 0, null, false),
+  linkedUserGroups: createResource<any[]>(null, 0, null, false),
+  certifications: createResource<any[]>(null, 0, null, false),
+});
+
+const toArrayResource = (response: {
+  success: boolean;
+  data: any;
+  status: number;
+  HTTPmessage: string;
+}): CourseEditorResource<any[]> => {
+  if (response.status === 401 || response.status === 403) {
+    return createResource<any[]>(null, response.status, null, false);
+  }
+
+  if (!response.success) {
+    const detail =
+      typeof response.data?.detail === 'string' ? response.data.detail : response.HTTPmessage || 'Request failed';
+    return createResource<any[]>([], response.status, detail, true);
+  }
+
+  return createResource<any[]>(Array.isArray(response.data) ? response.data : [], response.status, null, true);
+};
+
+export const getCourseMetadataKey = (courseUuid: string, withUnpublishedActivities = false) =>
+  `${getAPIUrl()}courses/${courseUuid}/meta?with_unpublished_activities=${withUnpublishedActivities}`;
+
+export const getCourseEditorBundleKey = (courseUuid?: string | null, accessToken?: string | null) =>
+  courseUuid && accessToken ? ['course-editor-bundle', courseUuid, accessToken] : null;
+
+export async function getCourseEditorBundle(courseUuid: string, accessToken: string): Promise<CourseEditorBundle> {
+  const [contributors, linkedUserGroups, certifications] = await Promise.all([
+    fetchResponseMetadata(`${getAPIUrl()}courses/${courseUuid}/contributors`, accessToken),
+    fetchResponseMetadata(`${getAPIUrl()}usergroups/resource/${courseUuid}`, accessToken),
+    fetchResponseMetadata(`${getAPIUrl()}certifications/course/${courseUuid}`, accessToken),
+  ]);
+
+  return {
+    contributors: toArrayResource(contributors),
+    linkedUserGroups: toArrayResource(linkedUserGroups),
+    certifications: toArrayResource(certifications),
+  };
+}

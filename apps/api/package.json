@@ -1,0 +1,10 @@
+{
+  "name": "api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "uv run app.py",
+    "format": "uv run ruff format",
+    "lint": "uv run ruff check --fix --unsafe-fixes"
+  }
+}

@@ -1,0 +1,329 @@
+import { ArrowRight, BookOpenCheck, Check, ChevronDown, Circle, FileText, Layers, Trophy, Video } from 'lucide-react';
+import Modal from '@/components/Objects/Elements/Modal/Modal';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { getAbsoluteUrl } from '@services/config/config';
+import AppLink from '@/components/ui/AppLink';
+import { Badge } from '@/components/ui/badge';
+import { useTranslations } from 'next-intl';
+import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import type { FC } from 'react';
+
+interface CourseProgressProps {
+  course: any;
+  isOpen: boolean;
+  onClose: () => void;
+  trailData: any;
+}
+
+const CourseProgress: FC<CourseProgressProps> = ({ course, isOpen, onClose, trailData }) => {
+  const t = useTranslations('Courses.CoursesActions');
+  const [expandedChapters, setExpandedChapters] = useState<Set<string>>(new Set());
+
+  function isActivityDone(activity: any) {
+    const cleanCourseUuid = course.course_uuid?.replace('course_', '');
+    const run = trailData?.runs?.find((run: any) => {
+      const cleanRunCourseUuid = run.course?.course_uuid?.replace('course_', '');
+      return cleanRunCourseUuid === cleanCourseUuid;
+    });
+    if (run) {
+      return run.steps.find((step: any) => step.activity_id === activity.id && step.complete === true);
+    }
+    return false;
+  }
+
+  // Compute progress
+  let totalActivities = 0;
+  let completedActivities = 0;
+  const chapterProgress: Record<string, { completed: number; total: number }> = {};
+
+  course.chapters.forEach((chapter: any) => {
+    let chapterCompleted = 0;
+    let chapterTotal = 0;
+
+    chapter.activities.forEach((activity: any) => {
+      totalActivities += 1;
+      chapterTotal += 1;
+      if (isActivityDone(activity)) {
+        completedActivities += 1;
+        chapterCompleted += 1;
+      }
+    });
+
+    chapterProgress[chapter.chapter_uuid] = { completed: chapterCompleted, total: chapterTotal };
+  });
+
+  const progressPercentage = totalActivities === 0 ? 0 : Math.round((completedActivities / totalActivities) * 100);
+
+  const toggleChapter = (chapterUuid: string) => {
+    setExpandedChapters((prev) => {
+      const next = new Set(prev);
+      if (next.has(chapterUuid)) {
+        next.delete(chapterUuid);
+      } else {
+        next.add(chapterUuid);
+      }
+      return next;
+    });
+  };
+
+  const getActivityTypeIcon = (activityType: string, isDone: boolean) => {
+    const iconClass = cn('size-4 shrink-0', isDone ? 'text-teal-600' : 'text-muted-foreground');
+
+    switch (activityType) {
+      case 'TYPE_VIDEO': {
+        return <Video className={iconClass} />;
+      }
+      case 'TYPE_DOCUMENT': {
+        return <FileText className={iconClass} />;
+      }
+      case 'TYPE_DYNAMIC': {
+        return <Layers className={iconClass} />;
+      }
+      case 'TYPE_ASSIGNMENT': {
+        return <BookOpenCheck className={iconClass} />;
+      }
+      default: {
+        return <FileText className={iconClass} />;
+      }
+    }
+  };
+
+  const isCompleted = progressPercentage === 100;
+
+  const dialogContent = (
+    <div className="flex flex-col gap-6">
+      {/* Progress Header */}
+      <div
+        className={cn(
+          'relative overflow-hidden rounded-xl p-5',
+          isCompleted
+            ? 'bg-gradient-to-br from-teal-50 to-emerald-50 ring-1 ring-teal-200/50'
+            : 'bg-gradient-to-br from-neutral-50 to-neutral-100/50 ring-1 ring-neutral-200/50',
+        )}
+      >
+        {/* Background Pattern */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: 'radial-gradient(circle at center, currentColor 1px, transparent 1px)',
+            backgroundSize: '16px 16px',
+          }}
+        />
+
+        <div className="relative flex items-center gap-5">
+          {/* Circular Progress */}
+          <div className="relative flex size-20 shrink-0 items-center justify-center">
+            <svg
+              className="size-full -rotate-90"
+              viewBox="0 0 100 100"
+            >
+              <circle
+                cx="50"
+                cy="50"
+                r="42"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="8"
+                className={isCompleted ? 'text-teal-200' : 'text-neutral-200'}
+              />
+              <circle
+                cx="50"
+                cy="50"
+                r="42"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="8"
+                strokeLinecap="round"
+                strokeDasharray={`${progressPercentage * 2.64} 264`}
+                className={cn('transition-all duration-500 ease-out', isCompleted ? 'text-teal-500' : 'text-primary')}
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              {isCompleted ? (
+                <Trophy className="size-6 text-teal-600" />
+              ) : (
+                <span className="text-lg font-bold text-neutral-900 tabular-nums">{progressPercentage}%</span>
+              )}
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="flex flex-1 flex-col gap-1.5">
+            <p className={cn('text-lg font-semibold', isCompleted ? 'text-teal-700' : 'text-neutral-900')}>
+              {isCompleted ? t('progressCard.courseCompleted') : `${completedActivities} of ${totalActivities}`}
+            </p>
+            <p className={cn('text-sm', isCompleted ? 'text-teal-600/80' : 'text-muted-foreground')}>
+              {isCompleted ? t('progressCard.completedAllActivities') : t('progressCard.activitiesCompletedLabel')}
+            </p>
+
+            {/* Progress Bar */}
+            <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-neutral-200/70">
+              <div
+                className={cn(
+                  'h-full rounded-full transition-all duration-500 ease-out',
+                  isCompleted ? 'bg-gradient-to-r from-teal-500 to-emerald-500' : 'bg-primary',
+                )}
+                style={{ width: `${progressPercentage}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Chapters List */}
+      <ScrollArea className="max-h-[400px]">
+        <div className="mb-4 flex flex-col gap-3 p-0.5">
+          {course.chapters.map((chapter: any, chapterIndex: number) => {
+            const chapterStats = chapterProgress[chapter.chapter_uuid];
+            const isChapterComplete = chapterStats?.completed === chapterStats?.total;
+            const isExpanded = expandedChapters.has(chapter.chapter_uuid);
+            const chapterPercentage =
+              !chapterStats || chapterStats.total === 0
+                ? 0
+                : Math.round((chapterStats.completed / chapterStats.total) * 100);
+
+            return (
+              <div
+                key={chapter.chapter_uuid}
+                className="overflow-hidden rounded-xl ring-1 ring-neutral-200/80 transition-shadow hover:ring-neutral-300"
+              >
+                {/* Chapter Header */}
+                <button
+                  type="button"
+                  onClick={() => toggleChapter(chapter.chapter_uuid)}
+                  className={cn(
+                    'flex w-full items-center gap-3 p-4 text-left transition-colors',
+                    isChapterComplete ? 'bg-teal-50/50 hover:bg-teal-50' : 'bg-white hover:bg-neutral-50',
+                  )}
+                >
+                  {/* Chapter Number */}
+                  <div
+                    className={cn(
+                      'flex size-8 shrink-0 items-center justify-center rounded-lg text-sm font-semibold',
+                      isChapterComplete ? 'bg-teal-100 text-teal-700' : 'bg-neutral-100 text-neutral-600',
+                    )}
+                  >
+                    {isChapterComplete ? <Check className="size-4" /> : chapterIndex + 1}
+                  </div>
+
+                  {/* Chapter Info */}
+                  <div className="flex flex-1 flex-col gap-10.5 overflow-hidden">
+                    <span className="truncate font-medium text-neutral-900">{chapter.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground text-xs">
+                        {t('progressCard.chapterActivitiesCount', {
+                          completed: chapterStats?.completed ?? 0,
+                          total: chapterStats?.total ?? 0,
+                        })}
+                      </span>
+                      {isChapterComplete && (
+                        <Badge
+                          variant="secondary"
+                          className="bg-teal-100 text-teal-700"
+                        >
+                          {t('progressCard.complete')}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Mini Progress + Chevron */}
+                  <div className="flex items-center gap-3">
+                    <div className="hidden h-1.5 w-16 overflow-hidden rounded-full bg-neutral-200 sm:block">
+                      <div
+                        className={cn(
+                          'h-full rounded-full transition-all',
+                          isChapterComplete ? 'bg-teal-500' : 'bg-primary',
+                        )}
+                        style={{ width: `${chapterPercentage}%` }}
+                      />
+                    </div>
+                    <ChevronDown
+                      className={cn(
+                        'size-5 shrink-0 text-neutral-400 transition-transform duration-200',
+                        isExpanded && 'rotate-180',
+                      )}
+                    />
+                  </div>
+                </button>
+
+                {/* Activities List */}
+                {isExpanded && (
+                  <div className="border-t border-neutral-100 bg-neutral-50/50">
+                    {chapter.activities.map((activity: any, activityIndex: number) => {
+                      const activityId = activity.activity_uuid.replace('activity_', '');
+                      const courseId = course.course_uuid.replace('course_', '');
+                      const isDone = isActivityDone(activity);
+
+                      return (
+                        <AppLink
+                          key={activity.activity_uuid}
+                          href={`${getAbsoluteUrl('')}/course/${courseId}/activity/${activityId}`}
+                          onClick={onClose}
+                        >
+                          <div
+                            className={cn(
+                              'group flex items-center gap-3 px-4 py-3 transition-colors',
+                              activityIndex !== chapter.activities.length - 1 && 'border-b border-neutral-100',
+                              isDone ? 'hover:bg-teal-50/50' : 'hover:bg-white',
+                            )}
+                          >
+                            {/* Status Indicator */}
+                            <div className="flex size-6 shrink-0 items-center justify-center">
+                              {isDone ? (
+                                <div className="flex size-5 items-center justify-center rounded-full bg-teal-100">
+                                  <Check className="size-3 text-teal-600" />
+                                </div>
+                              ) : (
+                                <Circle className="size-4 text-neutral-300" />
+                              )}
+                            </div>
+
+                            {/* Activity Type Icon */}
+                            {getActivityTypeIcon(activity.activity_type, isDone)}
+
+                            {/* Activity Name */}
+                            <span
+                              className={cn(
+                                'flex-1 truncate text-sm',
+                                isDone ? 'text-teal-700' : 'text-neutral-700 group-hover:text-neutral-900',
+                              )}
+                            >
+                              {activity.name}
+                            </span>
+
+                            {/* Arrow */}
+                            <ArrowRight
+                              className={cn(
+                                'size-4 shrink-0 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100',
+                                isDone ? 'text-teal-500' : 'text-neutral-400',
+                              )}
+                            />
+                          </div>
+                        </AppLink>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </ScrollArea>
+    </div>
+  );
+
+  return (
+    <Modal
+      isDialogOpen={isOpen}
+      onOpenChange={onClose}
+      dialogContent={dialogContent}
+      dialogTitle={t('courseProgress')}
+      dialogDescription={t('activitiesCompleted', { completed: completedActivities, total: totalActivities })}
+      minWidth="md"
+    />
+  );
+};
+
+export default CourseProgress;

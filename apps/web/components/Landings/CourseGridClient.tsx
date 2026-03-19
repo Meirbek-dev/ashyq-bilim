@@ -1,0 +1,180 @@
+'use client';
+
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import CourseThumbnail from '@components/Objects/Thumbnails/CourseThumbnail';
+import { usePlatformSession } from '@/components/Contexts/SessionContext';
+import { getCoursesSwrKey, getTrailSwrKey } from '@services/courses/keys';
+import { swrFetcherWithHeaders } from '@services/utils/ts/requests';
+import { swrFetcher } from '@services/utils/ts/requests';
+import { useMemo, useState } from 'react';
+import useSWR from 'swr';
+
+const COURSES_PER_PAGE = 20;
+
+interface CourseGridClientProps {
+  initialCourses: any[];
+  initialTotal: number;
+}
+
+export default function CourseGridClient({ initialCourses, initialTotal }: CourseGridClientProps) {
+  const session = usePlatformSession();
+  const accessToken = session?.data?.tokens?.access_token;
+  const [page, setPage] = useState(1);
+
+  // Fetch courses with pagination
+  const COURSES_KEY = getCoursesSwrKey(page, COURSES_PER_PAGE);
+  const { data: coursesResponse, isLoading: coursesLoading } = useSWR(
+    COURSES_KEY ? [COURSES_KEY, accessToken] : null,
+    ([url, token]) => swrFetcherWithHeaders(url, token),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      revalidateIfStale: page !== 1,
+      dedupingInterval: 60_000,
+      fallbackData:
+        page === 1 ? { data: initialCourses, headers: { 'x-total-count': String(initialTotal) } } : undefined,
+    },
+  );
+
+  const courses = coursesResponse?.data ?? initialCourses;
+  const totalCount = Number.parseInt(coursesResponse?.headers?.['x-total-count'] ?? String(initialTotal), 10);
+  const totalPages = Math.ceil(totalCount / COURSES_PER_PAGE);
+
+  // Fetch trail data to show progress on course thumbnails
+  const TRAIL_KEY = getTrailSwrKey();
+  const { data: trailData } = useSWR(
+    accessToken && TRAIL_KEY ? [TRAIL_KEY, accessToken] : null,
+    ([url, token]) => swrFetcher(url, token),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 60_000,
+    },
+  );
+
+  const isTrailLoading = Boolean(accessToken && !trailData);
+
+  // Generate pagination range
+  const paginationRange = useMemo(() => {
+    const delta = 2;
+    const range: (number | 'ellipsis')[] = [];
+    const rangeWithDots: (number | 'ellipsis')[] = [];
+
+    for (let i = Math.max(2, page - delta); i <= Math.min(totalPages - 1, page + delta); i += 1) {
+      range.push(i);
+    }
+
+    if (page - delta > 2) {
+      rangeWithDots.push(1, 'ellipsis');
+    } else {
+      for (let i = 1; i < Math.max(2, page - delta); i += 1) {
+        rangeWithDots.push(i);
+      }
+    }
+
+    rangeWithDots.push(...range);
+
+    if (page + delta < totalPages - 1) {
+      rangeWithDots.push('ellipsis', totalPages);
+    } else {
+      for (let i = Math.min(totalPages - 1, page + delta) + 1; i <= totalPages; i += 1) {
+        rangeWithDots.push(i);
+      }
+    }
+
+    return rangeWithDots;
+  }, [page, totalPages]);
+
+  return (
+    <div className="space-y-8">
+      <div className="grid w-full grid-cols-1 justify-items-center gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+        {coursesLoading && page !== 1
+          ? // Show skeletons when loading new page
+            Array.from({ length: COURSES_PER_PAGE }).map((_, i) => (
+              <div
+                key={`skeleton-${i}`}
+                className="flex w-full max-w-sm justify-center"
+              >
+                <div className="w-full animate-pulse">
+                  <div className="bg-muted h-44 w-full rounded-md" />
+                  <div className="bg-muted mt-3 h-4 w-3/4 rounded" />
+                  <div className="bg-muted mt-2 h-3 w-1/2 rounded" />
+                </div>
+              </div>
+            ))
+          : courses.map((course: any, index: number) => (
+              <div
+                key={course.course_uuid}
+                className="flex w-full max-w-sm justify-center"
+              >
+                <CourseThumbnail
+                  course={course}
+                  trailData={trailData}
+                  trailLoading={isTrailLoading}
+                  priority={page === 1 && index < 3}
+                />
+              </div>
+            ))}
+      </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (page > 1) setPage(page - 1);
+                }}
+                className={page <= 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+              />
+            </PaginationItem>
+
+            {paginationRange.map((item, index) =>
+              item === 'ellipsis' ? (
+                <PaginationItem key={`ellipsis-${index}`}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={item}>
+                  <PaginationLink
+                    href="#"
+                    isActive={page === item}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setPage(item);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    {item}
+                  </PaginationLink>
+                </PaginationItem>
+              ),
+            )}
+
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (page < totalPages) setPage(page + 1);
+                }}
+                className={page >= totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
+    </div>
+  );
+}

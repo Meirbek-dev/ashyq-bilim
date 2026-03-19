@@ -1,0 +1,185 @@
+"""
+Permission Enums - single source of truth for RBAC definitions.
+"""
+
+from enum import StrEnum
+
+
+class Action(StrEnum):
+    """Actions that can be performed on resources."""
+
+    CREATE = "create"
+    READ = "read"
+    UPDATE = "update"
+    DELETE = "delete"
+    MANAGE = "manage"
+    MODERATE = "moderate"
+    EXPORT = "export"
+    GRADE = "grade"
+    SUBMIT = "submit"
+    ENROLL = "enroll"
+
+
+class ResourceType(StrEnum):
+    """Types of resources in the system."""
+
+    ORGANIZATION = "organization"
+    COURSE = "course"
+    CHAPTER = "chapter"
+    ACTIVITY = "activity"
+    ASSIGNMENT = "assignment"
+    QUIZ = "quiz"
+    USER = "user"
+    USERGROUP = "usergroup"
+    COLLECTION = "collection"
+    ROLE = "role"
+    CERTIFICATE = "certificate"
+    DISCUSSION = "discussion"
+    FILE = "file"
+    ANALYTICS = "analytics"
+    TRAIL = "trail"
+    EXAM = "exam"
+    PAYMENT = "payment"
+    API_TOKEN = "api_token"
+
+
+class Scope(StrEnum):
+    """Scope of a permission."""
+
+    ALL = "all"
+    OWN = "own"
+    ASSIGNED = "assigned"
+    ORG = "org"
+
+
+class RoleSlug(StrEnum):
+    """Standard role slugs."""
+
+    ADMIN = "admin"
+    MAINTAINER = "maintainer"
+    INSTRUCTOR = "instructor"
+    MODERATOR = "moderator"
+    USER = "user"
+
+
+# ============================================================================
+# System role definitions - what each built-in role can do
+# ============================================================================
+
+SYSTEM_ROLES: dict[str, dict] = {
+    RoleSlug.ADMIN: {
+        "name": "Администратор",
+        "description": "Администратор платформы с полным доступом к системе",
+        "priority": 100,
+        "permissions": ["*:*:*"],
+    },
+    RoleSlug.MAINTAINER: {
+        "name": "Куратор",
+        "description": "Куратор курсов с расширенными правами на контент",
+        "priority": 70,
+        "permissions": [
+            "course:create:org",
+            "course:read:all",
+            "course:update:org",
+            "course:delete:own",
+            "course:manage:own",
+            "chapter:*:org",
+            "activity:*:org",
+            "assignment:*:org",
+            "quiz:*:org",
+            "exam:*:org",
+            "collection:create:org",
+            "collection:read:all",
+            "collection:update:own",
+            "collection:delete:own",
+            "discussion:moderate:org",
+            "analytics:read:org",
+            "certificate:create:own",
+            "certificate:read:own",
+        ],
+    },
+    RoleSlug.INSTRUCTOR: {
+        "name": "Преподаватель",
+        "description": "Преподаватель с возможностью создавать контент",
+        "priority": 50,
+        "permissions": [
+            "course:create:org",
+            "course:read:all",
+            "course:update:own",
+            "course:manage:own",
+            "course:delete:own",
+            "chapter:create:own",
+            "chapter:read:all",
+            "chapter:update:own",
+            "chapter:delete:own",
+            "activity:create:own",
+            "activity:read:all",
+            "activity:update:own",
+            "activity:delete:own",
+            "assignment:*:own",
+            "assignment:read:assigned",
+            "quiz:*:own",
+            "quiz:read:assigned",
+            "exam:*:own",
+            "exam:read:assigned",
+            "collection:create:org",
+            "collection:read:all",
+            "collection:update:own",
+            "discussion:moderate:own",
+            "analytics:read:assigned",
+            "analytics:export:assigned",
+            "user:read:assigned",
+            "usergroup:read:org",
+            "usergroup:manage:org",
+            "certificate:create:org",
+            "certificate:read:own",
+            "certificate:update:own",
+            "certificate:delete:own",
+        ],
+    },
+    RoleSlug.MODERATOR: {
+        "name": "Модератор",
+        "description": "Модератор контента и обсуждений",
+        "priority": 40,
+        "permissions": [
+            "course:read:all",
+            "discussion:moderate:org",
+            "discussion:read:all",
+            "discussion:update:org",
+            "discussion:delete:org",
+            "user:read:org",
+        ],
+    },
+    RoleSlug.USER: {
+        "name": "Пользователь",
+        "description": "Пользователь с базовым доступом",
+        "priority": 10,
+        "permissions": [
+            "course:read:all",
+            "course:enroll:all",
+            "chapter:read:all",
+            "activity:read:all",
+            "assignment:submit:assigned",
+            "assignment:read:assigned",
+            "quiz:submit:assigned",
+            "quiz:read:assigned",
+            "exam:submit:assigned",
+            "exam:read:assigned",
+            "collection:read:all",
+            "discussion:create:org",
+            "discussion:read:all",
+            "discussion:update:own",
+            "discussion:delete:own",
+            "user:read:own",
+            "user:update:own",
+            "certificate:read:own",
+        ],
+    },
+}
+
+
+# ============================================================================
+# Role group helpers
+# ============================================================================
+
+ADMIN_ROLE_SLUGS = frozenset({RoleSlug.ADMIN})
