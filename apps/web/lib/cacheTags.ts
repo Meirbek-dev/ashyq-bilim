@@ -18,7 +18,7 @@ export function gamificationTags(): string[] {
 
 // General cache tags
 export const tags = {
-  organizations: 'organizations',
+  platform: 'platform',
   courses: 'courses',
   editableCourses: 'editable_courses',
   collections: 'collections',

@@ -2,7 +2,6 @@
 
 import { AlertCircle, BookOpen, Loader2, LogIn, ShoppingCart } from 'lucide-react';
 import { usePlatformSession } from '@/components/Contexts/SessionContext';
-import { getAbsoluteUrl } from '@services/config/config';
 import { getUserAvatarMediaDirectory } from '@services/media/media';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { getProductsByCourse } from '@services/payments/products';
@@ -10,6 +9,7 @@ import Modal from '@/components/Objects/Elements/Modal/Modal';
 import { checkPaidAccess } from '@services/payments/payments';
 import { revalidateTags } from '@services/utils/ts/requests';
 import { startCourse } from '@services/courses/activity';
+import { getAbsoluteUrl } from '@services/config/config';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 

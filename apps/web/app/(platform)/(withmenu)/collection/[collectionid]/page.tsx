@@ -1,6 +1,6 @@
 import GeneralWrapper from '@/components/Objects/Elements/Wrappers/GeneralWrapper';
-import { getPlatformOrganizationContextInfo } from '@/services/platform/platform';
 import { getCourseThumbnailMediaDirectory } from '@services/media/media';
+import { getPlatformContextInfo } from '@/services/platform/platform';
 import { getCollectionById } from '@services/courses/collections';
 import { getOptionalSession } from '@/lib/get-optional-session';
 import { getAbsoluteUrl } from '@services/config/config';
@@ -45,7 +45,7 @@ export default async function PlatformCollectionPage(props: { params: Promise<{ 
   const session = await getOptionalSession();
   const access_token = session?.tokens?.access_token;
   const { collectionid } = await props.params;
-  const org = await getPlatformOrganizationContextInfo();
+  const platform = await getPlatformContextInfo();
   const col = await getCollectionById(collectionid, access_token || '');
 
   return (

@@ -25,7 +25,7 @@ interface PermissionGuardProps {
  *
  * @example
  * ```tsx
- * <PermissionGuard action={Actions.CREATE} resource={Resources.COURSE} scope={Scopes.ORG}>
+ * <PermissionGuard action={Actions.CREATE} resource={Resources.COURSE} scope={Scopes.PLATFORM}>
  *   <CreateButton />
  * </PermissionGuard>
  * ```

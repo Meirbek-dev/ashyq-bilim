@@ -358,8 +358,8 @@ async def add_permission_to_role(
         raise HTTPException(404, detail="Permission not found")
 
     # Escalation prevention: caller must themselves have the permission being added.
-    # Use expanded permissions so wildcards (e.g. course:*:org) resolve to concrete
-    # permission strings (e.g. course:create:org) before comparison.
+    # Use expanded permissions so wildcards (e.g. course:*:platform) resolve to concrete
+    # permission strings (e.g. course:create:platform) before comparison.
     if not actor_is_admin:
         caller_perms = checker.get_expanded_permissions(current_user.id)
         if perm.name not in caller_perms:

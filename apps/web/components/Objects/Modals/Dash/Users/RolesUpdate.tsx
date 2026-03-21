@@ -47,7 +47,7 @@ const RolesUpdate: FC<Props> = (props) => {
     },
   });
 
-  // Fetch available roles for the organization and sort them by system flag + priority
+  // Fetch available platform roles and sort them by system flag + priority
   const { data: roles, error: rolesError } = useSWR(`${getAPIUrl()}roles`, (url) => swrFetcher(url, access_token));
 
   const sortedRoles = (roles ?? []).toSorted((a: any, b: any) => {
@@ -76,7 +76,7 @@ const RolesUpdate: FC<Props> = (props) => {
         }
         await assignRoleToUser(access_token, userId, newRoleId);
 
-        await mutate(`${getAPIUrl()}orgs/users`);
+        await mutate(`${getAPIUrl()}platform/users`);
         props.setRolesModal(false);
         toast.success(t('toastSuccess'), { id: toastId });
       } catch (error: any) {

@@ -28,7 +28,7 @@ export const Actions = {
 export type Action = (typeof Actions)[keyof typeof Actions];
 
 export const Resources = {
-  ORGANIZATION: 'organization',
+  PLATFORM: 'platform',
   COURSE: 'course',
   CHAPTER: 'chapter',
   ACTIVITY: 'activity',
@@ -54,7 +54,7 @@ export const Scopes = {
   ALL: 'all',
   OWN: 'own',
   ASSIGNED: 'assigned',
-  ORG: 'org',
+  PLATFORM: 'platform',
 } as const;
 
 export type Scope = (typeof Scopes)[keyof typeof Scopes];
@@ -125,7 +125,7 @@ export interface RoleAuditListResponse {
   page_size: number;
 }
 
-export interface OrgUserBasic {
+export interface UserBasic {
   id: number;
   user_uuid?: string;
   email: string;

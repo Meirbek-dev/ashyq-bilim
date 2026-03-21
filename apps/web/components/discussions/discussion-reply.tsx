@@ -1,8 +1,8 @@
 'use client';
 
 import { ArrowBigDown, ArrowBigUp, Clock, Edit, Trash2 } from 'lucide-react';
-import { useFormatter, useNow, useTranslations } from 'next-intl';
 import { usePlatform } from '@/components/Contexts/PlatformContext';
+import { useFormatter, useNow, useTranslations } from 'next-intl';
 import { Actions, Resources, Scopes } from '@/types/permissions';
 import RichContentRenderer from './rich-content-renderer';
 import UserAvatar from '@components/Objects/UserAvatar';
@@ -41,9 +41,9 @@ export default function DiscussionReply({
   const [_isPending, startTransition] = useTransition();
   const format = useFormatter();
   const now = useNow();
-  const org = usePlatform();
+  const platform = usePlatform();
   const { can } = usePermissions();
-  const canModerateDiscussion = can(Actions.MODERATE, Resources.DISCUSSION, Scopes.ORG);
+  const canModerateDiscussion = can(Actions.MODERATE, Resources.DISCUSSION, Scopes.PLATFORM);
 
   const isOwnReply = reply.username === currentUser?.username;
   const netScore = reply.upvotes - reply.downvotes;
@@ -73,7 +73,7 @@ export default function DiscussionReply({
     });
   };
 
-  // Helper to check if a given user is admin for the org
+  // Helper to check if a given user is a platform admin
   const isAuthorAdmin = (username: string) => {
     if (!reply?.username) return false;
     // If current user is admin and is the author, show badge

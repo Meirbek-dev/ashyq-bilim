@@ -16,8 +16,8 @@ import { usePlatform } from '@/components/Contexts/PlatformContext';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { removeCoursePrefix } from '../Thumbnails/CourseThumbnail';
 import type { ChangeEvent, FC, KeyboardEvent } from 'react';
-import { searchOrgContent } from '@services/search/search';
 import { getAbsoluteUrl } from '@services/config/config';
+import { searchContent } from '@services/search/search';
 import { useDebouncedValue } from '@/hooks/useDebounce';
 import { Input } from '@components/ui/input';
 import { useTranslations } from 'next-intl';
@@ -119,7 +119,7 @@ export const SearchBar: FC<SearchBarProps> = ({ className = '', isMobile = false
   const searchRef = useRef<HTMLDivElement>(null);
   const session = usePlatformSession();
   const accessToken = session?.data?.tokens?.access_token;
-  const org = usePlatform();
+  const platform = usePlatform();
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   // Debounce the search query value
@@ -153,7 +153,7 @@ export const SearchBar: FC<SearchBarProps> = ({ className = '', isMobile = false
 
     (async () => {
       try {
-        const response = await searchOrgContent(currentQuery, 1, 3, null, accessToken);
+        const response = await searchContent(currentQuery, 1, 3, null, accessToken);
         if (controller.signal.aborted) return;
 
         // Type assertion and safe access

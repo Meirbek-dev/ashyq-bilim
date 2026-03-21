@@ -27,7 +27,7 @@ async def create_payment_user(
 ) -> PaymentsUser:
     # RBAC check
     checker = PermissionChecker(db_session)
-    checker.require(current_user.id, "organization:create")
+    checker.require(current_user.id, "platform:create")
 
     # Check if product exists
     statement = select(PaymentsProduct).where(PaymentsProduct.id == product_id)
@@ -83,7 +83,7 @@ async def get_payment_user(
 ) -> PaymentsUser:
     # RBAC check
     checker = PermissionChecker(db_session)
-    checker.require(current_user.id, "organization:read")
+    checker.require(current_user.id, "platform:read")
 
     # Get payment user
     statement = select(PaymentsUser).where(PaymentsUser.id == payment_user_id)
@@ -103,7 +103,7 @@ async def update_payment_user_status(
 ) -> PaymentsUser:
     # RBAC check
     checker = PermissionChecker(db_session)
-    checker.require(current_user.id, "organization:update")
+    checker.require(current_user.id, "platform:update")
 
     # Get existing payment user
     statement = select(PaymentsUser).where(PaymentsUser.id == payment_user_id)
@@ -129,9 +129,9 @@ async def list_payment_users(
 ) -> list[PaymentsUser]:
     # RBAC check
     checker = PermissionChecker(db_session)
-    checker.require(current_user.id, "organization:read")
+    checker.require(current_user.id, "platform:read")
 
-    # Get all payment users for org ordered by id
+    # Get all payment users for the platform ordered by id
     statement = select(PaymentsUser).order_by(PaymentsUser.id.desc())
     return list(db_session.exec(statement).all())  # Convert to list
 
@@ -144,7 +144,7 @@ async def delete_payment_user(
 ) -> None:
     # RBAC check
     checker = PermissionChecker(db_session)
-    checker.require(current_user.id, "organization:delete")
+    checker.require(current_user.id, "platform:delete")
 
     # Get existing payment user
     statement = select(PaymentsUser).where(PaymentsUser.id == payment_user_id)

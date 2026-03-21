@@ -17,7 +17,7 @@ async def get_customers(
 ):
     # RBAC check
     checker = PermissionChecker(db_session)
-    checker.require(current_user.id, "organization:read")
+    checker.require(current_user.id, "platform:read")
 
     # Get all payment users for the platform
     statement = select(PaymentsUser)

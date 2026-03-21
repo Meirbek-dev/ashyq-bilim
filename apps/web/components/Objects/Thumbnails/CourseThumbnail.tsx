@@ -31,10 +31,10 @@ import {
 } from '@/components/ui/alert-dialog';
 import { ResourceActionsMenu } from '@/components/Utils/ResourceActionsMenu';
 import type { ResourceAction } from '@/components/Utils/ResourceActionsMenu';
-import { usePlatformSession } from '@/components/Contexts/SessionContext';
 import { usePermissions } from '@/components/Security/PermissionProvider';
-import { Card, CardContent, CardFooter } from '@components/ui/card';
+import { usePlatformSession } from '@/components/Contexts/SessionContext';
 import { usePlatform } from '@/components/Contexts/PlatformContext';
+import { Card, CardContent, CardFooter } from '@components/ui/card';
 import { Resources, Actions, Scopes } from '@/types/permissions';
 import UserAvatar from '@components/Objects/UserAvatar';
 import { Button } from '@components/ui/button';
@@ -401,10 +401,12 @@ const AdminMenu: FC<AdminMenuProps> = ({ course, onDelete }) => {
   }, [currentUserId, course.authors, course.is_owner]);
 
   const canUpdate =
-    can(Resources.COURSE, Actions.UPDATE, Scopes.ORG) || (isOwner && can(Resources.COURSE, Actions.UPDATE, Scopes.OWN));
+    can(Resources.COURSE, Actions.UPDATE, Scopes.PLATFORM) ||
+    (isOwner && can(Resources.COURSE, Actions.UPDATE, Scopes.OWN));
 
   const canDelete =
-    can(Resources.COURSE, Actions.DELETE, Scopes.ORG) || (isOwner && can(Resources.COURSE, Actions.DELETE, Scopes.OWN));
+    can(Resources.COURSE, Actions.DELETE, Scopes.PLATFORM) ||
+    (isOwner && can(Resources.COURSE, Actions.DELETE, Scopes.OWN));
 
   const availableActions = [...(canUpdate ? ['update'] : []), ...(canDelete ? ['delete'] : [])];
 
@@ -516,7 +518,7 @@ const CourseThumbnail: FC<CourseThumbnailProps> = ({
   const t = useTranslations('Components.CourseThumbnail');
   const locale = useLocale();
   const router = useRouter();
-  const org = usePlatform() as any;
+  const platform = usePlatform() as any;
   const session = usePlatformSession() as any;
 
   // Memoized computed values

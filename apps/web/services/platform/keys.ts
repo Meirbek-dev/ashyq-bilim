@@ -1,11 +1,11 @@
 import { getAPIUrl } from '@services/config/config';
 
-export function getOrgUsersSwrKey() {
-  return `${getAPIUrl()}orgs/users`;
+export function getUsersSwrKey() {
+  return `${getAPIUrl()}platform/users`;
 }
 
-export function getOrgInvitesSwrKey() {
-  return `${getAPIUrl()}orgs/invites`;
+export function getInvitesSwrKey() {
+  return `${getAPIUrl()}platform/invites`;
 }
 
 export function getUsergroupsSwrKey() {

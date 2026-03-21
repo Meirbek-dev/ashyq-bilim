@@ -14,7 +14,7 @@ interface EditorWrapperProps {
   content: string;
   activity: any;
   course: any;
-  org: any;
+  platform: any;
 }
 
 const EditorWrapper = (props: EditorWrapperProps): JSX.Element => {
@@ -51,10 +51,10 @@ const EditorWrapper = (props: EditorWrapperProps): JSX.Element => {
   }
 
   return (
-    <PlatformContextProvider initialOrg={props.org}>
+    <PlatformContextProvider initialPlatform={props.platform}>
       {isReady ? (
         <Editor
-          org={props.org}
+          platform={props.platform}
           course={props.course}
           activity={props.activity}
           content={props.content}

@@ -17,13 +17,13 @@ import {
   Users,
 } from 'lucide-react';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
-import { updateOrgLanding, uploadLandingContent } from '@/services/platform/platform';
+import { updateLanding, uploadLandingContent } from '@/services/platform/platform';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/tabs';
 import { usePlatformSession } from '@/components/Contexts/SessionContext';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { createElement, useEffect, useState, useTransition } from 'react';
-import { getOrgLandingMediaDirectory } from '@services/media/media';
 import { usePlatform } from '@/components/Contexts/PlatformContext';
+import { getLandingMediaDirectory } from '@services/media/media';
 import { getCourses } from '@services/courses/courses';
 import { Textarea } from '@components/ui/textarea';
 
@@ -288,12 +288,12 @@ const makeGradientDirectionItems = (t: Function) =>
   Object.entries(getGradientDirections(t)).map(([value, label]) => ({ value, label }));
 
 const EditLanding = () => {
-  const org = usePlatform() as any;
+  const platform = usePlatform() as any;
   const session = usePlatformSession() as any;
   const access_token = session?.data?.tokens?.access_token;
   const [isLandingEnabled, setIsLandingEnabled] = useState(false);
   const tNotify = useTranslations('DashPage.Notifications');
-  const t = useTranslations('DashPage.OrgSettings.Landing');
+  const t = useTranslations('DashPage.PlatformSettings.Landing');
 
   // Precompute section type items for `Select` usage
   const sectionTypeItems = makeSectionTypeItems(t);
@@ -306,10 +306,10 @@ const EditLanding = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  // Initialize landing data from org config
+  // Initialize landing data from platform config
   useEffect(() => {
-    if (org?.config?.config?.landing) {
-      const landingConfig = org.config.config.landing;
+    if (platform?.config?.config?.landing) {
+      const landingConfig = platform.config.config.landing;
       setLandingData({
         sections: landingConfig.sections || [],
         enabled: Boolean(landingConfig.enabled),
@@ -319,7 +319,7 @@ const EditLanding = () => {
       // between `undefined` and boolean during the component lifecycle).
       setIsLandingEnabled(Boolean(landingConfig.enabled));
     }
-  }, [org]);
+  }, [platform]);
 
   const addSection = (type: string) => {
     const newSection: LandingSection = createEmptySection(t, type as keyof typeof SECTION_TYPE_KEYS);
@@ -431,7 +431,7 @@ const EditLanding = () => {
     startTransition(() => setIsSaving(true));
     const loadingToast = toast.loading(tNotify('savingLandingPage'));
     try {
-      const res = await updateOrgLanding(
+      const res = await updateLanding(
         {
           sections: landingData.sections,
           enabled: isLandingEnabled,
@@ -1511,7 +1511,7 @@ interface ImageUploaderProps {
 }
 
 const ImageUploader: FC<ImageUploaderProps> = ({ t, onImageUploaded, className, buttonText, id }) => {
-  const org = usePlatform() as any;
+  const platform = usePlatform() as any;
   const session = usePlatformSession() as any;
   const access_token = session?.data?.tokens?.access_token;
   const [isUploading, setIsUploading] = useState(false);
@@ -1537,7 +1537,7 @@ const ImageUploader: FC<ImageUploaderProps> = ({ t, onImageUploaded, className, 
     try {
       const response = await uploadLandingContent(file, access_token);
       if (response.status === 200) {
-        const imageUrl = getOrgLandingMediaDirectory(response.data.filename);
+        const imageUrl = getLandingMediaDirectory(response.data.filename);
         onImageUploaded(imageUrl);
         toast.success(tNotify('imageUploadSuccess'), { id: loadingToast });
       } else {
@@ -1985,11 +1985,11 @@ const FeaturedCoursesEditor: FC<{
   section: LandingFeaturedCourses;
   onChange: (section: LandingFeaturedCourses) => void;
 }> = ({ t, section, onChange }) => {
-  const org = usePlatform() as any;
+  const platform = usePlatform() as any;
   const session = usePlatformSession() as any;
   const access_token = session?.data?.tokens?.access_token;
 
-  const { data: coursesData } = useSWR(access_token ? ['org-courses', access_token] : null, ([, token]) =>
+  const { data: coursesData } = useSWR(access_token ? ['platform-courses', access_token] : null, ([, token]) =>
     getCourses(null, token),
   );
   const courses = coursesData?.courses;

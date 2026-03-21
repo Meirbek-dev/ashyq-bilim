@@ -4,8 +4,8 @@ import type { ReactNode } from 'react';
 
 export default async function PlatformPaymentsLayout({ children }: { children: ReactNode }) {
   await requireAnyPermission([
-    { action: Actions.MANAGE, resource: Resources.PAYMENT, scope: Scopes.ORG },
-    { action: Actions.MANAGE, resource: Resources.ORGANIZATION, scope: Scopes.OWN },
+    { action: Actions.MANAGE, resource: Resources.PAYMENT, scope: Scopes.PLATFORM },
+    { action: Actions.MANAGE, resource: Resources.PLATFORM, scope: Scopes.OWN },
   ]);
 
   return <>{children}</>;

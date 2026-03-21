@@ -1,5 +1,5 @@
-import { getPlatformOrganizationContextInfo } from '@/services/platform/platform';
 import { LandingContent } from '@/app/_shared/withmenu/LandingContent';
+import { getPlatformContextInfo } from '@/services/platform/platform';
 import { getThumbnailMediaDirectory } from '@services/media/media';
 import { PageSuspense } from '@components/Utils/PageSuspense';
 import { getTranslations } from 'next-intl/server';
@@ -47,12 +47,12 @@ interface MetadataProps {
 }
 
 export async function generateMetadata(_props: MetadataProps): Promise<Metadata> {
-  const org = await getPlatformOrganizationContextInfo();
+  const platform = await getPlatformContextInfo();
   const t = await getTranslations('General');
 
   return {
     title: `${t('home')} - Ashyq Bilim`,
-    description: org.description,
+    description: platform.description,
     robots: {
       index: true,
       follow: true,
@@ -65,14 +65,14 @@ export async function generateMetadata(_props: MetadataProps): Promise<Metadata>
     },
     openGraph: {
       title: `${t('home')} - Ashyq Bilim`,
-      description: org.description,
+      description: platform.description,
       type: 'website',
       images: [
         {
-          url: getThumbnailMediaDirectory(org?.thumbnail_image),
+          url: getThumbnailMediaDirectory(platform?.thumbnail_image),
           width: 800,
           height: 600,
-          alt: org.name,
+          alt: platform.name,
         },
       ],
     },

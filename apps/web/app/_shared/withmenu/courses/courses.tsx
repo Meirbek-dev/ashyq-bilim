@@ -13,7 +13,7 @@ interface CourseProps {
   totalCourses: number;
 }
 
-const EmptyStateMessage = ({ canManageOrg, t, createCourseTrigger }: any) => (
+const EmptyStateMessage = ({ canManagePlatform, t, createCourseTrigger }: any) => (
   <div className="col-span-full flex items-center justify-center py-12">
     <div className="max-w-md text-center">
       <div className="mb-6">
@@ -34,8 +34,8 @@ const EmptyStateMessage = ({ canManageOrg, t, createCourseTrigger }: any) => (
         </div>
       </div>
       <h1 className="mb-3 text-2xl font-bold text-gray-700">{t('noCourses')}</h1>
-      <p className="mb-6 text-lg text-gray-500">{canManageOrg ? t('createACourse') : t('noCoursesAvailable')}</p>
-      {canManageOrg ? <div className="flex justify-center">{createCourseTrigger}</div> : null}
+      <p className="mb-6 text-lg text-gray-500">{canManagePlatform ? t('createACourse') : t('noCoursesAvailable')}</p>
+      {canManagePlatform ? <div className="flex justify-center">{createCourseTrigger}</div> : null}
     </div>
   </div>
 );
@@ -44,7 +44,7 @@ const Courses = (props: CourseProps) => {
   const t = useTranslations('CoursesPage');
   const { courses, totalCourses } = props;
   const { can } = usePermissions();
-  const canManageOrg = can(Actions.MANAGE, Resources.ORGANIZATION, Scopes.OWN);
+  const canManagePlatform = can(Actions.MANAGE, Resources.PLATFORM, Scopes.OWN);
 
   const createCourseTrigger = <CreateCourseTrigger />;
 
@@ -64,7 +64,7 @@ const Courses = (props: CourseProps) => {
 
           {!hasCourses ? (
             <EmptyStateMessage
-              canManageOrg={canManageOrg}
+              canManagePlatform={canManagePlatform}
               t={t}
               createCourseTrigger={createCourseTrigger}
             />

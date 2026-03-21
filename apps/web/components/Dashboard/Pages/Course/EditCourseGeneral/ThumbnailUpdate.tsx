@@ -1,8 +1,8 @@
 import { ArrowBigUpDash, Image as ImageIcon, UploadCloud, Video } from 'lucide-react';
 import { useCourse, useCourseDispatch } from '@components/Contexts/CourseContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/tabs';
-import { usePlatformSession } from '@/components/Contexts/SessionContext';
 import { Alert, AlertDescription, AlertTitle } from '@components/ui/alert';
+import { usePlatformSession } from '@/components/Contexts/SessionContext';
 import { getCourseThumbnailMediaDirectory } from '@services/media/media';
 import { updateCourseThumbnail } from '@services/courses/courses';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -164,17 +164,11 @@ const ThumbnailUpdate = ({ thumbnailType, disabled = false, disabledReason }: Th
     (type: 'image' | 'video') => {
       if (type === 'image') {
         return course.courseStructure.thumbnail_image
-          ? getCourseThumbnailMediaDirectory(
-              course.courseStructure.course_uuid,
-              course.courseStructure.thumbnail_image,
-            )
+          ? getCourseThumbnailMediaDirectory(course.courseStructure.course_uuid, course.courseStructure.thumbnail_image)
           : '/empty_thumbnail.webp';
       }
       return course.courseStructure.thumbnail_video
-        ? getCourseThumbnailMediaDirectory(
-            course.courseStructure.course_uuid,
-            course.courseStructure.thumbnail_video,
-          )
+        ? getCourseThumbnailMediaDirectory(course.courseStructure.course_uuid, course.courseStructure.thumbnail_video)
         : undefined;
     },
     [course],

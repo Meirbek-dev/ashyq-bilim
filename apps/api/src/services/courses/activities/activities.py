@@ -33,7 +33,7 @@ async def create_activity(
     current_user: PublicUser | AnonymousUser,
     db_session: Session,
 ):
-    # CHeck if org exists
+    # Check if platform exists
     statement = select(Chapter).where(Chapter.id == activity_object.chapter_id)
     chapter = db_session.exec(statement).first()
 

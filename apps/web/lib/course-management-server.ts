@@ -18,7 +18,7 @@ export interface CourseWorkspaceCapabilities {
 }
 
 function hasCreateCoursePermission(session: any) {
-  return sessionCan(session, Resources.COURSE, Actions.CREATE, Scopes.ORG);
+  return sessionCan(session, Resources.COURSE, Actions.CREATE, Scopes.PLATFORM);
 }
 
 interface CourseRightsResponse {

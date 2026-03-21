@@ -280,7 +280,7 @@ def cohort_user_ids(
     requested = list(cohort_ids)
     if not requested:
         return None
-    # Only filter by cohort IDs that are known to this org's context.
+    # Only filter by cohort IDs that are known to this platform context.
     # If none of the requested IDs are known, return an empty set so the
     # caller does NOT silently fall back to showing all learners.
     normalized = {

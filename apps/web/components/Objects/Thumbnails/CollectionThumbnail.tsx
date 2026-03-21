@@ -37,7 +37,7 @@ const removeCollectionPrefix = (collectionid: string) => {
 const CollectionThumbnail = (props: PropsType) => {
   const t = useTranslations('Components.CollectionThumbnail');
   const tCommon = useTranslations('Common');
-  const org = usePlatform() as any;
+  const platform = usePlatform() as any;
 
   // Use backend metadata for ownership and permissions
   const isOwner = props.collection.is_owner ?? false;

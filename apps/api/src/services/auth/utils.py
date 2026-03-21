@@ -8,8 +8,8 @@ from src.core.events.database import get_db_session
 from src.db.users import User, UserCreate, UserRead
 from src.security.auth import get_current_user
 from src.services.users.users import (
-    create_user_without_org,
-    ensure_user_in_platform_org,
+    create_user_without_platform,
+    ensure_user_has_default_role,
 )
 
 
@@ -83,11 +83,12 @@ async def signWithGoogle(
             avatar_image=picture,
         )
 
-        # Always create the user without an explicit org; single-org mode will
-        # attach them to the platform organization automatically.
-        return await create_user_without_org(
+        # Always create the user without an explicit platform reference; single-platform mode will
+        # Always create the user without an explicit platform reference; single-platform mode will
+        # attach them to the platform automatically.
+        return await create_user_without_platform(
             request, db_session, current_user, user_object
         )
 
-    await ensure_user_in_platform_org(db_session, user.id)
+    await ensure_user_has_default_role(db_session, user.id)
     return UserRead.model_validate(user)

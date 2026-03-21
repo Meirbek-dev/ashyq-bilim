@@ -4,60 +4,57 @@ from fastapi import APIRouter, Depends, Request, UploadFile
 from sqlmodel import Session
 
 from src.core.events.database import get_db_session
-from src.db.organizations import (
-    OrganizationRead,
-    OrganizationUpdate,
-    PaginatedOrganizationUsers,
+from src.db.platform import (
+    PaginatedPlatformUsers,
+    PlatformRead,
+    PlatformUpdate,
 )
 from src.db.users import PublicUser
 from src.security.auth import get_current_user
 from src.security.rbac import PermissionCheckerDep
-from src.services.orgs.orgs import (
-    update_org,
-    update_org_landing,
-    update_org_logo,
-    update_org_preview,
-    update_org_thumbnail,
-    upload_org_landing_content_service,
+from src.services.platform import get_platform
+from src.services.platform_admin import (
+    update_platform,
+    update_platform_landing,
+    update_platform_logo,
+    update_platform_preview,
+    update_platform_thumbnail,
+    upload_platform_landing_content_service,
 )
-from src.services.orgs.users import (
-    get_organization_users,
-    remove_user_from_org,
-    update_user_role,
+from src.services.platform_users import (
+    get_platform_users,
+    remove_platform_user,
+    update_platform_user_role,
 )
-from src.services.platform import get_platform_organization
 
 router = APIRouter()
 
 
-@router.get("/platform")
-async def api_get_platform_org(
+@router.get("")
+async def api_get_platform(
     db_session: Annotated[Session, Depends(get_db_session)],
-) -> OrganizationRead:
+) -> PlatformRead:
     """
-    Get the single platform organization.
+    Get the single platform.
 
-    This endpoint is intentionally public in single-org mode because the
+    This endpoint is intentionally public in single-platform mode because the
     frontend bootstraps navigation, auth pages, and public landing content from
-    the platform organization before user-specific RBAC is established.
+    the platform before user-specific RBAC is established.
     """
-    platform_org = get_platform_organization(db_session)
-    return OrganizationRead.model_validate(platform_org)
+    platform_record = get_platform(db_session)
+    return PlatformRead.model_validate(platform_record)
 
 
 @router.get("/users")
-async def api_get_platform_org_users(
+async def api_get_platform_users(
     request: Request,
     current_user: Annotated[PublicUser, Depends(get_current_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
     checker: PermissionCheckerDep,
     page: int = 1,
     per_page: int = 20,
-) -> PaginatedOrganizationUsers:
-    """
-    Get organization users with pagination
-    """
-    return await get_organization_users(
+) -> PaginatedPlatformUsers:
+    return await get_platform_users(
         request,
         db_session,
         current_user,
@@ -77,13 +74,13 @@ async def api_update_platform_user_role(
     checker: PermissionCheckerDep,
 ):
     """
-    Update user role in an organization.
+    Update a user's role in the platform.
 
     **Path Parameter**: `role_id` - numeric role ID
 
-    **Required Permission**: `organization:update`
+    **Required Permission**: `platform:update`
     """
-    return await update_user_role(
+    return await update_platform_user_role(
         request,
         user_id,
         role_id,
@@ -94,7 +91,7 @@ async def api_update_platform_user_role(
 
 
 @router.delete("/users/{user_id}")
-async def api_remove_user_from_platform_org(
+async def api_remove_user_from_platform(
     request: Request,
     user_id: int,
     current_user: Annotated[PublicUser, Depends(get_current_user)],
@@ -102,9 +99,9 @@ async def api_remove_user_from_platform_org(
     checker: PermissionCheckerDep,
 ):
     """
-    Remove user from org
+    Remove a user from the platform.
     """
-    return await remove_user_from_org(
+    return await remove_platform_user(
         request,
         user_id,
         db_session,
@@ -114,7 +111,7 @@ async def api_remove_user_from_platform_org(
 
 
 @router.put("/logo")
-async def api_update_org_logo(
+async def api_update_platform_logo(
     request: Request,
     logo_file: UploadFile,
     current_user: Annotated[PublicUser, Depends(get_current_user)],
@@ -122,12 +119,12 @@ async def api_update_org_logo(
     checker: PermissionCheckerDep,
 ):
     """
-    Update org logo
+    Update the platform logo.
 
-    **Required Permission**: `organization:update`
+    **Required Permission**: `platform:update`
     """
-    checker.require(current_user.id, "organization:update")
-    return await update_org_logo(
+    checker.require(current_user.id, "platform:update")
+    return await update_platform_logo(
         request=request,
         logo_file=logo_file,
         current_user=current_user,
@@ -136,7 +133,7 @@ async def api_update_org_logo(
 
 
 @router.put("/thumbnail")
-async def api_update_org_thumbnail(
+async def api_update_platform_thumbnail(
     request: Request,
     thumbnail_file: UploadFile,
     current_user: Annotated[PublicUser, Depends(get_current_user)],
@@ -144,12 +141,12 @@ async def api_update_org_thumbnail(
     checker: PermissionCheckerDep,
 ):
     """
-    Update org thumbnail
+    Update the platform thumbnail.
 
-    **Required Permission**: `organization:update`
+    **Required Permission**: `platform:update`
     """
-    checker.require(current_user.id, "organization:update")
-    return await update_org_thumbnail(
+    checker.require(current_user.id, "platform:update")
+    return await update_platform_thumbnail(
         request=request,
         thumbnail_file=thumbnail_file,
         current_user=current_user,
@@ -158,7 +155,7 @@ async def api_update_org_thumbnail(
 
 
 @router.put("/preview")
-async def api_update_org_preview(
+async def api_update_platform_preview(
     request: Request,
     preview_file: UploadFile,
     current_user: Annotated[PublicUser, Depends(get_current_user)],
@@ -166,12 +163,12 @@ async def api_update_org_preview(
     checker: PermissionCheckerDep,
 ):
     """
-    Update org preview
+    Update the platform preview.
 
-    **Required Permission**: `organization:update`
+    **Required Permission**: `platform:update`
     """
-    checker.require(current_user.id, "organization:update")
-    return await update_org_preview(
+    checker.require(current_user.id, "platform:update")
+    return await update_platform_preview(
         request=request,
         preview_file=preview_file,
         current_user=current_user,
@@ -179,25 +176,25 @@ async def api_update_org_preview(
     )
 
 
-@router.put("/platform")
-async def api_update_org(
+@router.put("")
+async def api_update_platform(
     request: Request,
-    org_object: OrganizationUpdate,
+    platform_object: PlatformUpdate,
     current_user: Annotated[PublicUser, Depends(get_current_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
     checker: PermissionCheckerDep,
-) -> OrganizationRead:
+) -> PlatformRead:
     """
-    Update Org by ID
+    Update the platform.
 
-    **Required Permission**: `organization:update`
+    **Required Permission**: `platform:update`
     """
-    checker.require(current_user.id, "organization:update")
-    return await update_org(request, org_object, current_user, db_session)
+    checker.require(current_user.id, "platform:update")
+    return await update_platform(request, platform_object, current_user, db_session)
 
 
 @router.put("/landing")
-async def api_update_org_landing(
+async def api_update_platform_landing(
     request: Request,
     landing_object: dict,
     current_user: Annotated[PublicUser, Depends(get_current_user)],
@@ -205,16 +202,18 @@ async def api_update_org_landing(
     checker: PermissionCheckerDep,
 ):
     """
-    Update organization landing object
+    Update the platform landing object.
 
-    **Required Permission**: `organization:update`
+    **Required Permission**: `platform:update`
     """
-    checker.require(current_user.id, "organization:update")
-    return await update_org_landing(request, landing_object, current_user, db_session)
+    checker.require(current_user.id, "platform:update")
+    return await update_platform_landing(
+        request, landing_object, current_user, db_session
+    )
 
 
 @router.post("/landing/content")
-async def api_upload_org_landing_content(
+async def api_upload_platform_landing_content(
     request: Request,
     content_file: UploadFile,
     current_user: Annotated[PublicUser, Depends(get_current_user)],
@@ -222,12 +221,12 @@ async def api_upload_org_landing_content(
     checker: PermissionCheckerDep,
 ):
     """
-    Upload content for organization landing page
+    Upload content for the platform landing page.
 
-    **Required Permission**: `organization:update`
+    **Required Permission**: `platform:update`
     """
-    checker.require(current_user.id, "organization:update")
-    return await upload_org_landing_content_service(
+    checker.require(current_user.id, "platform:update")
+    return await upload_platform_landing_content_service(
         request=request,
         content_file=content_file,
         current_user=current_user,

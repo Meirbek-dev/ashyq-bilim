@@ -1,8 +1,8 @@
 'use client';
 
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem } from '@/components/ui/navigation-menu';
-import { usePlatformSession } from '@/components/Contexts/SessionContext';
 import { HeaderProfileBox } from '@/components/Security/HeaderProfileBox';
+import { usePlatformSession } from '@/components/Contexts/SessionContext';
 import { BookCopy, Menu, Signpost, SquareLibrary, X } from 'lucide-react';
 import { LocaleSwitcher } from '@/components/Utils/LocaleSwitcher';
 import { SearchBar } from '@/components/Objects/Search/SearchBar';
@@ -23,7 +23,7 @@ interface NavigationLinkProps {
 
 // Navigation link component with icon and label
 const NavigationLinkItem = ({ href, type }: NavigationLinkProps) => {
-  const t = useTranslations('Components.OrgMenuLinks');
+  const t = useTranslations('Components.NavMenuLinks');
   const pathname = usePathname();
 
   const linkConfig = {
@@ -58,7 +58,7 @@ export default function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
-  const t = useTranslations('Components.OrgMenu');
+  const t = useTranslations('Components.NavMenu');
   const session = usePlatformSession();
   const isAuthenticated = session.status === 'authenticated';
 

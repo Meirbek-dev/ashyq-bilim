@@ -70,7 +70,7 @@ type RoleDialogMode = 'create' | 'edit' | 'clone';
 
 export default function RBACAdminClient() {
   const session = usePlatformSession();
-  const org = usePlatform();
+  const platform = usePlatform();
   const { can } = usePermissions();
   const t = useTranslations('Components.Roles');
 
@@ -567,7 +567,7 @@ export default function RBACAdminClient() {
           <PermissionGuard
             action={Actions.CREATE}
             resource={Resources.ROLE}
-            scope={Scopes.ORG}
+            scope={Scopes.PLATFORM}
           >
             <Button
               variant="ghost"
@@ -581,7 +581,7 @@ export default function RBACAdminClient() {
           <PermissionGuard
             action={Actions.UPDATE}
             resource={Resources.ROLE}
-            scope={Scopes.ORG}
+            scope={Scopes.PLATFORM}
           >
             <Button
               variant="ghost"
@@ -596,7 +596,7 @@ export default function RBACAdminClient() {
           <PermissionGuard
             action={Actions.DELETE}
             resource={Resources.ROLE}
-            scope={Scopes.ORG}
+            scope={Scopes.PLATFORM}
           >
             <Button
               variant="ghost"
@@ -707,7 +707,7 @@ export default function RBACAdminClient() {
         <PermissionGuard
           action={Actions.CREATE}
           resource={Resources.ROLE}
-          scope={Scopes.ORG}
+          scope={Scopes.PLATFORM}
         >
           <Dialog
             open={isRoleDialogOpen}
@@ -831,7 +831,7 @@ export default function RBACAdminClient() {
               <CardTitle>{t('allPermissionsTitle')}</CardTitle>
               <CardDescription>{t('allPermissionsDescription')}</CardDescription>
               <div className="bg-muted text-muted-foreground rounded-md border p-3 text-sm">
-                {t('scopeHierarchy')}: <span className="font-medium">all → org → assigned → own</span>
+                {t('scopeHierarchy')}: <span className="font-medium">all → platform → assigned → own</span>
               </div>
             </CardHeader>
             <CardContent>

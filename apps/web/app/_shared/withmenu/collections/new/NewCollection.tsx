@@ -7,11 +7,11 @@ import { usePlatformSession } from '@/components/Contexts/SessionContext';
 import { getCourseThumbnailMediaDirectory } from '@services/media/media';
 import { usePlatform } from '@/components/Contexts/PlatformContext';
 import { createCollection } from '@services/courses/collections';
-import { useCourseList } from '@/hooks/useCourseList';
 import { revalidateTags } from '@services/utils/ts/requests';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { getAbsoluteUrl } from '@services/config/config';
 import { useMemo, useState, useTransition } from 'react';
+import { useCourseList } from '@/hooks/useCourseList';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
@@ -33,7 +33,7 @@ interface CourseListItem {
 
 const NewCollection = () => {
   const t = useTranslations('NewCollectionPage');
-  const org = usePlatform() as any;
+  const platform = usePlatform() as any;
   const session = usePlatformSession() as any;
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');

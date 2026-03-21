@@ -82,7 +82,7 @@ async def api_create_course(
     """
     Create new Course
 
-    **Required Permission**: `course:create:org`
+    **Required Permission**: `course:create:platform`
     """
     course = CourseCreate(
         name=name,
@@ -296,7 +296,7 @@ async def api_update_course(
     """
     Update Course by course_uuid
 
-    **Required Permission**: `course:update:own` or `course:update:org`
+    **Required Permission**: `course:update:own` or `course:update:platform`
     """
     return await update_course(
         request, course_object, course_uuid, current_user, db_session
@@ -339,7 +339,7 @@ async def api_delete_course(
     """
     Delete Course by ID
 
-    **Required Permission**: `course:delete:own` or `course:delete:org`
+    **Required Permission**: `course:delete:own` or `course:delete:platform`
     """
     return await delete_course(request, course_uuid, current_user, db_session)
 
@@ -447,7 +447,7 @@ async def api_update_course_contributor(
     """
     Update a course contributor's role and status
 
-    **Required Permission**: `course:manage:own` or `course:manage:org`
+    **Required Permission**: `course:manage:own` or `course:manage:platform`
     """
     return await update_course_contributor(
         request,
@@ -471,7 +471,7 @@ async def api_add_bulk_course_contributors(
     """
     Add multiple contributors to a course by their usernames
 
-    **Required Permission**: `course:manage:own` or `course:manage:org`
+    **Required Permission**: `course:manage:own` or `course:manage:platform`
     """
     return await add_bulk_course_contributors(
         request, course_uuid, usernames, current_user, db_session

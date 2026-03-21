@@ -7,11 +7,9 @@ from sqlmodel import Session, select
 from ulid import ULID
 
 from config.config import get_settings
-from src.db.organizations import Organization, OrganizationRead
 from src.db.users import AnonymousUser, PublicUser, User, UserRead
 from src.security.security import generate_secure_code, security_hash_password
 from src.services.cache.redis_client import delete_keys, get_json, get_redis_client
-from src.services.platform import get_platform_organization
 from src.services.users.emails import send_password_reset_email
 
 
@@ -30,8 +28,6 @@ async def send_reset_password_code(
             status_code=400,
             detail="User does not exist",
         )
-
-    org = get_platform_organization(db_session)
 
     # Redis init
     settings = get_settings()
@@ -74,8 +70,6 @@ async def send_reset_password_code(
 
     user = UserRead.model_validate(user)
 
-    org = OrganizationRead.model_validate(org)
-
     # Send reset code via email
     isEmailSent = send_password_reset_email(
         generated_reset_code=generated_reset_code,
@@ -109,8 +103,6 @@ async def change_password_with_reset_code(
             status_code=400,
             detail="User does not exist",
         )
-
-    org = get_platform_organization(db_session)
 
     # Redis init
     settings = get_settings()

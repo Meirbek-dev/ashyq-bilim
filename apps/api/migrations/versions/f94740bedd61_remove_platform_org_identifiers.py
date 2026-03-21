@@ -8,8 +8,8 @@ Create Date: 2026-03-17 23:59:28.657285
 
 from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision: str = "f94740bedd61"
@@ -65,19 +65,29 @@ def downgrade() -> None:
     """Downgrade schema."""
     conn = op.get_bind()
 
-    if _table_exists(conn, "organization") and not _column_exists(conn, "organization", "org_uuid"):
+    if _table_exists(conn, "organization") and not _column_exists(
+        conn, "organization", "org_uuid"
+    ):
         op.add_column("organization", sa.Column("org_uuid", sa.String(), nullable=True))
-        op.execute("UPDATE organization SET org_uuid = 'platform' WHERE org_uuid IS NULL")
+        op.execute(
+            "UPDATE organization SET org_uuid = 'platform' WHERE org_uuid IS NULL"
+        )
         op.alter_column("organization", "org_uuid", nullable=False)
 
-    if _table_exists(conn, "organization") and not _column_exists(conn, "organization", "slug"):
+    if _table_exists(conn, "organization") and not _column_exists(
+        conn, "organization", "slug"
+    ):
         op.add_column("organization", sa.Column("slug", sa.String(), nullable=True))
         op.execute("UPDATE organization SET slug = 'platform' WHERE slug IS NULL")
         op.alter_column("organization", "slug", nullable=False)
 
     for table_name in ("code_submission", "hint_usage"):
-        if _table_exists(conn, table_name) and not _column_exists(conn, table_name, "org_id"):
-            op.add_column(table_name, sa.Column("org_id", sa.BigInteger(), nullable=True))
+        if _table_exists(conn, table_name) and not _column_exists(
+            conn, table_name, "org_id"
+        ):
+            op.add_column(
+                table_name, sa.Column("org_id", sa.BigInteger(), nullable=True)
+            )
             op.create_foreign_key(
                 f"{table_name}_org_id_fkey",
                 table_name,
@@ -100,6 +110,8 @@ def downgrade() -> None:
             ),
             sa.Column("creation_date", sa.Text(), nullable=True),
             sa.Column("update_date", sa.Text(), nullable=True),
-            sa.ForeignKeyConstraint(["org_id"], ["organization.id"], ondelete="CASCADE"),
+            sa.ForeignKeyConstraint(
+                ["org_id"], ["organization.id"], ondelete="CASCADE"
+            ),
             sa.UniqueConstraint("org_id", name="uq_organizationconfig_org_id"),
         )

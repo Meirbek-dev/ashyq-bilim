@@ -25,7 +25,7 @@ class TeacherAnalyticsScope:
     teacher_user_id: int
     course_ids: list[int]
     cohort_ids: list[int]
-    has_org_scope: bool
+    has_platform_scope: bool
 
 
 def _coerce_course_id(value: Any) -> int | None:
@@ -60,7 +60,7 @@ def ensure_analytics_access(
 ) -> None:
     if any(
         _has_analytics_scope(checker, user_id, action, scope)
-        for scope in ("assigned", "org", "all")
+        for scope in ("assigned", "platform", "all")
     ):
         return
     raise PermissionDenied(permission=f"analytics:{action}")
@@ -78,15 +78,15 @@ def resolve_teacher_scope(
         raise AuthenticationRequired
 
     ensure_analytics_access(checker, current_user.id, action)
-    has_org_scope = any(
+    has_platform_scope = any(
         _has_analytics_scope(checker, current_user.id, action, scope)
-        for scope in ("org", "all")
+        for scope in ("platform", "all")
     )
 
     teacher_user_id = filters.teacher_user_id or current_user.id
-    target_user_id = teacher_user_id if has_org_scope else current_user.id
+    target_user_id = teacher_user_id if has_platform_scope else current_user.id
 
-    if has_org_scope and filters.teacher_user_id:
+    if has_platform_scope and filters.teacher_user_id:
         course_ids = db_session.exec(
             select(Course.id)
             .outerjoin(
@@ -103,7 +103,7 @@ def resolve_teacher_scope(
                 )
             )
         ).all()
-    elif has_org_scope:
+    elif has_platform_scope:
         course_ids = db_session.exec(select(Course.id)).all()
     else:
         course_ids = db_session.exec(
@@ -145,7 +145,7 @@ def resolve_teacher_scope(
         teacher_user_id=target_user_id,
         course_ids=normalized_course_ids,
         cohort_ids=filters.cohort_ids,
-        has_org_scope=has_org_scope,
+        has_platform_scope=has_platform_scope,
     )
 
 

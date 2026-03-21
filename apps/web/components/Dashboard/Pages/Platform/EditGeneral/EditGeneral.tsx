@@ -2,9 +2,9 @@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@components/ui/form';
 import { usePlatformSession } from '@/components/Contexts/SessionContext';
 import { usePlatform } from '@/components/Contexts/PlatformContext';
+import { updatePlatform } from '@/services/settings/platform';
 import { valibotResolver } from '@hookform/resolvers/valibot';
 import { revalidateTags } from '@services/utils/ts/requests';
-import { updatePlatform } from '@/services/settings/platform';
 import { getAPIUrl } from '@services/config/config';
 import { Textarea } from '@components/ui/textarea';
 import { Button } from '@components/ui/button';
@@ -32,42 +32,42 @@ type PlatformValues = v.InferOutput<ReturnType<typeof createValidationSchema>>;
 const EditGeneral: FC = () => {
   const session = usePlatformSession() as any;
   const access_token = session?.data?.tokens?.access_token;
-  const org = usePlatform() as any;
-  const t = useTranslations('DashPage.OrgSettings.General');
+  const platform = usePlatform() as any;
+  const t = useTranslations('DashPage.PlatformSettings.General');
   const validationSchema = createValidationSchema(t);
 
   const form = useForm<PlatformValues>({
     resolver: valibotResolver(validationSchema),
     defaultValues: {
-      description: org?.description || '',
-      about: org?.about || '',
+      description: platform?.description || '',
+      about: platform?.about || '',
     },
   });
   const [isPending, startTransition] = useTransition();
 
-  const updateOrg = async (values: PlatformValues) => {
-    const loadingToast = toast.loading(t('updatingOrg'));
+  const updatePlatformSettings = async (values: PlatformValues) => {
+    const loadingToast = toast.loading(t('updatingPlatform'));
     try {
       startTransition(() => {
         void updatePlatform(values, access_token)
           .then(async () => {
-            await revalidateTags(['organizations']);
-            mutate(`${getAPIUrl()}orgs/platform`);
-            toast.success(t('orgUpdatedSuccess'), { id: loadingToast });
+            await revalidateTags(['platform']);
+            mutate(`${getAPIUrl()}platform`);
+            toast.success(t('platformUpdatedSuccess'), { id: loadingToast });
           })
           .catch(() => {
-            toast.error(t('orgUpdateFailed'), { id: loadingToast });
+            toast.error(t('platformUpdateFailed'), { id: loadingToast });
           });
       });
     } catch {
-      toast.error(t('orgUpdateFailed'), { id: loadingToast });
+      toast.error(t('platformUpdateFailed'), { id: loadingToast });
     }
   };
 
   return (
     <div className="soft-shadow m-1 rounded-xl bg-white sm:mx-10">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(updateOrg)}>
+        <form onSubmit={form.handleSubmit(updatePlatformSettings)}>
           <div className="flex flex-col gap-0">
             <div className="mx-3 my-3 flex flex-col -space-y-1 rounded-md bg-gray-50 px-5 py-3">
               <h1 className="text-xl font-bold text-gray-800">{t('title')}</h1>

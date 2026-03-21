@@ -21,7 +21,7 @@ async def init_payments_config(
 ) -> PaymentsConfig:
     # Verify permissions
     checker = PermissionChecker(db_session)
-    checker.require(current_user.id, "organization:create")
+    checker.require(current_user.id, "platform:create")
 
     # Check for existing config
     existing_config = db_session.exec(select(PaymentsConfig)).first()
@@ -29,7 +29,7 @@ async def init_payments_config(
     if existing_config:
         raise HTTPException(
             status_code=409,
-            detail="Payments config already exists for this organization",
+            detail="Payments config already exists for this platform",
         )
 
     # Initialize new config
@@ -69,7 +69,7 @@ async def update_payments_config(
 ) -> PaymentsConfig:
     # RBAC check
     checker = PermissionChecker(db_session)
-    checker.require(current_user.id, "organization:update")
+    checker.require(current_user.id, "platform:update")
 
     # Get existing payments config
     statement = select(PaymentsConfig)
@@ -95,7 +95,7 @@ async def delete_payments_config(
 ) -> None:
     # RBAC check
     checker = PermissionChecker(db_session)
-    checker.require(current_user.id, "organization:delete")
+    checker.require(current_user.id, "platform:delete")
 
     # Get existing payments config
     statement = select(PaymentsConfig)

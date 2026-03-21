@@ -12,7 +12,6 @@ import {
   UserPen,
 } from 'lucide-react';
 import { usePlatformSession } from '@/components/Contexts/SessionContext';
-import { getAbsoluteUrl } from '@services/config/config';
 import { useContributorStatus } from '@/hooks/useContributorStatus';
 import { getProductsByCourse } from '@services/payments/products';
 import { applyForContributor } from '@services/courses/courses';
@@ -21,6 +20,7 @@ import CourseProgress from '../CourseProgress/CourseProgress';
 import { checkPaidAccess } from '@services/payments/payments';
 import { revalidateTags } from '@services/utils/ts/requests';
 import { startCourse } from '@services/courses/activity';
+import { getAbsoluteUrl } from '@services/config/config';
 import { Card, CardContent } from '@/components/ui/card';
 import UserAvatar from '@components/Objects/UserAvatar';
 import { getTrailSwrKey } from '@services/courses/keys';

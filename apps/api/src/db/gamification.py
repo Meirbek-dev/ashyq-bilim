@@ -175,7 +175,7 @@ class XPTransaction(SQLModel, table=True):
     )
 
 
-class OrgGamificationConfig(SQLModel, table=True):
+class PlatformGamificationConfig(SQLModel, table=True):
     """Gamification policy overrides.
 
     Safe optional overrides with sane defaults applied in service if fields are null.

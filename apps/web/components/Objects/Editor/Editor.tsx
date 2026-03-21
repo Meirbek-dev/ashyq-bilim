@@ -79,7 +79,7 @@ interface EditorProps {
   content: string;
   activity: any;
   course: any;
-  org: any;
+  platform: any;
   session: any;
   setContent: (content: any) => void;
 }
@@ -207,10 +207,7 @@ const Editor = (props: EditorProps) => {
                     className="h-[25px] w-14 object-cover object-top rounded-[7px] ml-[5px] hover:cursor-pointer"
                     src={`${
                       props.course.thumbnail_image
-                        ? getCourseThumbnailMediaDirectory(
-                            props.course.course_uuid,
-                            props.course.thumbnail_image,
-                          )
+                        ? getCourseThumbnailMediaDirectory(props.course.course_uuid, props.course.thumbnail_image)
                         : getAbsoluteUrl('/empty_thumbnail.webp')
                     }`}
                     alt={`${props.course.name} Thumbnail`}

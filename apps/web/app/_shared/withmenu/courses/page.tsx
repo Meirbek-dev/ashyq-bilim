@@ -1,4 +1,4 @@
-import { getPlatformOrganizationContextInfo } from '@/services/platform/platform';
+import { getPlatformContextInfo } from '@/services/platform/platform';
 import { getThumbnailMediaDirectory } from '@services/media/media';
 import { getOptionalSession } from '@/lib/get-optional-session';
 import { getCourses } from '@services/courses/courses';
@@ -14,13 +14,13 @@ interface MetadataProps {
 export async function generateMetadata(_props: MetadataProps): Promise<Metadata> {
   const t = await getTranslations('General');
 
-  const org = await getPlatformOrganizationContextInfo();
+  const platform = await getPlatformContextInfo();
 
   // SEO
   return {
     title: `${t('courses')} - Ashyq Bilim`,
-    description: org.description,
-    keywords: `${org.name}, ${org.description}, ${t('courses')}, ${t('learning')}, ${t('education')}, ${t('onlineLearning')}, ${t('edu')}, ${t('onlineCourses')}, ${org.name} ${t('courses')}`,
+    description: platform.description,
+    keywords: `${platform.name}, ${platform.description}, ${t('courses')}, ${t('learning')}, ${t('education')}, ${t('onlineLearning')}, ${t('edu')}, ${t('onlineCourses')}, ${platform.name} ${t('courses')}`,
     robots: {
       index: true,
       follow: true,
@@ -33,14 +33,14 @@ export async function generateMetadata(_props: MetadataProps): Promise<Metadata>
     },
     openGraph: {
       title: `${t('courses')} - Ashyq Bilim`,
-      description: org.description,
+      description: platform.description,
       type: 'website',
       images: [
         {
-          url: getThumbnailMediaDirectory(org?.thumbnail_image),
+          url: getThumbnailMediaDirectory(platform?.thumbnail_image),
           width: 800,
           height: 600,
-          alt: org.name,
+          alt: platform.name,
         },
       ],
     },

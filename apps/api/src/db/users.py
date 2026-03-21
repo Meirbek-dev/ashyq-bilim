@@ -67,7 +67,7 @@ class UserSession(PydanticStrictBaseModel):
     roles: list[UserSessionRole]
     permissions: list[
         str
-    ] = []  # Effective permissions: list of permission strings, e.g. "course:create:org"
+    ] = []  # Effective permissions: list of permission strings, e.g. "course:create:platform"
     permissions_timestamp: int | None = (
         None  # Unix timestamp when permissions were loaded
     )

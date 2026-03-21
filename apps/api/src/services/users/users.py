@@ -8,11 +8,6 @@ from pydantic import ValidationError
 from sqlmodel import Session, select
 from ulid import ULID
 
-from src.db.organizations import (
-    Organization,
-    OrganizationRead,
-    build_default_org_config,
-)
 from src.db.permission_enums import RoleSlug
 from src.db.permissions import Role, RoleRead, UserRole
 from src.db.users import (
@@ -31,7 +26,6 @@ from src.db.users import (
 from src.security.rbac import PermissionChecker
 from src.security.security import security_hash_password, security_verify_password
 from src.services.cache import redis_client
-from src.services.platform import get_platform_organization
 from src.services.users.avatars import upload_avatar
 from src.services.users.emails import send_account_creation_email
 from src.services.users.usergroups import add_users_to_usergroup
@@ -61,8 +55,8 @@ async def create_user(
     # Create and validate user
     user = await _create_and_validate_user(db_session, user_object)
 
-    # Link user and organization
-    await _link_user_to_organization(db_session, user.id)
+    # Assign default user role
+    await _assign_default_role(db_session, user.id)
     db_session.commit()
 
     user_read = UserRead.model_validate(user)
@@ -76,7 +70,7 @@ async def create_user(
     return user_read
 
 
-async def create_user_without_org(
+async def create_user_without_platform(
     request: Request,
     db_session: Session,
     current_user: PublicUser | AnonymousUser,
@@ -95,9 +89,8 @@ async def create_user_without_org(
     # Create and validate user
     user = await _create_and_validate_user(db_session, user_object)
 
-    # Automatically join the platform organization in single-org mode.
-    await _get_platform_organization(db_session)
-    await _link_user_to_organization(db_session, user.id)
+    # Assign default user role
+    await _assign_default_role(db_session, user.id)
     db_session.commit()
 
     user_read = UserRead.model_validate(user)
@@ -449,29 +442,8 @@ def _safe_role_read(role: Role) -> RoleRead:
         )
 
 
-def _safe_organization_read(org: Organization) -> OrganizationRead:
-    """Convert Organization to OrganizationRead, tolerating legacy fields."""
-    try:
-        return OrganizationRead.model_validate(org)
-    except ValidationError as exc:  # pragma: no cover - defensive path
-        _logger.warning(
-            "Organization validation failed for org=%s. Using best-effort fallback. Error: %s",
-            getattr(org, "name", None),
-            exc,
-        )
-
-        return OrganizationRead.model_construct(
-            **org.model_dump(),
-            config=build_default_org_config(
-                landing=org.landing,
-                creation_date=org.creation_date,
-                update_date=org.update_date,
-            ),
-        )
-
-
-async def _link_user_to_organization(db_session: Session, user_id: int | None) -> None:
-    """Link user to organization with default 'user' role using new RBAC system."""
+async def _assign_default_role(db_session: Session, user_id: int | None) -> None:
+    """Assign default 'user' role to a newly registered user."""
     from src.db.permissions import Role
     from src.security.rbac import PermissionChecker
 
@@ -571,21 +543,9 @@ async def _get_user_by_field(
     return user
 
 
-async def _get_platform_organization(db_session: Session) -> Organization:
-    """Get the platform organization used by single-org deployments."""
-    try:
-        return get_platform_organization(db_session)
-    except RuntimeError as exc:
-        raise HTTPException(
-            status_code=500,
-            detail="Platform organization not found. Please contact system administrator.",
-        ) from exc
-
-
-async def ensure_user_in_platform_org(db_session: Session, user_id: int) -> None:
-    """Ensure a user is a member of the platform organization (idempotent)."""
-    await _get_platform_organization(db_session)
-    await _link_user_to_organization(db_session, user_id)
+async def ensure_user_has_default_role(db_session: Session, user_id: int) -> None:
+    """Ensure a user has the default role assigned (idempotent)."""
+    await _assign_default_role(db_session, user_id)
     db_session.commit()
 
 

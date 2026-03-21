@@ -8,7 +8,6 @@ from src.db.courses.activities import Activity
 from src.db.courses.blocks import Block, BlockRead, BlockTypeEnum
 from src.db.courses.courses import Course
 from src.services.blocks.utils.upload_files import upload_file_and_return_file_object
-from src.services.platform import get_platform_organization
 from src.services.users.users import PublicUser
 
 
@@ -24,13 +23,6 @@ async def create_pdf_block(
         )
 
     block_type = "pdfBlock"
-
-    org = get_platform_organization(db_session)
-
-    if not org:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Organization not found"
-        )
 
     # get course
     statement = select(Course).where(Course.id == activity.course_id)

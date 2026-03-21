@@ -34,7 +34,7 @@ export interface PlatformLeaderboard {
 // Leaderboard filters
 export interface LeaderboardFilters {
   timeframe?: 'daily' | 'weekly' | 'monthly' | 'all-time';
-  scope?: 'organization' | 'friends' | 'global';
+  scope?: 'platform' | 'friends' | 'global';
   limit?: number;
   offset?: number;
 }
@@ -72,7 +72,7 @@ export const LeaderboardSchema = v.object({
 
 export const LeaderboardFiltersSchema = v.object({
   timeframe: v.optional(v.picklist(['daily', 'weekly', 'monthly', 'all-time'])),
-  scope: v.optional(v.picklist(['organization', 'friends', 'global'])),
+  scope: v.optional(v.picklist(['platform', 'friends', 'global'])),
   limit: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100))),
   offset: v.optional(v.pipe(v.number(), v.minValue(0))),
 });

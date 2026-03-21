@@ -30,7 +30,7 @@ async def create_payments_product(
 ) -> PaymentsProductRead:
     # RBAC check
     checker = PermissionChecker(db_session)
-    checker.require(current_user.id, "organization:create")
+    checker.require(current_user.id, "platform:create")
 
     # Check if payments config exists, has a valid id, and is active
     statement = select(PaymentsConfig)
@@ -70,7 +70,7 @@ async def get_payments_product(
 ) -> PaymentsProductRead:
     # RBAC check
     checker = PermissionChecker(db_session)
-    checker.require(current_user.id, "organization:read")
+    checker.require(current_user.id, "platform:read")
 
     # Get payments product
     statement = select(PaymentsProduct).where(PaymentsProduct.id == product_id)
@@ -90,7 +90,7 @@ async def update_payments_product(
 ) -> PaymentsProductRead:
     # RBAC check
     checker = PermissionChecker(db_session)
-    checker.require(current_user.id, "organization:update")
+    checker.require(current_user.id, "platform:update")
 
     # Get existing payments product
     statement = select(PaymentsProduct).where(PaymentsProduct.id == product_id)
@@ -125,7 +125,7 @@ async def delete_payments_product(
 ) -> None:
     # RBAC check
     checker = PermissionChecker(db_session)
-    checker.require(current_user.id, "organization:delete")
+    checker.require(current_user.id, "platform:delete")
 
     # Get existing payments product
     statement = select(PaymentsProduct).where(PaymentsProduct.id == product_id)
@@ -164,7 +164,7 @@ async def list_payments_products(
 ) -> list[PaymentsProductRead]:
     # RBAC check
     checker = PermissionChecker(db_session)
-    checker.require(current_user.id, "organization:read")
+    checker.require(current_user.id, "platform:read")
 
     # Get payments products ordered by id
     statement = select(PaymentsProduct).order_by(PaymentsProduct.id.desc())
@@ -189,9 +189,7 @@ async def get_products_by_course(
     # RBAC check — skip for public courses (needed to display pricing to anonymous users)
     checker = PermissionChecker(db_session)
     if not course.public:
-        checker.require(
-            current_user.id, "organization:read"
-        )
+        checker.require(current_user.id, "platform:read")
 
     # Get all products linked to this course with explicit join
     statement = (

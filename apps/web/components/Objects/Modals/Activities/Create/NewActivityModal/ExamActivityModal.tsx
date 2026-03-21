@@ -135,7 +135,7 @@ const NewExam = ({ submitActivity, chapterId, course, closeModal }: any) => {
             }
 
             if (courseUuidClean) {
-              // Use canonical path without org prefix
+              // Use canonical path without platform prefix
               globalThis.location.href = `/course/${courseUuidClean}/activity/${activity_uuid_clean}${withUnpublishedActivities ? '?withUnpublishedActivities=true' : ''}`;
             } else {
               // Last-resort fallback: navigate to global courses listing

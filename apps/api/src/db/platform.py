@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import ConfigDict, model_validator
-from sqlalchemy import JSON, BigInteger, Column, ForeignKey
+from sqlalchemy import JSON, Column
 from sqlmodel import Field
 
 from src.db.permissions import RoleRead
@@ -34,7 +34,7 @@ class PaymentsFeatureFlag(PydanticStrictBaseModel):
     enabled: bool = True
 
 
-class OrgFeatures(PydanticStrictBaseModel):
+class PlatformFeatures(PydanticStrictBaseModel):
     courses: FeatureFlag = Field(default_factory=FeatureFlag)
     members: MembersFeatureFlag = Field(default_factory=MembersFeatureFlag)
     usergroups: FeatureFlag = Field(default_factory=FeatureFlag)
@@ -49,39 +49,39 @@ class OrgFeatures(PydanticStrictBaseModel):
     api: FeatureFlag = Field(default_factory=FeatureFlag)
 
 
-class OrgConfigData(PydanticStrictBaseModel):
+class PlatformConfigData(PydanticStrictBaseModel):
     config_version: str = "1.3"
     general: dict[str, str | bool] = Field(
         default_factory=lambda: {"enabled": True, "color": "normal"}
     )
-    features: OrgFeatures = Field(default_factory=OrgFeatures)
+    features: PlatformFeatures = Field(default_factory=PlatformFeatures)
     cloud: dict[str, Literal["free", "standard", "pro"] | bool] = Field(
         default_factory=lambda: {"plan": "free", "custom_domain": False}
     )
     landing: dict = Field(default_factory=dict)
 
 
-class OrgConfig(PydanticStrictBaseModel):
-    config: OrgConfigData = Field(default_factory=OrgConfigData)
+class PlatformConfig(PydanticStrictBaseModel):
+    config: PlatformConfigData = Field(default_factory=PlatformConfigData)
     creation_date: str | None = None
     update_date: str | None = None
 
 
-def build_default_org_config(
+def build_default_platform_config(
     *,
     landing: dict | None = None,
     creation_date: str | None = None,
     update_date: str | None = None,
-) -> OrgConfig:
-    return OrgConfig(
-        config=OrgConfigData(landing=landing or {}),
+) -> PlatformConfig:
+    return PlatformConfig(
+        config=PlatformConfigData(landing=landing or {}),
         creation_date=creation_date,
         update_date=update_date,
     )
 
 
-class OrganizationBase(SQLModelStrictBaseModel):
-    """Base model for Organization with common fields."""
+class PlatformBase(SQLModelStrictBaseModel):
+    """Base model for the platform with common fields."""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -97,21 +97,17 @@ class OrganizationBase(SQLModelStrictBaseModel):
     email: str
 
 
-class Organization(OrganizationBase, table=True):
-    """Database table model for Organization."""
+class Platform(PlatformBase, table=True):
+    """Database table model for the platform."""
 
     id: int | None = Field(default=None, primary_key=True)
     creation_date: str = ""
     update_date: str = ""
     landing: dict | None = Field(default_factory=dict, sa_column=Column(JSON))
-    creator_id: int | None = Field(
-        default=None,
-        sa_column=Column(BigInteger, ForeignKey("user.id", ondelete="SET NULL")),
-    )
 
 
-class OrganizationUpdate(SQLModelStrictBaseModel):
-    """Model for updating an organization."""
+class PlatformUpdate(SQLModelStrictBaseModel):
+    """Model for updating the platform."""
 
     name: str | None = None
     description: str | None = None
@@ -126,21 +122,21 @@ class OrganizationUpdate(SQLModelStrictBaseModel):
     update_date: str | None = None
 
 
-class OrganizationCreate(OrganizationBase):
-    """Model for creating a new organization."""
+class PlatformCreate(PlatformBase):
+    """Model for creating the platform."""
 
 
-class OrganizationRead(OrganizationBase):
-    """Model for reading an organization with all related data."""
+class PlatformRead(PlatformBase):
+    """Model for reading the platform with all related data."""
 
-    config: OrgConfig
+    config: PlatformConfig
     creation_date: str
     update_date: str
 
     @model_validator(mode="before")
     @classmethod
     def add_default_config(cls, value: object) -> object:
-        if isinstance(value, Organization):
+        if isinstance(value, Platform):
             data = value.model_dump()
         elif isinstance(value, dict):
             data = dict(value)
@@ -148,7 +144,7 @@ class OrganizationRead(OrganizationBase):
             return value
 
         if data.get("config") is None:
-            data["config"] = build_default_org_config(
+            data["config"] = build_default_platform_config(
                 landing=data.get("landing"),
                 creation_date=data.get("creation_date"),
                 update_date=data.get("update_date"),
@@ -157,22 +153,8 @@ class OrganizationRead(OrganizationBase):
         return data
 
 
-class OrganizationReadWithPermissions(OrganizationRead):
-    """Organization response with permission metadata."""
-
-    # Permission flags
-    can_update: bool | None = False
-    can_delete: bool | None = False
-    can_manage: bool | None = False
-    is_owner: bool | None = False
-    is_member: bool | None = False
-
-    # Available actions array
-    available_actions: list[str] | None = Field(default_factory=list)
-
-
-class OrganizationUser(PydanticStrictBaseModel):
-    """Model representing a user's role within an organization."""
+class PlatformUser(PydanticStrictBaseModel):
+    """Model representing a user's role on the platform."""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -180,20 +162,20 @@ class OrganizationUser(PydanticStrictBaseModel):
     role: RoleRead
 
 
-class PaginatedOrganizationUsers(PydanticStrictBaseModel):
-    """Paginated response for organization users."""
+class PaginatedPlatformUsers(PydanticStrictBaseModel):
+    """Paginated response for platform users."""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    users: list[OrganizationUser]
+    users: list[PlatformUser]
     total: int
     page: int
     per_page: int
     total_pages: int
 
 
-def rebuild_organization_models() -> None:
-    """Rebuild organization models to resolve forward references."""
+def rebuild_platform_models() -> None:
+    """Rebuild platform models to resolve forward references."""
     from src.db.users import UserRead
 
-    OrganizationUser.model_rebuild()
+    PlatformUser.model_rebuild()

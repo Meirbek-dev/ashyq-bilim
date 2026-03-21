@@ -81,7 +81,7 @@ const CertificatePreview: React.FC<CertificatePreviewProps> = ({
   qrCodeLink,
 }) => {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
-  const org = usePlatform();
+  const platform = usePlatform();
   const tTypes = useTranslations('Certificates.EditCourseCertification.certificationTypes');
   const t = useTranslations('Certificates.CertificatePreview');
   const layout = getCertificateLayout(certificatePattern);
@@ -177,9 +177,9 @@ const CertificatePreview: React.FC<CertificatePreviewProps> = ({
 
               <div className="space-y-2 text-center">
                 <div className="flex items-center justify-center">
-                  {org?.logo_image ? (
+                  {platform?.logo_image ? (
                     <img
-                      src={`${getLogoMediaDirectory(org.logo_image)}`}
+                      src={`${getLogoMediaDirectory(platform.logo_image)}`}
                       alt={t('organizationLogoAlt')}
                       className="h-10 w-10 object-contain"
                     />
@@ -189,7 +189,7 @@ const CertificatePreview: React.FC<CertificatePreviewProps> = ({
                     </div>
                   )}
                 </div>
-                <div className="text-sm font-medium text-foreground">{(org)?.name || ''}</div>
+                <div className="text-sm font-medium text-foreground">{platform?.name || ''}</div>
               </div>
 
               <div className="space-y-1 text-right">

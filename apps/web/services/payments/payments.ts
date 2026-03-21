@@ -26,10 +26,10 @@ export async function initializePaymentConfig(data: any, provider: string, acces
   );
   const responseData = await errorHandling(result);
 
-  // Revalidate organizations cache after initializing payment config
+  // Revalidate platform cache after initializing payment config
   if (result.ok) {
     const { revalidateTag } = await import('next/cache');
-    revalidateTag(tags.organizations, 'max');
+    revalidateTag(tags.platform, 'max');
   }
 
   return responseData;
@@ -42,10 +42,10 @@ export async function updatePaymentConfig(id: string, data: any, access_token: s
   );
   const responseData = await errorHandling(result);
 
-  // Revalidate organizations cache after updating payment config
+  // Revalidate platform cache after updating payment config
   if (result.ok) {
     const { revalidateTag } = await import('next/cache');
-    revalidateTag(tags.organizations, 'max');
+    revalidateTag(tags.platform, 'max');
   }
 
   return responseData;
@@ -58,10 +58,10 @@ export async function updateStripeAccountID(data: any, access_token: string) {
   );
   const responseData = await errorHandling(result);
 
-  // Revalidate organizations cache after updating Stripe account
+  // Revalidate platform cache after updating Stripe account
   if (result.ok) {
     const { revalidateTag } = await import('next/cache');
-    revalidateTag(tags.organizations, 'max');
+    revalidateTag(tags.platform, 'max');
   }
 
   return responseData;
@@ -90,16 +90,16 @@ export async function deletePaymentConfig(id: string, access_token: string) {
   );
   const responseData = await errorHandling(result);
 
-  // Revalidate organizations cache after deleting payment config
+  // Revalidate platform cache after deleting payment config
   if (result.ok) {
     const { revalidateTag } = await import('next/cache');
-    revalidateTag(tags.organizations, 'max');
+    revalidateTag(tags.platform, 'max');
   }
 
   return responseData;
 }
 
-export async function getOrgCustomers(access_token: string) {
+export async function getCustomers(access_token: string) {
   const result = await fetch(
     `${getAPIUrl()}payments/customers`,
     RequestBodyWithAuthHeader('GET', null, null, access_token),

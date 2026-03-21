@@ -7,10 +7,10 @@ import type { ReactNode } from 'react';
 
 interface PlatformClientProvidersProps {
   children: ReactNode;
-  initialOrg?: unknown;
+  initialPlatform?: unknown;
 }
 
-export default function PlatformClientProviders({ children, initialOrg }: PlatformClientProvidersProps) {
+export default function PlatformClientProviders({ children, initialPlatform }: PlatformClientProvidersProps) {
   const { theme: currentTheme } = useTheme();
 
   const topLoaderProps = {
@@ -26,7 +26,7 @@ export default function PlatformClientProviders({ children, initialOrg }: Platfo
   };
 
   return (
-    <PlatformProvider initialOrg={initialOrg}>
+    <PlatformProvider initialPlatform={initialPlatform}>
       <NextTopLoader {...topLoaderProps} />
       {children}
     </PlatformProvider>

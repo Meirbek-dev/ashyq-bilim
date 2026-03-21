@@ -4,8 +4,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { SiFacebook, SiInstagram, SiTiktok, SiX, SiYoutube } from '@icons-pack/react-simple-icons';
 import { usePlatformSession } from '@/components/Contexts/SessionContext';
 import { usePlatform } from '@/components/Contexts/PlatformContext';
-import { revalidateTags } from '@services/utils/ts/requests';
 import { updatePlatform } from '@/services/settings/platform';
+import { revalidateTags } from '@services/utils/ts/requests';
 import { getAPIUrl } from '@services/config/config';
 import { Plus, X as XIcon } from 'lucide-react';
 import { Button } from '@components/ui/button';
@@ -31,12 +31,12 @@ interface SocialMediaData {
 export default function EditSocials() {
   const session = usePlatformSession() as any;
   const access_token = session?.data?.tokens?.access_token;
-  const org = usePlatform() as any;
-  const t = useTranslations('DashPage.OrgSettings.Socials');
+  const platform = usePlatform() as any;
+  const t = useTranslations('DashPage.PlatformSettings.Socials');
 
   const defaultValues = {
-    socials: org?.socials || {},
-    links: org?.links || {},
+    socials: platform?.socials || {},
+    links: platform?.links || {},
   };
 
   const form = useForm<SocialMediaData>({
@@ -46,15 +46,15 @@ export default function EditSocials() {
   const links = form.watch('links');
   const [isPending, startTransition] = useTransition();
 
-  const updateOrg = async (values: SocialMediaData) => {
-    const loadingToast = toast.loading(t('updatingOrg'));
+  const updatePlatformSettings = async (values: SocialMediaData) => {
+    const loadingToast = toast.loading(t('updatingPlatform'));
     try {
       await updatePlatform(values, access_token);
-      await revalidateTags(['organizations']);
-      mutate(`${getAPIUrl()}orgs/platform`);
-      toast.success(t('orgUpdatedSuccess'), { id: loadingToast });
+      await revalidateTags(['platform']);
+      mutate(`${getAPIUrl()}platform`);
+      toast.success(t('platformUpdatedSuccess'), { id: loadingToast });
     } catch {
-      toast.error(t('orgUpdateFailed'), { id: loadingToast });
+      toast.error(t('platformUpdateFailed'), { id: loadingToast });
     }
   };
 
@@ -138,7 +138,7 @@ export default function EditSocials() {
         <form
           onSubmit={form.handleSubmit((values) =>
             startTransition(() => {
-              void updateOrg(values);
+              void updatePlatformSettings(values);
             }),
           )}
         >

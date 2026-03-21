@@ -6,8 +6,8 @@ import { useSession } from 'next-auth/react';
 import { createContext, use } from 'react';
 import type { ReactNode } from 'react';
 
-// Match the global UserRoleWithOrg interface from next-auth.d.ts
-interface UserRoleWithOrg {
+// Match the global UserRoleWithPlatform interface from next-auth.d.ts
+interface UserRoleWithPlatform {
   role: Role;
 }
 
@@ -23,7 +23,7 @@ interface ExtendedSessionData {
     avatar_image: string | undefined;
     user_uuid: string | undefined;
   };
-  roles: UserRoleWithOrg[] | undefined;
+  roles: UserRoleWithPlatform[] | undefined;
   tokens:
     | {
         access_token: string;

@@ -14,11 +14,11 @@ import {
 import OnBoardAssignments from '@public/onboarding/OnBoardAssignments.png';
 import OnBoardActivities from '@public/onboarding/OnBoardActivities.png';
 import OnBoardPayments from '@public/onboarding/OnBoardPayments.png';
+import { usePlatform } from '@/components/Contexts/PlatformContext';
 import OnBoardWelcome from '@public/onboarding/OnBoardWelcome.png';
 import OnBoardCourses from '@public/onboarding/OnBoardCourses.png';
 import OnBoardEditor from '@public/onboarding/OnBoardEditor.png';
 import OnBoardAccess from '@public/onboarding/OnBoardAccess.png';
-import { usePlatform } from '@/components/Contexts/PlatformContext';
 import { Actions, Resources, Scopes } from '@/types/permissions';
 import Modal from '@/components/Objects/Elements/Modal/Modal';
 import OnBoardMore from '@public/onboarding/OnBoardMore.png';
@@ -96,10 +96,10 @@ const Onboarding: FC = () => {
   });
   const isMobile = useIsMobile();
   const router = useRouter();
-  const org = usePlatform();
+  const platform = usePlatform();
   const { can } = usePermissions();
-  const canManageOrg =
-    can(Actions.MANAGE, Resources.ORGANIZATION, Scopes.OWN) || can(Actions.MANAGE, Resources.ORGANIZATION, Scopes.ORG);
+  const canManagePlatform =
+    can(Actions.MANAGE, Resources.PLATFORM, Scopes.OWN) || can(Actions.MANAGE, Resources.PLATFORM, Scopes.PLATFORM);
 
   const onboardingData: OnboardingStep[] = [
     {
@@ -262,7 +262,7 @@ const Onboarding: FC = () => {
 
   return (
     <div>
-      {canManageOrg && !isModalOpen && !isOnboardingComplete && !isMobile ? (
+      {canManagePlatform && !isModalOpen && !isOnboardingComplete && !isMobile ? (
         <Modal
           isDialogOpen={isModalOpen}
           onOpenChange={setIsModalOpen}

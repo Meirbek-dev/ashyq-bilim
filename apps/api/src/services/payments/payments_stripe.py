@@ -371,7 +371,7 @@ async def create_stripe_account(
 
     if existing_config and existing_config.provider_specific_id:
         logger.error(
-            f"A Stripe Account is already linked to this organization: {existing_config.provider_specific_id}"
+            f"A Stripe Account is already linked to this platform: {existing_config.provider_specific_id}"
         )
         return existing_config.provider_specific_id
 
@@ -393,7 +393,7 @@ async def create_stripe_account(
         }
     )
 
-    # Update payments config for the org
+    # Update payments config for the platform
     await update_payments_config(
         request,
         PaymentsConfigUpdate(**config_data),
@@ -411,7 +411,7 @@ async def update_stripe_account_id(
     db_session: Session,
 ):
     """
-    Update the Stripe account ID for an organization
+    Update the Stripe account ID for the platform
     """
     # Get existing payments config
     statement = select(PaymentsConfig)
@@ -420,7 +420,7 @@ async def update_stripe_account_id(
     if not existing_config:
         raise HTTPException(
             status_code=404,
-            detail="No payments configuration found for this organization",
+            detail="No payments configuration found for this platform",
         )
 
     # Create config update with existing values but new stripe account id

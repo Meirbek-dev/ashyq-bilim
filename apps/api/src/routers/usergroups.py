@@ -37,7 +37,7 @@ async def api_create_usergroup(
     """
     Create UserGroup
 
-    **Required Permission**: `usergroup:create:org`
+    **Required Permission**: `usergroup:create:platform`
     """
     checker.require(current_user.id, "usergroup:create")
 
@@ -82,7 +82,7 @@ async def api_get_usergroups(
     current_user: Annotated[PublicUser, Depends(get_current_user)],
 ) -> list[UserGroupRead]:
     """
-    Get UserGroups by Org
+    Get platform user groups
     """
     return await read_usergroups(
         request,
@@ -100,7 +100,7 @@ async def api_get_usergroupsby_resource(
     resource_uuid: str,
 ) -> list[UserGroupRead]:
     """
-    Get UserGroups by Org
+    Get platform user groups by resource
     """
     return await get_usergroups_by_resource(
         request, db_session, current_user, resource_uuid
@@ -120,7 +120,7 @@ async def api_update_usergroup(
     """
     Update UserGroup
 
-    **Required Permission**: `usergroup:update:org`
+    **Required Permission**: `usergroup:update:platform`
     """
     checker.require(current_user.id, "usergroup:update")
 
@@ -141,7 +141,7 @@ async def api_delete_usergroup(
     """
     Delete UserGroup
 
-    **Required Permission**: `usergroup:delete:org`
+    **Required Permission**: `usergroup:delete:platform`
     """
     checker.require(current_user.id, "usergroup:delete")
 
@@ -161,7 +161,7 @@ async def api_add_users_to_usergroup(
     """
     Add Users to UserGroup
 
-    **Required Permission**: `usergroup:manage:org`
+    **Required Permission**: `usergroup:manage:platform`
     """
     checker.require(current_user.id, "usergroup:manage")
 

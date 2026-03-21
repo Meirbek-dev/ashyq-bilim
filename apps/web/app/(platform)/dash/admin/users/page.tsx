@@ -9,11 +9,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: t('userRolesTitle'),
-    description: t('userRolesDescription')
+    description: t('userRolesDescription'),
   };
 }
 
 export default async function PlatformAdminUsersPage() {
-  await requirePermission(Actions.UPDATE, Resources.ROLE, Scopes.ORG);
+  await requirePermission(Actions.UPDATE, Resources.ROLE, Scopes.PLATFORM);
   return <UserRolesClient />;
 }

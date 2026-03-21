@@ -20,7 +20,6 @@ from src.db.courses.courses import (
     ThumbnailType,
 )
 from src.db.courses.enhanced_responses import CourseReadWithPermissions
-from src.db.organizations import Organization
 from src.db.resource_authors import (
     ResourceAuthor,
     ResourceAuthorshipEnum,
@@ -31,7 +30,6 @@ from src.db.usergroup_user import UserGroupUser
 from src.db.users import AnonymousUser, PublicUser, User, UserRead
 from src.security.rbac import PermissionChecker
 from src.services.courses.thumbnails import upload_thumbnail
-from src.services.platform import get_platform_organization
 
 
 def _course_search_filter(search_query: str | None):
@@ -442,7 +440,7 @@ async def count_courses(
     current_user: PublicUser | AnonymousUser,
     db_session: Session,
 ) -> int:
-    """Count total courses for the platform organization with proper access filtering."""
+    """Count total courses for the platform with proper access filtering."""
     # Base count query
     query = select(func.count(Course.id.distinct()))
 
@@ -596,10 +594,10 @@ async def get_courses(
         granted = checker._get_or_load(current_user.id)
         has_broad_update = PermissionChecker._has_perm(
             granted, "course", "update", "all"
-        ) or PermissionChecker._has_perm(granted, "course", "update", "org")
+        ) or PermissionChecker._has_perm(granted, "course", "update", "platform")
         has_broad_delete = PermissionChecker._has_perm(
             granted, "course", "delete", "all"
-        ) or PermissionChecker._has_perm(granted, "course", "delete", "org")
+        ) or PermissionChecker._has_perm(granted, "course", "delete", "platform")
         has_own_update = PermissionChecker._has_perm(granted, "course", "update", "own")
         has_own_delete = PermissionChecker._has_perm(granted, "course", "delete", "own")
 
@@ -776,9 +774,9 @@ async def create_course(
     Create a new course
 
     SECURITY NOTES:
-    - Requires proper permissions to create courses in the organization
     - User becomes the CREATOR of the course automatically
-    - Course creation is subject to organization limits and permissions
+    - Requires proper permissions to create courses on the platform
+    - Course creation is subject to platform limits and permissions
     """
 
     # Create Course object from CourseCreate data
@@ -788,15 +786,6 @@ async def create_course(
     if checker is None:
         checker = PermissionChecker(db_session)
     checker.require(current_user.id, "course:create")
-
-    # Get platform org
-    org = get_platform_organization(db_session)
-
-    if not org:
-        raise HTTPException(
-            status_code=404,
-            detail="Organization not found",
-        )
 
     course.course_uuid = f"course_{ULID()}"
     course.creation_date = datetime.now(tz=UTC)
@@ -893,15 +882,6 @@ async def update_course_thumbnail(
     )
 
     _ensure_course_is_current(course, last_known_update_date)
-
-    # Get platform org uuid
-    org = get_platform_organization(db_session)
-
-    if not org:
-        raise HTTPException(
-            status_code=404,
-            detail="Organization not found",
-        )
 
     # Upload thumbnail
     name_in_disk = None
@@ -1267,11 +1247,11 @@ async def get_editable_courses(
     apply_pagination: bool = True,
 ) -> list[CourseReadWithPermissions]:
     """
-    Return courses for the platform org that the current user has permission to edit
+    Return courses for the platform that the current user has permission to edit
     (i.e. course:update). Anonymous users always get an empty list.
 
     Scope resolution:
-    - course:update:all or course:update:org  → all courses in the org
+    - course:update:all or course:update:platform  → all courses in the platform
     - course:update:own                        → only courses where user is an
                                                  active ResourceAuthor
     """
@@ -1287,7 +1267,7 @@ async def get_editable_courses(
 
     has_broad_update = PermissionChecker._has_perm(
         granted, "course", "update", "all"
-    ) or PermissionChecker._has_perm(granted, "course", "update", "org")
+    ) or PermissionChecker._has_perm(granted, "course", "update", "platform")
     search_filter = _course_search_filter(search_query)
 
     offset = (page - 1) * limit
@@ -1358,7 +1338,7 @@ async def get_editable_courses(
 
     has_broad_delete = PermissionChecker._has_perm(
         granted, "course", "delete", "all"
-    ) or PermissionChecker._has_perm(granted, "course", "delete", "org")
+    ) or PermissionChecker._has_perm(granted, "course", "delete", "platform")
     has_own_delete = PermissionChecker._has_perm(granted, "course", "delete", "own")
 
     for course, authors in courses_map.values():
@@ -1400,7 +1380,7 @@ async def count_editable_courses(
     db_session: Session,
     search_query: str | None = None,
 ) -> int:
-    """Count courses the current user can edit in the platform org."""
+    """Count courses the current user can edit in the platform."""
     if isinstance(current_user, AnonymousUser):
         return 0
 
@@ -1409,7 +1389,7 @@ async def count_editable_courses(
 
     has_broad_update = PermissionChecker._has_perm(
         granted, "course", "update", "all"
-    ) or PermissionChecker._has_perm(granted, "course", "update", "org")
+    ) or PermissionChecker._has_perm(granted, "course", "update", "platform")
     search_filter = _course_search_filter(search_query)
 
     if has_broad_update:
@@ -1528,7 +1508,7 @@ async def get_course_user_rights(
     if checker is None:
         checker = PermissionChecker(db_session)
 
-    # Check admin/maintainer role (organization-level update/management)
+    # Check admin/maintainer role (platform-level update/management)
     user_is_admin_or_maintainer = checker.check(current_user.id, "course:manage")
 
     if user_is_admin_or_maintainer:

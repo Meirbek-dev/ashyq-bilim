@@ -16,7 +16,7 @@ const SUPPORTED_FILES = constructAcceptValue(['pdf']);
 
 const PDFBlockComponent = (props: any) => {
   const t = useTranslations('DashPage.Editor.PDFBlock');
-  const org = usePlatform() as any;
+  const platform = usePlatform() as any;
   const course = useCourse();
   const session = usePlatformSession() as any;
   const access_token = session?.data?.tokens?.access_token;

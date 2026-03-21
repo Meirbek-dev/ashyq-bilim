@@ -6,7 +6,7 @@ from src.routers import (
     dev,
     gamification,
     health,
-    orgs,
+    platform,
     rbac,
     roles,
     search,
@@ -37,7 +37,7 @@ v1_router = APIRouter(prefix="/api/v1")
 v1_router.include_router(users.router, prefix="/users", tags=["users"])
 v1_router.include_router(usergroups.router, prefix="/usergroups", tags=["usergroups"])
 v1_router.include_router(auth.router, prefix="/auth", tags=["auth"])
-v1_router.include_router(orgs.router, prefix="/orgs", tags=["orgs"])
+v1_router.include_router(platform.router, prefix="/platform", tags=["platform"])
 v1_router.include_router(roles.router, prefix="/roles", tags=["roles"])
 v1_router.include_router(rbac.router, prefix="/rbac", tags=["rbac"])
 v1_router.include_router(search.router, prefix="/search", tags=["search"])

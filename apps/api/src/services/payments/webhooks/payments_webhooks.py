@@ -60,10 +60,10 @@ async def handle_stripe_webhook(
             config = db_session.exec(statement).first()
 
             if not config:
-                logger.error("No payments configuration found for this organization")
+                logger.error("No payments configuration found for this platform")
                 raise HTTPException(
                     status_code=404,
-                    detail="No payments configuration found for this organization",
+                    detail="No payments configuration found for this platform",
                 )
             config_data = config.model_dump()
             config_data.update(
@@ -83,7 +83,7 @@ async def handle_stripe_webhook(
                 db_session,
             )
 
-            logger.info("Account authorized for platform organization")
+            logger.info("Account authorized for platform")
             return {"status": "success", "message": "Account authorized successfully"}
 
         if event_type == "account.application.deauthorized":
@@ -93,7 +93,7 @@ async def handle_stripe_webhook(
             if not config:
                 raise HTTPException(
                     status_code=404,
-                    detail="No payments configuration found for this organization",
+                    detail="No payments configuration found for this platform",
                 )
 
             config_data = config.model_dump()
@@ -114,7 +114,7 @@ async def handle_stripe_webhook(
                 db_session,
             )
 
-            logger.info("Account deauthorized for platform organization")
+            logger.info("Account deauthorized for platform")
             return {"status": "success", "message": "Account deauthorized successfully"}
 
         # Handle payment-related events

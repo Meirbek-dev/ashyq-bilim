@@ -35,15 +35,15 @@ export default async function PlatformDashHomePage() {
           description={t('Courses.description')}
         />
         <DashboardCard
-          href="/dash/org/settings/general"
+          href="/dash/platform/settings/general"
           icon={
             <School
               className="mx-auto text-gray-500/100"
               size={50}
             />
           }
-          title={t('Organization.title')}
-          description={t('Organization.description')}
+          title={t('Platform.title')}
+          description={t('Platform.description')}
         />
         <DashboardCard
           href="/dash/users/settings/users"

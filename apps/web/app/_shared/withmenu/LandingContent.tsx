@@ -1,9 +1,9 @@
-import { getPlatformOrganizationContextInfo } from '@/services/platform/platform';
 import { getServerGamificationDashboard } from '@/services/gamification/server';
-import { getCollections } from '@services/courses/collections';
+import { getPlatformContextInfo } from '@/services/platform/platform';
 import LandingClassic from '@components/Landings/LandingClassic';
 import { getOptionalSession } from '@/lib/get-optional-session';
 import LandingCustom from '@components/Landings/LandingCustom';
+import { getCollections } from '@services/courses/collections';
 import { getCourses } from '@services/courses/courses';
 
 function isExpectedPrerenderCancellation(error: unknown): boolean {
@@ -37,21 +37,21 @@ export async function LandingContent() {
     const session = await getOptionalSession();
     const access_token = session?.tokens?.access_token;
 
-    // Fetch organization info with detailed error handling
-    let org;
+    // Fetch platform info with detailed error handling
+    let platform;
     try {
-      org = await getPlatformOrganizationContextInfo(access_token || undefined);
+      platform = await getPlatformContextInfo(access_token || undefined);
     } catch (error) {
-      console.error('[LandingContent] Failed to fetch organization info:', {
+      console.error('[LandingContent] Failed to fetch platform info:', {
         message: error instanceof Error ? error.message : 'Unknown error',
         cause: error instanceof Error ? error.cause : undefined,
       });
-      throw new Error('Unable to load the platform organization. Please check your network connection and try again.', {
+      throw new Error('Unable to load the platform. Please check your network connection and try again.', {
         cause: error,
       });
     }
 
-    const hasCustomLanding = org.config?.config?.landing?.enabled;
+    const hasCustomLanding = platform.config?.config?.landing?.enabled;
 
     // Only fetch gamification data if user is authenticated
     const gamificationPromise = access_token
@@ -66,7 +66,7 @@ export async function LandingContent() {
 
       return (
         <LandingCustom
-          landing={org.config.config.landing}
+          landing={platform.config.config.landing}
           gamificationData={gamificationData}
         />
       );

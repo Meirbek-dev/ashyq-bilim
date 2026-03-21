@@ -35,8 +35,8 @@ async def initiate_chunked_upload(
 
     Args:
         directory: Target directory (e.g., "courses/xxx/activities/yyy/video")
-        type_of_dir: "orgs" or "users"
-        uuid: Organization or user UUID
+        type_of_dir: "platform" or "users"
+        uuid: Platform or user UUID
         filename: Final filename for the assembled file
         total_chunks: Total number of chunks that will be uploaded
         file_size: Total file size in bytes

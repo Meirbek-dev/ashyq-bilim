@@ -386,7 +386,7 @@ def get_teacher_overview(
                 float(previous_completion_rate),
                 unit="%",
                 is_higher_better=True,
-                # Org benchmark: median completion rate across all scoped courses.
+                # Platform benchmark: median completion rate across all scoped courses.
                 benchmark=round(
                     sorted([row.completion_rate for row in course_rows])[
                         len(course_rows) // 2

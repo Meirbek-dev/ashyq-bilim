@@ -26,11 +26,11 @@ import { usePlatformSession } from '@/components/Contexts/SessionContext';
 import { Check, ChevronDown, Search, UserPen, Users } from 'lucide-react';
 import { getUserAvatarMediaDirectory } from '@services/media/media';
 import { useCourse } from '@components/Contexts/CourseContext';
-import { searchOrgContent } from '@services/search/search';
 import { useDirtySection } from '@/hooks/useDirtySection';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { RadioGroup } from '@/components/ui/radio-group';
 import UserAvatar from '@components/Objects/UserAvatar';
+import { searchContent } from '@services/search/search';
 import { useSaveSection } from '@/hooks/useSaveSection';
 import { useDebouncedValue } from '@/hooks/useDebounce';
 import { useLocale, useTranslations } from 'next-intl';
@@ -221,7 +221,7 @@ const EditCourseContributors = () => {
       setIsSearching(true);
       setSearchOpen(true);
       try {
-        const response = await searchOrgContent(debouncedSearch, 1, 5, null, access_token);
+        const response = await searchContent(debouncedSearch, 1, 5, null, access_token);
         if (response.success && response.data?.users) {
           const users = response.data.users.map((user: SearchUser) =>
             Object.assign(user, {

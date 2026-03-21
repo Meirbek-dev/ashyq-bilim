@@ -6,7 +6,7 @@ export function getCourseThumbnailMediaDirectory(courseUUID: string, fileId: str
   return `${getMediaUrl()}content/platform/courses/${courseUUID}/thumbnails/${fileId}`;
 }
 
-export function getOrgLandingMediaDirectory(fileId: string): string {
+export function getLandingMediaDirectory(fileId: string): string {
   return `${getMediaUrl()}content/platform/landing/${fileId}`;
 }
 

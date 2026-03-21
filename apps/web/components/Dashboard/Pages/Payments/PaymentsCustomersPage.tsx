@@ -5,7 +5,7 @@ import { usePlatformSession } from '@/components/Contexts/SessionContext';
 import { getUserAvatarMediaDirectory } from '@services/media/media';
 import PageLoading from '@components/Objects/Loaders/PageLoading';
 import { usePaymentsEnabled } from '@hooks/usePaymentsEnabled';
-import { getOrgCustomers } from '@services/payments/payments';
+import { getCustomers } from '@services/payments/payments';
 import UserAvatar from '@components/Objects/UserAvatar';
 import type { ColumnDef } from '@tanstack/react-table';
 import { RefreshCcw, SquareCheck } from 'lucide-react';
@@ -141,7 +141,7 @@ const PaymentsCustomersPage = () => {
     data: customers,
     error,
     isLoading: customersLoading,
-  } = useSWR(access_token ? ['/payments/customers', access_token] : null, ([_url, token]) => getOrgCustomers(token));
+  } = useSWR(access_token ? ['/payments/customers', access_token] : null, ([_url, token]) => getCustomers(token));
 
   if (!(isEnabled || isLoading)) {
     return <UnconfiguredPaymentsDisclaimer />;

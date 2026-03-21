@@ -30,7 +30,7 @@ export function sessionCan(
 
 /**
  * Require a specific permission or redirect.
- * Verifies that session permissions are scoped to the correct org.
+ * Verifies that session permissions are scoped to the correct platform.
  */
 export async function requirePermission(action: Action, resource: Resource, scope: Scope, redirectTo?: string) {
   const session = await requireAuth();
@@ -44,7 +44,7 @@ export async function requirePermission(action: Action, resource: Resource, scop
 
 /**
  * Require any of the specified permissions or redirect.
- * Verifies that session permissions are scoped to the correct org.
+ * Verifies that session permissions are scoped to the correct platform.
  */
 export async function requireAnyPermission(
   checks: { action: Action; resource: Resource; scope: Scope }[],

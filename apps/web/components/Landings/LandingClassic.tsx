@@ -152,7 +152,7 @@ const LandingClassic = async ({ courses, totalCourses, collections, gamification
                   <PermissionGuard
                     action={Actions.CREATE}
                     resource={Resources.COLLECTION}
-                    scope={Scopes.ORG}
+                    scope={Scopes.PLATFORM}
                   >
                     <Link
                       prefetch={false}

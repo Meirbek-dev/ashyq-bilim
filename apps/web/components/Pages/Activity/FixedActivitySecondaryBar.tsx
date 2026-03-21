@@ -100,11 +100,11 @@ const NavigationButtons = ({
 // Course info component
 const CourseInfo = ({
   course,
-  org,
+  platform,
   t,
 }: {
   course: any;
-  org: any;
+  platform: any;
   t: (key: string, values?: Record<string, any>) => string;
 }) => (
   <div className="flex min-w-0 shrink items-center space-x-2 sm:space-x-4">
@@ -130,7 +130,7 @@ export default function FixedActivitySecondaryBar(props: FixedActivitySecondaryB
   const [isScrolled, setIsScrolled] = useState(false);
   const [shouldShow, setShouldShow] = useState(false);
   const mainActivityInfoRef = useRef<HTMLDivElement | null>(null);
-  const org = usePlatform() as any;
+  const platform = usePlatform() as any;
 
   const { allActivities, currentIndex } = (() => {
     const allActivities: any[] = [];
@@ -217,7 +217,7 @@ export default function FixedActivitySecondaryBar(props: FixedActivitySecondaryB
         <div className="flex h-16 items-center justify-between py-2">
           <CourseInfo
             course={props.course}
-            org={org}
+            platform={platform}
             t={t}
           />
 

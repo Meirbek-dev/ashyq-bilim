@@ -206,8 +206,8 @@ class AICacheManager:
             ttl=300,  # 5 minutes
         )
 
-        # Org config cache — very short TTL so feature flags propagate quickly
-        self.org_config_cache: ThreadSafeCache = ThreadSafeCache(
+        # Platform config cache — very short TTL so feature flags propagate quickly
+        self.config_cache: ThreadSafeCache = ThreadSafeCache(
             maxsize=100,
             ttl=10,  # 10 seconds
         )
@@ -235,7 +235,7 @@ class AICacheManager:
         self.vector_store_cache.clear()
         self.agent_cache.clear()
         self.db_cache.clear()
-        self.org_config_cache.clear()
+        self.config_cache.clear()
         with self._index_lock:
             self._vector_key_index.clear()
             self._agent_key_index.clear()
@@ -250,7 +250,7 @@ class AICacheManager:
             "vector_store": self.vector_store_cache.get_stats(),
             "agent": self.agent_cache.get_stats(),
             "database": self.db_cache.get_stats(),
-            "org_config": self.org_config_cache.get_stats(),
+            "org_config": self.config_cache.get_stats(),
             "vector_key_index_entries": vector_index_size,
             "agent_key_index_entries": agent_index_size,
         }

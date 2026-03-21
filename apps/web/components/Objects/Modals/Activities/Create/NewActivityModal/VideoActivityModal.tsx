@@ -21,8 +21,8 @@ import {
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@components/ui/dropdown-menu';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import type { ChangeEvent, ComponentType, DragEvent } from 'react';
 import { usePlatform } from '@/components/Contexts/PlatformContext';
+import type { ChangeEvent, ComponentType, DragEvent } from 'react';
 import { constructAcceptValue } from '@/lib/constants';
 import { AnimatePresence, motion } from 'motion/react';
 import { Separator } from '@components/ui/separator';
@@ -798,7 +798,7 @@ const VideoSettingsForm = ({
 
 const VideoModal = ({ submitFileActivity, submitExternalVideo, chapterId, course }: any) => {
   const t = useTranslations('Components.VideoModal');
-  const org = usePlatform();
+  const platform = usePlatform();
   const [video, setVideo] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState('');
@@ -813,15 +813,15 @@ const VideoModal = ({ submitFileActivity, submitExternalVideo, chapterId, course
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Debug: Log org data when component mounts or org changes
+  // Debug: Log platform data when component mounts or platform changes
   useEffect(() => {
     console.log('VideoModal - Context data:', {
-      org,
-      hasOrg: Boolean(org),
+      platform,
+      hasPlatform: Boolean(platform),
       courseProp: course,
       courseData: course?.courseStructure || course,
     });
-  }, [org, course]);
+  }, [platform, course]);
 
   const isYouTubeUrlValid = youtubeUrl ? /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/.test(youtubeUrl) : false;
 

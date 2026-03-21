@@ -1,10 +1,10 @@
 'use client';
 
-import UserGroups from '@/components/Dashboard/Pages/Users/UserGroups/UserGroups';
 import { Actions, Resources, Scopes, usePermissions } from '@/components/Security';
+import UserGroups from '@/components/Dashboard/Pages/Users/UserGroups/UserGroups';
 import DesktopOnlyGuard from '@components/Dashboard/Misc/DesktopOnlyGuard';
-import Users from '@/components/Dashboard/Pages/Users/Users/Users';
 import SettingsHeader from '@components/Dashboard/Misc/SettingsHeader';
+import Users from '@/components/Dashboard/Pages/Users/Users/Users';
 import SettingsTabs from '@components/Dashboard/Misc/SettingsTabs';
 import { SquareUserRound, UsersIcon } from 'lucide-react';
 import { getAbsoluteUrl } from '@services/config/config';
@@ -65,10 +65,12 @@ export default function PlatformUsersSettingsPage(props: { params: Promise<{ sub
       allTabs.filter((tab) => {
         switch (tab.id) {
           case 'users': {
-            return can(Actions.READ, Resources.USER, Scopes.ORG) || can(Actions.UPDATE, Resources.USER, Scopes.ORG);
+            return (
+              can(Actions.READ, Resources.USER, Scopes.PLATFORM) || can(Actions.UPDATE, Resources.USER, Scopes.PLATFORM)
+            );
           }
           case 'usergroups': {
-            return can(Actions.MANAGE, Resources.USERGROUP, Scopes.ORG);
+            return can(Actions.MANAGE, Resources.USERGROUP, Scopes.PLATFORM);
           }
           default: {
             return true;
@@ -89,7 +91,7 @@ export default function PlatformUsersSettingsPage(props: { params: Promise<{ sub
     <DesktopOnlyGuard>
       <div className="bg-background flex h-screen w-full flex-col">
         <SettingsHeader
-          breadcrumbType="orgusers"
+          breadcrumbType="platformusers"
           title={t(currentTab.titleKey)}
           description={t(currentTab.descriptionKey)}
         >

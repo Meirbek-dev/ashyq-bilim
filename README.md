@@ -1,6 +1,6 @@
 # Ashyq Bilim
 
-## Ashyq Bilim is an open source platform that makes it easy for anyone to provide world-class educational content and it offers a variety of content types : Dynamic Pages, Videos, Documents & more..
+## Ashyq Bilim is a platform that makes it easy for anyone to provide world-class educational content and it offers a variety of content types : Dynamic Pages, Videos, Documents & more.
 
 ## Progress
 
@@ -74,7 +74,7 @@ For Docker deployments, keep the live application configuration in `extra/.env`.
 
 ## Tech
 
-LearnHouse uses a number of open source projects to work properly:
+Ashyq Bilim uses a number of open source projects to work properly:
 
 - **Next.js** (16 with the App Directory) - The React Framework
 - **TailwindCSS** - Styling

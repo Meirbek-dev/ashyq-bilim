@@ -7,9 +7,9 @@ from sqlmodel import Session
 
 from config.config import get_settings
 from src.core.events.database import get_db_session
-from src.db.organizations import OrganizationUpdate
+from src.db.platform import PlatformUpdate
 from src.security.rbac import InternalAuthFailed
-from src.services.platform import get_platform_organization
+from src.services.platform import get_platform
 
 router = APIRouter()
 
@@ -23,21 +23,21 @@ def check_internal_cloud_key(request: Request) -> None:
         raise InternalAuthFailed(reason="Invalid internal cloud key")
 
 
-@router.put("/update_org_config")
-async def update_org_config(
+@router.put("/update_platform_config")
+async def update_platform_config(
     request: Request,
-    config_object: OrganizationUpdate,
+    config_object: PlatformUpdate,
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     check_internal_cloud_key(request)
-    org = get_platform_organization(db_session)
+    platform_record = get_platform(db_session)
     update_data = config_object.model_dump(exclude_unset=True)
     update_data.pop("slug", None)
     for field, value in update_data.items():
         if value is not None:
-            setattr(org, field, value)
-    org.update_date = str(datetime.now())
-    db_session.add(org)
+            setattr(platform_record, field, value)
+    platform_record.update_date = str(datetime.now())
+    db_session.add(platform_record)
     db_session.commit()
-    db_session.refresh(org)
-    return {"detail": "Organization config updated"}
+    db_session.refresh(platform_record)
+    return {"detail": "Platform config updated"}

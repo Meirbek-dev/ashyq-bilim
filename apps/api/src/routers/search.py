@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Request
 from src.core.events.database import get_db_session
 from src.db.users import PublicUser
 from src.security.auth import get_current_user
-from src.services.search.search import SearchResult, search_across_org
+from src.services.search.search import SearchResult, search_platform_content
 
 router = APIRouter()
 
@@ -17,7 +17,7 @@ async def api_search_platform_content(
     db_session=Depends(get_db_session),
     current_user=Depends(get_current_user),
 ) -> SearchResult:
-    return await search_across_org(
+    return await search_platform_content(
         request=request,
         current_user=current_user,
         search_query=query,

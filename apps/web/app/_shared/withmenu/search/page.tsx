@@ -1,4 +1,4 @@
-import { getPlatformOrganizationContextInfo } from '@/services/platform/platform';
+import { getPlatformContextInfo } from '@/services/platform/platform';
 import { getThumbnailMediaDirectory } from '@services/media/media';
 import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
@@ -13,18 +13,18 @@ export async function generateMetadata(props: MetadataProps): Promise<Metadata> 
   const searchParams = await props.searchParams;
   const t = await getTranslations('General');
 
-  const org = await getPlatformOrganizationContextInfo();
+  const platform = await getPlatformContextInfo();
 
   const searchQuery = Array.isArray(searchParams.q) ? searchParams.q[0] : searchParams.q || '';
   const searchType = Array.isArray(searchParams.type) ? searchParams.type[0] : searchParams.type || 'all';
 
   // Build dynamic title and description based on search parameters
   let title = `${t('search')} - Ashyq Bilim`;
-  let description = `${t('searchContent')} ${org.name}. ${t('discoverCourses')}, ${t('collections')}, ${t('andUsers')}.`;
+  let description = `${t('searchContent')} ${platform.name}. ${t('discoverCourses')}, ${t('collections')}, ${t('andUsers')}.`;
 
   if (searchQuery) {
     title = `${t('searchResults')} "${searchQuery}" - Ashyq Bilim`;
-    description = `${t('searchResultsFor')} "${searchQuery}" ${t('in')} ${org.name}. ${t('findCourses')}, ${t('collections')}, ${t('andUsers')}.`;
+    description = `${t('searchResultsFor')} "${searchQuery}" ${t('in')} ${platform.name}. ${t('findCourses')}, ${t('collections')}, ${t('andUsers')}.`;
   }
 
   if (searchType !== 'all' && searchType) {
@@ -33,13 +33,13 @@ export async function generateMetadata(props: MetadataProps): Promise<Metadata> 
       ? `${typeLabel} ${t('searchResults')} "${searchQuery}" - Ashyq Bilim`
       : `${typeLabel} - Ashyq Bilim`;
     description = searchQuery
-      ? `${t('searchResultsFor')} "${searchQuery}" ${t('in')} ${typeLabel.toLowerCase()} ${t('at')} ${org.name}.`
-      : `${t('browse')} ${typeLabel.toLowerCase()} ${t('at')} ${org.name}.`;
+      ? `${t('searchResultsFor')} "${searchQuery}" ${t('in')} ${typeLabel.toLowerCase()} ${t('at')} ${platform.name}.`
+      : `${t('browse')} ${typeLabel.toLowerCase()} ${t('at')} ${platform.name}.`;
   }
 
   // SEO keywords
   const keywords = [
-    org.name,
+    platform.name,
     t('search'),
     t('courses'),
     t('collections'),
@@ -73,13 +73,13 @@ export async function generateMetadata(props: MetadataProps): Promise<Metadata> 
       title,
       description,
       type: 'website',
-      siteName: org.name,
+      siteName: platform.name,
       images: [
         {
-          url: getThumbnailMediaDirectory(org?.thumbnail_image),
+          url: getThumbnailMediaDirectory(platform?.thumbnail_image),
           width: 800,
           height: 600,
-          alt: `${org.name} - ${t('search')}`,
+          alt: `${platform.name} - ${t('search')}`,
         },
       ],
     },
@@ -87,7 +87,7 @@ export async function generateMetadata(props: MetadataProps): Promise<Metadata> 
       card: 'summary_large_image',
       title,
       description,
-      images: [getThumbnailMediaDirectory(org?.thumbnail_image)],
+      images: [getThumbnailMediaDirectory(platform?.thumbnail_image)],
     },
     alternates: {
       canonical: searchQuery ? `/search?q=${encodeURIComponent(searchQuery)}` : `/search`,

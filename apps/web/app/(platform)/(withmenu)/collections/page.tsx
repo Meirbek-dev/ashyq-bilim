@@ -2,13 +2,13 @@ import NewCollectionButton from '@/components/Objects/Elements/Buttons/NewCollec
 import TypeOfContentTitle from '@/components/Objects/Elements/Titles/TypeOfContentTitle';
 import CollectionThumbnail from '@components/Objects/Thumbnails/CollectionThumbnail';
 import GeneralWrapper from '@/components/Objects/Elements/Wrappers/GeneralWrapper';
-import { getPlatformOrganizationContextInfo } from '@/services/platform/platform';
 import { PermissionGuard } from '@components/Security/PermissionGuard';
-import { getThumbnailMediaDirectory } from '@services/media/media';
+import { getPlatformContextInfo } from '@/services/platform/platform';
 import ProtectedText from '@components/Objects/ContentPlaceHolder';
-import { getCollections } from '@services/courses/collections';
+import { getThumbnailMediaDirectory } from '@services/media/media';
 import { Actions, Resources, Scopes } from '@/types/permissions';
 import { getOptionalSession } from '@/lib/get-optional-session';
+import { getCollections } from '@services/courses/collections';
 import { getAbsoluteUrl } from '@services/config/config';
 import { getTranslations } from 'next-intl/server';
 import Link from '@components/ui/AppLink';
@@ -20,11 +20,11 @@ interface MetadataProps {
 
 export async function generateMetadata(_props: MetadataProps): Promise<Metadata> {
   const t = await getTranslations('HomePage.Collections');
-  const org = await getPlatformOrganizationContextInfo();
+  const platform = await getPlatformContextInfo();
 
   return {
     title: `${t('title')} - Ashyq Bilim`,
-    description: `${t('collectionOfCourses', { orgName: 'Ashyq Bilim' })}`,
+    description: `${t('collectionOfCourses', { platformName: 'Ashyq Bilim' })}`,
     robots: {
       index: true,
       follow: true,
@@ -37,14 +37,14 @@ export async function generateMetadata(_props: MetadataProps): Promise<Metadata>
     },
     openGraph: {
       title: `${t('title')} - Ashyq Bilim`,
-      description: `${t('collectionOfCourses', { orgName: 'Ashyq Bilim' })}`,
+      description: `${t('collectionOfCourses', { platformName: 'Ashyq Bilim' })}`,
       type: 'website',
       images: [
         {
-          url: getThumbnailMediaDirectory(org?.thumbnail_image),
+          url: getThumbnailMediaDirectory(platform?.thumbnail_image),
           width: 800,
           height: 600,
-          alt: org.name,
+          alt: platform.name,
         },
       ],
     },
@@ -55,7 +55,7 @@ export default async function PlatformCollectionsPage() {
   const t = await getTranslations('HomePage.Collections');
   const session = await getOptionalSession();
   const access_token = session?.tokens?.access_token;
-  const org = await getPlatformOrganizationContextInfo(access_token || undefined);
+  const platform = await getPlatformContextInfo(access_token || undefined);
   const collections = await getCollections(access_token);
 
   return (
@@ -69,7 +69,7 @@ export default async function PlatformCollectionsPage() {
           <PermissionGuard
             action={Actions.CREATE}
             resource={Resources.COLLECTION}
-            scope={Scopes.ORG}
+            scope={Scopes.PLATFORM}
             fallback={null}
           >
             <Link href={getAbsoluteUrl('/collections/new')}>
@@ -95,14 +95,14 @@ export default async function PlatformCollectionsPage() {
                     text={t('noContentUserAdmin')}
                     action={Actions.CREATE}
                     resource={Resources.COLLECTION}
-                    scope={Scopes.ORG}
+                    scope={Scopes.PLATFORM}
                   />
                 </p>
                 <div className="mt-4 flex justify-center">
                   <PermissionGuard
                     action={Actions.CREATE}
                     resource={Resources.COLLECTION}
-                    scope={Scopes.ORG}
+                    scope={Scopes.PLATFORM}
                     fallback={null}
                   >
                     <Link href={getAbsoluteUrl('/collections/new')}>

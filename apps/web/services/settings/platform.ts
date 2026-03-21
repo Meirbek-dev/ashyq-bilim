@@ -10,54 +10,51 @@ import { tags } from '@/lib/cacheTags';
 */
 
 export async function updatePlatform(data: any, access_token: string) {
-  const result: any = await fetch(
-    `${getAPIUrl()}orgs/platform`,
-    RequestBodyWithAuthHeader('PUT', data, null, access_token),
-  );
+  const result: any = await fetch(`${getAPIUrl()}platform`, RequestBodyWithAuthHeader('PUT', data, null, access_token));
   const response = await errorHandling(result);
   const { revalidateTag } = await import('next/cache');
-  revalidateTag(tags.organizations, 'max');
+  revalidateTag(tags.platform, 'max');
   return response;
 }
 
-export async function uploadOrganizationLogo(logo_file: any, access_token: string) {
+export async function uploadPlatformLogo(logo_file: any, access_token: string) {
   // Send file thumbnail as form data
   const formData = new FormData();
   formData.append('logo_file', logo_file);
   const result: any = await fetch(
-    `${getAPIUrl()}orgs/logo`,
+    `${getAPIUrl()}platform/logo`,
     RequestBodyFormWithAuthHeader('PUT', formData, null, access_token),
   );
   const response = await errorHandling(result);
   const { revalidateTag } = await import('next/cache');
-  revalidateTag(tags.organizations, 'max');
+  revalidateTag(tags.platform, 'max');
   return response;
 }
 
-export async function uploadOrganizationThumbnail(thumbnail_file: any, access_token: string) {
+export async function uploadPlatformThumbnail(thumbnail_file: any, access_token: string) {
   // Send file thumbnail as form data
   const formData = new FormData();
   formData.append('thumbnail_file', thumbnail_file);
   const result: any = await fetch(
-    `${getAPIUrl()}orgs/thumbnail`,
+    `${getAPIUrl()}platform/thumbnail`,
     RequestBodyFormWithAuthHeader('PUT', formData, null, access_token),
   );
   const response = await errorHandling(result);
   const { revalidateTag } = await import('next/cache');
-  revalidateTag(tags.organizations, 'max');
+  revalidateTag(tags.platform, 'max');
   return response;
 }
 
-export const uploadOrganizationPreview = async (file: File, access_token: string) => {
+export const uploadPlatformPreview = async (file: File, access_token: string) => {
   const formData = new FormData();
   formData.append('preview_file', file);
 
   const result: any = await fetch(
-    `${getAPIUrl()}orgs/preview`,
+    `${getAPIUrl()}platform/preview`,
     RequestBodyFormWithAuthHeader('PUT', formData, null, access_token),
   );
   const response = await errorHandling(result);
   const { revalidateTag } = await import('next/cache');
-  revalidateTag(tags.organizations, 'max');
+  revalidateTag(tags.platform, 'max');
   return response;
 };

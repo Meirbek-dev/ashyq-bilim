@@ -45,8 +45,8 @@ const SETTING_TABS: TabItem[] = [
   { id: 'socials', label: 'socials', icon: Share2Icon, titleKey: 'socialsTitle', descriptionKey: 'socialsDescription' },
 ];
 
-export default function PlatformOrgSettingsPage(props: { params: Promise<{ subpage: string }> }) {
-  const t = useTranslations('DashPage.OrgSettings');
+export default function PlatformSettingsPage(props: { params: Promise<{ subpage: string }> }) {
+  const t = useTranslations('DashPage.PlatformSettings');
   const params = use(props.params);
 
   const currentTab = useMemo(
@@ -59,15 +59,15 @@ export default function PlatformOrgSettingsPage(props: { params: Promise<{ subpa
   return (
     <div className="bg-background flex h-full w-full flex-col">
       <SettingsHeader
-        breadcrumbType="org"
+        breadcrumbType="platform"
         title={pageTitle}
         description={pageDescription}
       >
         <SettingsTabs
           value={params.subpage}
           tabs={SETTING_TABS.map((tab) => ({ id: tab.id, labelKey: tab.label, icon: tab.icon }))}
-          getHref={(tab) => `${getAbsoluteUrl('')}/dash/org/settings/${tab.id}`}
-          translationNamespace="DashPage.OrgSettings"
+          getHref={(tab) => `${getAbsoluteUrl('')}/dash/platform/settings/${tab.id}`}
+          translationNamespace="DashPage.PlatformSettings"
         />
       </SettingsHeader>
 

@@ -132,7 +132,7 @@ async def award_xp(
                     status_code=400,
                     detail="custom_amount allowed only with ADMIN_AWARD source",
                 )
-            checker.require(user.id, "organization:manage")
+            checker.require(user.id, "platform:manage")
 
         try:
             normalized_source = (

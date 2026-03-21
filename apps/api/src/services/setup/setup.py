@@ -5,12 +5,11 @@ from fastapi import HTTPException
 from sqlmodel import Session, select
 from ulid import ULID
 
-from src.db.organizations import Organization, OrganizationCreate
 from src.db.permission_enums import RoleSlug
+from src.db.platform import Platform, PlatformCreate
 from src.db.users import User, UserCreate, UserRead
 from src.security.rbac import PermissionChecker
 from src.security.security import security_hash_password
-from src.services.platform import get_platform_organization
 
 
 # Install Default roles
@@ -24,24 +23,22 @@ def install_default_elements(db_session: Session) -> bool:
     return len(created_roles) > 0
 
 
-# Organization creation
-def install_create_organization(org_object: OrganizationCreate, db_session: Session):
-    org = Organization.model_validate(org_object)
+# Platform creation
+def install_create_platform(platform_object: PlatformCreate, db_session: Session):
+    platform_record = Platform.model_validate(platform_object)
 
-    # Complete the org object
-    org.creation_date = str(datetime.now())
-    org.update_date = str(datetime.now())
+    # Complete the platform object
+    platform_record.creation_date = str(datetime.now())
+    platform_record.update_date = str(datetime.now())
 
-    db_session.add(org)
+    db_session.add(platform_record)
     db_session.commit()
-    db_session.refresh(org)
+    db_session.refresh(platform_record)
 
-    return org
+    return platform_record
 
 
-async def install_create_organization_user(
-    user_object: UserCreate, db_session: Session
-):
+async def install_create_platform_user(user_object: UserCreate, db_session: Session):
     user = User.model_validate(user_object)
 
     # Complete the user object
@@ -50,15 +47,6 @@ async def install_create_organization_user(
     user.email_verified = False
     user.creation_date = str(datetime.now())
     user.update_date = str(datetime.now())
-
-    # Check if Organization exists
-    org = get_platform_organization(db_session)
-
-    if not org:
-        raise HTTPException(
-            status_code=409,
-            detail="Organization does not exist",
-        )
 
     # Username
     statement = select(User).where(User.username == user.username)
@@ -98,7 +86,7 @@ async def install_create_organization_user(
     if not admin_role:
         raise HTTPException(500, detail="Admin role not found")
 
-    # Link user and organization by assigning admin role
+    # Link user to platform by assigning admin role
     checker = PermissionChecker(db_session)
     checker.assign_role(
         user_id=user.id or 0,

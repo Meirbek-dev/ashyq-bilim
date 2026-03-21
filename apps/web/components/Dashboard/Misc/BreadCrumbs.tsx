@@ -12,7 +12,7 @@ import AppLink from '@/components/ui/AppLink';
 import { useTranslations } from 'next-intl';
 
 interface BreadCrumbsProps {
-  type: 'courses' | 'user' | 'users' | 'org' | 'orgusers' | 'assignments' | 'payments';
+  type: 'courses' | 'user' | 'users' | 'platform' | 'platformusers' | 'assignments' | 'payments';
   last_breadcrumb?: string;
 }
 
@@ -45,7 +45,7 @@ const BreadCrumbs = (props: BreadCrumbsProps) => {
           />
         );
       }
-      case 'orgusers': {
+      case 'platformusers': {
         return (
           <Users
             className="text-muted-foreground"
@@ -53,7 +53,7 @@ const BreadCrumbs = (props: BreadCrumbsProps) => {
           />
         );
       }
-      case 'org': {
+      case 'platform': {
         return (
           <School
             className="text-muted-foreground"
@@ -86,11 +86,11 @@ const BreadCrumbs = (props: BreadCrumbsProps) => {
       case 'user': {
         return '/dash/user-account/settings/general';
       }
-      case 'orgusers': {
+      case 'platformusers': {
         return '/dash/users/settings/users';
       }
-      case 'org': {
-        return '/dash/users';
+      case 'platform': {
+        return '/dash/platform/settings/general';
       }
       case 'payments': {
         return '/dash/payments';
@@ -112,11 +112,11 @@ const BreadCrumbs = (props: BreadCrumbsProps) => {
       case 'user': {
         return t('UserAccountSettings.title');
       }
-      case 'orgusers': {
+      case 'platformusers': {
         return t('Card.Users.title');
       }
-      case 'org': {
-        return t('Card.Organization.title');
+      case 'platform': {
+        return t('Card.Platform.title');
       }
       case 'payments': {
         return t('Payments.title');

@@ -156,7 +156,7 @@ const UpdatesSection = () => {
   const [selectedView, setSelectedView] = useState('list');
   const { can } = usePermissions();
   const canManageCourse =
-    can(Actions.MANAGE, Resources.COURSE, Scopes.OWN) || can(Actions.MANAGE, Resources.COURSE, Scopes.ORG);
+    can(Actions.MANAGE, Resources.COURSE, Scopes.OWN) || can(Actions.MANAGE, Resources.COURSE, Scopes.PLATFORM);
   const course = useCourse();
   const session = usePlatformSession() as any;
   const access_token = session?.data?.tokens?.access_token;
@@ -316,7 +316,7 @@ const UpdatesListView = () => {
   const course = useCourse();
   const { can } = usePermissions();
   const canManageCourse =
-    can(Actions.MANAGE, Resources.COURSE, Scopes.OWN) || can(Actions.MANAGE, Resources.COURSE, Scopes.ORG);
+    can(Actions.MANAGE, Resources.COURSE, Scopes.OWN) || can(Actions.MANAGE, Resources.COURSE, Scopes.PLATFORM);
   const session = usePlatformSession() as any;
   const access_token = session?.data?.tokens?.access_token;
   const { data: updates } = useSWR(

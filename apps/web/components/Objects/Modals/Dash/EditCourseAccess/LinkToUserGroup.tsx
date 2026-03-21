@@ -1,8 +1,8 @@
 'use client';
 
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
-import { usePlatformSession } from '@/components/Contexts/SessionContext';
 import { linkResourcesToUserGroup } from '@services/usergroups/usergroups';
+import { usePlatformSession } from '@/components/Contexts/SessionContext';
 import { getAPIUrl, getAbsoluteUrl } from '@services/config/config';
 import { useCourse } from '@components/Contexts/CourseContext';
 import { swrFetcher } from '@services/utils/ts/requests';

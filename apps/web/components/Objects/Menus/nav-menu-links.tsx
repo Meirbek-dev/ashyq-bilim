@@ -30,7 +30,7 @@ const MenuLinks = async () => {
   );
 };
 const LinkItem = async (props: any) => {
-  const t = await getTranslations('Components.OrgMenuLinks');
+  const t = await getTranslations('Components.NavMenuLinks');
   const { link } = props;
   return (
     <Link

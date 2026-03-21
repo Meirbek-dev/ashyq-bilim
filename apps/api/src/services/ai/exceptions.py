@@ -108,7 +108,7 @@ class ActivityNotFoundError(AIServiceException):
 
 
 class AIFeatureDisabledError(AIServiceException):
-    """Raised when AI feature is disabled for organization."""
+    """Raised when the AI feature is disabled for the platform."""
 
     def __init__(
         self, feature_name: str, platform_id: int, details: dict[str, Any] | None = None

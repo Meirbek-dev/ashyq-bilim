@@ -86,7 +86,7 @@ export function PermissionProvider({ children }: { children: ReactNode }) {
  * ```tsx
  * const { can } = usePermissions();
  *
- * if (can(Resources.COURSE, Actions.CREATE, Scopes.ORG)) {
+ * if (can(Resources.COURSE, Actions.CREATE, Scopes.PLATFORM)) {
  *   // Show create button
  * }
  * ```

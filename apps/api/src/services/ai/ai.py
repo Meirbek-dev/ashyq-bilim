@@ -262,7 +262,7 @@ async def _handle_ai_chat_stream(
 
         if not ctx.streaming_enabled:
             logger.info(
-                "Streaming disabled for this org, falling back to non-streaming"
+                "Streaming disabled for this platform, falling back to non-streaming"
             )
             # Reuse the already-prepared context instead of calling _prepare_context
             # a second time (which would re-fetch activity data and rebuild the prompt).

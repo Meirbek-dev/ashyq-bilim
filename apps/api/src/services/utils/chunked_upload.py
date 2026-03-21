@@ -20,7 +20,7 @@ class ChunkedUploadSession:
         self,
         upload_id: str,
         directory: str,
-        type_of_dir: Literal["orgs", "users"],
+        type_of_dir: Literal["platform", "users"],
         uuid: str,
         filename: str,
         total_chunks: int,
@@ -103,7 +103,7 @@ _upload_sessions: dict[str, ChunkedUploadSession] = {}
 
 def create_upload_session(
     directory: str,
-    type_of_dir: Literal["orgs", "users"],
+    type_of_dir: Literal["platform", "users"],
     uuid: str,
     filename: str,
     total_chunks: int,

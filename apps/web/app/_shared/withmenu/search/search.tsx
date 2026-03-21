@@ -3,12 +3,12 @@
 import { getCourseThumbnailMediaDirectory, getUserAvatarMediaDirectory } from '@services/media/media';
 import { removeCoursePrefix } from '@components/Objects/Thumbnails/CourseThumbnail';
 import { usePlatformSession } from '@/components/Contexts/SessionContext';
-import { Book, GraduationCap, Search, Users } from 'lucide-react';
 import { usePlatform } from '@/components/Contexts/PlatformContext';
+import { Book, GraduationCap, Search, Users } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { searchOrgContent } from '@services/search/search';
 import { getAbsoluteUrl } from '@services/config/config';
 import UserAvatar from '@components/Objects/UserAvatar';
+import { searchContent } from '@services/search/search';
 import { Input } from '@components/ui/input';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
@@ -165,7 +165,7 @@ const SearchPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const session = usePlatformSession();
-  const org = usePlatform() as any;
+  const platform = usePlatform() as any;
   const t = useTranslations('SearchPage');
 
   // Search state
@@ -229,7 +229,7 @@ const SearchPage = () => {
 
       setIsLoading(true);
       try {
-        const response = await searchOrgContent(
+        const response = await searchContent(
           query,
           page,
           perPage,

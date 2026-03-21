@@ -61,9 +61,9 @@ async def api_create_payments_config(
     """
     Create payments configuration
 
-    **Required Permission**: `organization:manage:org` (admin only)
+    **Required Permission**: `platform:manage:platform` (admin only)
     """
-    checker.require(current_user.id, "organization:manage")
+    checker.require(current_user.id, "platform:manage")
 
     return await init_payments_config(request, provider, current_user, db_session)
 
@@ -89,9 +89,9 @@ async def api_update_payments_config(
     """
     Update payments configuration
 
-    **Required Permission**: `organization:manage:org` (admin only)
+    **Required Permission**: `platform:manage:platform` (admin only)
     """
-    checker.require(current_user.id, "organization:manage")
+    checker.require(current_user.id, "platform:manage")
 
     if id is not None:
         configs = await get_payments_config(request, current_user, db_session)
@@ -114,9 +114,9 @@ async def api_delete_payments_config(
     """
     Delete payments configuration
 
-    **Required Permission**: `organization:manage:org` (admin only)
+    **Required Permission**: `platform:manage:platform` (admin only)
     """
-    checker.require(current_user.id, "organization:manage")
+    checker.require(current_user.id, "platform:manage")
 
     if id is not None:
         configs = await get_payments_config(request, current_user, db_session)
@@ -138,9 +138,9 @@ async def api_create_payments_product(
     """
     Create payment product
 
-    **Required Permission**: `organization:manage:org`
+    **Required Permission**: `platform:manage:platform`
     """
-    checker.require(current_user.id, "organization:manage")
+    checker.require(current_user.id, "platform:manage")
 
     return await create_payments_product(
         request, payments_product, current_user, db_session
@@ -178,9 +178,9 @@ async def api_update_payments_product(
     """
     Update payment product
 
-    **Required Permission**: `organization:manage:org`
+    **Required Permission**: `platform:manage:platform`
     """
-    checker.require(current_user.id, "organization:manage")
+    checker.require(current_user.id, "platform:manage")
 
     return await update_payments_product(
         request, product_id, payments_product, current_user, db_session
@@ -198,9 +198,9 @@ async def api_delete_payments_product(
     """
     Delete payment product
 
-    **Required Permission**: `organization:manage:org`
+    **Required Permission**: `platform:manage:platform`
     """
-    checker.require(current_user.id, "organization:manage")
+    checker.require(current_user.id, "platform:manage")
 
     await delete_payments_product(request, product_id, current_user, db_session)
     return {"message": "Payments product deleted successfully"}
@@ -311,7 +311,7 @@ async def api_get_customers(
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     """
-    Get list of customers and their subscriptions for an organization
+    Get list of customers and their subscriptions for the platform
     """
     return await get_customers(request, current_user, db_session)
 

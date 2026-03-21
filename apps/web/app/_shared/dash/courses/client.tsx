@@ -86,7 +86,7 @@ const CoursesHome = ({
   const { can } = usePermissions();
   const session = usePlatformSession();
   const accessToken = session?.data?.tokens?.access_token;
-  const canCreateCourse = can(Actions.CREATE, Resources.COURSE, Scopes.ORG);
+  const canCreateCourse = can(Actions.CREATE, Resources.COURSE, Scopes.PLATFORM);
   const [selectedCourseUuids, setSelectedCourseUuids] = useState<string[]>([]);
   const [isBulkPending, startBulkTransition] = useTransition();
   const [pendingBulkAction, setPendingBulkAction] = useState<BulkActionKind | null>(null);
@@ -128,14 +128,14 @@ const CoursesHome = ({
 
   const canManageCourse = useCallback(
     (course: ManageableCourse) =>
-      can(Actions.MANAGE, Resources.COURSE, Scopes.ORG) ||
+      can(Actions.MANAGE, Resources.COURSE, Scopes.PLATFORM) ||
       Boolean(course.is_owner && can(Actions.MANAGE, Resources.COURSE, Scopes.OWN)),
     [can],
   );
 
   const canDeleteCourse = useCallback(
     (course: ManageableCourse) =>
-      can(Actions.DELETE, Resources.COURSE, Scopes.ORG) ||
+      can(Actions.DELETE, Resources.COURSE, Scopes.PLATFORM) ||
       Boolean(course.is_owner && can(Actions.DELETE, Resources.COURSE, Scopes.OWN)),
     [can],
   );
@@ -711,10 +711,10 @@ function CourseRowActions({ course }: { course: ManageableCourse }) {
   const [isPending, startTransition] = useTransition();
 
   const canManageCourse =
-    can(Actions.MANAGE, Resources.COURSE, Scopes.ORG) ||
+    can(Actions.MANAGE, Resources.COURSE, Scopes.PLATFORM) ||
     Boolean(course.is_owner && can(Actions.MANAGE, Resources.COURSE, Scopes.OWN));
   const canDeleteCourse =
-    can(Actions.DELETE, Resources.COURSE, Scopes.ORG) ||
+    can(Actions.DELETE, Resources.COURSE, Scopes.PLATFORM) ||
     Boolean(course.is_owner && can(Actions.DELETE, Resources.COURSE, Scopes.OWN));
 
   const handleDelete = () => {

@@ -45,7 +45,6 @@ from src.db.courses.code_challenges import (
     TestRunResponse,
 )
 from src.db.courses.courses import Course
-from src.db.organizations import Organization
 from src.db.strict_base_model import PydanticStrictBaseModel
 from src.db.users import AnonymousUser, PublicUser, User
 from src.security.auth import get_current_user

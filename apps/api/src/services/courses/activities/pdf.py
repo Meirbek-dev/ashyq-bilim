@@ -18,7 +18,6 @@ from src.db.users import AnonymousUser, PublicUser
 from src.security.rbac import PermissionChecker
 from src.services.courses.activities.uploads.pdfs import upload_pdf
 from src.services.courses.courses import _ensure_course_is_current
-from src.services.platform import get_platform_organization
 
 
 async def create_documentpdf_activity(
@@ -67,8 +66,6 @@ async def create_documentpdf_activity(
     )
 
     _ensure_course_is_current(course, last_known_update_date)
-
-    organization = get_platform_organization(db_session)
 
     # create activity uuid
     activity_uuid = f"activity_{ULID()}"
@@ -124,7 +121,7 @@ async def create_documentpdf_activity(
     )
 
     # upload pdf
-    if pdf_file and organization and course:
+    if pdf_file and course:
         # get pdffile format
         await upload_pdf(
             pdf_file,

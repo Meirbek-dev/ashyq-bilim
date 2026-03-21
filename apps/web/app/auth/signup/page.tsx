@@ -9,7 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('Auth.Signup');
 
   return {
-    title: t('title', { orgName: 'Ashyq Bilim' }),
+    title: t('title', { platformName: 'Ashyq Bilim' }),
   };
 }
 

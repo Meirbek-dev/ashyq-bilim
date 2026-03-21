@@ -16,7 +16,7 @@ const EvaluateAssignment = ({ user_id }: any) => {
   const t = useTranslations('DashPage.Assignments.EvaluateModal');
   const assignments = useAssignments();
   const session = usePlatformSession();
-  const org = usePlatform() as any;
+  const platform = usePlatform() as any;
 
   // Guard clause for missing assignment data
   if (!assignments?.assignment_object) {

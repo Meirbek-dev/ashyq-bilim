@@ -227,7 +227,6 @@ def refresh_teacher_analytics_rollups(
 
     course_ids = list(db_session.exec(select(Course.id)).all())
     if course_ids:
-
         scope = TeacherAnalyticsScope(
             teacher_user_id=0,
             course_ids=course_ids,

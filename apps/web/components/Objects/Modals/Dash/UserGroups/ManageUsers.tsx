@@ -15,7 +15,7 @@ interface ManageUsersProps {
   usergroup_id: number;
 }
 
-interface OrgUserRow {
+interface UserRow {
   user: {
     id: number;
     username: string;
@@ -29,13 +29,13 @@ const ManageUsers = (props: ManageUsersProps) => {
   const t = useTranslations('Components.ManageUsers');
   const session = usePlatformSession() as any;
   const access_token = session?.data?.tokens?.access_token;
-  const { data: OrgUsers } = useSWR(`${getAPIUrl()}orgs/users`, (url) => swrFetcher(url, access_token));
+  const { data: Users } = useSWR(`${getAPIUrl()}platform/users`, (url) => swrFetcher(url, access_token));
   const { data: UGusers } = useSWR(`${getAPIUrl()}usergroups/${props.usergroup_id}/users`, (url) =>
     swrFetcher(url, access_token),
   );
 
-  // Normalize OrgUsers response which may be either an array or a paginated object { users: [], total, ... }
-  const orgUsersList = (data: any) => {
+  // Normalize Users response which may be either an array or a paginated object { users: [], total, ... }
+  const platformUsersList = (data: any) => {
     if (!data) return [];
     if (Array.isArray(data)) return data;
     if (Array.isArray(data.users)) return data.users;
@@ -69,8 +69,8 @@ const ManageUsers = (props: ManageUsersProps) => {
     }
   };
 
-  const rows = orgUsersList(OrgUsers) as OrgUserRow[];
-  const columns: ColumnDef<OrgUserRow>[] = [
+  const rows = platformUsersList(Users) as UserRow[];
+  const columns: ColumnDef<UserRow>[] = [
     {
       accessorFn: (row) =>
         [row.user.first_name, row.user.middle_name, row.user.last_name, row.user.username].filter(Boolean).join(' '),

@@ -5,9 +5,9 @@ import { LoginBonusHandler } from '@/app/_shared/withmenu/_components/LoginBonus
 import { GamificationProvider } from '@/components/Contexts/GamificationContext';
 import CourseThumbnail from '@components/Objects/Thumbnails/CourseThumbnail';
 import { usePlatformSession } from '@/components/Contexts/SessionContext';
-import { getCourses } from '@services/courses/courses';
 import type { DashboardData } from '@/types/gamification';
 import UserAvatar from '@components/Objects/UserAvatar';
+import { getCourses } from '@services/courses/courses';
 import { useTranslations } from 'next-intl';
 import useSWR from 'swr';
 
@@ -24,8 +24,8 @@ const LandingCustom = ({ landing, gamificationData }: LandingCustomProps) => {
   const access_token = session?.data?.tokens?.access_token;
   const t = useTranslations('LandingCustom');
 
-  // Fetch all courses for the organization
-  const { data: coursesData } = useSWR(access_token ? ['org-courses', access_token] : null, ([, token]) =>
+  // Fetch all courses for the platform
+  const { data: coursesData } = useSWR(access_token ? ['platform-courses', access_token] : null, ([, token]) =>
     getCourses(null, token),
   );
   const allCourses = coursesData?.courses;

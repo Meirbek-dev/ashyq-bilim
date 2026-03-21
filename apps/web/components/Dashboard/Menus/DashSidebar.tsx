@@ -98,8 +98,15 @@ const SidebarSkeleton = () => (
 const useNavigationItems = () => {
   const pathname = usePathname();
   const t = useTranslations('SidebarMenu');
-  const { canSeeOrg, canSeeCourses, canSeeAssignments, canSeeAnalytics, canSeeUsers, canSeeAdmin, canSeePayments } =
-    useNavigationPermissions();
+  const {
+    canSeePlatform,
+    canSeeCourses,
+    canSeeAssignments,
+    canSeeAnalytics,
+    canSeeUsers,
+    canSeeAdmin,
+    canSeePayments,
+  } = useNavigationPermissions();
 
   return [
     {
@@ -164,14 +171,14 @@ const useNavigationItems = () => {
           },
         ]
       : []),
-    ...(canSeeOrg
+    ...(canSeePlatform
       ? [
           {
-            title: t('tooltips.organization'),
-            href: '/dash/org/settings/general',
+            title: t('tooltips.platform'),
+            href: '/dash/platform/settings/general',
             icon: School,
-            tooltip: t('tooltips.organization'),
-            isActive: pathname.startsWith('/dash/org'),
+            tooltip: t('tooltips.platform'),
+            isActive: pathname.startsWith('/dash/platform'),
           },
         ]
       : []),
@@ -231,7 +238,7 @@ const NavItem = ({ item, isCollapsed }: { item: NavigationItem; isCollapsed: boo
 );
 
 const DashSidebar = ({ className }: SidebarProps) => {
-  const org = usePlatform();
+  const platform = usePlatform();
   const session = usePlatformSession();
   const { state, toggleSidebar } = useSidebar();
   const t = useTranslations('SidebarMenu');
@@ -309,7 +316,9 @@ const DashSidebar = ({ className }: SidebarProps) => {
                 isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'
               }`}
             >
-              <h2 className="text-sidebar-foreground text-lg leading-tight font-semibold">{t('orgName')}</h2>
+              <h2 className="text-sidebar-foreground text-lg leading-tight font-semibold">
+                {platform?.name || t('platformName')}
+              </h2>
             </div>
           </AppLink>
 

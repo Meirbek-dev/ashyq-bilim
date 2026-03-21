@@ -11,7 +11,6 @@ from src.db.usergroup_user import UserGroupUser
 from src.db.usergroups import UserGroup, UserGroupCreate, UserGroupRead, UserGroupUpdate
 from src.db.users import AnonymousUser, InternalUser, PublicUser, User, UserRead
 from src.security.rbac import PermissionChecker
-from src.services.platform import get_platform_organization
 
 
 async def create_usergroup(

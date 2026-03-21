@@ -1,6 +1,6 @@
 import { getCollections } from '@services/courses/collections';
-import { getCourses } from '@services/courses/courses';
 import { getAbsoluteUrl } from '@services/config/config';
+import { getCourses } from '@services/courses/courses';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 

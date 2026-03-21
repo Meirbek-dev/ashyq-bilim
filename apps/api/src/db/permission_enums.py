@@ -23,7 +23,7 @@ class Action(StrEnum):
 class ResourceType(StrEnum):
     """Types of resources in the system."""
 
-    ORGANIZATION = "organization"
+    PLATFORM = "platform"
     COURSE = "course"
     CHAPTER = "chapter"
     ACTIVITY = "activity"
@@ -49,7 +49,7 @@ class Scope(StrEnum):
     ALL = "all"
     OWN = "own"
     ASSIGNED = "assigned"
-    ORG = "org"
+    PLATFORM = "platform"
 
 
 class RoleSlug(StrEnum):
@@ -78,22 +78,22 @@ SYSTEM_ROLES: dict[str, dict] = {
         "description": "Куратор курсов с расширенными правами на контент",
         "priority": 70,
         "permissions": [
-            "course:create:org",
+            "course:create:platform",
             "course:read:all",
-            "course:update:org",
+            "course:update:platform",
             "course:delete:own",
             "course:manage:own",
-            "chapter:*:org",
-            "activity:*:org",
-            "assignment:*:org",
-            "quiz:*:org",
-            "exam:*:org",
-            "collection:create:org",
+            "chapter:*:platform",
+            "activity:*:platform",
+            "assignment:*:platform",
+            "quiz:*:platform",
+            "exam:*:platform",
+            "collection:create:platform",
             "collection:read:all",
             "collection:update:own",
             "collection:delete:own",
-            "discussion:moderate:org",
-            "analytics:read:org",
+            "discussion:moderate:platform",
+            "analytics:read:platform",
             "certificate:create:own",
             "certificate:read:own",
         ],
@@ -103,7 +103,7 @@ SYSTEM_ROLES: dict[str, dict] = {
         "description": "Преподаватель с возможностью создавать контент",
         "priority": 50,
         "permissions": [
-            "course:create:org",
+            "course:create:platform",
             "course:read:all",
             "course:update:own",
             "course:manage:own",
@@ -122,16 +122,16 @@ SYSTEM_ROLES: dict[str, dict] = {
             "quiz:read:assigned",
             "exam:*:own",
             "exam:read:assigned",
-            "collection:create:org",
+            "collection:create:platform",
             "collection:read:all",
             "collection:update:own",
             "discussion:moderate:own",
             "analytics:read:assigned",
             "analytics:export:assigned",
             "user:read:assigned",
-            "usergroup:read:org",
-            "usergroup:manage:org",
-            "certificate:create:org",
+            "usergroup:read:platform",
+            "usergroup:manage:platform",
+            "certificate:create:platform",
             "certificate:read:own",
             "certificate:update:own",
             "certificate:delete:own",
@@ -143,11 +143,11 @@ SYSTEM_ROLES: dict[str, dict] = {
         "priority": 40,
         "permissions": [
             "course:read:all",
-            "discussion:moderate:org",
+            "discussion:moderate:platform",
             "discussion:read:all",
-            "discussion:update:org",
-            "discussion:delete:org",
-            "user:read:org",
+            "discussion:update:platform",
+            "discussion:delete:platform",
+            "user:read:platform",
         ],
     },
     RoleSlug.USER: {
@@ -166,7 +166,7 @@ SYSTEM_ROLES: dict[str, dict] = {
             "exam:submit:assigned",
             "exam:read:assigned",
             "collection:read:all",
-            "discussion:create:org",
+            "discussion:create:platform",
             "discussion:read:all",
             "discussion:update:own",
             "discussion:delete:own",

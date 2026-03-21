@@ -1,15 +1,15 @@
-import { getPlatformOrganizationContextInfo } from '@/services/platform/platform';
+import { getPlatformContextInfo } from '@/services/platform/platform';
 import { getTranslations } from 'next-intl/server';
 import NewCollection from './NewCollection';
 import type { Metadata } from 'next';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('NewCollectionPage');
-  const org = await getPlatformOrganizationContextInfo();
+  const platform = await getPlatformContextInfo();
 
   return {
     title: `${t('metaTitle')} - Ashyq Bilim`,
-    description: t('metaDescription', { orgName: 'Ashyq Bilim' }),
+    description: t('metaDescription', { platformName: 'Ashyq Bilim' }),
     robots: {
       index: true,
       follow: true,
@@ -22,15 +22,15 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     openGraph: {
       title: `${t('metaTitle')} - Ashyq Bilim`,
-      description: t('metaDescription', { orgName: 'Ashyq Bilim' }),
+      description: t('metaDescription', { platformName: 'Ashyq Bilim' }),
       type: 'website',
-      images: org.thumbnail_image
+      images: platform.thumbnail_image
         ? [
             {
-              url: org.thumbnail_image,
+              url: platform.thumbnail_image,
               width: 800,
               height: 600,
-              alt: org.name,
+              alt: platform.name,
             },
           ]
         : [],

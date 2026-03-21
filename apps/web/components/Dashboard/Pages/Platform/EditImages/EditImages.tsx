@@ -1,22 +1,18 @@
 'use client';
 import {
   updatePlatform,
-  uploadOrganizationLogo,
-  uploadOrganizationPreview,
-  uploadOrganizationThumbnail,
+  uploadPlatformLogo,
+  uploadPlatformPreview,
+  uploadPlatformThumbnail,
 } from '@/services/settings/platform';
-import {
-  getLogoMediaDirectory,
-  getPreviewMediaDirectory,
-  getThumbnailMediaDirectory,
-} from '@services/media/media';
+import { getLogoMediaDirectory, getPreviewMediaDirectory, getThumbnailMediaDirectory } from '@services/media/media';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@components/ui/dialog';
 import { GripVertical, ImageIcon, Images, Info, Plus, StarIcon, UploadCloud, X } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/tabs';
 import { usePlatformSession } from '@/components/Contexts/SessionContext';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
-import { SiLoom, SiYoutube } from '@icons-pack/react-simple-icons';
 import { usePlatform } from '@/components/Contexts/PlatformContext';
+import { SiLoom, SiYoutube } from '@icons-pack/react-simple-icons';
 import { constructAcceptValue } from '@/lib/constants';
 import type { ChangeEvent, MouseEvent } from 'react';
 import type { DropResult } from '@hello-pangea/dnd';
@@ -83,9 +79,9 @@ export default function EditImages() {
   const router = useRouter();
   const session = usePlatformSession() as any;
   const access_token = session?.data?.tokens?.access_token;
-  const org = usePlatform() as any;
+  const platform = usePlatform() as any;
   const tNotify = useTranslations('DashPage.Notifications');
-  const t = useTranslations('DashPage.OrgSettings.Images');
+  const t = useTranslations('DashPage.PlatformSettings.Images');
   const [localLogo, setLocalLogo] = useState<string | null>(null);
   const [localThumbnail, setLocalThumbnail] = useState<string | null>(null);
   const [isLogoUploading, setIsLogoUploading] = useState(false);
@@ -93,7 +89,7 @@ export default function EditImages() {
   const [_isPending, startTransition] = useTransition();
   const [previews, setPreviews] = useState<Preview[]>(() => {
     // Initialize with image previews
-    const imagePreviews = (org?.previews?.images || [])
+    const imagePreviews = (platform?.previews?.images || [])
       .filter((item: any) => item?.filename) // Filter out empty filenames
       .map((item: any, index: number) => ({
         id: item.filename,
@@ -104,7 +100,7 @@ export default function EditImages() {
       }));
 
     // Initialize with video previews
-    const videoPreviews = (org?.previews?.videos || [])
+    const videoPreviews = (platform?.previews?.videos || [])
       .filter((video: any) => video?.id)
       .map((video: any, index: number) => ({
         id: video.id,
@@ -131,7 +127,7 @@ export default function EditImages() {
         startTransition(() => setIsLogoUploading(true));
         const loadingToast = toast.loading(tNotify('uploadingLogo'));
         try {
-          await uploadOrganizationLogo(file, access_token);
+          await uploadPlatformLogo(file, access_token);
           await new Promise((r) => setTimeout(r, 1500));
           toast.success(tNotify('logoUpdatedSuccess'), { id: loadingToast });
           router.refresh();
@@ -152,7 +148,7 @@ export default function EditImages() {
         startTransition(() => setIsThumbnailUploading(true));
         const loadingToast = toast.loading(tNotify('uploadingThumbnail'));
         try {
-          await uploadOrganizationThumbnail(file, access_token);
+          await uploadPlatformThumbnail(file, access_token);
           await new Promise((r) => setTimeout(r, 1500));
           toast.success(tNotify('thumbnailUpdatedSuccess'), { id: loadingToast });
           router.refresh();
@@ -185,7 +181,7 @@ export default function EditImages() {
 
       try {
         const uploadPromises = files.map(async (file) => {
-          const response = await uploadOrganizationPreview(file, access_token);
+          const response = await uploadPlatformPreview(file, access_token);
           return {
             id: response.name_in_disk,
             url: URL.createObjectURL(file),
@@ -434,8 +430,8 @@ export default function EditImages() {
                 <div className="group relative">
                   <img
                     src={
-                      org?.logo_image
-                        ? localLogo || getLogoMediaDirectory(org?.logo_image)
+                      platform?.logo_image
+                        ? localLogo || getLogoMediaDirectory(platform?.logo_image)
                         : '/empty_thumbnail.webp'
                     }
                     alt="Лого организации"
@@ -500,11 +496,11 @@ export default function EditImages() {
                 <div className="group relative">
                   <img
                     src={
-                      org?.thumbnail_image
-                        ? localThumbnail || getThumbnailMediaDirectory(org?.thumbnail_image)
+                      platform?.thumbnail_image
+                        ? localThumbnail || getThumbnailMediaDirectory(platform?.thumbnail_image)
                         : '/empty_thumbnail.webp'
                     }
-                    alt="Organization thumbnail"
+                    alt="Platform thumbnail"
                     className={cn(
                       'size-auto max-h-[125px] min-h-[100px] min-w-[200px] max-w-[250px] rounded-lg bg-white object-contain shadow-md',
                       'border-2 border-gray-100 transition-all duration-300 hover:border-purple-200',

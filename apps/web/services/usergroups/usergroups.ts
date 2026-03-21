@@ -19,10 +19,10 @@ export async function createUserGroup(body: any, access_token: string) {
   );
   const metadata = await getResponseMetadata(result);
 
-  // Revalidate organizations cache after creating user group
+  // Revalidate platform cache after creating user group
   if (metadata.success) {
     const { revalidateTag } = await import('next/cache');
-    revalidateTag(tags.organizations, 'max');
+    revalidateTag(tags.platform, 'max');
   }
 
   return metadata;
@@ -35,10 +35,10 @@ export async function linkUserToUserGroup(usergroup_id: number, user_id: number,
   );
   const metadata = await getResponseMetadata(result);
 
-  // Revalidate organizations and users cache after linking user to group
+  // Revalidate platform and users cache after linking user to group
   if (metadata.success) {
     const { revalidateTag } = await import('next/cache');
-    revalidateTag(tags.organizations, 'max');
+    revalidateTag(tags.platform, 'max');
     revalidateTag(tags.users, 'max');
   }
 
@@ -52,10 +52,10 @@ export async function unLinkUserToUserGroup(usergroup_id: number, user_id: numbe
   );
   const metadata = await getResponseMetadata(result);
 
-  // Revalidate organizations and users cache after unlinking user from group
+  // Revalidate platform and users cache after unlinking user from group
   if (metadata.success) {
     const { revalidateTag } = await import('next/cache');
-    revalidateTag(tags.organizations, 'max');
+    revalidateTag(tags.platform, 'max');
     revalidateTag(tags.users, 'max');
   }
 
@@ -69,10 +69,10 @@ export async function updateUserGroup(usergroup_id: number, access_token: string
   );
   const metadata = await getResponseMetadata(result);
 
-  // Revalidate organizations cache after updating user group
+  // Revalidate platform cache after updating user group
   if (metadata.success) {
     const { revalidateTag } = await import('next/cache');
-    revalidateTag(tags.organizations, 'max');
+    revalidateTag(tags.platform, 'max');
   }
 
   return metadata;
@@ -85,10 +85,10 @@ export async function deleteUserGroup(usergroup_id: number, access_token: string
   );
   const metadata = await getResponseMetadata(result);
 
-  // Revalidate organizations cache after deleting user group
+  // Revalidate platform cache after deleting user group
   if (metadata.success) {
     const { revalidateTag } = await import('next/cache');
-    revalidateTag(tags.organizations, 'max');
+    revalidateTag(tags.platform, 'max');
   }
 
   return metadata;
@@ -106,7 +106,7 @@ export async function linkResourcesToUserGroup(
   );
   const metadata = await getResponseMetadata(result);
 
-  // Revalidate organizations and courses cache after linking resources
+  // Revalidate platform and courses cache after linking resources
   if (metadata.success) {
     await revalidateUserGroupCourseTags(options);
   }
@@ -120,7 +120,7 @@ interface UserGroupCourseInvalidationOptions {
 
 async function revalidateUserGroupCourseTags(options?: UserGroupCourseInvalidationOptions) {
   const { revalidateTag } = await import('next/cache');
-  const tagsToRevalidate = new Set<string>([tags.organizations]);
+  const tagsToRevalidate = new Set<string>([tags.platform]);
 
   if (options?.courseUuid) {
     tagsToRevalidate.add(courseTag.detail(options.courseUuid));
@@ -146,7 +146,7 @@ export async function unLinkResourcesToUserGroup(
   );
   const metadata = await getResponseMetadata(result);
 
-  // Revalidate organizations and courses cache after unlinking resources
+  // Revalidate platform and courses cache after unlinking resources
   if (metadata.success) {
     await revalidateUserGroupCourseTags(options);
   }

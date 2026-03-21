@@ -21,7 +21,7 @@ const CertificateVerificationPage: React.FC<CertificateVerificationPageProps> = 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [verificationStatus, setVerificationStatus] = useState<'valid' | 'invalid' | 'loading'>('loading');
-  const org = usePlatform() as any;
+  const platform = usePlatform() as any;
   const locale = useLocale();
   const t = useTranslations('Certificates.CertificateVerificationPage');
   // Certificate type translation helper
@@ -230,10 +230,10 @@ const CertificateVerificationPage: React.FC<CertificateVerificationPageProps> = 
                   <div className="h-12 w-20 overflow-hidden rounded-lg bg-gray-100 ring-1 ring-black/10 ring-inset">
                     {certificateData.course.thumbnail_image ? (
                       <img
-                          src={getCourseThumbnailMediaDirectory(
-                            certificateData.course.course_uuid,
-                            certificateData.course.thumbnail_image,
-                          )}
+                        src={getCourseThumbnailMediaDirectory(
+                          certificateData.course.course_uuid,
+                          certificateData.course.thumbnail_image,
+                        )}
                         alt={`${certificateData.course.name} ${t('courseThumbnailAlt')}`}
                         className="h-full w-full object-cover"
                       />

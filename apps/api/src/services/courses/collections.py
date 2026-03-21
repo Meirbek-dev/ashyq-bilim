@@ -15,7 +15,6 @@ from src.db.collections_courses import CollectionCourse
 from src.db.courses.courses import Course
 from src.db.users import AnonymousUser, PublicUser
 from src.security.rbac import PermissionChecker
-from src.services.platform import get_platform_organization
 
 ####################################################
 # CRUD
@@ -105,9 +104,9 @@ async def create_collection(
 ) -> CollectionRead:
     collection = Collection.model_validate(collection_object)
 
-    # SECURITY: Check if user has permission to create collections in this organization
-    # Since collections are organization-level resources, we need to check org permissions
-    # For now, we'll use the existing RBAC check but with proper organization context
+    # Since collections are platform-level resources, we need to check platform permissions
+    # SECURITY: Check if user has permission to create collections on this platform
+    # For now, we'll use the existing RBAC check but with proper platform context
     if checker is None:
         checker = PermissionChecker(db_session)
     checker.require(current_user.id, "collection:create")

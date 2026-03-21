@@ -594,7 +594,6 @@
     },
     "Signup": {
       "accountCreated": "Ваш аккаунт успешно создан",
-      "autoJoinDefaultOrg": "Пользователи автоматически присоединяются к организации по умолчанию при регистрации.",
       "bio": "О себе",
       "bioPlaceholder": "Расскажите что-нибудь о себе",
       "createAccount": "Создать аккаунт",
@@ -1348,7 +1347,7 @@
       "step9Title": "Монетизируйте свой контент",
       "triggerText": "Онбординг"
     },
-    "OrgMenu": {
+    "NavMenu": {
       "account": "Аккаунт",
       "closeMenu": "Закрыть меню",
       "language": "Язык",
@@ -1358,7 +1357,7 @@
       "overlayClose": "Закрыть меню",
       "search": "Поиск"
     },
-    "OrgMenuLinks": {
+    "NavMenuLinks": {
       "collections": "Коллекции",
       "courses": "Курсы",
       "trail": "Прогресс"
@@ -2036,8 +2035,8 @@
     "Course": {
       "loadError": "Не удалось загрузить структуру курса"
     },
-    "Org": {
-      "adminDescription": "Управляйте настройками организации и доступом",
+    "Platform": {
+      "adminDescription": "Управляйте настройками платформы и доступом",
       "adminTitle": "Администрирование",
       "fetchError": "Произошла ошибка при загрузке данных Ashyq Bilim",
       "home": "На главную",
@@ -3204,9 +3203,9 @@
         "errorOccurred": "Произошла ошибка",
         "title": "Курсы"
       },
-      "Organization": {
-        "description": "Настройте общие параметры Ashyq Bilim",
-        "title": "Организация"
+      "Platform": {
+        "description": "Настройте общие параметры платформы",
+        "title": "Платформа"
       },
       "Users": {
         "description": "Управляйте пользователями и ролями Ashyq Bilim",
@@ -4431,7 +4430,7 @@
       "userGroupDeletedSuccess": "Группа пользователей удалена.",
       "userRemovedSuccess": "Пользователь удален из Ashyq Bilim."
     },
-    "OrgSettings": {
+    "PlatformSettings": {
       "CollectionPage": {
         "courses": "Курсы в этой коллекции",
         "description": "Описание коллекции",
@@ -4493,10 +4492,10 @@
           "vocational": "🔧 Профессиональное обучение"
         },
         "description": "Управление профилем и настройками платформы",
-        "orgUpdateFailed": "Не удалось обновить данные платформы",
-        "orgUpdatedSuccess": "Платформа успешно обновлена",
+        "platformUpdateFailed": "Не удалось обновить данные платформы",
+        "platformUpdatedSuccess": "Платформа успешно обновлена",
         "title": "Настройки платформы",
-        "updatingOrg": "Обновление данных платформы..."
+        "updatingPlatform": "Обновление данных платформы..."
       },
       "Images": {
         "Buttons": {
@@ -4768,11 +4767,11 @@
         },
         "customLinksTitle": "Пользовательские ссылки",
         "description": "Управляйте присутствием в социальных сетях",
-        "orgUpdateFailed": "Не удалось обновить платформу",
-        "orgUpdatedSuccess": "Данные Ashyq Bilim обновлены",
+        "platformUpdateFailed": "Не удалось обновить платформу",
+        "platformUpdatedSuccess": "Данные Ashyq Bilim обновлены",
         "socialLinksTitle": "Социальные ссылки",
         "title": "Социальные ссылки",
-        "updatingOrg": "Обновление данных Ashyq Bilim."
+        "updatingPlatform": "Обновление данных Ashyq Bilim."
       },
       "general": "Общее",
       "generalDescription": "Управление настройками",
@@ -6154,9 +6153,7 @@
   },
   "HomeClient": {
     "hello": "Здравствуйте",
-    "noOrganizations": "Вы пока не являетесь членом Ashyq Bilim.",
-    "signOut": "Выйти",
-    "yourOrganizations": "Ваши организации"
+    "signOut": "Выйти"
   },
   "HomePage": {
     "Collections": {
@@ -6290,7 +6287,7 @@
       "manageCourses": "Управление курсами",
       "managePayments": "Управление платежами и выставлением счетов",
       "manageUsers": "Управление пользователями",
-      "organizationSettings": "Настройки организации",
+      "platformSettings": "Настройки платформы",
       "platformLogo": "Логотип Ashyq Bilim",
       "userAccountSettings": "Настройки аккаунта пользователя",
       "userSettings": "Настройки пользователя"
@@ -6312,12 +6309,12 @@
       "assignments": "Задания",
       "courses": "Курсы",
       "home": "Главная",
-      "org": "Организация",
+      "platform": "Платформа",
       "payments": "Платежи",
       "settings": "Настройки",
       "users": "Пользователи"
     },
-    "orgName": "Ashyq Bilim",
+    "platformName": "Ashyq Bilim",
     "tooltips": {
       "admin": "Панель администратора",
       "analytics": "Аналитика",
@@ -6326,7 +6323,7 @@
       "home": "Главная панель",
       "logout": "Выйти",
       "metrics": "Метрики",
-      "organization": "Настройки Ashyq Bilim",
+      "platform": "Настройки платформы",
       "payments": "Платежи",
       "userSettings": "Настройки @{username}",
       "users": "Пользователи"
@@ -6901,7 +6898,6 @@
     "hi": "Здравствуйте",
     "join": "Присоединиться ",
     "joinQuestion": "Присоединиться к Ashyq Bilim?",
-    "orgJoinSuccess": "Успешно присоединились к Ashyq Bilim.",
     "submit": "Отправить "
   },
   "Trail": {

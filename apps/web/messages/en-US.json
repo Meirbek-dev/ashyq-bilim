@@ -571,7 +571,7 @@
       "showPassword": "Show password",
       "signInWithGoogle": "Sign in with Google",
       "signup": "Sign up",
-      "title": "Login - {orgName}",
+      "title": "Login - {platformName}",
       "wrongCredentials": "Wrong email or password",
       "loginTitle": "Login",
       "noAccount": "Don't have an account?"
@@ -604,17 +604,16 @@
       "goBack": "Back to Login",
       "hi": "Hi",
       "join": "Join",
-      "joinQuestion": "would you like to join {orgName}?",
+      "joinQuestion": "would you like to join {platformName}?",
       "loading": "Loading...",
       "loginToAccount": "Login to your account",
       "password": "Password",
       "passwordPlaceholder": "Enter your password",
       "signInWithGoogle": "Sign in with Google",
       "submit": "Submit",
-      "title": "Sign up - {orgName}",
+      "title": "Sign up - {platformName}",
       "redirecting": "Redirecting...",
       "formComponentNeeded": "Signup form component needed.",
-      "autoJoinDefaultOrg": "Users auto-join to default organization on registration.",
       "username": "Username",
       "usernamePlaceholder": "Enter your username",
       "continueWithGoogle": "Continue with Google",
@@ -1364,7 +1363,7 @@
       "step9Title": "Monetize your content",
       "triggerText": "Onboarding"
     },
-    "OrgMenu": {
+    "NavMenu": {
       "account": "Account",
       "closeMenu": "Close menu",
       "language": "Language",
@@ -1374,7 +1373,7 @@
       "overlayClose": "Close menu overlay",
       "search": "Search"
     },
-    "OrgMenuLinks": {
+    "NavMenuLinks": {
       "collections": "Collections",
       "courses": "Courses",
       "trail": "Progress"
@@ -2036,10 +2035,10 @@
     "Course": {
       "loadError": "Failed to load course structure"
     },
-    "Org": {
+    "Platform": {
       "fetchError": "An error occurred while loading organization data",
       "adminTitle": "Administration",
-      "adminDescription": "Manage organization settings and access control",
+      "adminDescription": "Manage platform settings and access control",
       "home": "Home",
       "notMemberInfo": "You are not part of Ashyq Bilim yet",
       "signOut": "Sign Out"
@@ -3189,9 +3188,9 @@
         "errorOccurred": "An error occurred",
         "title": "Courses"
       },
-      "Organization": {
-        "description": "Configure general settings for your organization",
-        "title": "Organization"
+      "Platform": {
+        "description": "Configure general settings for your platform",
+        "title": "Platform"
       },
       "Users": {
         "description": "Manage your organization's users and roles",
@@ -4416,7 +4415,7 @@
       "userGroupDeletedSuccess": "User group deleted.",
       "userRemovedSuccess": "User removed from organization."
     },
-    "OrgSettings": {
+    "PlatformSettings": {
       "CollectionPage": {
         "courses": "Courses in this collection",
         "description": "Collection description",
@@ -4478,10 +4477,10 @@
           "vocational": "🔧 Vocational Training"
         },
         "description": "Manage your organization's profile and settings",
-        "orgUpdateFailed": "Failed to update organization",
-        "orgUpdatedSuccess": "Organization Updated",
-        "title": "Organization Settings",
-        "updatingOrg": "Updating organization..."
+        "platformUpdateFailed": "Failed to update platform",
+        "platformUpdatedSuccess": "Platform updated",
+        "title": "Platform Settings",
+        "updatingPlatform": "Updating platform..."
       },
       "Images": {
         "Buttons": {
@@ -4752,12 +4751,12 @@
           "youtubePlaceholder": "YouTube channel URL"
         },
         "customLinksTitle": "Custom Links",
-        "description": "Manage your organization's social media presence",
-        "orgUpdateFailed": "Failed to update organization",
-        "orgUpdatedSuccess": "Organization Updated",
+        "description": "Manage your platform's social media presence",
+        "platformUpdateFailed": "Failed to update platform",
+        "platformUpdatedSuccess": "Platform updated",
         "socialLinksTitle": "Social Links",
         "title": "Social Links",
-        "updatingOrg": "Updating organization.."
+        "updatingPlatform": "Updating platform.."
       },
       "general": "General",
       "generalDescription": "Manage your organization settings",
@@ -6139,13 +6138,11 @@
   },
   "HomeClient": {
     "hello": "Hello",
-    "noOrganizations": "You are not a member of any organizations yet, join one to be able to see it here.",
-    "signOut": "Sign Out",
-    "yourOrganizations": "Your Organizations"
+    "signOut": "Sign Out"
   },
   "HomePage": {
     "Collections": {
-      "collectionOfCourses": "Collections of courses from {orgName}",
+      "collectionOfCourses": "Collections of courses from {platformName}",
       "newCollection": "New Collection",
       "noContent": "No collections yet",
       "noContentDescription": "Create collections to organize your courses and content",
@@ -6275,7 +6272,7 @@
       "manageCourses": "Manage courses",
       "managePayments": "Manage payments and billing",
       "manageUsers": "Manage users",
-      "organizationSettings": "Organization settings",
+      "platformSettings": "Platform settings",
       "platformLogo": "Ashyq Bilim logo",
       "userAccountSettings": "User account settings",
       "userSettings": "User settings"
@@ -6297,12 +6294,12 @@
       "assignments": "Assignments",
       "courses": "Courses",
       "home": "Home",
-      "org": "Organization",
+      "platform": "Platform",
       "payments": "Payments",
       "settings": "Settings",
       "users": "Users"
     },
-    "orgName": "Ashyq Bilim",
+    "platformName": "Ashyq Bilim",
     "tooltips": {
       "admin": "Admin Dashboard",
       "analytics": "Teacher Analytics",
@@ -6311,7 +6308,7 @@
       "home": "Dashboard Home",
       "logout": "Logout",
       "metrics": "Metrics",
-      "organization": "Organization Settings",
+      "platform": "Platform Settings",
       "payments": "Payments",
       "userSettings": "@{username}'s Settings",
       "users": "Users"
@@ -6875,8 +6872,7 @@
     "errorSomethingWentWrong": "Something went wrong. Please try again later.",
     "hi": "Hi",
     "join": "Join ",
-    "joinQuestion": "join {orgname}?",
-    "orgJoinSuccess": " successfully joined the organization.",
+    "joinQuestion": "join {platformName}?",
     "submit": "Submit "
   },
   "Trail": {

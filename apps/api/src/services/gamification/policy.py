@@ -14,7 +14,11 @@ from datetime import datetime, timedelta
 from sqlmodel import Session, select
 
 from src.core.timezone import now as tz_now
-from src.db.gamification import DAILY_XP_LIMIT, XP_REWARDS, OrgGamificationConfig
+from src.db.gamification import (
+    DAILY_XP_LIMIT,
+    XP_REWARDS,
+    PlatformGamificationConfig,
+)
 
 # In-process TTL cache: (rewards, daily_limit, cached_at)
 _CACHE: tuple[dict[str, int], int, datetime] | None = None
@@ -32,7 +36,7 @@ def get_policy(db: Session) -> tuple[dict[str, int], int]:
     if _CACHE is not None and now - _CACHE[2] < _TTL:
         return _CACHE[0], _CACHE[1]
 
-    cfg = db.exec(select(OrgGamificationConfig)).first()
+    cfg = db.exec(select(PlatformGamificationConfig)).first()
 
     rewards: dict[str, int] = dict(XP_REWARDS)
     daily_limit: int = DAILY_XP_LIMIT
@@ -61,5 +65,3 @@ def get_policy(db: Session) -> tuple[dict[str, int], int]:
 
     _CACHE = (rewards, daily_limit, now)
     return rewards, daily_limit
-
-

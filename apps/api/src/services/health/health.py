@@ -1,11 +1,11 @@
 from fastapi import HTTPException
 from sqlmodel import Session, select
 
-from src.db.organizations import Organization
+from src.db.platform import Platform
 
 
 async def check_database_health(db_session: Session) -> bool:
-    statement = select(Organization)
+    statement = select(Platform)
     return db_session.exec(statement)
 
 

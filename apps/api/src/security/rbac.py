@@ -172,7 +172,7 @@ class PermissionChecker:
             resource, action = parts
             results[p] = any(
                 self._has_perm(granted, resource, action, scope)
-                for scope in ("all", "org", "assigned", "own")
+                for scope in ("all", "platform", "assigned", "own")
             )
         return results
 
@@ -184,7 +184,7 @@ class PermissionChecker:
         """Return permissions with wildcards expanded to explicit strings.
 
         The frontend does exact Set.has() lookups, so wildcards like ``*:*:*``
-        or ``course:*:org`` must be expanded into every concrete
+        or ``course:*:platform`` must be expanded into every concrete
         ``resource:action:scope`` combination they cover.
         """
         from src.db.permission_enums import Action, ResourceType, Scope
@@ -214,13 +214,13 @@ class PermissionChecker:
                         expanded.add(f"{r}:{a}:{s}")
 
         # Scope hierarchy expansion: broader scopes imply narrower ones.
-        # "all"  → also implies "org", "assigned", "own"
-        # "org"  → also implies "own"
+        # "all"      → also implies "platform", "assigned", "own"
+        # "platform" → also implies "own"
         # This ensures the frontend's exact Set.has() lookups work correctly
-        # (e.g. a user with course:update:org also passes a check for course:update:own).
+        # (e.g. a user with course:update:platform also passes a check for course:update:own).
         scope_implies: dict[str, list[str]] = {
-            "all": ["org", "assigned", "own"],
-            "org": ["own"],
+            "all": ["platform", "assigned", "own"],
+            "platform": ["own"],
         }
 
         hierarchy_expanded: set[str] = set()
@@ -474,7 +474,7 @@ class PermissionChecker:
 
         Checks scopes from broadest to narrowest:
         1. all      - always passes
-        2. org      - passes (membership implied by loaded permissions)
+        2. platform - passes (membership implied by loaded permissions)
         3. assigned - passes only when is_assigned=True (caller verified assignment)
         4. own      - passes if resource_owner_id == user_id
         """
@@ -488,8 +488,8 @@ class PermissionChecker:
         if PermissionChecker._has_perm(granted, resource, action, "all"):
             return True
 
-        # 2. "org" scope
-        if PermissionChecker._has_perm(granted, resource, action, "org"):
+        # 2. "platform" scope
+        if PermissionChecker._has_perm(granted, resource, action, "platform"):
             return True
 
         # 3. "assigned" scope — the caller must pass is_assigned=True to confirm

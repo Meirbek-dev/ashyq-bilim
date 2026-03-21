@@ -29,8 +29,8 @@ import DataTable from '@/components/ui/data-table';
 
 import { AlertTriangle, KeyRound, Loader2, LogOut } from 'lucide-react';
 import PageLoading from '@components/Objects/Loaders/PageLoading';
-import { removeUser } from '@/services/platform/platform';
 import Modal from '@/components/Objects/Elements/Modal/Modal';
+import { removeUser } from '@/services/platform/platform';
 import { swrFetcher } from '@services/utils/ts/requests';
 import React, { useState, useTransition } from 'react';
 import { getAPIUrl } from '@services/config/config';
@@ -118,8 +118,8 @@ const Users = () => {
   const t = useTranslations('DashPage.UserSettings.usersSection');
   const userRoles = session?.data?.roles ?? [];
   const { can } = usePermissions();
-  const canUpdateRole = can(Actions.UPDATE, Resources.ROLE, Scopes.ORG);
-  const canDeleteUser = can(Actions.DELETE, Resources.USER, Scopes.ORG);
+  const canUpdateRole = can(Actions.UPDATE, Resources.ROLE, Scopes.PLATFORM);
+  const canDeleteUser = can(Actions.DELETE, Resources.USER, Scopes.PLATFORM);
 
   const getRolePriority = (roleObj: any) => {
     if (!roleObj) return 0;
@@ -142,15 +142,15 @@ const Users = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const {
-    data: orgUsersData,
+    data: usersData,
     error,
     isLoading,
-  } = useSWR(`${getAPIUrl()}orgs/users?page=${currentPage}&per_page=${USERS_PER_PAGE}`, (url) =>
+  } = useSWR(`${getAPIUrl()}platform/users?page=${currentPage}&per_page=${USERS_PER_PAGE}`, (url) =>
     swrFetcher(url, access_token),
   );
 
-  const totalUsers = orgUsersData?.total ?? 0;
-  const totalPages = orgUsersData?.total_pages ?? 1;
+  const totalUsers = usersData?.total ?? 0;
+  const totalPages = usersData?.total_pages ?? 1;
 
   const [rolesModal, setRolesModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
@@ -171,7 +171,7 @@ const Users = () => {
       const res = await removeUser(user_id, access_token);
       if (res.status === 200) {
         // Revalidate the current page data
-        await mutate(`${getAPIUrl()}orgs/users?page=${currentPage}&per_page=${USERS_PER_PAGE}`);
+        await mutate(`${getAPIUrl()}platform/users?page=${currentPage}&per_page=${USERS_PER_PAGE}`);
         toast.success(t('userRemovedSuccess'), { id: toastId });
       } else {
         toast.error(t('errors.removeUserFailed'), { id: toastId });
@@ -181,7 +181,7 @@ const Users = () => {
     }
   };
 
-  const users = (orgUsersData?.users ?? []) as UserRow[];
+  const users = (usersData?.users ?? []) as UserRow[];
   const columns: ColumnDef<UserRow>[] = [
     {
       accessorFn: (row) =>
@@ -303,7 +303,7 @@ const Users = () => {
               columns={columns}
               data={users}
               serverPaginated
-              storageKey="org-users"
+              storageKey="platform-users"
               labels={{
                 searchPlaceholder: t('searchPlaceholder'),
                 emptyMessage: t('noUsersFound'),

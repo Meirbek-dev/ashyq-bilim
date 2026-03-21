@@ -1,5 +1,5 @@
-import { getPlatformOrganizationContextInfo } from '@/services/platform/platform';
-import { getEditableOrgCourses } from '@services/courses/courses';
+import { getPlatformContextInfo } from '@/services/platform/platform';
+import { getEditableCourses } from '@services/courses/courses';
 import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { auth } from '@/auth';
@@ -39,12 +39,12 @@ function parsePreset(value: string | string[] | undefined): string {
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('General');
-  const org = await getPlatformOrganizationContextInfo();
+  const platform = await getPlatformContextInfo();
 
   return {
     title: `${t('courses')} - Ashyq Bilim`,
-    description: org.description,
-    keywords: `${org.name}, ${org.description}, ${t('courses')}, learning, education, online learning, edu, online courses, ${org.name} ${t('courses')}`,
+    description: platform.description,
+    keywords: `${platform.name}, ${platform.description}, ${t('courses')}, learning, education, online learning, edu, online courses, ${platform.name} ${t('courses')}`,
     robots: {
       index: true,
       follow: true,
@@ -57,7 +57,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     openGraph: {
       title: `${t('courses')} - Ashyq Bilim`,
-      description: org.description,
+      description: platform.description,
       type: 'website',
     },
   };
@@ -80,9 +80,9 @@ async function PlatformDashCoursesPageInner(props: {
 
   const session = await auth();
   const access_token = session?.tokens?.access_token;
-  const [org, { courses, total, summary }] = await Promise.all([
-    getPlatformOrganizationContextInfo(access_token || undefined),
-    getEditableOrgCourses(access_token || undefined, currentPage, COURSES_PER_PAGE, query, sortBy, preset),
+  const [platform, { courses, total, summary }] = await Promise.all([
+    getPlatformContextInfo(access_token || undefined),
+    getEditableCourses(access_token || undefined, currentPage, COURSES_PER_PAGE, query, sortBy, preset),
   ]);
 
   return (

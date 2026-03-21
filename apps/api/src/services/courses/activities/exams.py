@@ -304,7 +304,7 @@ async def create_exam_with_activity(
 ) -> dict:
     """Create an exam with associated activity in one request"""
 
-    # Get chapter to determine course and org
+    # Get chapter to determine course and platform context
     from src.db.courses.chapters import Chapter
 
     chapter = db_session.get(Chapter, exam_object.chapter_id)

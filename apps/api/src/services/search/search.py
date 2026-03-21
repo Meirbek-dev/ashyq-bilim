@@ -7,12 +7,10 @@ from sqlmodel import Session, and_, or_, select, text
 from src.db.collections import Collection, CollectionRead
 from src.db.collections_courses import CollectionCourse
 from src.db.courses.courses import Course, CourseRead
-from src.db.organizations import Organization
 from src.db.permissions import UserRole
 from src.db.strict_base_model import PydanticStrictBaseModel
 from src.db.users import AnonymousUser, PublicUser, User, UserRead
 from src.services.courses.courses import search_courses
-from src.services.platform import get_platform_organization
 
 T = TypeVar("T")
 
@@ -23,7 +21,7 @@ class SearchResult(PydanticStrictBaseModel):
     users: list[UserRead]
 
 
-async def search_across_org(
+async def search_platform_content(
     request: Request,
     current_user: PublicUser | AnonymousUser,
     search_query: str,
@@ -32,18 +30,9 @@ async def search_across_org(
     limit: int = 10,
 ) -> SearchResult:
     """
-    Search across courses, collections and users within the platform organization
+    Search across courses, collections and users within the platform
     """
     offset = (page - 1) * limit
-
-    # Get organization
-    try:
-        org = get_platform_organization(db_session)
-    except RuntimeError:
-        org = None
-
-    if not org:
-        return SearchResult(courses=[], collections=[], users=[])
 
     # Search courses using existing search_courses function
     courses = await search_courses(

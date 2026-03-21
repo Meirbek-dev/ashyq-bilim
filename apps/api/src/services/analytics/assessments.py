@@ -81,9 +81,7 @@ def _build_rollup_assessment_rows(
 ) -> tuple[str, list[AssessmentOutlierRow]] | None:
     if not supports_rollup_reads(filters):
         return None
-    rollups = list_latest_assessment_rollups(
-        db_session, course_ids=scope.course_ids
-    )
+    rollups = list_latest_assessment_rollups(db_session, course_ids=scope.course_ids)
     if not rollups:
         return None
 

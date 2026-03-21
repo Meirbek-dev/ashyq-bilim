@@ -3,8 +3,8 @@
 import { getCoursesLinkedToProduct, linkCourseToProduct } from '@services/payments/products';
 import { usePlatformSession } from '@/components/Contexts/SessionContext';
 import { getCourseThumbnailMediaDirectory } from '@services/media/media';
-import { getPaymentsProductsSwrKey } from '@services/payments/keys';
 import { usePlatform } from '@/components/Contexts/PlatformContext';
+import { getPaymentsProductsSwrKey } from '@services/payments/keys';
 import { getCourses } from '@services/courses/courses';
 import { Button } from '@components/ui/button';
 import { Input } from '@components/ui/input';
@@ -32,7 +32,7 @@ interface CoursePreviewProps {
 }
 
 const CoursePreview = ({ course, onLink, isLinked }: CoursePreviewProps) => {
-  const org = usePlatform() as any;
+  const platform = usePlatform() as any;
   const t = useTranslations('Payments.LinkCourseModal');
 
   const thumbnailImage = course.thumbnail_image
@@ -89,7 +89,7 @@ export default function LinkCourseModal({ productId, onSuccess }: LinkCourseModa
   const PRODUCTS_KEY = getPaymentsProductsSwrKey();
 
   const { data: coursesData, error: coursesError } = useSWR(
-    () => (accessToken ? ['org-courses', accessToken] : null),
+    () => (accessToken ? ['platform-courses', accessToken] : null),
     ([, token]) => getCourses(null, token),
   );
 

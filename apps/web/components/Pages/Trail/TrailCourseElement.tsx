@@ -20,7 +20,7 @@ interface TrailCourseElementProps {
 }
 
 const TrailCourseElement = ({ course, run }: TrailCourseElementProps) => {
-  const org = usePlatform() as any;
+  const platform = usePlatform() as any;
   const session = usePlatformSession() as any;
   const access_token = session?.data?.tokens?.access_token;
   const courseid = course.course_uuid.replace('course_', '');

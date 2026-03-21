@@ -14,7 +14,7 @@ import { auth } from '@/auth';
 async function resolveToken(access_token?: string): Promise<string | undefined> {
   if (access_token) return access_token;
   const session = await auth();
-  return (session)?.tokens?.access_token ?? undefined;
+  return session?.tokens?.access_token ?? undefined;
 }
 
 export async function getUser(user_id: number, access_token?: string) {

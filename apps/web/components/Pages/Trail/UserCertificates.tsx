@@ -92,7 +92,7 @@ const UserCertificates: React.FC = () => {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
-            // Use Almaty timezone to avoid ENVIRONMENT_FALLBACK errors and match org locale
+            // Use Almaty timezone to avoid ENVIRONMENT_FALLBACK errors and match the platform locale
             timeZone: 'Asia/Almaty',
           });
 

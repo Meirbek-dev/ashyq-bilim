@@ -20,8 +20,15 @@ import { useTranslations } from 'next-intl';
 const DashMobileMenu = () => {
   const session = usePlatformSession() as any;
   const t = useTranslations('SidebarMenu');
-  const { canSeeOrg, canSeeCourses, canSeeAssignments, canSeeAnalytics, canSeeUsers, canSeeAdmin, canSeePayments } =
-    useNavigationPermissions();
+  const {
+    canSeePlatform,
+    canSeeCourses,
+    canSeeAssignments,
+    canSeeAnalytics,
+    canSeeUsers,
+    canSeeAdmin,
+    canSeePayments,
+  } = useNavigationPermissions();
 
   return (
     <div className="fixed right-0 bottom-0 left-0 z-50 border-t border-sidebar-border bg-sidebar text-sidebar-foreground shadow-lg supports-[backdrop-filter]:bg-sidebar/90 supports-[backdrop-filter]:backdrop-blur-md">
@@ -126,20 +133,20 @@ const DashMobileMenu = () => {
             </AppLink>
           </ToolTip>
         ) : null}
-        {canSeeOrg ? (
+        {canSeePlatform ? (
           <ToolTip
-            content={t('tooltips.organization')}
+            content={t('tooltips.platform')}
             slateBlack
             sideOffset={8}
             side="top"
           >
             <AppLink
-              href="/dash/org/settings/general"
+              href="/dash/platform/settings/general"
               className="flex flex-col items-center p-2"
-              aria-label={t('ariaLabels.organizationSettings')}
+              aria-label={t('ariaLabels.platformSettings')}
             >
               <School size={20} />
-              <span className="mt-1 text-xs">{t('mobile.org')}</span>
+              <span className="mt-1 text-xs">{t('mobile.platform')}</span>
             </AppLink>
           </ToolTip>
         ) : null}

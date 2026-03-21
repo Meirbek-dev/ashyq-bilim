@@ -4,7 +4,6 @@ from pydantic import EmailStr
 
 from config.config import get_settings
 from src.core.platform import PLATFORM_BRAND_NAME
-from src.db.organizations import OrganizationRead
 from src.db.users import UserRead
 from src.services.email.utils import send_email
 

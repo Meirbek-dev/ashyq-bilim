@@ -5,29 +5,39 @@ import PageLoading from '@components/Objects/Loaders/PageLoading';
 import { swrFetcher } from '@services/utils/ts/requests';
 import { getAPIUrl } from '@services/config/config';
 import { createContext, useContext } from 'react';
-import type { Platform } from '@/types/org';
+import type { Platform } from '@/types/platform';
 import type { ReactNode } from 'react';
 import useSWR from 'swr';
 
 export const PlatformContext = createContext<Platform | null>(null);
 
-export const PlatformContextProvider = ({ children, initialOrg }: { children: ReactNode; initialOrg?: any }) => {
+export const PlatformContextProvider = ({
+  children,
+  initialPlatform,
+}: {
+  children: ReactNode;
+  initialPlatform?: any;
+}) => {
   const session = usePlatformSession();
   const accessToken = session?.data?.tokens?.access_token;
-  const orgContextKey = `${getAPIUrl()}orgs/platform`;
+  const platformContextKey = `${getAPIUrl()}platform`;
 
-  const { data: org, isLoading: isOrgLoading } = useSWR(orgContextKey, (url: string) => swrFetcher(url, accessToken), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    revalidateIfStale: !initialOrg,
-    fallbackData: initialOrg || undefined,
-  });
+  const { data: platform, isLoading: isPlatformLoading } = useSWR(
+    platformContextKey,
+    (url: string) => swrFetcher(url, accessToken),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      revalidateIfStale: !initialPlatform,
+      fallbackData: initialPlatform || undefined,
+    },
+  );
 
-  const isLoading = session.status === 'loading' || (!org && isOrgLoading);
+  const isLoading = session.status === 'loading' || (!platform && isPlatformLoading);
 
   if (isLoading) return <PageLoading />;
 
-  return <PlatformContext.Provider value={org}>{children}</PlatformContext.Provider>;
+  return <PlatformContext.Provider value={platform}>{children}</PlatformContext.Provider>;
 };
 
 export function usePlatform(): Platform | null {

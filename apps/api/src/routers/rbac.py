@@ -183,7 +183,7 @@ async def get_my_permissions(
 
 
 @router.get("/user-roles", response_model=list[UserRoleAssignmentResponse])
-async def list_org_user_roles(
+async def list_user_roles(
     db_session: Annotated[Session, Depends(get_db_session)],
     current_user: Annotated[PublicUser, Depends(get_current_user)] = None,
     checker: PermissionCheckerDep = None,

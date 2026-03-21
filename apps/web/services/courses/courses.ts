@@ -19,11 +19,7 @@ import { courseTag, tags } from '@/lib/cacheTags';
  * Uses `use cache` directive for cacheComponents
  * Returns both courses and total count for pagination
  */
-async function fetchCourses(
-  page = 1,
-  limit = 20,
-  access_token?: string,
-): Promise<{ courses: any[]; total: number }> {
+async function fetchCourses(page = 1, limit = 20, access_token?: string): Promise<{ courses: any[]; total: number }> {
   'use cache';
   cacheTag(tags.courses);
   cacheTag(courseTag.publicList());
@@ -123,7 +119,7 @@ async function fetchEditableCourses(
   return { courses, total, summary };
 }
 
-export async function getEditableOrgCourses(
+export async function getEditableCourses(
   access_token?: any,
   page = 1,
   limit = 20,
@@ -150,7 +146,7 @@ export async function getCourseUserRights(course_uuid: string, access_token?: st
   return await errorHandling(result);
 }
 
-export async function searchOrgCourses(query: string, page = 1, limit = 20, next: any, access_token?: any) {
+export async function searchCourses(query: string, page = 1, limit = 20, next: any, access_token?: any) {
   const result: any = await fetch(
     `${getAPIUrl()}courses/search?query=${encodeURIComponent(query)}&page=${page}&limit=${limit}`,
     RequestBodyWithAuthHeader('GET', null, next, access_token),

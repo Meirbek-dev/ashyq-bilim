@@ -7,7 +7,7 @@
 
 import type {
   CreateRoleBody,
-  OrgUserBasic,
+  UserBasic,
   Permission,
   Role,
   RoleAuditListResponse,
@@ -140,12 +140,12 @@ export function removeRoleFromUser(token: string, userId: number, roleId: number
 }
 
 // ============================================================================
-// Org users (used by role assignment UI)
+// Users (used by role assignment UI)
 // ============================================================================
 
-export function listOrgUsers(token: string, limit = 100): Promise<OrgUserBasic[]> {
+export function listUsers(token: string, limit = 100): Promise<UserBasic[]> {
   // The endpoint may return { users: [...] } or a flat array.
-  return request<OrgUserBasic[] | { users: OrgUserBasic[] }>(api(`orgs/users?limit=${limit}`), token).then((data) =>
+  return request<UserBasic[] | { users: UserBasic[] }>(api(`platform/users?limit=${limit}`), token).then((data) =>
     Array.isArray(data) ? data : data.users,
   );
 }

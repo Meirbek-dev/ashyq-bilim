@@ -1,7 +1,7 @@
 /**
- * Organization types - matches the backend OrganizationRead schema.
+ * Platform types - matches the backend PlatformRead schema.
  *
- * Source: apps/api/src/db/organizations.py (OrganizationBase + OrganizationRead)
+ * Source: apps/api/src/db/platform.py (PlatformBase + PlatformRead storage model)
  */
 
 // ============================================================================
@@ -43,7 +43,7 @@ export interface Features {
 }
 
 // ============================================================================
-// Org config
+// Platform config
 // ============================================================================
 
 export interface ConfigData {

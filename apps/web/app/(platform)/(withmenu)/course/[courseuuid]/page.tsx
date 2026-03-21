@@ -1,5 +1,5 @@
-import { getPlatformOrganizationContextInfo } from '@/services/platform/platform';
 import { getCourseThumbnailMediaDirectory } from '@services/media/media';
+import { getPlatformContextInfo } from '@/services/platform/platform';
 import { getOptionalSession } from '@/lib/get-optional-session';
 import { getCourseMetadata } from '@services/courses/courses';
 import type { Metadata } from 'next';
@@ -15,7 +15,7 @@ export async function generateMetadata(props: MetadataProps): Promise<Metadata> 
   const params = await props.params;
   const session = await getOptionalSession();
   const access_token = session?.tokens?.access_token;
-  const org = await getPlatformOrganizationContextInfo();
+  const platform = await getPlatformContextInfo();
   const course_meta = await getCourseMetadata(params.courseuuid, undefined, access_token || null);
 
   return {

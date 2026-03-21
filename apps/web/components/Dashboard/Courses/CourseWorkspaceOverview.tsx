@@ -103,7 +103,7 @@ export default function CourseWorkspaceOverview({
             {readiness.checklist.map((item) => (
               <AppLink
                 key={item.id}
-                href={buildCourseWorkspacePath(courseuuid, (item.href) || 'overview')}
+                href={buildCourseWorkspacePath(courseuuid, item.href || 'overview')}
                 className="flex items-center gap-3 rounded-lg border px-4 py-3 transition-colors hover:bg-muted/50"
               >
                 <CourseStatusBadge status={item.complete ? 'ready' : 'needs-review'} />

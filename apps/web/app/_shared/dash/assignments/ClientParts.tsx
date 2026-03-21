@@ -26,7 +26,7 @@ interface Assignment {
   description: string;
 }
 
-export const CourseCard = ({ course, assignments, org }: any) => {
+export const CourseCard = ({ course, assignments, platform }: any) => {
   const t = useTranslations('DashPage.Assignments.HomePage');
   const courseId = course.course_uuid.replace('course_', '');
 
@@ -37,7 +37,7 @@ export const CourseCard = ({ course, assignments, org }: any) => {
           <div className="flex items-center gap-4">
             <CourseThumbnail
               course={course}
-              org={org}
+              platform={platform}
               courseId={courseId}
             />
             <div className="space-y-1">
@@ -73,7 +73,7 @@ export const CourseCard = ({ course, assignments, org }: any) => {
               <div key={assignment.assignment_uuid}>
                 <AssignmentRow
                   assignment={assignment}
-                  org={org}
+                  platform={platform}
                 />
                 {idx < assignments.length - 1 && <Separator className="mt-3" />}
               </div>
@@ -90,7 +90,7 @@ export const CourseCard = ({ course, assignments, org }: any) => {
   );
 };
 
-export const AssignmentRow = ({ assignment, org }: any) => {
+export const AssignmentRow = ({ assignment, platform }: any) => {
   const t = useTranslations('DashPage.Assignments.HomePage');
   const assignmentId = assignment.assignment_uuid.replace('assignment_', '');
 
@@ -141,7 +141,7 @@ export const AssignmentRow = ({ assignment, org }: any) => {
   );
 };
 
-export const CourseThumbnail = ({ course, org, courseId }: any) => {
+export const CourseThumbnail = ({ course, platform, courseId }: any) => {
   const t = useTranslations('DashPage.Assignments.HomePage');
   const thumbnailUrl = course.thumbnail_image
     ? getCourseThumbnailMediaDirectory(course.course_uuid, course.thumbnail_image)

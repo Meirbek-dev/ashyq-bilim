@@ -248,7 +248,7 @@ const UserGroups = () => {
           columns={columns}
           data={usergroups ?? []}
           pageSize={10}
-          storageKey="org-usergroups"
+          storageKey="platform-usergroups"
           labels={{ emptyMessage: t('noUserGroupsFound') }}
         />
         <div className="mt-3 mr-2 flex justify-end">

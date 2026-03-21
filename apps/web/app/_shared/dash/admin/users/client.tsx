@@ -20,11 +20,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { assignRoleToUser, listOrgUsers, listRoles, listUserRoles, removeRoleFromUser } from '@/services/rbac';
+import { assignRoleToUser, listUsers, listRoles, listUserRoles, removeRoleFromUser } from '@/services/rbac';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Actions, PermissionGuard, Resources, Scopes } from '@/components/Security';
 import { AlertTriangle, Calendar, Plus, Shield, Trash2, User } from 'lucide-react';
-import type { OrgUserBasic, Role, UserRoleAssignment } from '@/types/permissions';
+import type { UserBasic, Role, UserRoleAssignment } from '@/types/permissions';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { usePlatformSession } from '@/components/Contexts/SessionContext';
 import { getUserAvatarMediaDirectory } from '@/services/media/media';
@@ -46,7 +46,7 @@ export default function UserRolesClient() {
 
   const [userRoles, setUserRoles] = useState<UserRoleAssignment[]>([]);
   const [availableRoles, setAvailableRoles] = useState<Role[]>([]);
-  const [users, setUsers] = useState<OrgUserBasic[]>([]);
+  const [users, setUsers] = useState<UserBasic[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
@@ -98,7 +98,7 @@ export default function UserRolesClient() {
   const fetchUsers = useCallback(async () => {
     if (!accessToken) return;
     try {
-      const data = await listOrgUsers(accessToken);
+      const data = await listUsers(accessToken);
       setUsers(data);
     } catch (error) {
       console.error('Failed to fetch users:', error);
@@ -227,7 +227,7 @@ export default function UserRolesClient() {
             <PermissionGuard
               action={Actions.DELETE}
               resource={Resources.ROLE}
-              scope={Scopes.ORG}
+              scope={Scopes.PLATFORM}
             >
               <Button
                 variant="ghost"
@@ -266,7 +266,7 @@ export default function UserRolesClient() {
         <PermissionGuard
           action={Actions.MANAGE}
           resource={Resources.ROLE}
-          scope={Scopes.ORG}
+          scope={Scopes.PLATFORM}
         >
           <Dialog
             open={isAddDialogOpen}
@@ -367,7 +367,7 @@ export default function UserRolesClient() {
             columns={columns}
             data={userRoles}
             pageSize={10}
-            storageKey="org-user-roles"
+            storageKey="platform-user-roles"
             labels={{
               searchPlaceholder: t('searchUsersOrRoles'),
               emptyMessage: t('noUserRoleAssignments'),

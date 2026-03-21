@@ -22,7 +22,6 @@ from src.db.users import AnonymousUser, PublicUser
 from src.security.rbac import PermissionChecker
 from src.services.courses.activities.uploads.videos import upload_subtitle, upload_video
 from src.services.courses.courses import _ensure_course_is_current
-from src.services.platform import get_platform_organization
 
 
 def _get_language_label(language_code: str) -> str:
@@ -125,8 +124,6 @@ async def create_video_activity(
 
     _ensure_course_is_current(course, last_known_update_date)
 
-    organization = get_platform_organization(db_session)
-
     # generate activity_uuid
     activity_uuid = f"activity_{ULID()}"
 
@@ -164,14 +161,14 @@ async def create_video_activity(
     db_session.refresh(activity)
 
     # upload video
-    if video_file and organization and course:
+    if video_file and course:
         # Direct upload: get videofile format and upload
         await upload_video(
             video_file,
             activity.activity_uuid,
             course.course_uuid,
         )
-    elif video_uploaded_path and organization and course:
+    elif video_uploaded_path and course:
         # Pre-uploaded via chunked upload: move from temp location to final location
         import shutil
         from pathlib import Path

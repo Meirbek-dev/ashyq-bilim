@@ -27,7 +27,7 @@ from src.services.users.password_reset import (
     send_reset_password_code,
 )
 from src.services.users.users import (
-    create_user_without_org,
+    create_user_without_platform,
     delete_user_by_id,
     get_user_session,
     read_user_by_id,
@@ -68,7 +68,7 @@ async def api_get_current_user_session(
 
 
 @router.post("", tags=["users"])
-async def api_create_user_without_org(
+async def api_create_user_without_platform(
     *,
     request: Request,
     db_session: Annotated[Session, Depends(get_db_session)],
@@ -78,7 +78,9 @@ async def api_create_user_without_org(
     """
     Create User
     """
-    return await create_user_without_org(request, db_session, current_user, user_object)
+    return await create_user_without_platform(
+        request, db_session, current_user, user_object
+    )
 
 
 @router.get("/id/{user_id}", tags=["users"])
@@ -142,7 +144,7 @@ async def api_update_user(
     """
     Update User
 
-    **Required Permission**: `user:update:own` (for own profile) or `user:update:org` (for others)
+    **Required Permission**: `user:update:own` (for own profile) or `user:update:platform` (for others)
     """
     # Check if updating own profile or another user's profile
     is_own_profile = user_id == current_user.id
@@ -166,7 +168,7 @@ async def api_update_avatar_user(
     """
     Update User Avatar
 
-    **Required Permission**: `user:update:own` (for own avatar) or `user:update:org` (for others)
+    **Required Permission**: `user:update:own` (for own avatar) or `user:update:platform` (for others)
     """
     # Check if updating own avatar or another user's avatar
     is_own_avatar = user_id == current_user.id
@@ -284,7 +286,7 @@ async def api_delete_user(
     """
     Delete User
 
-    **Required Permission**: `user:delete:org`
+    **Required Permission**: `user:delete:platform`
     """
     checker.require(current_user.id, "user:delete")
 

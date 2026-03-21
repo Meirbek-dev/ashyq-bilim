@@ -570,7 +570,7 @@
       "signInWithGoogle": "Google арқылы кіру",
       "signup": "Тіркелу",
       "sso": "Бір реттік жүйеге кіру (SSO)",
-      "title": "Кіру - {orgName}",
+      "title": "Кіру - {platformName}",
       "welcomeBack": "Қайтып келуіңізбен! Тіркелгі деректеріңізді енгізіңіз.",
       "wrongCredentials": "Қате электронды пошта немесе құпия сөз",
       "loginTitle": "Кіру",
@@ -594,7 +594,6 @@
     },
     "Signup": {
       "accountCreated": "Аккаунтыңыз сәтті жасалды",
-      "autoJoinDefaultOrg": "Пайдаланушылар тіркелген кезде әдепкі ұйымға автоматты түрде қосылады.",
       "bio": "Өзім туралы",
       "bioPlaceholder": "Өзіңіз туралы бірдеңе айтыңыз",
       "createAccount": "Аккаунт жасау",
@@ -606,7 +605,7 @@
       "goBack": "Кіру дегенге қайта келу",
       "hi": "Сәлем",
       "join": "Қосылу",
-      "joinQuestion": "{orgName} қосылғыңыз келеді ме?",
+      "joinQuestion": "{platformName} қосылғыңыз келеді ме?",
       "loading": "Жүктелуде...",
       "loginToAccount": "Аккаунтқа кіру",
       "password": "Құпия сөз",
@@ -614,7 +613,7 @@
       "redirecting": "Бағытталуда...",
       "signInWithGoogle": "Google арқылы кіру",
       "submit": "Жіберу",
-      "title": "Тіркелу - {orgName}",
+      "title": "Тіркелу - {platformName}",
       "username": "Пайдаланушы аты",
       "usernamePlaceholder": "Пайдаланушы атыңызды енгізіңіз",
       "continueWithGoogle": "Google арқылы жалғастыру",
@@ -1348,7 +1347,7 @@
       "step9Title": "Мазмұныңызды ақшаға айналдырыңыз",
       "triggerText": "Онбординг"
     },
-    "OrgMenu": {
+    "NavMenu": {
       "account": "Шот",
       "closeMenu": "Мәзірді жабыңыз",
       "language": "Тіл",
@@ -1358,7 +1357,7 @@
       "overlayClose": "Мәзірді жабыңыз",
       "search": "Іздеу"
     },
-    "OrgMenuLinks": {
+    "NavMenuLinks": {
       "collections": "Жинақтар",
       "courses": "Курстар",
       "trail": "Прогресс"
@@ -2036,8 +2035,8 @@
     "Course": {
       "loadError": "Курс құрылымын жүктеу мүмкін болмады"
     },
-    "Org": {
-      "adminDescription": "Ұйым параметрлерін және кіруді басқаруды басқару",
+    "Platform": {
+      "adminDescription": "Платформа параметрлері мен қолжетімділікті басқару",
       "adminTitle": "Әкімшілік",
       "fetchError": "Ұйым деректерін жүктеу кезінде қате орын алды",
       "home": "Үй",
@@ -3204,9 +3203,9 @@
         "errorOccurred": "Қате пайда болды",
         "title": "Курстар"
       },
-      "Organization": {
-        "description": "Ұйымыңыздың жалпы параметрлерін баптаңыз",
-        "title": "Ұйым"
+      "Platform": {
+        "description": "Платформаңыздың жалпы параметрлерін баптаңыз",
+        "title": "Платформа"
       },
       "Users": {
         "description": "Ұйым пайдаланушыларын және рөлдерін басқарыңыз",
@@ -4431,7 +4430,7 @@
       "userGroupDeletedSuccess": "Пайдаланушы тобы жойылды.",
       "userRemovedSuccess": "Пайдаланушы ұйымнан жойылды."
     },
-    "OrgSettings": {
+    "PlatformSettings": {
       "CollectionPage": {
         "courses": "Осы жинақтағы курстар",
         "description": "Жинақ сипаттамасы",
@@ -4493,10 +4492,10 @@
           "vocational": "🔧 Кәсіптік оқыту"
         },
         "description": "Ұйым профилін және параметрлерін басқару",
-        "orgUpdateFailed": "Ұйымды жаңарту мүмкін болмады",
-        "orgUpdatedSuccess": "Ұйым жаңартылды",
-        "title": "Ұйым параметрлері",
-        "updatingOrg": "Ұйым жаңартылуда..."
+        "platformUpdateFailed": "Платформаны жаңарту мүмкін болмады",
+        "platformUpdatedSuccess": "Платформа жаңартылды",
+        "title": "Платформа параметрлері",
+        "updatingPlatform": "Платформа жаңартылуда..."
       },
       "Images": {
         "Buttons": {
@@ -4767,12 +4766,12 @@
           "youtubePlaceholder": "YouTube арнасының URL мекенжайы"
         },
         "customLinksTitle": "Арнайы сілтемелер",
-        "description": "Ұйымыңыздың әлеуметтік желілердегі қатысуын басқарыңыз",
-        "orgUpdateFailed": "Ұйымды жаңарту мүмкін болмады",
-        "orgUpdatedSuccess": "Ұйым жаңартылды",
+        "description": "Платформаңыздың әлеуметтік желілердегі қатысуын басқарыңыз",
+        "platformUpdateFailed": "Платформаны жаңарту мүмкін болмады",
+        "platformUpdatedSuccess": "Платформа жаңартылды",
         "socialLinksTitle": "Әлеуметтік сілтемелер",
         "title": "Әлеуметтік сілтемелер",
-        "updatingOrg": "Ұйым жаңартылуда.."
+        "updatingPlatform": "Платформа жаңартылуда.."
       },
       "general": "Жалпы",
       "generalDescription": "Ұйымыңыздың параметрлерін басқару",
@@ -6154,13 +6153,11 @@
   },
   "HomeClient": {
     "hello": "Сәлем",
-    "noOrganizations": "Сіз әлі ешбір ұйымның мүшесі емессіз, осында көру үшін біреуіне қосылыңыз.",
-    "signOut": "Шығу",
-    "yourOrganizations": "Сіздің ұйымдарыңыз"
+    "signOut": "Шығу"
   },
   "HomePage": {
     "Collections": {
-      "collectionOfCourses": "{orgName} ұйымынан курстар жинағы",
+      "collectionOfCourses": "{platformName} ұйымынан курстар жинағы",
       "newCollection": "Жаңа жинақ",
       "noContent": "Әзірге жинақтар жоқ",
       "noContentDescription": "Өз курстарыңыз және контентіңізді ұйымдастыру үшін жинақтар құрыңыз",
@@ -6290,7 +6287,7 @@
       "manageCourses": "Курстарды басқару",
       "managePayments": "Төлемдер мен шоттарды басқару",
       "manageUsers": "Пайдаланушыларды басқару",
-      "organizationSettings": "Ұйым параметрлері",
+      "platformSettings": "Платформа параметрлері",
       "platformLogo": "Ashyq Bilim логотипі",
       "userAccountSettings": "Пайдаланушы шот параметрлері",
       "userSettings": "Пайдаланушы параметрлері"
@@ -6312,12 +6309,12 @@
       "assignments": "Тапсырмалар",
       "courses": "Курстар",
       "home": "Басты бет",
-      "org": "Ұйым",
+      "platform": "Платформа",
       "payments": "Төлемдер",
       "settings": "Параметрлер",
       "users": "Пайдаланушылар"
     },
-    "orgName": "Ashyq Bilim",
+    "platformName": "Ashyq Bilim",
     "tooltips": {
       "admin": "Әкімші басқару тақтасы",
       "analytics": "Оқытушы аналитикасы",
@@ -6326,7 +6323,7 @@
       "home": "Басты басқару тақтасы",
       "logout": "Шығу",
       "metrics": "Метрикалар",
-      "organization": "Ұйым параметрлері",
+      "platform": "Платформа параметрлері",
       "payments": "Төлемдер",
       "userSettings": "@{username} параметрлері",
       "users": "Пайдаланушылар"
@@ -6900,8 +6897,7 @@
     "errorSomethingWentWrong": "Бірдеңе дұрыс болмады. Кейінірек қайталап көріңіз.",
     "hi": "Сәлем",
     "join": "Қосылу ",
-    "joinQuestion": "{orgname} ұйымына қосылу?",
-    "orgJoinSuccess": "Ұйымға сәтті қосылды.",
+    "joinQuestion": "{platformName} ұйымына қосылу?",
     "submit": "Жіберу "
   },
   "Trail": {

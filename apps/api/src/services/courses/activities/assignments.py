@@ -42,7 +42,6 @@ from src.services.courses.activities.uploads.tasks_ref_files import (
 from src.services.courses.certifications import (
     check_course_completion_and_create_certificate,
 )
-from src.services.platform import get_platform_organization
 from src.services.trail.trail import check_trail_presence
 
 logger = logging.getLogger(__name__)
@@ -56,7 +55,7 @@ async def create_assignment(
     current_user: PublicUser | AnonymousUser,
     db_session: Session,
 ) -> AssignmentRead:
-    # Check if org exists
+    # Check if platform exists
     statement = select(Course).where(Course.id == assignment_object.course_id)
     course = db_session.exec(statement).first()
 
@@ -524,8 +523,6 @@ async def put_assignment_task_reference_file(
             detail="Course not found",
         )
 
-    org = get_platform_organization(db_session)
-
     # RBAC check
     checker = PermissionChecker(db_session)
     checker.require(
@@ -535,7 +532,7 @@ async def put_assignment_task_reference_file(
     )
 
     # Upload reference file
-    if reference_file and reference_file.filename and activity and org:
+    if reference_file and reference_file.filename and activity:
         name_in_disk = (
             f"{assignment_task_uuid}{ULID()}.{reference_file.filename.split('.')[-1]}"
         )
@@ -604,8 +601,6 @@ async def put_assignment_task_submission_file(
             detail="Course not found",
         )
 
-    org = get_platform_organization(db_session)
-
     # RBAC check - only need read permission to submit files
     checker = PermissionChecker(db_session)
     checker.require(
@@ -616,9 +611,7 @@ async def put_assignment_task_submission_file(
     )
 
     # Check if user is enrolled in the course
-    can_view = checker.check(
-        current_user.id, "course:read"
-    )
+    can_view = checker.check(current_user.id, "course:read")
     if not can_view:
         raise HTTPException(
             status_code=403,
@@ -626,7 +619,7 @@ async def put_assignment_task_submission_file(
         )
 
     # Upload submission file
-    if sub_file and sub_file.filename and activity and org:
+    if sub_file and sub_file.filename and activity:
         name_in_disk = f"{assignment_task_uuid}_sub_{current_user.email}_{ULID()}.{sub_file.filename.split('.')[-1]}"
         await upload_submission_file(
             sub_file,
@@ -814,9 +807,7 @@ async def handle_assignment_task_submission(
     # For regular users, ensure they can only submit their own work
     if not is_instructor:
         # Check if user is enrolled in the course
-        can_view = checker.check(
-            current_user.id, "course:read"
-        )
+        can_view = checker.check(current_user.id, "course:read")
         if not can_view:
             raise HTTPException(
                 status_code=403,
