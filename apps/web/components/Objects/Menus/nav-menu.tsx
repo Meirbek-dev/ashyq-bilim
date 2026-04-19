@@ -89,29 +89,24 @@ const DesktopNavLink = ({ def, label }: NavLinkProps) => {
         href={getAbsoluteUrl(href)}
         aria-current={isActive ? "page" : undefined}
         className={cn(
-          "group relative flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium outline-none transition-colors",
-          "focus-visible:ring-2 focus-visible:ring-ring",
+          "group relative flex h-9 items-center gap-2 rounded-full px-4 text-sm font-medium outline-none transition-all duration-200",
+          "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           isActive
-            ? "text-foreground"
-            : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+            ? "bg-background text-foreground shadow-sm ring-1 ring-border/60"
+            : "text-muted-foreground hover:text-foreground",
         )}
       >
         <Icon
           size={16}
+          strokeWidth={2.25}
           className={cn(
             "shrink-0 transition-colors",
             isActive
-              ? "text-foreground"
-              : "text-muted-foreground group-hover:text-accent-foreground",
+              ? "text-primary"
+              : "text-muted-foreground/80 group-hover:text-foreground",
           )}
         />
-        <span>{label}</span>
-        {isActive && (
-          <span
-            aria-hidden
-            className="absolute inset-x-3 -bottom-2 h-0.5 rounded-full bg-primary"
-          />
-        )}
+        <span className="tracking-tight">{label}</span>
       </Link>
     </NavigationMenuItem>
   );
@@ -273,7 +268,7 @@ export default function NavBar() {
 
           <nav aria-label={t("navigation")} className="hidden md:flex">
             <NavigationMenu>
-              <NavigationMenuList className="gap-1">
+              <NavigationMenuList className="gap-0.5 rounded-full border border-border/60 bg-muted/40 p-1 shadow-inner backdrop-blur-sm">
                 {visibleLinks.map((def) => (
                   <DesktopNavLink
                     key={def.type}
@@ -328,8 +323,8 @@ export default function NavBar() {
                 <Image
                   src={platformLogoFull}
                   alt={t("logoAlt")}
-                  width={90}
-                  height={28}
+                  width={180}
+                  height={65}
                   className="h-7 w-auto object-contain"
                 />
               </SheetHeader>
