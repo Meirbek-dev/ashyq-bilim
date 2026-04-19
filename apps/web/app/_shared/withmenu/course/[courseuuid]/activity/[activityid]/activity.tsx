@@ -34,7 +34,7 @@ import { AssignmentProvider } from '@components/Contexts/Assignments/AssignmentC
 import { ActivityAIChatProvider } from '@components/Contexts/AI/ActivityAIChatContext';
 import { useSession } from '@/hooks/useSession';
 import GeneralWrapper from '@/components/Objects/Elements/Wrappers/GeneralWrapper';
-import { Suspense, lazy, useEffect, useRef, useState, useTransition } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import ActivityBreadcrumbs from '@components/Pages/Activity/ActivityBreadcrumbs';
 import ActivityIndicators from '@components/Pages/Courses/ActivityIndicators';
 import CourseEndView from '@components/Pages/Activity/CourseEndView';
@@ -48,6 +48,7 @@ import { useGamificationStore } from '@/stores/gamification';
 import { useMySubmission } from '@/hooks/useMySubmission';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 import { useTrailCurrent } from '@/features/trail/hooks/useTrail';
+import { buildCourseActivityIndex, normalizeActivityUuid } from '@/lib/course-activity-index';
 import { getAbsoluteUrl } from '@services/config/config';
 import { useQueryClient } from '@tanstack/react-query';
 import UserAvatar from '@components/Objects/UserAvatar';
@@ -146,29 +147,6 @@ interface ActivityActionsProps {
   showNavigation?: boolean;
 }
 
-// Custom hook for activity position
-function useActivityPosition(course: CourseStructure, activityId: string) {
-  const allActivities: (Activity & { cleanUuid?: string; chapterName?: string })[] = [];
-  let currentIndex = -1;
-
-  course.chapters.forEach((chapter: Chapter) => {
-    chapter.activities?.forEach((activity: Activity) => {
-      const cleanActivityUuid = activity.activity_uuid?.replace('activity_', '');
-      allActivities.push({
-        ...activity,
-        cleanUuid: cleanActivityUuid,
-        chapterName: chapter.name,
-      });
-
-      if (cleanActivityUuid === activityId.replace('activity_', '')) {
-        currentIndex = allActivities.length - 1;
-      }
-    });
-  });
-
-  return { allActivities, currentIndex };
-}
-
 const ActivityActions = ({ activity, activityid, course, assignment, showNavigation = true }: ActivityActionsProps) => {
   const t = useTranslations('ActivityPage');
   const { contributorStatus } = useContributorStatus(course.course_uuid);
@@ -254,6 +232,11 @@ const ActivityClient = (props: ActivityClientProps) => {
   const t = useTranslations('ActivityPage');
   const locale = useLocale();
   const format = useFormatter();
+  const cleanActivityId = normalizeActivityUuid(activityid);
+  const activityIndex = useMemo(() => buildCourseActivityIndex<Activity>(course.chapters), [course.chapters]);
+  const allActivities = activityIndex.allActivities;
+  const currentIndex = activityIndex.indexByCleanUuid.get(cleanActivityId) ?? -1;
+  const currentActivityEntry = currentIndex >= 0 ? allActivities[currentIndex] : null;
 
   const bgColor = (() => {
     if (!activity) return 'bg-background';
@@ -274,8 +257,6 @@ const ActivityClient = (props: ActivityClientProps) => {
     enabled: activity?.activity_type === 'TYPE_ASSIGNMENT',
   });
   const assignment = assignmentUuid ? { assignment_uuid: assignmentUuid } : null;
-
-  const { allActivities, currentIndex } = useActivityPosition(course, activityid);
 
   // Get previous and next activities
   const prevActivity = currentIndex > 0 ? allActivities[currentIndex - 1] : null;
@@ -417,26 +398,17 @@ const ActivityClient = (props: ActivityClientProps) => {
     };
   }, []);
 
-  const getChapterNameByActivityId = (courseData: any, activity_id: number) => {
-    for (let i = 0; i < courseData.chapters.length; i += 1) {
-      const chapter = courseData.chapters[i];
-      for (let j = 0; j < chapter.activities.length; j += 1) {
-        const activityItem = chapter.activities[j];
-        if (activityItem.id === activity_id) {
-          return `${t('chapter')} ${i + 1} : ${chapter.name}`;
-        }
-      }
-    }
-    return null;
-  };
+  const chapterLabel =
+    currentActivityEntry !== null
+      ? `${t('chapter')} ${currentActivityEntry.chapterIndex + 1} : ${currentActivityEntry.chapterName ?? ''}`
+      : null;
 
   // Focus mode progress
-  const focusTotalCount =
-    course.chapters?.reduce((acc: number, chapter: any) => acc + (chapter.activities?.length ?? 0), 0) ?? 0;
+  const focusTotalCount = allActivities.length;
   const focusCompletedCount =
     trailData?.runs
-      ?.find((run: any) => run.course_uuid === course.course_uuid)
-      ?.steps?.filter((step: any) => step.complete)?.length ?? 0;
+      ?.find((run: any) => (run.course_uuid ?? run.course?.course_uuid) === course.course_uuid)
+      ?.steps?.reduce((count: number, step: any) => count + Number(Boolean(step.complete)), 0) ?? 0;
   const focusPercent = focusTotalCount > 0 ? Math.round((focusCompletedCount / focusTotalCount) * 100) : 0;
 
   return (
@@ -634,9 +606,7 @@ const ActivityClient = (props: ActivityClientProps) => {
                             <h1 className="text-foreground mt-0.5 text-2xl font-semibold tracking-tight">
                               {activity?.name || ''}
                             </h1>
-                            <p className="text-muted-foreground mt-0.5 text-sm">
-                              {activity ? getChapterNameByActivityId(course, activity.id) : ''}
-                            </p>
+                            <p className="text-muted-foreground mt-0.5 text-sm">{activity ? chapterLabel : ''}</p>
                           </div>
                         </div>
 
@@ -873,6 +843,23 @@ export const MarkStatus = (props: {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
+  const cleanCourseUuid = props.course.course_uuid?.replace('course_', '');
+  const totalActivityCount = useMemo(
+    () => props.course.chapters?.reduce((count: number, chapter: any) => count + (chapter.activities?.length ?? 0), 0) ?? 0,
+    [props.course.chapters],
+  );
+  const completedActivityIds = useMemo(() => {
+    const run = props.trailData?.runs?.find((candidateRun: any) => {
+      const runCourseUuid = candidateRun.course?.course_uuid ?? candidateRun.course_uuid;
+      return runCourseUuid?.replace('course_', '') === cleanCourseUuid;
+    });
+
+    return new Set(
+      (run?.steps ?? [])
+        .filter((step: any) => step.complete === true && typeof step.activity_id === 'number')
+        .map((step: any) => step.activity_id),
+    );
+  }, [cleanCourseUuid, props.trailData]);
 
   const refetchGamification = useGamificationStore((s) => s.refetch);
 
@@ -880,25 +867,7 @@ export const MarkStatus = (props: {
   const completedActivitiesRef = useRef(new Set());
 
   const areAllActivitiesCompleted = () => {
-    const run = props.trailData?.runs?.find((run: any) => run.course_uuid === props.course.course_uuid);
-    if (!run) return false;
-
-    let totalActivities = 0;
-    let completedActivities = 0;
-
-    props.course.chapters.forEach((chapter: any) => {
-      chapter.activities.forEach((activity: any) => {
-        totalActivities += 1;
-        const isCompleted = run.steps.find(
-          (step: any) => step.activity_uuid === activity.activity_uuid && step.complete === true,
-        );
-        if (isCompleted) {
-          completedActivities += 1;
-        }
-      });
-    });
-
-    return completedActivities >= totalActivities - 1;
+    return completedActivityIds.size >= totalActivityCount - 1;
   };
 
   const markActivityAsCompleteFront = async () => {
@@ -926,7 +895,6 @@ export const MarkStatus = (props: {
       }
 
       if (willCompleteAll) {
-        const cleanCourseUuid = props.course.course_uuid.replace('course_', '');
         router.push(`${getAbsoluteUrl('')}/course/${cleanCourseUuid}/activity/end`);
       }
     } catch (error) {
@@ -950,21 +918,7 @@ export const MarkStatus = (props: {
     }
   };
 
-  const isActivityCompleted = (() => {
-    // Clean up course UUID by removing 'course_' prefix if it exists
-    const cleanCourseUuid = props.course.course_uuid?.replace('course_', '');
-
-    const run = props.trailData?.runs?.find((run: any) => {
-      const cleanRunCourseUuid = run.course?.course_uuid?.replace('course_', '');
-      return cleanRunCourseUuid === cleanCourseUuid;
-    });
-
-    if (run) {
-      // Find the step that matches the current activity
-      return run.steps.find((step: any) => step.activity_id === props.activity.id && step.complete === true);
-    }
-    return false;
-  })();
+  const isActivityCompleted = completedActivityIds.has(props.activity.id);
 
   // Don't render until we have trail data
   if (!props.trailData) {
@@ -1001,31 +955,12 @@ export const MarkStatus = (props: {
 const NextActivityButton = ({ course, currentActivityId }: { course: CourseStructure; currentActivityId: number }) => {
   const router = useRouter();
   const t = useTranslations('ActivityPage');
-
-  const nextActivity = (() => {
-    const allActivities: (Activity & { cleanUuid?: string; chapterName?: string })[] = [];
-    let currentIndex = -1;
-
-    // Flatten all activities from all chapters
-    course.chapters.forEach((chapter: Chapter) => {
-      chapter.activities?.forEach((activity: Activity) => {
-        const cleanActivityUuid = activity.activity_uuid?.replace('activity_', '');
-        allActivities.push({
-          ...activity,
-          cleanUuid: cleanActivityUuid,
-          chapterName: chapter.name,
-        });
-
-        // Check if this is the current activity
-        if (activity.id === currentActivityId) {
-          currentIndex = allActivities.length - 1;
-        }
-      });
-    });
-
-    // Get next activity
-    return currentIndex < allActivities.length - 1 ? allActivities[currentIndex + 1] : null;
-  })();
+  const activityIndex = useMemo(() => buildCourseActivityIndex<Activity>(course.chapters), [course.chapters]);
+  const currentIndex = activityIndex.indexByActivityId.get(currentActivityId) ?? -1;
+  const nextActivity =
+    currentIndex >= 0 && currentIndex < activityIndex.allActivities.length - 1
+      ? activityIndex.allActivities[currentIndex + 1]
+      : null;
 
   function navigateToActivity() {
     if (!nextActivity) return;
@@ -1058,31 +993,9 @@ const PreviousActivityButton = ({
 }) => {
   const router = useRouter();
   const t = useTranslations('ActivityPage');
-
-  const previousActivity = (() => {
-    const allActivities: (Activity & { cleanUuid?: string; chapterName?: string })[] = [];
-    let currentIndex = -1;
-
-    // Flatten all activities from all chapters
-    course.chapters.forEach((chapter: Chapter) => {
-      chapter.activities?.forEach((activity: Activity) => {
-        const cleanActivityUuid = activity.activity_uuid?.replace('activity_', '');
-        allActivities.push({
-          ...activity,
-          cleanUuid: cleanActivityUuid,
-          chapterName: chapter.name,
-        });
-
-        // Check if this is the current activity
-        if (activity.id === currentActivityId) {
-          currentIndex = allActivities.length - 1;
-        }
-      });
-    });
-
-    // Get previous activity
-    return currentIndex > 0 ? allActivities[currentIndex - 1] : null;
-  })();
+  const activityIndex = useMemo(() => buildCourseActivityIndex<Activity>(course.chapters), [course.chapters]);
+  const currentIndex = activityIndex.indexByActivityId.get(currentActivityId) ?? -1;
+  const previousActivity = currentIndex > 0 ? activityIndex.allActivities[currentIndex - 1] : null;
 
   function navigateToActivityPrevious() {
     if (!previousActivity) return;

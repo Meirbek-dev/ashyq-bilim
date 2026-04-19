@@ -1,10 +1,10 @@
 'use client';
 
 import { getCourseThumbnailMediaDirectory } from '@services/media/media';
-import { usePlatform } from '@/components/Contexts/PlatformContext';
+import { buildCourseActivityIndex, normalizeActivityUuid } from '@/lib/course-activity-index';
 import { getAbsoluteUrl } from '@services/config/config';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import NextImage from '@components/ui/NextImage';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -93,7 +93,6 @@ const CourseInfo = ({
   t,
 }: {
   course: any;
-  platform: any;
   t: (key: string, values?: Record<string, any>) => string;
 }) => (
   <div className="flex min-w-0 shrink items-center gap-3">
@@ -123,29 +122,10 @@ export default function FixedActivitySecondaryBar(props: FixedActivitySecondaryB
   const [isScrolled, setIsScrolled] = useState(false);
   const [shouldShow, setShouldShow] = useState(false);
   const mainActivityInfoRef = useRef<HTMLDivElement | null>(null);
-  const platform = usePlatform();
-
-  const { allActivities, currentIndex } = (() => {
-    const allActivities: any[] = [];
-    let currentIndex = -1;
-
-    props.course.chapters.forEach((chapter: any) => {
-      chapter.activities.forEach((activity: any) => {
-        const cleanActivityUuid = activity.activity_uuid?.replace('activity_', '');
-        allActivities.push({
-          ...activity,
-          cleanUuid: cleanActivityUuid,
-          chapterName: chapter.name,
-        });
-
-        if (cleanActivityUuid === props.currentActivityId.replace('activity_', '')) {
-          currentIndex = allActivities.length - 1;
-        }
-      });
-    });
-
-    return { allActivities, currentIndex };
-  })();
+  const activityIndex = useMemo(() => buildCourseActivityIndex(props.course.chapters), [props.course.chapters]);
+  const cleanCurrentActivityId = normalizeActivityUuid(props.currentActivityId);
+  const allActivities = activityIndex.allActivities;
+  const currentIndex = activityIndex.indexByCleanUuid.get(cleanCurrentActivityId) ?? -1;
 
   const prevActivity = currentIndex > 0 ? allActivities[currentIndex - 1] : null;
   const nextActivity = currentIndex < allActivities.length - 1 ? allActivities[currentIndex + 1] : null;
@@ -210,7 +190,6 @@ export default function FixedActivitySecondaryBar(props: FixedActivitySecondaryB
         <div className="flex h-14 items-center justify-between gap-4">
           <CourseInfo
             course={props.course}
-            platform={platform}
             t={t}
           />
 

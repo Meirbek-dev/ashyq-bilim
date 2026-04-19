@@ -1,12 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { apiFetch } from '@/lib/api-client';
+import { buildCourseActivityIndex, normalizeActivityUuid } from '@/lib/course-activity-index';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 import { getAbsoluteUrl } from '@/services/config/config';
 import { useContributorStatus } from '@/hooks/useContributorStatus';
@@ -167,34 +168,28 @@ export default function ExamActivity({ activity, course }: ExamActivityProps) {
     router.push(`/course/${courseuuid}`);
   }, [course, router]);
 
+  const courseActivityIndex = useMemo(() => buildCourseActivityIndex(course?.chapters), [course?.chapters]);
+  const currentCourseActivityIndex = courseActivityIndex.indexByCleanUuid.get(normalizeActivityUuid(activity.activity_uuid)) ?? -1;
+  const nextCourseActivity =
+    currentCourseActivityIndex >= 0 && currentCourseActivityIndex < courseActivityIndex.allActivities.length - 1
+      ? courseActivityIndex.allActivities[currentCourseActivityIndex + 1]
+      : null;
+
   const handleProceedToNextActivity = useCallback(() => {
     try {
-      const cleanCurrent = activity.activity_uuid?.replace('activity_', '');
-      type FlatActivity = ChapterActivity & { cleanUuid: string };
-      const allActivities: FlatActivity[] = [];
-      (course?.chapters ?? []).forEach((chapter) =>
-        (chapter.activities ?? []).forEach((a) =>
-          allActivities.push({ ...a, cleanUuid: a.activity_uuid?.replace('activity_', '') }),
-        ),
-      );
-
-      const currentIndex = allActivities.findIndex((a) => a.cleanUuid === cleanCurrent);
-      const nextActivity =
-        currentIndex !== -1 && currentIndex < allActivities.length - 1 ? allActivities[currentIndex + 1] : null;
-
-      if (!nextActivity) {
+      if (!nextCourseActivity) {
         // Prefer a translation if available, otherwise fallback
         toast.info(t('noNextActivity') || 'No next activity');
         return;
       }
 
       const cleanCourseUuid = course.course_uuid?.replace('course_', '');
-      router.push(`${getAbsoluteUrl('')}/course/${cleanCourseUuid}/activity/${nextActivity.cleanUuid}`);
+      router.push(`${getAbsoluteUrl('')}/course/${cleanCourseUuid}/activity/${nextCourseActivity.cleanUuid}`);
     } catch (error) {
       console.error('Failed to navigate to next activity', error);
       toast.error(t('navigationError') || 'Navigation failed');
     }
-  }, [activity, course, router, t]);
+  }, [course.course_uuid, nextCourseActivity, router, t]);
 
   const handleBackToPreExam = useCallback(() => {
     if (state.phase === 'results' || state.phase === 'manage' || state.phase === 'reviewing') {

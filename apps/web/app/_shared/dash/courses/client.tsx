@@ -160,14 +160,16 @@ const CoursesHome = ({
   );
 
   const visibleCourseUuids = useMemo(() => courses.map((course) => course.course_uuid), [courses]);
+  const visibleCourseUuidSet = useMemo(() => new Set(visibleCourseUuids), [visibleCourseUuids]);
+  const selectedCourseUuidSet = useMemo(() => new Set(selectedCourseUuids), [selectedCourseUuids]);
 
   useEffect(() => {
-    setSelectedCourseUuids((current) => current.filter((courseUuid) => visibleCourseUuids.includes(courseUuid)));
-  }, [visibleCourseUuids]);
+    setSelectedCourseUuids((current) => current.filter((courseUuid) => visibleCourseUuidSet.has(courseUuid)));
+  }, [visibleCourseUuidSet]);
 
   const selectedCourses = useMemo(
-    () => courses.filter((course) => selectedCourseUuids.includes(course.course_uuid)),
-    [courses, selectedCourseUuids],
+    () => courses.filter((course) => selectedCourseUuidSet.has(course.course_uuid)),
+    [courses, selectedCourseUuidSet],
   );
 
   const selectableVisibleCourses = useMemo(
@@ -177,17 +179,20 @@ const CoursesHome = ({
 
   const allVisibleSelected =
     selectableVisibleCourses.length > 0 &&
-    selectableVisibleCourses.every((course) => selectedCourseUuids.includes(course.course_uuid));
+    selectableVisibleCourses.every((course) => selectedCourseUuidSet.has(course.course_uuid));
 
   const someVisibleSelected =
-    !allVisibleSelected && selectableVisibleCourses.some((course) => selectedCourseUuids.includes(course.course_uuid));
+    !allVisibleSelected && selectableVisibleCourses.some((course) => selectedCourseUuidSet.has(course.course_uuid));
 
   const headerCheckboxState = allVisibleSelected ? true : someVisibleSelected ? ('indeterminate' as const) : false;
 
   const toggleCourseSelection = (courseUuid: string, checked: boolean) => {
     setSelectedCourseUuids((current) => {
       if (checked) {
-        return current.includes(courseUuid) ? current : [...current, courseUuid];
+        if (current.includes(courseUuid)) {
+          return current;
+        }
+        return [...current, courseUuid];
       }
       return current.filter((value) => value !== courseUuid);
     });
@@ -196,7 +201,7 @@ const CoursesHome = ({
   const toggleAllVisibleCourses = useCallback(
     (checked: boolean) => {
       if (!checked) {
-        setSelectedCourseUuids((current) => current.filter((courseUuid) => !visibleCourseUuids.includes(courseUuid)));
+        setSelectedCourseUuids((current) => current.filter((courseUuid) => !visibleCourseUuidSet.has(courseUuid)));
         return;
       }
 
@@ -206,7 +211,7 @@ const CoursesHome = ({
         return [...next];
       });
     },
-    [selectableVisibleCourses, visibleCourseUuids],
+    [selectableVisibleCourses, visibleCourseUuidSet],
   );
 
   const runBulkVisibility = (nextPublic: boolean) => {
@@ -398,7 +403,7 @@ const CoursesHome = ({
           const disabled = !(canManageCourse(course) || canDeleteCourse(course));
           return (
             <Checkbox
-              checked={selectedCourseUuids.includes(course.course_uuid)}
+              checked={selectedCourseUuidSet.has(course.course_uuid)}
               disabled={disabled}
               onCheckedChange={(checked) => toggleCourseSelection(course.course_uuid, checked)}
               aria-label={t('table.selectCourseAria', { courseName: course.name })}
@@ -478,7 +483,7 @@ const CoursesHome = ({
       canDeleteCourse,
       canManageCourse,
       courseReadinessMap,
-      selectedCourseUuids,
+      selectedCourseUuidSet,
       t,
       toggleAllVisibleCourses,
     ],

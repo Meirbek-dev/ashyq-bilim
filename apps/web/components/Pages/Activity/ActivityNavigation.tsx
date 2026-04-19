@@ -1,7 +1,8 @@
 'use client';
 import { getAbsoluteUrl } from '@services/config/config';
+import { buildCourseActivityIndex, normalizeActivityUuid } from '@/lib/course-activity-index';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
@@ -141,34 +142,10 @@ export default function ActivityNavigation(props: ActivityNavigationProps): Reac
   const router = useRouter();
   const [isBottomNavVisible, setIsBottomNavVisible] = useState(true);
   const bottomNavRef = useRef<HTMLDivElement>(null);
-  const [_navWidth, setNavWidth] = useState<number | null>(null);
-
-  // Function to find the current activity's position in the course
-  const findActivityPosition = () => {
-    const allActivities: any[] = [];
-    let currentIndex = -1;
-
-    // Flatten all activities from all chapters
-    props.course.chapters.forEach((chapter: any) => {
-      chapter.activities.forEach((activity: any) => {
-        const cleanActivityUuid = activity.activity_uuid?.replace('activity_', '');
-        allActivities.push({
-          ...activity,
-          cleanUuid: cleanActivityUuid,
-          chapterName: chapter.name,
-        });
-
-        // Check if this is the current activity
-        if (cleanActivityUuid === props.currentActivityId.replace('activity_', '')) {
-          currentIndex = allActivities.length - 1;
-        }
-      });
-    });
-
-    return { allActivities, currentIndex };
-  };
-
-  const { allActivities, currentIndex } = findActivityPosition();
+  const activityIndex = useMemo(() => buildCourseActivityIndex(props.course.chapters), [props.course.chapters]);
+  const cleanCurrentActivityId = normalizeActivityUuid(props.currentActivityId);
+  const allActivities = activityIndex.allActivities;
+  const currentIndex = activityIndex.indexByCleanUuid.get(cleanCurrentActivityId) ?? -1;
 
   // Get previous and next activities
   const prevActivity = currentIndex > 0 ? allActivities[currentIndex - 1] : null;
@@ -183,28 +160,9 @@ export default function ActivityNavigation(props: ActivityNavigationProps): Reac
   };
 
   // Set up intersection observer to detect when bottom nav is out of viewport
-  // and measure the width of the bottom navigation
   useEffect(() => {
     const bottomNavElement = bottomNavRef.current;
     if (!bottomNavElement) return;
-
-    // Update width when component mounts and on window resize (rAF-throttled)
-    let rafId: number | null = null;
-    const updateWidth = () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        if (bottomNavElement) {
-          setNavWidth(bottomNavElement.offsetWidth);
-        }
-      });
-    };
-
-    // Initial width measurement
-    updateWidth();
-
-    // Set up resize listener
-    const listenerOptions = { passive: true } as any;
-    window.addEventListener('resize', updateWidth, listenerOptions);
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -218,8 +176,6 @@ export default function ActivityNavigation(props: ActivityNavigationProps): Reac
     observer.observe(bottomNavElement);
 
     return () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      window.removeEventListener('resize', updateWidth, listenerOptions);
       try {
         observer.disconnect();
       } catch {

@@ -6,7 +6,7 @@ import AppLink from '@/components/ui/AppLink';
 import { Badge } from '@/components/ui/badge';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { FC } from 'react';
 
 interface CourseProgressProps {
@@ -19,39 +19,52 @@ interface CourseProgressProps {
 const CourseProgress: FC<CourseProgressProps> = ({ course, isOpen, onClose, trailData }) => {
   const t = useTranslations('Courses.CoursesActions');
   const [expandedChapters, setExpandedChapters] = useState(new Set());
+  const cleanCourseUuid = course.course_uuid?.replace('course_', '');
+
+  const completedActivityIds = useMemo(() => {
+    const run = trailData?.runs?.find((candidateRun: any) => {
+      const runCourseUuid = candidateRun.course?.course_uuid ?? candidateRun.course_uuid;
+      return runCourseUuid?.replace('course_', '') === cleanCourseUuid;
+    });
+
+    return new Set(
+      (run?.steps ?? [])
+        .filter((step: any) => step.complete === true && typeof step.activity_id === 'number')
+        .map((step: any) => step.activity_id),
+    );
+  }, [cleanCourseUuid, trailData]);
+
+  const { chapterProgress, totalActivities, completedActivities } = useMemo(() => {
+    let nextTotalActivities = 0;
+    let nextCompletedActivities = 0;
+    const nextChapterProgress: Record<string, { completed: number; total: number }> = {};
+
+    course.chapters.forEach((chapter: any) => {
+      const chapterActivities = chapter.activities ?? [];
+      const chapterTotal = chapterActivities.length;
+      let chapterCompleted = 0;
+
+      chapterActivities.forEach((activity: any) => {
+        if (completedActivityIds.has(activity.id)) {
+          chapterCompleted += 1;
+        }
+      });
+
+      nextTotalActivities += chapterTotal;
+      nextCompletedActivities += chapterCompleted;
+      nextChapterProgress[chapter.chapter_uuid] = { completed: chapterCompleted, total: chapterTotal };
+    });
+
+    return {
+      chapterProgress: nextChapterProgress,
+      totalActivities: nextTotalActivities,
+      completedActivities: nextCompletedActivities,
+    };
+  }, [completedActivityIds, course.chapters]);
 
   function isActivityDone(activity: any) {
-    const cleanCourseUuid = course.course_uuid?.replace('course_', '');
-    const run = trailData?.runs?.find((run: any) => {
-      const cleanRunCourseUuid = run.course?.course_uuid?.replace('course_', '');
-      return cleanRunCourseUuid === cleanCourseUuid;
-    });
-    if (run) {
-      return run.steps.find((step: any) => step.activity_id === activity.id && step.complete === true);
-    }
-    return false;
+    return completedActivityIds.has(activity.id);
   }
-
-  // Compute progress
-  let totalActivities = 0;
-  let completedActivities = 0;
-  const chapterProgress: Record<string, { completed: number; total: number }> = {};
-
-  course.chapters.forEach((chapter: any) => {
-    let chapterCompleted = 0;
-    let chapterTotal = 0;
-
-    chapter.activities.forEach((activity: any) => {
-      totalActivities += 1;
-      chapterTotal += 1;
-      if (isActivityDone(activity)) {
-        completedActivities += 1;
-        chapterCompleted += 1;
-      }
-    });
-
-    chapterProgress[chapter.chapter_uuid] = { completed: chapterCompleted, total: chapterTotal };
-  });
 
   const progressPercentage = totalActivities === 0 ? 0 : Math.round((completedActivities / totalActivities) * 100);
 
