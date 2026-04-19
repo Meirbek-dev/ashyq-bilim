@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
@@ -28,6 +28,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
 import { SearchBar } from "@/components/Objects/Search/SearchBar";
 import { LocaleSwitcher } from "@/components/Utils/LocaleSwitcher";
 import { HeaderProfileBox } from "@/components/Security/HeaderProfileBox";
@@ -41,6 +42,9 @@ import { cn } from "@/lib/utils";
 // Assets
 import platformLogoFull from "@public/platform_logo_full.svg";
 
+// ----------------------------------------------------------------------
+// Types & Config
+// ----------------------------------------------------------------------
 type NavLinkType = "courses" | "collections" | "trail";
 
 interface NavLinkDef {
@@ -59,90 +63,22 @@ const NAV_LINKS: NavLinkDef[] = [
 const SCROLL_THRESHOLD = 8;
 
 // ----------------------------------------------------------------------
-// Shared hook: active path match
+// Active path matcher — handles root + nested routes correctly
 // ----------------------------------------------------------------------
-function useIsActive(href: string) {
+function useIsActive(href: string): boolean {
   const pathname = usePathname();
   return useMemo(() => {
     if (!pathname) return false;
+    // Exact match for root path — prevents matching everything
+    if (href === "/") return pathname === "/";
     return pathname === href || pathname.startsWith(`${href}/`);
   }, [pathname, href]);
 }
 
 // ----------------------------------------------------------------------
-// Desktop Link — lives inside NavigationMenu context
+// Focus mode — SSR-safe, reads localStorage only after mount
 // ----------------------------------------------------------------------
-interface NavLinkProps {
-  def: NavLinkDef;
-  label: string;
-  onNavigate?: () => void;
-}
-
-const DesktopNavLink = ({ def, label }: NavLinkProps) => {
-  const { icon: Icon, href } = def;
-  const isActive = useIsActive(href);
-
-  return (
-    <NavigationMenuItem className="list-none">
-      <Link
-        prefetch={false}
-        href={getAbsoluteUrl(href)}
-        aria-current={isActive ? "page" : undefined}
-        className={cn(
-          "group relative flex h-9 items-center gap-2 rounded-full px-4 text-sm font-medium outline-none transition-all duration-200",
-          "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-          isActive
-            ? "bg-background text-foreground shadow-sm ring-1 ring-border/60"
-            : "text-muted-foreground hover:text-foreground",
-        )}
-      >
-        <Icon
-          size={16}
-          strokeWidth={2.25}
-          className={cn(
-            "shrink-0 transition-colors",
-            isActive
-              ? "text-primary"
-              : "text-muted-foreground/80 group-hover:text-foreground",
-          )}
-        />
-        <span className="tracking-tight">{label}</span>
-      </Link>
-    </NavigationMenuItem>
-  );
-};
-
-// ----------------------------------------------------------------------
-// Mobile Link — plain list item inside the Sheet
-// ----------------------------------------------------------------------
-const MobileNavLink = ({ def, label, onNavigate }: NavLinkProps) => {
-  const { icon: Icon, href } = def;
-  const isActive = useIsActive(href);
-
-  return (
-    <Link
-      prefetch={false}
-      href={getAbsoluteUrl(href)}
-      onClick={onNavigate}
-      aria-current={isActive ? "page" : undefined}
-      className={cn(
-        "group flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium outline-none transition-colors",
-        "focus-visible:ring-2 focus-visible:ring-ring",
-        isActive
-          ? "bg-accent text-accent-foreground"
-          : "text-muted-foreground hover:bg-accent/60 hover:text-accent-foreground",
-      )}
-    >
-      <Icon size={18} className="shrink-0" />
-      <span className={cn("flex-1", isActive && "font-semibold")}>{label}</span>
-    </Link>
-  );
-};
-
-// ----------------------------------------------------------------------
-// Focus Mode (activity pages)
-// ----------------------------------------------------------------------
-function useFocusMode(enabled: boolean) {
+function useFocusMode(enabled: boolean): boolean {
   const [isFocusMode, setIsFocusMode] = useState(false);
 
   useEffect(() => {
@@ -151,7 +87,7 @@ function useFocusMode(enabled: boolean) {
       return;
     }
 
-    const read = () => {
+    const read = (): boolean => {
       try {
         return localStorage.getItem("globalFocusMode") === "true";
       } catch {
@@ -166,12 +102,12 @@ function useFocusMode(enabled: boolean) {
       if (e.key === "globalFocusMode") sync();
     };
 
-    globalThis.addEventListener("storage", onStorage);
-    globalThis.addEventListener("focusModeChange", sync as EventListener);
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("focusModeChange", sync as EventListener);
 
     return () => {
-      globalThis.removeEventListener("storage", onStorage);
-      globalThis.removeEventListener("focusModeChange", sync as EventListener);
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("focusModeChange", sync as EventListener);
     };
   }, [enabled]);
 
@@ -179,9 +115,9 @@ function useFocusMode(enabled: boolean) {
 }
 
 // ----------------------------------------------------------------------
-// Scroll elevation — only updates state on threshold crossing
+// Scroll elevation — RAF-throttled, threshold-based
 // ----------------------------------------------------------------------
-function useScrollElevation(threshold = SCROLL_THRESHOLD) {
+function useScrollElevation(threshold = SCROLL_THRESHOLD): boolean {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -189,8 +125,8 @@ function useScrollElevation(threshold = SCROLL_THRESHOLD) {
 
     const update = () => {
       rafId = 0;
-      const scrolled = window.scrollY > threshold;
-      setIsScrolled((prev) => (prev === scrolled ? prev : scrolled));
+      const next = window.scrollY > threshold;
+      setIsScrolled((prev) => (prev === next ? prev : next));
     };
 
     const onScroll = () => {
@@ -210,7 +146,94 @@ function useScrollElevation(threshold = SCROLL_THRESHOLD) {
 }
 
 // ----------------------------------------------------------------------
-// Main Navigation Bar
+// Desktop link — pill with primary-tinted active state
+// ----------------------------------------------------------------------
+interface NavLinkProps {
+  def: NavLinkDef;
+  label: string;
+  onNavigate?: () => void;
+}
+
+const DesktopNavLink = ({ def, label }: NavLinkProps) => {
+  const { icon: Icon, href } = def;
+  const isActive = useIsActive(href);
+
+  return (
+    <NavigationMenuItem className="list-none">
+      <Link
+        prefetch={false}
+        href={getAbsoluteUrl(href)}
+        aria-current={isActive ? "page" : undefined}
+        className={cn(
+          "group relative flex h-10 items-center gap-2 rounded-full px-4 text-[0.9rem] font-medium outline-none transition-all duration-200",
+          "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          isActive
+            ? "bg-primary/10 text-primary hover:bg-primary/15"
+            : "text-muted-foreground hover:bg-accent hover:text-foreground",
+        )}
+      >
+        <Icon
+          size={17}
+          strokeWidth={2.25}
+          aria-hidden="true"
+          className={cn(
+            "shrink-0 transition-colors",
+            isActive
+              ? "text-primary"
+              : "text-muted-foreground/80 group-hover:text-foreground",
+          )}
+        />
+        <span className="tracking-tight">{label}</span>
+      </Link>
+    </NavigationMenuItem>
+  );
+};
+
+// ----------------------------------------------------------------------
+// Mobile link — roomier tap target, primary accent dot on active
+// ----------------------------------------------------------------------
+const MobileNavLink = ({ def, label, onNavigate }: NavLinkProps) => {
+  const { icon: Icon, href } = def;
+  const isActive = useIsActive(href);
+
+  return (
+    <Link
+      prefetch={false}
+      href={getAbsoluteUrl(href)}
+      onClick={onNavigate}
+      aria-current={isActive ? "page" : undefined}
+      className={cn(
+        "group flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium outline-none transition-colors",
+        "focus-visible:ring-2 focus-visible:ring-ring",
+        isActive
+          ? "bg-primary/10 text-primary"
+          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+      )}
+    >
+      <Icon
+        size={18}
+        strokeWidth={2.25}
+        aria-hidden="true"
+        className={cn(
+          "shrink-0",
+          isActive
+            ? "text-primary"
+            : "text-muted-foreground/80 group-hover:text-foreground",
+        )}
+      />
+      <span className="flex-1">{label}</span>
+      {isActive && (
+        <span
+          className="h-1.5 w-1.5 rounded-full bg-primary"
+          aria-hidden="true"
+        />
+      )}
+    </Link>
+  );
+};
+
+// ----------------------------------------------------------------------
+// NavBar
 // ----------------------------------------------------------------------
 export default function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -228,14 +251,14 @@ export default function NavBar() {
     [isAuthenticated],
   );
 
-  // Close sheet on route change
+  // Auto-close the mobile sheet on route change
   useEffect(() => {
     setIsMenuOpen(false);
   }, [pathname]);
 
-  if (isOnActivityPage && isFocusMode) return null;
+  const closeMenu = useCallback(() => setIsMenuOpen(false), []);
 
-  const closeMenu = () => setIsMenuOpen(false);
+  if (isOnActivityPage && isFocusMode) return null;
 
   return (
     <header
@@ -248,12 +271,12 @@ export default function NavBar() {
       style={{ height: NAVBAR_HEIGHT }}
     >
       <div className="mx-auto flex h-full w-full items-center gap-4 px-4 sm:px-6 lg:px-8">
-        {/* Left: Logo + Desktop Links */}
+        {/* ── Left: logo + desktop nav ─────────────────────────────── */}
         <div className="flex min-w-0 items-center gap-6 lg:gap-8">
           <Link
             href={getAbsoluteUrl("/")}
             aria-label={t("logoAlt")}
-            className="flex shrink-0 items-center rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex shrink-0 items-center rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             <Image
               src={platformLogoFull}
@@ -262,13 +285,12 @@ export default function NavBar() {
               height={32}
               className="h-8 w-auto object-contain"
               priority
-              loading="eager"
             />
           </Link>
 
           <nav aria-label={t("navigation")} className="hidden md:flex">
             <NavigationMenu>
-              <NavigationMenuList className="gap-0.5 rounded-full border border-border/60 bg-muted/40 p-1 shadow-inner backdrop-blur-sm">
+              <NavigationMenuList className="gap-1">
                 {visibleLinks.map((def) => (
                   <DesktopNavLink
                     key={def.type}
@@ -281,15 +303,15 @@ export default function NavBar() {
           </nav>
         </div>
 
-        {/* Center: Desktop Search */}
+        {/* ── Center: desktop search ───────────────────────────────── */}
         <div className="hidden flex-1 justify-center lg:flex">
           <SearchBar className="w-full max-w-md" />
         </div>
 
-        {/* Spacer for md screens where search is hidden */}
+        {/* Spacer for md-only viewports where search is hidden */}
         <div className="flex-1 lg:hidden" />
 
-        {/* Right: Controls & Mobile Trigger */}
+        {/* ── Right: controls + mobile trigger ─────────────────────── */}
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           <div className="hidden sm:flex">
             <LocaleSwitcher />
@@ -337,13 +359,15 @@ export default function NavBar() {
                   <SearchBar isMobile className="w-full" />
                 </section>
 
+                <Separator />
+
                 <section className="space-y-2">
                   <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                     {t("navigation")}
                   </Label>
                   <nav
                     aria-label={t("navigation")}
-                    className="flex flex-col gap-0.5"
+                    className="flex flex-col gap-1"
                   >
                     {visibleLinks.map((def) => (
                       <MobileNavLink
@@ -357,6 +381,7 @@ export default function NavBar() {
                 </section>
 
                 <section className="space-y-2 sm:hidden">
+                  <Separator />
                   <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                     {t("language")}
                   </Label>
