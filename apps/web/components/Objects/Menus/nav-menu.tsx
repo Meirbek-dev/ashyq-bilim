@@ -167,7 +167,7 @@ const DesktopNavLink = ({ def, label }: NavLinkProps) => {
           "group/navlink relative flex h-10 items-center gap-2 rounded-md px-3.5 text-base font-medium outline-none transition-colors duration-200",
           "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           isActive
-            ? "bg-accent text-foreground"
+            ? "bg-accent text-primary"
             : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
         )}
       >
