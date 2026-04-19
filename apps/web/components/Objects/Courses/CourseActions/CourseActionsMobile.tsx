@@ -232,7 +232,7 @@ const CourseActionsMobile = ({ courseuuid, course, trailData }: CourseActionsMob
     });
 
   return (
-    <div className="mx-2 my-6 overflow-hidden rounded-lg bg-white/90 p-4 shadow-md shadow-gray-300/25 outline-1 outline-neutral-200/40 backdrop-blur-sm">
+    <div className="overflow-hidden rounded-xl border border-neutral-200/70 bg-white/90 p-4 shadow-sm shadow-gray-300/20 backdrop-blur-sm">
       <div className="flex flex-col space-y-4">
         <MultipleAuthors authors={sortedAuthors} />
 

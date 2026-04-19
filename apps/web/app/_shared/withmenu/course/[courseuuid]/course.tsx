@@ -144,10 +144,10 @@ const CourseClient = (props: any) => {
         0,
       );
       const defaultExpanded: Record<string, boolean> = {};
-      course.chapters.forEach((chapter: any, idx: number) => {
+      for (const [idx, chapter] of course.chapters.entries()) {
         // Always expand the first chapter
         defaultExpanded[chapter.chapter_uuid] = idx === 0 ? true : totalActivities <= 5;
-      });
+      }
       setExpandedChapters(defaultExpanded);
     }
   }, [course]);
@@ -210,6 +210,14 @@ const CourseClient = (props: any) => {
             <div className="flex flex-col gap-10 md:flex-row md:items-start">
               {/* Main content */}
               <div className="w-full min-w-0 space-y-10 md:w-3/4">
+                {isMobile && (
+                  <CourseActionsMobile
+                    courseuuid={courseuuid}
+                    course={course}
+                    trailData={trailData}
+                  />
+                )}
+
                 {/* Thumbnail */}
                 {(() => {
                   const showVideo =
@@ -502,7 +510,7 @@ const CourseClient = (props: any) => {
               </div>
 
               {/* Sidebar */}
-              <div className="w-full shrink-0 space-y-4 md:w-1/4">
+              <div className="hidden w-full shrink-0 space-y-4 md:block md:w-1/4">
                 <CoursesActions
                   courseuuid={courseuuid}
                   course={course}
@@ -519,14 +527,6 @@ const CourseClient = (props: any) => {
               </div>
             </div>
           </GeneralWrapper>
-
-          {isMobile && (
-            <CourseActionsMobile
-              courseuuid={courseuuid}
-              course={course}
-              trailData={trailData}
-            />
-          )}
         </>
       )}
     </>
