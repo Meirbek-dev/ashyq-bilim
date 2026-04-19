@@ -35,7 +35,7 @@ export function updateActivityMutationOptions(queryClient: QueryClient, structur
               chapters: (current.chapters ?? []).map((chapter: any) =>
                 Object.assign(chapter, {
                   activities: (chapter.activities ?? []).map((activity: any) =>
-                    activity.activity_uuid === activityUuid ? { ...activity, ...payload } : activity,
+                    activity.activity_uuid === activityUuid ? Object.assign(activity, payload) : activity,
                   ),
                 }),
               ),

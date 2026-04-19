@@ -1,15 +1,17 @@
-import { Extension, type Editor, type JSONContent } from '@tiptap/core';
+import { Extension } from '@tiptap/core';
+import type { Editor, JSONContent } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 
-import { uploadNewImageFile, type UploadedImageBlockObject } from '@services/blocks/Image/images';
+import { uploadNewImageFile } from '@services/blocks/Image/images';
+import type { UploadedImageBlockObject } from '@services/blocks/Image/images';
 
 import type { ActivityRef } from './editor-types';
 
-type ClipboardImageItem = {
+interface ClipboardImageItem {
   kind: string;
   type: string;
   getAsFile: () => File | null;
-};
+}
 
 export interface ClipboardImageSource {
   files?: ArrayLike<File> | Iterable<File>;
@@ -37,7 +39,7 @@ function getFileIdentity(file: File): string {
 }
 
 export function getPastedImageFiles(source: ClipboardImageSource | null | undefined): File[] {
-  const filesFromItems = Array.from(source?.items ?? [])
+  const filesFromItems = [...(source?.items ?? [])]
     .map((item) => {
       if (item.kind !== 'file' || !item.type.startsWith('image/')) {
         return null;
@@ -47,7 +49,7 @@ export function getPastedImageFiles(source: ClipboardImageSource | null | undefi
     })
     .filter((file): file is File => Boolean(file));
 
-  const filesFromClipboard = Array.from(source?.files ?? []).filter((file) => file.type.startsWith('image/'));
+  const filesFromClipboard = [...(source?.files ?? [])].filter((file) => file.type.startsWith('image/'));
   const seen = new Set<string>();
 
   return [...filesFromItems, ...filesFromClipboard].filter((file) => {
@@ -127,7 +129,7 @@ export const ImagePasteHandler = Extension.create<ImagePasteHandlerOptions>({
               files,
               activityUuid: ext.options.activity.activity_uuid,
               uploadImage: ext.options.uploadImage,
-            }).catch((error) => {
+            }).catch((error: unknown) => {
               console.error('Failed to paste image into editor', error);
             });
 

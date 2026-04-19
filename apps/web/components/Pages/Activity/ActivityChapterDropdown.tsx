@@ -1,10 +1,11 @@
 'use client';
 import { ArrowRight, Backpack, Check, ClipboardList, FileText, ListTree, StickyNote, Video, X } from 'lucide-react';
-import { useEffect, useEffectEvent, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState, useMemo } from 'react';
 import { getAbsoluteUrl } from '@services/config/config';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
 import Link from '@components/ui/AppLink';
+import { buildCourseActivityIndex, normalizeActivityUuid } from '@/lib/course-activity-index';
 import type { ReactNode } from 'react';
 
 interface ActivityChapterDropdownProps {
@@ -13,7 +14,14 @@ interface ActivityChapterDropdownProps {
   trailData?: any;
 }
 
-function getActivityTypeIcon(activityType: string) {
+interface ActivityDropdownActivity {
+  id?: number | null;
+  activity_uuid?: string | null;
+  name?: string;
+  activity_type?: string;
+}
+
+function getActivityTypeIcon(activityType?: string) {
   switch (activityType) {
     case 'TYPE_VIDEO': {
       return <Video size={10} />;
@@ -45,6 +53,26 @@ export default function ActivityChapterDropdown(props: ActivityChapterDropdownPr
   // Clean up course UUID by removing 'course_' prefix if it exists
   const cleanCourseUuid = props.course.course_uuid?.replace('course_', '');
 
+  // Build activity index for efficient lookups
+  const activityIndex = useMemo(
+    () => buildCourseActivityIndex<ActivityDropdownActivity>(props.course.chapters),
+    [props.course.chapters],
+  );
+
+  // Map for quick completion lookup
+  const completedActivityIds = useMemo(() => {
+    const run = props.trailData?.runs?.find((run: any) => {
+      const cleanRunCourseUuid = run.course?.course_uuid?.replace('course_', '');
+      return cleanRunCourseUuid === cleanCourseUuid;
+    });
+    return new Set(
+      (run?.steps ?? []).filter((step: any) => step.complete === true).map((step: any) => step.activity_id),
+    );
+  }, [props.trailData, cleanCourseUuid]);
+
+  // For current activity
+  const cleanCurrentActivityId = normalizeActivityUuid(props.currentActivityId);
+
   // Close dropdown when clicking outside
   const handleClickOutside = useEffectEvent((event: MouseEvent) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -63,7 +91,7 @@ export default function ActivityChapterDropdown(props: ActivityChapterDropdownPr
     setIsOpen(!isOpen);
   };
 
-  const getActivityTypeLabel = (activityType: string) => {
+  const getActivityTypeLabel = (activityType?: string) => {
     switch (activityType) {
       case 'TYPE_VIDEO': {
         return t('activityTypes.video');
@@ -120,95 +148,92 @@ export default function ActivityChapterDropdown(props: ActivityChapterDropdownPr
           </div>
 
           <div className="py-0.5">
-            {props.course.chapters.map((chapter: any, index: number) => (
-              <div
-                key={chapter.id}
-                className="mb-1"
-              >
-                <div className="flex items-center border-y border-gray-100 bg-gray-50 px-3 py-1.5 text-sm font-medium text-gray-600">
-                  <div className="flex items-center space-x-1.5">
-                    <div className="bg-primary text-primary-foreground flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold">
-                      {index + 1}
-                    </div>
-                    <span>{chapter.name}</span>
-                  </div>
-                </div>
-                <div className="py-0.5">
-                  {chapter.activities.map((activity: any) => {
-                    const cleanActivityUuid = activity.activity_uuid?.replace('activity_', '');
-                    const isCurrent = cleanActivityUuid === props.currentActivityId.replace('activity_', '');
-
-                    // Find the correct run and check if activity is complete
-                    const run = props.trailData?.runs?.find((run: any) => {
-                      const cleanRunCourseUuid = run.course?.course_uuid?.replace('course_', '');
-                      return cleanRunCourseUuid === cleanCourseUuid;
-                    });
-
-                    const isComplete = run?.steps?.find(
-                      (step: any) => step.activity_id === activity.id && step.complete === true,
-                    );
-
-                    return (
-                      <Link
-                        key={activity.id}
-                        href={`${getAbsoluteUrl('')}/course/${cleanCourseUuid}/activity/${cleanActivityUuid}`}
-                        prefetch={false}
-                        onClick={() => {
-                          setIsOpen(false);
-                        }}
-                      >
-                        <div
-                          className={`group px-3 py-2 transition-colors hover:bg-neutral-50 ${
-                            isCurrent ? 'border-l-2 border-neutral-300 bg-neutral-50 pl-2.5 font-medium' : ''
-                          }`}
-                        >
-                          <div className="flex items-center space-x-2">
-                            <div className="flex items-center">
-                              {isComplete ? (
-                                <div className="relative cursor-pointer">
-                                  <Check
-                                    size={14}
-                                    className="stroke-[2.5] text-teal-600"
-                                  />
-                                </div>
-                              ) : (
-                                <div className="cursor-pointer text-neutral-300">
-                                  <Check
-                                    size={14}
-                                    className="stroke-2"
-                                  />
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex grow flex-col">
-                              <div className="flex w-full items-center space-x-1.5">
-                                <p className="text-sm font-medium text-neutral-600 transition-colors group-hover:text-neutral-800">
-                                  {activity.name}
-                                </p>
-                                {isCurrent ? (
-                                  <div className="flex animate-pulse items-center space-x-1 rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600">
-                                    <span>{t('current')}</span>
-                                  </div>
-                                ) : null}
-                              </div>
-                              <div className="mt-0.5 flex items-center space-x-1 text-neutral-400">
-                                {getActivityTypeIcon(activity.activity_type)}
-                                <span className="text-[10px] font-medium">
-                                  {getActivityTypeLabel(activity.activity_type)}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="cursor-pointer text-neutral-300 transition-colors group-hover:text-neutral-400">
-                              <ArrowRight size={12} />
-                            </div>
-                          </div>
+            {/* Group activities by chapter for dropdown, but use indexed activities for lookups */}
+            {(() => {
+              // Build a map of chapterIndex to activities for grouping
+              const chapters = props.course.chapters ?? [];
+              return chapters.map((chapter: any, chapterIndex: number) => {
+                const chapterActivities = activityIndex.allActivities.filter((a) => a.chapterIndex === chapterIndex);
+                return (
+                  <div
+                    key={chapter.id}
+                    className="mb-1"
+                  >
+                    <div className="flex items-center border-y border-gray-100 bg-gray-50 px-3 py-1.5 text-sm font-medium text-gray-600">
+                      <div className="flex items-center space-x-1.5">
+                        <div className="bg-primary text-primary-foreground flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold">
+                          {chapterIndex + 1}
                         </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
+                        <span>{chapter.name}</span>
+                      </div>
+                    </div>
+                    <div className="py-0.5">
+                      {chapterActivities.map((activity) => {
+                        const isCurrent = activity.cleanUuid === cleanCurrentActivityId;
+                        const isComplete = completedActivityIds.has(activity.id);
+                        return (
+                          <Link
+                            key={activity.id}
+                            href={`${getAbsoluteUrl('')}/course/${cleanCourseUuid}/activity/${activity.cleanUuid}`}
+                            prefetch={false}
+                            onClick={() => {
+                              setIsOpen(false);
+                            }}
+                          >
+                            <div
+                              className={`group px-3 py-2 transition-colors hover:bg-neutral-50 ${
+                                isCurrent ? 'border-l-2 border-neutral-300 bg-neutral-50 pl-2.5 font-medium' : ''
+                              }`}
+                            >
+                              <div className="flex items-center space-x-2">
+                                <div className="flex items-center">
+                                  {isComplete ? (
+                                    <div className="relative cursor-pointer">
+                                      <Check
+                                        size={14}
+                                        className="stroke-[2.5] text-teal-600"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <div className="cursor-pointer text-neutral-300">
+                                      <Check
+                                        size={14}
+                                        className="stroke-2"
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex grow flex-col">
+                                  <div className="flex w-full items-center space-x-1.5">
+                                    <p className="text-sm font-medium text-neutral-600 transition-colors group-hover:text-neutral-800">
+                                      {activity.name}
+                                    </p>
+                                    {isCurrent ? (
+                                      <div className="flex animate-pulse items-center space-x-1 rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600">
+                                        <span>{t('current')}</span>
+                                      </div>
+                                    ) : null}
+                                  </div>
+                                  <div className="mt-0.5 flex items-center space-x-1 text-neutral-400">
+                                    {getActivityTypeIcon(activity.activity_type)}
+                                    <span className="text-[10px] font-medium">
+                                      {getActivityTypeLabel(activity.activity_type)}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="cursor-pointer text-neutral-300 transition-colors group-hover:text-neutral-400">
+                                  <ArrowRight size={12} />
+                                </div>
+                              </div>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              });
+            })()}
           </div>
         </div>
       ) : null}

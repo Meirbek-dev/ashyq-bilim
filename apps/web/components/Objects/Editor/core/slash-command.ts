@@ -19,7 +19,7 @@ export const slashCommandKey = new PluginKey<{ type: string }>('slashCommand');
 
 export function getSlashCommandState(editor: Editor | null | undefined): SlashCommandState {
   return (
-    (editor?.storage as unknown as Record<string, SlashCommandState | undefined>)?.['slashCommand'] ?? {
+    (editor?.storage as unknown as Record<string, SlashCommandState | undefined>)?.slashCommand ?? {
       ...DEFAULT_SLASH_COMMAND_STATE,
     }
   );
@@ -34,7 +34,7 @@ export function setSlashCommandState(
     return;
   }
 
-  (editor.storage as unknown as Record<string, unknown>)['slashCommand'] = value;
+  (editor.storage as unknown as Record<string, unknown>).slashCommand = value;
   editor.view.dispatch(editor.state.tr.setMeta(slashCommandKey, { type }));
 }
 

@@ -1,4 +1,5 @@
-import { type CommandProps, Node, mergeAttributes } from '@tiptap/core';
+import { Node, mergeAttributes } from '@tiptap/core';
+import type { CommandProps } from '@tiptap/core';
 
 import MathEquationBlockComponent from './MathEquationBlockComponent';
 import { nodeView } from '@components/Objects/Editor/core';

@@ -135,7 +135,7 @@ export async function signupAction(input: SignupActionInput): Promise<AuthAction
   const base = `${input.firstName.toLowerCase()}.${input.lastName.toLowerCase()}`
     .replace(/[^a-z0-9.]/g, '')
     .slice(0, 20);
-  const suffix = Math.floor(Math.random() * 10000)
+  const suffix = Math.floor(Math.random() * 10_000)
     .toString()
     .padStart(4, '0');
   const username = `${base}.${suffix}`;

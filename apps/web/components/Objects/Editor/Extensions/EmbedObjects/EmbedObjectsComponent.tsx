@@ -729,7 +729,7 @@ const EmbedObjectsComponent = (props: TypedNodeViewProps<EmbedNodeAttrs>) => {
         const newWidth = `${Math.min(100, percentage)}%`;
         setEmbedWidth(newWidth);
         updateAttributes({ embedWidth: newWidth });
-      } else if (newParentWidth < Number.parseInt(String(embedWidth), 10)) {
+      } else if (newParentWidth < Number.parseInt(embedWidth, 10)) {
         setEmbedWidth('100%');
         updateAttributes({ embedWidth: '100%' });
       }

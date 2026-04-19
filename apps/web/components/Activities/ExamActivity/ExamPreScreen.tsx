@@ -88,7 +88,7 @@ export default function ExamPreScreen({
             <CardContent className="space-y-8">
               {/* Exam Information with modern grid */}
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <div className="border-border bg-card rounded-2xl border p-5 shadow-sm transition-colors hover:bg-muted/30">
+                <div className="border-border bg-card hover:bg-muted/30 rounded-2xl border p-5 shadow-sm transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
                       <FileText className="h-6 w-6" />
@@ -100,7 +100,7 @@ export default function ExamPreScreen({
                   </div>
                 </div>
 
-                <div className="border-border bg-card rounded-2xl border p-5 shadow-sm transition-colors hover:bg-muted/30">
+                <div className="border-border bg-card hover:bg-muted/30 rounded-2xl border p-5 shadow-sm transition-colors">
                   <div className="flex items-start gap-4">
                     <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-orange-600 text-white shadow-sm">
                       <Clock className="h-6 w-6" />
@@ -118,7 +118,7 @@ export default function ExamPreScreen({
                 </div>
 
                 {attemptLimit && attemptLimit > 0 && !isTeacher && (
-                  <div className="border-border bg-card rounded-2xl border p-5 shadow-sm transition-colors hover:bg-muted/30">
+                  <div className="border-border bg-card hover:bg-muted/30 rounded-2xl border p-5 shadow-sm transition-colors">
                     <div className="flex items-start gap-4">
                       <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-violet-600 text-white shadow-sm">
                         <Users className="h-6 w-6" />
@@ -200,7 +200,7 @@ export default function ExamPreScreen({
 
               {/* Anti-Cheating Warnings with modern alert */}
               {(settings.tab_switch_detection || settings.copy_paste_protection || settings.devtools_detection) && (
-                <Alert className="border-l-4 border-l-red-500 border-red-200 bg-red-50/80">
+                <Alert className="border-l-4 border-red-200 border-l-red-500 bg-red-50/80">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-600 text-white">
                     <AlertCircle className="size-6" />
                   </div>

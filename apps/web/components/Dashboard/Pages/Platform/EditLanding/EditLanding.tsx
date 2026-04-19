@@ -888,8 +888,7 @@ const HeroSectionEditor: FC<{
               <Label htmlFor="background">{t('HeroEditor.Background.typeLabel')}</Label>
               <Select
                 value={section.background.type}
-                onValueChange={(value) => {
-                  const selectedType = value || 'solid';
+                onValueChange={(selectedType = 'solid') => {
                   onChange({
                     ...section,
                     background: {

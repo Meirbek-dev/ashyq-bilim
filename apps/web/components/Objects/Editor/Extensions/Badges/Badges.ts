@@ -1,4 +1,5 @@
-import { type CommandProps, Node, mergeAttributes } from '@tiptap/core';
+import { Node, mergeAttributes } from '@tiptap/core';
+import type { CommandProps } from '@tiptap/core';
 
 import BadgesExtension from './BadgesExtension';
 import { nodeView } from '@components/Objects/Editor/core';

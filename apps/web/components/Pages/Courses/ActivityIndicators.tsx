@@ -17,7 +17,8 @@ import { getAbsoluteUrl } from '@services/config/config';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from '@components/ui/AppLink';
-import { Fragment } from 'react';
+import { Fragment, useMemo } from 'react';
+import { buildCourseActivityIndex, normalizeActivityUuid } from '@/lib/course-activity-index';
 
 interface Props {
   course: any;
@@ -325,55 +326,49 @@ const ActivityIndicators = (props: Props) => {
   const { enableNavigation } = props;
   const router = useRouter();
 
-  // Flatten all activities for navigation and rendering
-  const allActivities = course.chapters.flatMap((chapter: any) =>
-    chapter.activities.map((activity: any) => ({
-      ...activity,
-      chapterId: chapter.id,
-    })),
-  );
-
-  // Find current activity index
-  const currentActivityIndex = props.current_activity
-    ? allActivities.findIndex(
-        (activity: any) => activity.activity_uuid.replace('activity_', '') === props.current_activity,
-      )
+  // Build activity index for efficient lookups
+  const activityIndex = useMemo(() => buildCourseActivityIndex(course.chapters), [course.chapters]);
+  const { allActivities } = activityIndex;
+  const cleanCurrentActivityId = normalizeActivityUuid(props.current_activity);
+  const currentActivityIndex = cleanCurrentActivityId
+    ? (activityIndex.indexByCleanUuid.get(cleanCurrentActivityId) ?? -1)
     : -1;
 
-  function isActivityDone(activity: any) {
-    // Clean up course UUID by removing 'course_' prefix if it exists
+  // Memoized set of completed activity IDs for fast lookup
+  const completedActivityIds = useMemo(() => {
     const cleanCourseUuid = course.course_uuid?.replace('course_', '');
-
     const run = props.trailData?.runs?.find((run: any) => {
       const cleanRunCourseUuid = run.course?.course_uuid?.replace('course_', '');
       return cleanRunCourseUuid === cleanCourseUuid;
     });
+    return new Set(
+      (run?.steps ?? []).filter((step: any) => step.complete === true).map((step: any) => step.activity_id),
+    );
+  }, [props.trailData, course.course_uuid]);
 
-    if (run) {
-      return run.steps.find((step: any) => step.activity_id === activity.id && step.complete === true);
-    }
-    return false;
+  function isActivityDone(activity: any) {
+    return completedActivityIds.has(activity.id);
   }
 
   function isActivityCurrent(activity: any) {
-    const activity_uuid = activity.activity_uuid.replace('activity_', '');
-    return Boolean(props.current_activity && props.current_activity === activity_uuid);
+    return activity.cleanUuid === cleanCurrentActivityId;
   }
 
-  // Keep the allActivities array for navigation purposes only
   function navigateToPrevious() {
     if (currentActivityIndex > 0) {
       const prevActivity = allActivities[currentActivityIndex - 1];
-      const activityId = prevActivity.activity_uuid.replace('activity_', '');
-      router.push(`${getAbsoluteUrl('')}/course/${courseid}/activity/${activityId}`);
+      if (prevActivity) {
+        router.push(`${getAbsoluteUrl('')}/course/${courseid}/activity/${prevActivity.cleanUuid}`);
+      }
     }
   }
 
   function navigateToNext() {
     if (currentActivityIndex < allActivities.length - 1) {
       const nextActivity = allActivities[currentActivityIndex + 1];
-      const activityId = nextActivity.activity_uuid.replace('activity_', '');
-      router.push(`${getAbsoluteUrl('')}/course/${courseid}/activity/${activityId}`);
+      if (nextActivity) {
+        router.push(`${getAbsoluteUrl('')}/course/${courseid}/activity/${nextActivity.cleanUuid}`);
+      }
     }
   }
 
@@ -401,13 +396,17 @@ const ActivityIndicators = (props: Props) => {
       ) : null}
 
       <div className="flex flex-1 items-center gap-1 overflow-hidden">
-        {course.chapters.map((chapter: any, chapterIndex: number) => {
-          const completedCount = getChapterProgress(chapter.activities);
-          const isChapterComplete = chapter.activities.length > 0 && completedCount === chapter.activities.length;
-          const firstActivity = chapter.activities[0];
-          const firstActivityId = firstActivity?.activity_uuid?.replace('activity_', '');
-          const chapterLinkHref = firstActivityId
-            ? `${getAbsoluteUrl('')}/course/${courseid}/activity/${firstActivityId}`
+        {(course.chapters ?? []).map((chapter: any, chapterIndex: number) => {
+          // Get activities for this chapter from the index
+          const chapterActivities = allActivities.filter((a) => a.chapterIndex === chapterIndex);
+          const completedCount = chapterActivities.reduce(
+            (acc, activity) => acc + (isActivityDone(activity) ? 1 : 0),
+            0,
+          );
+          const isChapterComplete = chapterActivities.length > 0 && completedCount === chapterActivities.length;
+          const firstActivity = chapterActivities[0];
+          const chapterLinkHref = firstActivity
+            ? `${getAbsoluteUrl('')}/course/${courseid}/activity/${firstActivity.cleanUuid}`
             : undefined;
 
           return (
@@ -420,7 +419,7 @@ const ActivityIndicators = (props: Props) => {
                   <ChapterTooltipContent
                     chapter={chapter}
                     chapterNumber={chapterIndex + 1}
-                    totalActivities={chapter.activities.length}
+                    totalActivities={chapterActivities.length}
                     completedActivities={completedCount}
                   />
                 }
@@ -464,10 +463,9 @@ const ActivityIndicators = (props: Props) => {
               </ToolTip>
 
               <div className="flex flex-1 items-center gap-0.5">
-                {chapter.activities.map((activity: any) => {
+                {chapterActivities.map((activity) => {
                   const isDone = isActivityDone(activity);
                   const isCurrent = isActivityCurrent(activity);
-
                   return (
                     <ToolTip
                       sideOffset={10}
@@ -483,10 +481,7 @@ const ActivityIndicators = (props: Props) => {
                     >
                       <Link
                         prefetch={false}
-                        href={`${getAbsoluteUrl('')}/course/${courseid}/activity/${activity.activity_uuid.replace(
-                          'activity_',
-                          '',
-                        )}`}
+                        href={`${getAbsoluteUrl('')}/course/${courseid}/activity/${activity.cleanUuid}`}
                         className="group relative flex flex-1 py-1.5"
                       >
                         <span

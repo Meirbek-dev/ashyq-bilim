@@ -20,8 +20,8 @@ import {
   normalizeCodeBlockLanguage,
   PLAIN_TEXT_CODE_BLOCK_LANGUAGE,
   toCodeBlockLanguageAttribute,
-  type CodeBlockLanguageValue,
 } from '../core/code-block-languages';
+import type { CodeBlockLanguageValue } from '../core/code-block-languages';
 
 interface CodeBlockLanguageDropdownProps {
   editor: Editor;

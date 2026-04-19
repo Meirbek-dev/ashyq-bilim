@@ -32,7 +32,7 @@ export const HeadingWithIds = Heading.extend({
             return null;
           }
 
-          const tr = newState.tr;
+          const { tr } = newState;
 
           for (const update of updates) {
             const node = newState.doc.nodeAt(update.pos);

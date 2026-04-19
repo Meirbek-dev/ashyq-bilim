@@ -1,7 +1,8 @@
 'use client';
 
 import { runCustomTest, runTests, saveCodeChallengeSettings, submitCode } from '@services/courses/code-challenges';
-import { mutationOptions, type QueryClient } from '@tanstack/react-query';
+import { mutationOptions } from '@tanstack/react-query';
+import type { QueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 
 export function runCustomTestMutationOptions(activityUuid: string) {

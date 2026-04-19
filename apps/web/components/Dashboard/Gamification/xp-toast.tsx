@@ -71,7 +71,7 @@ export function LevelUpCelebration({ newLevel, onDismiss, compact = false }: Lev
         animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, x: 0, y: 0 }}
         exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: 100 }}
         transition={prefersReducedMotion ? { duration: 0.2 } : { type: 'spring', stiffness: 300, damping: 30 }}
-        className="fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] z-100 w-[min(calc(100vw-2rem),24rem)] rounded-2xl border border-amber-300 bg-background/95 p-4 shadow-xl backdrop-blur-md md:right-6 md:bottom-6 md:max-w-sm md:p-6"
+        className="bg-background/95 fixed right-4 bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] z-100 w-[min(calc(100vw-2rem),24rem)] rounded-2xl border border-amber-300 p-4 shadow-xl backdrop-blur-md md:right-6 md:bottom-6 md:max-w-sm md:p-6"
         onClick={onDismiss}
       >
         {/* Subtle sparkle effect (skip if reduced motion or reduced data) */}
@@ -155,7 +155,7 @@ export function LevelUpCelebration({ newLevel, onDismiss, compact = false }: Lev
         animate={{ scale: 1, rotate: 0, opacity: 1 }}
         exit={{ scale: 0.5, rotate: 15, opacity: 0 }}
         transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-        className="relative mx-4 max-w-lg rounded-3xl border border-amber-300 bg-background p-12 text-center shadow-2xl"
+        className="bg-background relative mx-4 max-w-lg rounded-3xl border border-amber-300 p-12 text-center shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Sparkles animation */}

@@ -25,7 +25,7 @@ export function FloatingPlusButton({ editor }: FloatingPlusButtonProps) {
   }, [editor]);
 
   const handleClick = () => {
-    const from = editor.state.selection.from;
+    const { from } = editor.state.selection;
     editor.chain().focus().insertContent('/').run();
     openSlashCommand(editor, from);
   };

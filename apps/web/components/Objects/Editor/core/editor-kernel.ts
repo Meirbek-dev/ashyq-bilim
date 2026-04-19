@@ -1,4 +1,5 @@
-import { generateHTML, type Content, type Extension, type JSONContent, type Mark, type Node } from '@tiptap/core';
+import { generateHTML } from '@tiptap/core';
+import type { Content, Extension, JSONContent, Mark, Node } from '@tiptap/core';
 import Image from '@tiptap/extension-image';
 import { Table } from '@tiptap/extension-table';
 import { TableCell } from '@tiptap/extension-table-cell';
@@ -30,7 +31,8 @@ import { HeadingWithIds } from './heading-with-ids';
 import { SHARED_LOWLIGHT } from './lowlight';
 import { ImagePasteHandler } from './image-paste';
 import { SlashCommand } from './slash-command';
-import { getEditorPresetDefinition, type EditorPresetDefinition, type EditorPresetName } from './editor-presets';
+import { getEditorPresetDefinition } from './editor-presets';
+import type { EditorPresetDefinition, EditorPresetName } from './editor-presets';
 import type { ActivityRef } from './editor-types';
 
 export type EditorExtension = Extension | Node | Mark;

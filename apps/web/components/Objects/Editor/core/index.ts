@@ -1,9 +1,9 @@
 export * from './editor-content';
 export * from './editor-kernel';
 export * from './editor-extensions';
-export * from './editor-modes';
+export type * from './editor-modes';
 export * from './editor-presets';
-export * from './editor-types';
+export type * from './editor-types';
 export * from './heading-ids';
 export * from './heading-with-ids';
 export * from './image-paste';

@@ -74,7 +74,7 @@ const BadgesExtension: FC<TypedNodeViewProps<BadgeNodeAttrs>> = (props) => {
 
     // Insert the predefined content
     const { editor } = props;
-    const getPos = props.getPos;
+    const { getPos } = props;
     const position = getPos?.();
 
     if (editor && position !== undefined) {

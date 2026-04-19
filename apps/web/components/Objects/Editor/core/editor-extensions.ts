@@ -1,5 +1,6 @@
 import type { ActivityRef } from './editor-types';
-import { createEditorExtensions, type EditorExtension } from './editor-kernel';
+import { createEditorExtensions } from './editor-kernel';
+import type { EditorExtension } from './editor-kernel';
 
 export type { EditorExtension } from './editor-kernel';
 

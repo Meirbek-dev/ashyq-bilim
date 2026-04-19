@@ -132,7 +132,7 @@ const DashMobileMenu = () => {
                 >
                   <Icon size={18} />
                 </span>
-                <span className="mt-1 truncate text-[11px] font-medium leading-tight">{item.label}</span>
+                <span className="mt-1 truncate text-[11px] leading-tight font-medium">{item.label}</span>
               </AppLink>
             );
           })}

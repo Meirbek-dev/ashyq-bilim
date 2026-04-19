@@ -1,5 +1,6 @@
 import { ReactNodeViewRenderer } from '@tiptap/react';
-import { type CommandProps, Node, mergeAttributes } from '@tiptap/core';
+import { Node, mergeAttributes } from '@tiptap/core';
+import type { CommandProps } from '@tiptap/core';
 import FlipcardExtension from './FlipcardExtension';
 
 export type FlipcardAlignment = 'left' | 'center' | 'right';

@@ -1,6 +1,7 @@
 'use client';
 
-import { useEditor, type UseEditorOptions } from '@tiptap/react';
+import { useEditor } from '@tiptap/react';
+import type { UseEditorOptions } from '@tiptap/react';
 import { useMemo } from 'react';
 import { createEditorExtensions, resolveEditorContent } from './editor-kernel';
 import type { EditorPresetName } from './editor-presets';

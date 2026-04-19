@@ -4,7 +4,8 @@ import { useEditorProvider } from '@components/Contexts/Editor/EditorContext';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Modal from '@/components/Objects/Elements/Modal/Modal';
-import { getUrlPreview, type UrlPreviewResponse } from '@services/courses/activities';
+import { getUrlPreview } from '@services/courses/activities';
+import type { UrlPreviewResponse } from '@services/courses/activities';
 import { Checkbox } from '@components/ui/checkbox';
 import NextImage from '@components/ui/NextImage';
 import { NodeViewWrapper } from '@tiptap/react';
@@ -133,7 +134,7 @@ const WebPreviewComponent = ({ node, updateAttributes, deleteNode }: WebPreviewP
   const hasPreview = Boolean(previewData.title);
 
   const [buttonLabel, setButtonLabel] = useState(node.attrs.buttonLabel || t('visitSite'));
-  const [showButton, setShowButton] = useState(node.attrs.showButton !== false);
+  const [showButton, setShowButton] = useState(node.attrs.showButton);
   const [openInPopup, setOpenInPopup] = useState(node.attrs.openInPopup);
   const [popupOpen, setPopupOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(!node.attrs.url);
@@ -196,8 +197,8 @@ const WebPreviewComponent = ({ node, updateAttributes, deleteNode }: WebPreviewP
   }, [editing]);
   useEffect(() => {
     setButtonLabel(node.attrs.buttonLabel || t('visitSite'));
-    setShowButton(Boolean(node.attrs.showButton));
-    setOpenInPopup(Boolean(node.attrs.openInPopup));
+    setShowButton(node.attrs.showButton);
+    setOpenInPopup(node.attrs.openInPopup);
   }, [node.attrs.buttonLabel, node.attrs.showButton, node.attrs.openInPopup, t]);
 
   useEffect(() => {

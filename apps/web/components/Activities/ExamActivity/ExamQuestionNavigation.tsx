@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { CheckCircle2, Circle, Flag, LayoutGrid } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
@@ -49,7 +43,12 @@ function QuestionGrid({
   compact?: boolean;
 }) {
   return (
-    <div className={cn('grid', compact ? 'grid-cols-4 gap-2 sm:grid-cols-5' : 'grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-5')}>
+    <div
+      className={cn(
+        'grid',
+        compact ? 'grid-cols-4 gap-2 sm:grid-cols-5' : 'grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-5',
+      )}
+    >
       {Array.from({ length: totalQuestions }, (_, index) => {
         const questionNumber = index + 1;
         const isAnswered = answeredQuestions.has(index);
@@ -111,7 +110,7 @@ export default function ExamQuestionNavigation({
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-foreground text-sm font-medium">{t('progress')}</span>
-            <span className="text-lg font-bold text-primary">
+            <span className="text-primary text-lg font-bold">
               {answeredCount}/{totalQuestions}
             </span>
           </div>
@@ -143,13 +142,13 @@ export default function ExamQuestionNavigation({
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
+            <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-lg shadow-sm">
               <Circle className="h-5 w-5 text-white" />
             </div>
             <span className="text-foreground font-medium">{t('current')}</span>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-background shadow-sm">
+            <div className="border-border bg-background flex h-8 w-8 items-center justify-center rounded-lg border shadow-sm">
               <Circle className="h-5 w-5 text-gray-400" />
             </div>
             <span className="text-foreground font-medium">
@@ -292,7 +291,9 @@ export function ExamQuestionNavigationMobile({
             <div className="bg-muted/30 rounded-2xl border p-4">
               <div className="mb-2 flex items-center justify-between text-sm font-medium">
                 <span>{t('progress')}</span>
-                <span>{answeredCount}/{totalQuestions}</span>
+                <span>
+                  {answeredCount}/{totalQuestions}
+                </span>
               </div>
               <Progress
                 value={progress}

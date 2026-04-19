@@ -5,7 +5,8 @@ import { useTranslations } from 'next-intl';
 import { useEditorState } from '@tiptap/react';
 import type { Editor } from '@tiptap/react';
 import { useEffect, useMemo, useRef } from 'react';
-import { closeSlashCommand, type SlashCommandState } from '../core/slash-command';
+import { closeSlashCommand } from '../core/slash-command';
+import type { SlashCommandState } from '../core/slash-command';
 import { createInsertItems, INSERT_CATEGORY_LABELS } from './insert-items';
 
 type SlashItem = ReturnType<typeof createInsertItems>[number];
@@ -20,7 +21,7 @@ export function SlashCommandMenu({ editor }: SlashCommandMenuProps) {
   const slashState = useEditorState({
     editor,
     selector: (ctx) =>
-      (ctx.editor?.storage as unknown as Record<string, unknown>)?.['slashCommand'] as SlashCommandState | undefined,
+      (ctx.editor?.storage as unknown as Record<string, unknown>)?.slashCommand as SlashCommandState | undefined,
   });
 
   const slashItems = useMemo(() => createInsertItems(t), [t]);
@@ -31,7 +32,7 @@ export function SlashCommandMenu({ editor }: SlashCommandMenuProps) {
     }
 
     const handlePointerDown = (event: PointerEvent) => {
-      const target = event.target;
+      const { target } = event;
       if (target instanceof Node && menuRef.current?.contains(target)) {
         return;
       }
@@ -75,7 +76,7 @@ export function SlashCommandMenu({ editor }: SlashCommandMenuProps) {
   }
 
   // Clamp position to viewport
-  const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+  const viewportHeight = typeof globalThis.window !== 'undefined' ? window.innerHeight : 800;
   const menuHeight = 360;
   const top = coords.bottom + menuHeight > viewportHeight ? coords.top - menuHeight - 4 : coords.bottom + 4;
 

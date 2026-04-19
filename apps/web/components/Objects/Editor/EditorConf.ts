@@ -5,7 +5,7 @@ type LinkOptions = Parameters<typeof LinkExtension.configure>[0];
 interface LinkValidationContext {
   defaultProtocol: string;
   defaultValidate: (url: string) => boolean;
-  protocols: Array<string | { scheme: string }>;
+  protocols: (string | { scheme: string })[];
 }
 
 const LINK_DEFAULTS: LinkOptions = {

@@ -249,7 +249,7 @@ export default function ExamResults({
       {/* Score Card */}
       <Card className="overflow-hidden">
         <div className="bg-muted/30 border-border border-b px-6 py-8 text-center">
-          <div className="inline-flex items-center justify-center gap-3 text-4xl font-bold text-foreground">
+          <div className="text-foreground inline-flex items-center justify-center gap-3 text-4xl font-bold">
             {t('examCompleted')}
           </div>
 

@@ -64,8 +64,8 @@ export function extractHeadingOutline(doc: ProseMirrorNode): HeadingOutlineItem[
   return headings;
 }
 
-export function collectHeadingIdUpdates(doc: ProseMirrorNode): Array<{ pos: number; id: string }> {
-  const updates: Array<{ pos: number; id: string }> = [];
+export function collectHeadingIdUpdates(doc: ProseMirrorNode): { pos: number; id: string }[] {
+  const updates: { pos: number; id: string }[] = [];
   const slugCounts = new Map<string, number>();
   const seenIds = new Set<string>();
 

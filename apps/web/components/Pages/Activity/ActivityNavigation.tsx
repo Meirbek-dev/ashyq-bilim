@@ -144,7 +144,7 @@ export default function ActivityNavigation(props: ActivityNavigationProps): Reac
   const bottomNavRef = useRef<HTMLDivElement>(null);
   const activityIndex = useMemo(() => buildCourseActivityIndex(props.course.chapters), [props.course.chapters]);
   const cleanCurrentActivityId = normalizeActivityUuid(props.currentActivityId);
-  const allActivities = activityIndex.allActivities;
+  const { allActivities } = activityIndex;
   const currentIndex = activityIndex.indexByCleanUuid.get(cleanCurrentActivityId) ?? -1;
 
   // Get previous and next activities

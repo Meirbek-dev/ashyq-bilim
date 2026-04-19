@@ -2,7 +2,8 @@
 
 import { apiFetch } from '@/lib/api-client';
 import { courseKeys } from '@/hooks/courses/courseKeys';
-import { mutationOptions, type QueryClient } from '@tanstack/react-query';
+import { mutationOptions } from '@tanstack/react-query';
+import type { QueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 
 async function updateExamSettingsRequest(examUuid: string, settings: Record<string, unknown>) {

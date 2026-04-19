@@ -169,7 +169,8 @@ export default function ExamActivity({ activity, course }: ExamActivityProps) {
   }, [course, router]);
 
   const courseActivityIndex = useMemo(() => buildCourseActivityIndex(course?.chapters), [course?.chapters]);
-  const currentCourseActivityIndex = courseActivityIndex.indexByCleanUuid.get(normalizeActivityUuid(activity.activity_uuid)) ?? -1;
+  const currentCourseActivityIndex =
+    courseActivityIndex.indexByCleanUuid.get(normalizeActivityUuid(activity.activity_uuid)) ?? -1;
   const nextCourseActivity =
     currentCourseActivityIndex >= 0 && currentCourseActivityIndex < courseActivityIndex.allActivities.length - 1
       ? courseActivityIndex.allActivities[currentCourseActivityIndex + 1]

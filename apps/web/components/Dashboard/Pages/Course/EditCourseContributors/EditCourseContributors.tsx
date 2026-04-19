@@ -214,10 +214,11 @@ const EditCourseContributors = () => {
   });
   const fetchedSearchResults: SearchUser[] =
     contributorSearchResponse?.success && contributorSearchResponse.data?.users
-      ? contributorSearchResponse.data.users.map((user: SearchUser) => ({
-          ...user,
-          avatar_url: user.avatar_image ? getUserAvatarMediaDirectory(user.user_uuid, user.avatar_image) : '',
-        }))
+      ? contributorSearchResponse.data.users.map((user: SearchUser) =>
+          Object.assign(user, {
+            avatar_url: user.avatar_image ? getUserAvatarMediaDirectory(user.user_uuid, user.avatar_image) : ``,
+          }),
+        )
       : [];
   const searchResults: SearchUser[] = hasSearchQuery ? (searchResultsOverride ?? fetchedSearchResults) : [];
 

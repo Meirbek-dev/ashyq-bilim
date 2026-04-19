@@ -2,7 +2,8 @@
 
 import type { UserSessionResponse } from '@/lib/auth/types';
 import { updateUserTheme } from '@/lib/users/client';
-import { mutationOptions, type QueryClient } from '@tanstack/react-query';
+import { mutationOptions } from '@tanstack/react-query';
+import type { QueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 
 export function syncUserThemeMutationOptions(queryClient: QueryClient, userId: number) {

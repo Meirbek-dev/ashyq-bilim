@@ -183,10 +183,7 @@ export default function RBACAdminClient() {
         if (aSystem !== bSystem) return aSystem - bSystem;
         return (b.priority ?? 0) - (a.priority ?? 0);
       })
-      .map((role) => ({
-        ...role,
-        permissions: [],
-      }));
+      .map((role) => Object.assign(role, { permissions: [] }));
 
     setRoles(sortedRoles);
   }, [fetchedRoles]);

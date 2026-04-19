@@ -28,7 +28,7 @@ import { getCourseThumbnailMediaDirectory, getUserAvatarMediaDirectory } from '@
 import { AssignmentsTaskProvider } from '@components/Contexts/Assignments/AssignmentsTaskContext';
 import { markActivityAsComplete, unmarkActivityAsComplete } from '@services/courses/activity';
 import FixedActivitySecondaryBar from '@components/Pages/Activity/FixedActivitySecondaryBar';
-import type { Activity, Chapter, CourseStructure } from '@components/Contexts/CourseContext';
+import type { Activity, CourseStructure } from '@components/Contexts/CourseContext';
 import ActivityChapterDropdown from '@components/Pages/Activity/ActivityChapterDropdown';
 import { AssignmentProvider } from '@components/Contexts/Assignments/AssignmentContext';
 import { ActivityAIChatProvider } from '@components/Contexts/AI/ActivityAIChatContext';
@@ -234,7 +234,7 @@ const ActivityClient = (props: ActivityClientProps) => {
   const format = useFormatter();
   const cleanActivityId = normalizeActivityUuid(activityid);
   const activityIndex = useMemo(() => buildCourseActivityIndex<Activity>(course.chapters), [course.chapters]);
-  const allActivities = activityIndex.allActivities;
+  const { allActivities } = activityIndex;
   const currentIndex = activityIndex.indexByCleanUuid.get(cleanActivityId) ?? -1;
   const currentActivityEntry = currentIndex >= 0 ? allActivities[currentIndex] : null;
 
@@ -398,10 +398,9 @@ const ActivityClient = (props: ActivityClientProps) => {
     };
   }, []);
 
-  const chapterLabel =
-    currentActivityEntry !== null
-      ? `${t('chapter')} ${currentActivityEntry.chapterIndex + 1} : ${currentActivityEntry.chapterName ?? ''}`
-      : null;
+  const chapterLabel = currentActivityEntry
+    ? `${t('chapter')} ${currentActivityEntry.chapterIndex + 1} : ${currentActivityEntry.chapterName ?? ''}`
+    : null;
 
   // Focus mode progress
   const focusTotalCount = allActivities.length;
@@ -845,7 +844,8 @@ export const MarkStatus = (props: {
   const [isLoading, setIsLoading] = useState(false);
   const cleanCourseUuid = props.course.course_uuid?.replace('course_', '');
   const totalActivityCount = useMemo(
-    () => props.course.chapters?.reduce((count: number, chapter: any) => count + (chapter.activities?.length ?? 0), 0) ?? 0,
+    () =>
+      props.course.chapters?.reduce((count: number, chapter: any) => count + (chapter.activities?.length ?? 0), 0) ?? 0,
     [props.course.chapters],
   );
   const completedActivityIds = useMemo(() => {

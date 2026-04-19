@@ -20,7 +20,7 @@ export function normalizeActivityUuid(activityUuid?: string | null): string {
 }
 
 export function buildCourseActivityIndex<TActivity extends ActivityLike>(
-  chapters: Array<ChapterLike<TActivity> | null | undefined> | null | undefined,
+  chapters: (ChapterLike<TActivity> | null | undefined)[] | null | undefined,
 ) {
   const allActivities: IndexedCourseActivity<TActivity>[] = [];
   const indexByActivityId = new Map<number, number>();

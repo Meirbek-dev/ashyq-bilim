@@ -322,7 +322,7 @@ export default function NavBar() {
                 <Label className="text-muted-foreground px-1 text-[11px] font-semibold tracking-[0.16em] uppercase">
                   {t('search')}
                 </Label>
-                <div className="rounded-2xl border border-border/60 bg-background p-3 shadow-sm">
+                <div className="border-border/60 bg-background rounded-2xl border p-3 shadow-sm">
                   <SearchBar
                     isMobile
                     className="w-full"
@@ -335,7 +335,7 @@ export default function NavBar() {
                 <Label className="text-muted-foreground px-1 text-[11px] font-semibold tracking-[0.16em] uppercase">
                   {t('navigation')}
                 </Label>
-                <div className="rounded-2xl border border-border/60 bg-background p-2 shadow-sm">
+                <div className="border-border/60 bg-background rounded-2xl border p-2 shadow-sm">
                   <nav className="space-y-1">
                     <div className="space-y-1">
                       <NavigationLinkItem
@@ -371,7 +371,7 @@ export default function NavBar() {
                 <Label className="text-muted-foreground px-1 text-[11px] font-semibold tracking-[0.16em] uppercase">
                   {t('language')}
                 </Label>
-                <div className="rounded-2xl border border-border/60 bg-background p-4 shadow-sm">
+                <div className="border-border/60 bg-background rounded-2xl border p-4 shadow-sm">
                   <div className="flex min-h-[44px] items-center">
                     <LocaleSwitcher
                       className="w-full"
@@ -382,11 +382,11 @@ export default function NavBar() {
               </div>
 
               {/* Mobile profile */}
-              <div className="space-y-3 border-t border-border/60 pt-5">
+              <div className="border-border/60 space-y-3 border-t pt-5">
                 <Label className="text-muted-foreground px-1 text-[11px] font-semibold tracking-[0.16em] uppercase">
                   {t('account')}
                 </Label>
-                <div className="rounded-2xl border border-border/60 bg-background p-4 shadow-sm">
+                <div className="border-border/60 bg-background rounded-2xl border p-4 shadow-sm">
                   <div className="flex min-h-[44px] items-center justify-center">
                     <HeaderProfileBox />
                   </div>

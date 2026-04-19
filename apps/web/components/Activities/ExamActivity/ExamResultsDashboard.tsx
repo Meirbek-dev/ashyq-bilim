@@ -245,7 +245,7 @@ export default function ExamResultsDashboard({
         violation_count: row.violation_count,
       });
 
-      if (questionsRes && questionsRes.ok) {
+      if (questionsRes?.ok) {
         const qs: any[] = await questionsRes.json();
         const map: Record<number, any> = {};
         for (const q of qs) map[q.id] = q;
@@ -677,10 +677,11 @@ export default function ExamResultsDashboard({
                         let answerDisplay: React.ReactNode;
                         switch (question.question_type) {
                           case 'SINGLE_CHOICE':
-                          case 'TRUE_FALSE':
+                          case 'TRUE_FALSE': {
                             answerDisplay = <span>{opts[userAnswer as number]?.text ?? String(userAnswer)}</span>;
                             break;
-                          case 'MULTIPLE_CHOICE':
+                          }
+                          case 'MULTIPLE_CHOICE': {
                             answerDisplay = (
                               <span>
                                 {(Array.isArray(userAnswer) ? userAnswer : [])
@@ -689,7 +690,8 @@ export default function ExamResultsDashboard({
                               </span>
                             );
                             break;
-                          case 'MATCHING':
+                          }
+                          case 'MATCHING': {
                             answerDisplay = (
                               <div className="space-y-0.5">
                                 {Object.entries(userAnswer as Record<string, string>).map(([left, right]) => (
@@ -703,8 +705,10 @@ export default function ExamResultsDashboard({
                               </div>
                             );
                             break;
-                          default:
+                          }
+                          default: {
                             answerDisplay = <span>{String(userAnswer)}</span>;
+                          }
                         }
 
                         return (
