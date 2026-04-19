@@ -69,7 +69,6 @@ function useIsActive(href: string): boolean {
   const pathname = usePathname();
   return useMemo(() => {
     if (!pathname) return false;
-    // Exact match for root path — prevents matching everything
     if (href === "/") return pathname === "/";
     return pathname === href || pathname.startsWith(`${href}/`);
   }, [pathname, href]);
@@ -165,22 +164,22 @@ const DesktopNavLink = ({ def, label }: NavLinkProps) => {
         href={getAbsoluteUrl(href)}
         aria-current={isActive ? "page" : undefined}
         className={cn(
-          "group relative flex h-10 items-center gap-2 rounded-full px-4 text-[0.9rem] font-medium outline-none transition-all duration-200",
+          "group relative flex h-10 items-center gap-2 rounded-md px-3.5 text-sm font-medium outline-none transition-colors duration-200",
           "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           isActive
-            ? "bg-primary/10 text-primary hover:bg-primary/15"
-            : "text-muted-foreground hover:bg-accent hover:text-foreground",
+            ? "bg-accent text-foreground"
+            : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
         )}
       >
         <Icon
-          size={17}
+          size={16}
           strokeWidth={2.25}
           aria-hidden="true"
           className={cn(
             "shrink-0 transition-colors",
             isActive
               ? "text-primary"
-              : "text-muted-foreground/80 group-hover:text-foreground",
+              : "text-muted-foreground/70 group-hover:text-foreground",
           )}
         />
         <span className="tracking-tight">{label}</span>
@@ -206,8 +205,8 @@ const MobileNavLink = ({ def, label, onNavigate }: NavLinkProps) => {
         "group flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium outline-none transition-colors",
         "focus-visible:ring-2 focus-visible:ring-ring",
         isActive
-          ? "bg-primary/10 text-primary"
-          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+          ? "bg-accent text-foreground"
+          : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
       )}
     >
       <Icon
@@ -218,7 +217,7 @@ const MobileNavLink = ({ def, label, onNavigate }: NavLinkProps) => {
           "shrink-0",
           isActive
             ? "text-primary"
-            : "text-muted-foreground/80 group-hover:text-foreground",
+            : "text-muted-foreground/70 group-hover:text-foreground",
         )}
       />
       <span className="flex-1">{label}</span>
@@ -263,14 +262,15 @@ export default function NavBar() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 w-full border-b transition-[background-color,border-color,box-shadow] duration-200",
+        "fixed inset-x-0 top-0 z-50 w-full border-b border-border/60",
+        "transition-[background-color,box-shadow,backdrop-filter] duration-200",
         isScrolled
-          ? "border-border/60 bg-background/85 shadow-sm backdrop-blur-md supports-[backdrop-filter]:bg-background/70"
-          : "border-transparent bg-background",
+          ? "bg-background/85 shadow-sm backdrop-blur-md supports-[backdrop-filter]:bg-background/75"
+          : "bg-background",
       )}
       style={{ height: NAVBAR_HEIGHT }}
     >
-      <div className="mx-auto flex h-full w-full items-center gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-full w-full max-w-screen-2xl items-center gap-3 px-4 sm:gap-4 sm:px-6 lg:px-8">
         {/* ── Left: logo + desktop nav ─────────────────────────────── */}
         <div className="flex min-w-0 items-center gap-6 lg:gap-8">
           <Link
@@ -281,16 +281,16 @@ export default function NavBar() {
             <Image
               src={platformLogoFull}
               alt={t("logoAlt")}
-              width={100}
-              height={32}
-              className="h-8 w-auto object-contain"
+              width={120}
+              height={36}
+              className="h-9 w-auto object-contain"
               priority
             />
           </Link>
 
           <nav aria-label={t("navigation")} className="hidden md:flex">
             <NavigationMenu>
-              <NavigationMenuList className="gap-1">
+              <NavigationMenuList className="gap-0.5">
                 {visibleLinks.map((def) => (
                   <DesktopNavLink
                     key={def.type}
@@ -327,7 +327,7 @@ export default function NavBar() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="md:hidden"
+                  className="h-10 w-10 md:hidden"
                   aria-label={t("openMenu")}
                   {...triggerProps}
                 >
@@ -347,7 +347,7 @@ export default function NavBar() {
                   alt={t("logoAlt")}
                   width={180}
                   height={65}
-                  className="h-7 w-auto object-contain"
+                  className="h-8 w-auto object-contain"
                 />
               </SheetHeader>
 
