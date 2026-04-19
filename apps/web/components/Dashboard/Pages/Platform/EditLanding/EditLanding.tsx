@@ -888,14 +888,15 @@ const HeroSectionEditor: FC<{
               <Label htmlFor="background">{t('HeroEditor.Background.typeLabel')}</Label>
               <Select
                 value={section.background.type}
-                onValueChange={(selectedType = 'solid') => {
+                onValueChange={(selectedType) => {
+                  const normalizedType = (selectedType ?? 'solid');
                   onChange({
                     ...section,
                     background: {
-                      type: selectedType,
-                      color: selectedType === 'solid' ? '#ffffff' : undefined,
-                      colors: selectedType === 'gradient' ? PREDEFINED_GRADIENTS.sunrise.colors : undefined,
-                      image: selectedType === 'image' ? '' : undefined,
+                      type: normalizedType,
+                      color: normalizedType === 'solid' ? '#ffffff' : undefined,
+                      colors: normalizedType === 'gradient' ? PREDEFINED_GRADIENTS.sunrise.colors : undefined,
+                      image: normalizedType === 'image' ? '' : undefined,
                     },
                   });
                 }}
