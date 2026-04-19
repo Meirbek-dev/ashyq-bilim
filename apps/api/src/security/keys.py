@@ -24,7 +24,7 @@ import base64
 from functools import lru_cache
 from typing import Any
 
-from authlib.jose import OKPKey
+from joserfc.jwk import OKPKey
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 

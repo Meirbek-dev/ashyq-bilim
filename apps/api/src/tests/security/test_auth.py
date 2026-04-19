@@ -4,7 +4,7 @@ from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
-from authlib.jose import jwt
+from joserfc import jwt
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from fastapi import HTTPException, Request, Response
@@ -90,16 +90,12 @@ def _mock_user() -> Mock:
 class TestAuth:
     def test_create_access_token_contains_expected_claims(self) -> None:
         token = create_access_token(user_uuid="user_123", session_id="sess_123")
-        claims = jwt.decode(
+        token_obj = jwt.decode(
             token,
             get_public_key(),
-            claims_options={
-                "iss": {"essential": True, "value": AUTH_TOKEN_ISSUER},
-                "aud": {"essential": True, "value": AUTH_TOKEN_AUDIENCE},
-            },
+            algorithms=["EdDSA"],
         )
-        claims.validate()
-        payload = dict(claims)
+        payload = dict(token_obj.claims)
 
         assert payload["sub"] == "user_123"
         assert payload["sid"] == "sess_123"
@@ -126,6 +122,7 @@ class TestAuth:
                 "type": "access",
             },
             get_private_key(),
+            algorithms=["EdDSA"],
         )
         encoded = token.decode("utf-8") if isinstance(token, bytes) else token
 

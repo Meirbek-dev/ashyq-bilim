@@ -27,6 +27,7 @@ dependencies = [
   "pgvector>=0.4.2",
   "authlib>=1.6.11",
   "cryptography>=46.0.7",
+  "joserfc>=1.6.4",
 ]
 
 [dependency-groups]

@@ -6,7 +6,9 @@ from typing import Any
 
 import httpx
 from authlib.integrations.httpx_client import AsyncOAuth2Client
-from authlib.jose import JoseError, jwt
+from joserfc import jwt
+from joserfc._rfc7519.claims import JWTClaimsRegistry
+from joserfc.errors import JoseError
 from fastapi import HTTPException
 
 from src.security.keys import get_private_key, get_public_key
@@ -35,16 +37,21 @@ def _encode_state(callback: str) -> str:
         "jti": str(uuid.uuid4()),
         "exp": int(__import__("time").time()) + 600,
     }
-    token = jwt.encode({"alg": "EdDSA"}, payload, get_private_key())
+    token = jwt.encode(
+        {"alg": "EdDSA"},
+        payload,
+        get_private_key(),
+        algorithms=["EdDSA"],
+    )
     return token.decode("utf-8") if isinstance(token, bytes) else token
 
 
 def _decode_state(state: str) -> tuple[str, str]:
     """Return (callback_url, state_jti)."""
     try:
-        claims = jwt.decode(state, get_public_key())
-        claims.validate()
-        payload = dict(claims)
+        token_obj = jwt.decode(state, get_public_key(), algorithms=["EdDSA"])
+        payload = dict(token_obj.claims)
+        JWTClaimsRegistry().validate(payload)
         callback = payload.get("callback")
         jti = payload.get("jti")
         if (

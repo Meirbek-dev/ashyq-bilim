@@ -29,7 +29,8 @@
     "**/gen/",
     "**/.turbo/",
     "**/.genenv/",
-    "packages/llmz/examples/"
+    "packages/llmz/examples/",
+    "lib/api/generated/schema.ts"
   ],
   "overrides": [],
   "plugins": [

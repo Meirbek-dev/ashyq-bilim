@@ -5,7 +5,9 @@ import time
 import uuid
 from typing import Any
 
-from authlib.jose import JoseError, jwt
+from joserfc import jwt
+from joserfc._rfc7519.claims import JWTClaimsRegistry
+from joserfc.errors import JoseError
 from fastapi import HTTPException
 from pydantic import EmailStr
 from sqlmodel import Session, select
@@ -33,16 +35,21 @@ def _create_reset_token(user_uuid: str) -> tuple[str, str]:
         "iat": now,
         "exp": now + RESET_TOKEN_TTL,
     }
-    token = jwt.encode({"alg": "EdDSA"}, payload, get_private_key())
+    token = jwt.encode(
+        {"alg": "EdDSA"},
+        payload,
+        get_private_key(),
+        algorithms=["EdDSA"],
+    )
     token_str = token.decode("utf-8") if isinstance(token, bytes) else token
     return token_str, jti
 
 
 def _verify_reset_token(token: str) -> dict[str, Any]:
     try:
-        claims = jwt.decode(token, get_public_key())
-        claims.validate()
-        payload = dict(claims)
+        token_obj = jwt.decode(token, get_public_key(), algorithms=["EdDSA"])
+        payload = dict(token_obj.claims)
+        JWTClaimsRegistry().validate(payload)
     except JoseError as exc:
         raise HTTPException(
             status_code=400, detail="Invalid or expired reset token"

@@ -5,7 +5,9 @@ import logging
 import uuid
 from datetime import UTC, datetime, timedelta
 
-from authlib.jose import JoseError, jwt
+from joserfc import jwt
+from joserfc.errors import JoseError
+from joserfc._rfc7519.claims import JWTClaimsRegistry
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import Session, select
@@ -107,7 +109,12 @@ def create_access_token(
     if user_claims:
         payload["u"] = user_claims
 
-    token = jwt.encode({"alg": "EdDSA", "kid": "v1"}, payload, get_private_key())
+    token = jwt.encode(
+        {"alg": "EdDSA", "kid": "v1"},
+        payload,
+        get_private_key(),
+        algorithms=["EdDSA"],
+    )
     return token.decode("utf-8") if isinstance(token, bytes) else token
 
 
@@ -122,16 +129,17 @@ def get_access_token_expiry_ms(expires_delta: timedelta | None = None) -> int:
 def _decode_token_claims(token: str) -> dict:
     """Decode and validate a JWT, returning its claims dict."""
     try:
-        claims = jwt.decode(
+        token_obj = jwt.decode(
             token,
             get_public_key(),
-            claims_options={
-                "iss": {"essential": True, "value": AUTH_TOKEN_ISSUER},
-                "aud": {"essential": True, "value": AUTH_TOKEN_AUDIENCE},
-            },
+            algorithms=["EdDSA"],
         )
-        claims.validate()
-        return dict(claims)
+        payload = dict(token_obj.claims)
+        JWTClaimsRegistry(
+            iss={"essential": True, "value": AUTH_TOKEN_ISSUER},
+            aud={"essential": True, "value": AUTH_TOKEN_AUDIENCE},
+        ).validate(payload)
+        return payload
     except JoseError as exc:
         raise _credentials_exception() from exc
 

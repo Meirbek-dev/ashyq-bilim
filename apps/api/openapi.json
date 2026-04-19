@@ -2132,6 +2132,17 @@
               }
             ],
             "title": "Pdf File"
+          },
+          "pdf_uploaded_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pdf Uploaded Path"
           }
         },
         "required": [
