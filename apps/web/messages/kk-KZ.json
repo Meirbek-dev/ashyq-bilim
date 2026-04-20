@@ -1007,6 +1007,9 @@
     "CourseThumbnail": {
       "authorLabel": "{count, plural, one {Автор} other {Авторлар}}",
       "authors": "Авторлар",
+      "courseAuthorsAria": "Курстың авторлары",
+      "instructorLabel": "Оқытушы",
+      "moreAuthors": "Тағы {count}",
       "continueLearning": "Оқуды жалғастыру",
       "courseOptions": "Курстың нұсқалары",
       "courseThumbnailAlt": "Курс нобайы {courseName}",

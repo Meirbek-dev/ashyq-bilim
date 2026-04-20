@@ -186,62 +186,97 @@ interface AuthorsDisplayProps {
 }
 
 const AuthorsDisplay: FC<AuthorsDisplayProps> = ({ authors, t }) => {
-  const displayedAuthors = authors.slice(0, 3);
-  const hasMoreAuthors = authors.length > 3;
-  const remainingCount = authors.length - 3;
+  // LMS Best Practice: Sort authors so CREATORs/Main instructors appear first.
+  const sortedAuthors = useMemo(() => {
+    return [...authors].sort((a, b) => {
+      if (a.authorship === 'CREATOR' && b.authorship !== 'CREATOR') return -1;
+      if (b.authorship === 'CREATOR' && a.authorship !== 'CREATOR') return 1;
+      return 0;
+    });
+  }, [authors]);
+
+  const displayedAuthors = sortedAuthors.slice(0, 3);
+  const hasMoreAuthors = sortedAuthors.length > 3;
+  const remainingCount = sortedAuthors.length - 3;
 
   const authorsText = useMemo(() => {
-    // 1. Map authors to their preferred display name
     const names = displayedAuthors.map((a) => {
       const fullName = getAuthorFullName(a.user);
-      // If fullName is just an empty string (no first/last name), use username
       return fullName.trim() !== '' ? fullName : a.user.username;
     });
 
-    // 2. Join the names
     const joinedNames = names.join(', ');
-
-    // 3. Append count if there are more authors
     return hasMoreAuthors ? `${joinedNames} +${remainingCount}` : joinedNames;
   }, [displayedAuthors, hasMoreAuthors, remainingCount]);
 
   if (authors.length === 0) return null;
 
   return (
-    <div className="flex items-center gap-2 pt-1">
-      <div className="flex items-center -space-x-1.5">
-        {displayedAuthors.map((author, idx) => (
-          <div
-            key={author.user.user_uuid}
-            className="ring-card relative rounded-full ring-2 transition-transform hover:z-20 hover:scale-110"
-            style={{ zIndex: displayedAuthors.length - idx }}
-          >
-            <UserAvatar
-              size="sm"
-              variant="outline"
-              avatar_url={
-                author.user.avatar_image
-                  ? getUserAvatarMediaDirectory(author.user.user_uuid, author.user.avatar_image)
-                  : ''
-              }
-              predefined_avatar={author.user.avatar_image ? undefined : 'empty'}
-              showProfilePopup
-              userId={author.user.id}
-            />
-          </div>
-        ))}
+    <div className="flex items-center gap-3 pt-2">
+      {/* Overlapping Avatars */}
+      <div
+        className="flex items-center -space-x-2"
+        role="group"
+        aria-label={t('courseAuthorsAria', { defaultValue: 'Course authors' })}
+      >
+        {displayedAuthors.map((author, idx) => {
+          const authorName = getAuthorFullName(author.user).trim() || author.user.username;
+          // Format role for tooltip (e.g., "CREATOR" -> "Creator")
+          const roleLabel = author.authorship.charAt(0) + author.authorship.slice(1).toLowerCase();
+          const isCreator = author.authorship === 'CREATOR';
+
+          return (
+            <div
+              key={author.user.user_uuid}
+              className={`ring-background relative rounded-full ring-2 transition-all duration-200 hover:z-20 hover:-translate-y-0.5 hover:shadow-sm ${
+                isCreator ? 'ring-primary/10' : ''
+              }`}
+              style={{ zIndex: displayedAuthors.length - idx }}
+              title={`${authorName} (${roleLabel})`}
+            >
+              <UserAvatar
+                size="sm"
+                variant="outline"
+                avatar_url={
+                  author.user.avatar_image
+                    ? getUserAvatarMediaDirectory(author.user.user_uuid, author.user.avatar_image)
+                    : ''
+                }
+                predefined_avatar={author.user.avatar_image ? undefined : 'empty'}
+                showProfilePopup
+                userId={author.user.id}
+              />
+            </div>
+          );
+        })}
+
         {hasMoreAuthors && (
-          <div className="border-card bg-muted text-muted-foreground flex h-7 w-7 items-center justify-center rounded-full border-2 text-[10px] font-medium">
+          <div
+            className="bg-muted text-muted-foreground ring-background flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-semibold ring-2 transition-transform hover:z-20 hover:scale-105"
+            title={t('moreAuthors', {
+              count: remainingCount,
+              defaultValue: `${remainingCount} more contributors`,
+            })}
+          >
             +{remainingCount}
           </div>
         )}
       </div>
-      <span
-        className="text-muted-foreground truncate text-xs leading-tight"
-        aria-label={authorsText}
-      >
-        {authorsText}
-      </span>
+
+      {/* Author Names & LMS Role Context */}
+      <div className="flex min-w-0 flex-col justify-center">
+        <span className="text-muted-foreground/70 mb-0.5 text-[10px] font-semibold tracking-wider uppercase">
+          {/* You can replace this with t('instructor') depending on your translation keys */}
+          {t('instructorLabel', { defaultValue: 'Instructor' })}
+        </span>
+        <span
+          className="text-foreground/90 hover:text-foreground truncate text-xs leading-none font-medium transition-colors"
+          aria-label={authorsText}
+          title={authorsText}
+        >
+          {authorsText}
+        </span>
+      </div>
     </div>
   );
 };

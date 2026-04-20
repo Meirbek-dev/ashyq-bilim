@@ -1007,6 +1007,9 @@
     "CourseThumbnail": {
       "authorLabel": "{count, plural, one {Author} other {Authors}}",
       "authors": "Authors",
+      "courseAuthorsAria": "Course authors",
+      "instructorLabel": "Instructor",
+      "moreAuthors": "{count} more",
       "ownerBadge": "Owner",
       "continueLearning": "Continue Learning",
       "courseOptions": "Course options",

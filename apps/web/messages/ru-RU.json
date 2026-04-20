@@ -1008,6 +1008,9 @@
     "CourseThumbnail": {
       "authorLabel": "{count, plural, one {Автор} other {Авторы}}",
       "authors": "Авторы",
+      "courseAuthorsAria": "Авторы курса",
+      "instructorLabel": "Преподаватель",
+      "moreAuthors": "{count, plural, one {ещё # автор} few {ещё # автора} many {ещё # авторов} other {ещё # авторов}}",
       "continueLearning": "Продолжить обучение",
       "courseOptions": "Опции курса",
       "courseThumbnailAlt": "Миниатюра курса {courseName}",
