@@ -52,6 +52,18 @@ const nextConfig: NextConfig = {
     // the default smaller quality as fallback.
     qualities: [100, 75],
   },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      const splitChunks = config.optimization?.splitChunks;
+      if (splitChunks && typeof splitChunks === 'object') {
+        // Merge tiny chunks together — reduces the ~20 parallel JS requests
+        // on first load that trigger rate limiting at the upstream proxy.
+        splitChunks.minSize = 80_000;       // 80 KB min (default ~20 KB)
+        splitChunks.maxInitialRequests = 12; // max chunks on initial load (default 25)
+      }
+    }
+    return config;
+  },
 };
 
 const withNextIntl = createNextIntlPlugin();
