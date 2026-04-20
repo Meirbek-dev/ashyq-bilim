@@ -139,7 +139,6 @@ server {
 
   # Next.js static files
   location /_next/static {
-    limit_req off;
     access_log off;
 
     if ($is_forwarded_https = 0) { return 301 https://$host$request_uri; }
@@ -296,7 +295,6 @@ server {
 
   # Backend static content (user uploads, media)
   location /content {
-    limit_req off;
     proxy_pass http://api:8000;
     proxy_set_header Host              $host;
     proxy_set_header X-Real-IP         $remote_addr;
@@ -307,7 +305,6 @@ server {
 
   # Next.js static files (_next/static) — content-addressed, cache permanently
   location /_next/static {
-    limit_req off;
     access_log off;
 
     proxy_pass http://web:3000;

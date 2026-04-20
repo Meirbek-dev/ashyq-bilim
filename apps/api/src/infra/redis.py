@@ -38,8 +38,12 @@ def configure(url: str) -> None:
     if not _REDIS_AVAILABLE:
         _logger.warning("redis package not installed — Redis features disabled")
         return
-    _sync_client = _redis.Redis.from_url(url, decode_responses=False)
-    _async_client = _aioredis.Redis.from_url(url, decode_responses=False)
+    _sync_client = _redis.Redis.from_url(
+        url, decode_responses=False, socket_connect_timeout=2, socket_timeout=2
+    )
+    _async_client = _aioredis.Redis.from_url(
+        url, decode_responses=False, socket_connect_timeout=2, socket_timeout=2
+    )
     _logger.debug("Redis clients configured")
 
 
