@@ -61,3 +61,5 @@ temp-restore
 tmpclaude-*-cwd
 
 **/.eslintcache
+
+exported-page

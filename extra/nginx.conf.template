@@ -25,6 +25,8 @@ proxy_cache_path /var/cache/nginx/app
 limit_req_zone $binary_remote_addr zone=auth_limit:10m rate=10r/s;
 # General API: 30 req/s per IP, burst of 60
 limit_req_zone $binary_remote_addr zone=api_limit:10m  rate=30r/s;
+# Global/Frontend: 2000 req/s per IP, burst of 2500 (Next.js chunk burst support)
+limit_req_zone $binary_remote_addr zone=global_limit:10m rate=2000r/s;
 
 # ---------------------------------------------------------------------------
 # Upstream timeouts (applied once here, referenced per-location)
@@ -137,6 +139,9 @@ server {
 
   # Next.js static files
   location /_next/static {
+    limit_req off;
+    access_log off;
+
     if ($is_forwarded_https = 0) { return 301 https://$host$request_uri; }
     proxy_pass http://web:3000;
     proxy_set_header Host              $host;
@@ -148,6 +153,9 @@ server {
 
   # Next.js image optimizer
   location /_next/image {
+    limit_req zone=global_limit burst=2500 nodelay;
+    limit_req_status 429;
+
     if ($is_forwarded_https = 0) { return 301 https://$host$request_uri; }
     proxy_pass http://web:3000;
     proxy_set_header Host              $host;
@@ -181,6 +189,9 @@ server {
 
   # Frontend catch-all
   location / {
+    limit_req zone=global_limit burst=2500 nodelay;
+    limit_req_status 429;
+
     if ($is_forwarded_https = 0) { return 301 https://$host$request_uri; }
     proxy_pass http://web:3000;
     proxy_set_header Host              $host;
@@ -285,6 +296,7 @@ server {
 
   # Backend static content (user uploads, media)
   location /content {
+    limit_req off;
     proxy_pass http://api:8000;
     proxy_set_header Host              $host;
     proxy_set_header X-Real-IP         $remote_addr;
@@ -295,6 +307,9 @@ server {
 
   # Next.js static files (_next/static) — content-addressed, cache permanently
   location /_next/static {
+    limit_req off;
+    access_log off;
+
     proxy_pass http://web:3000;
     proxy_cache       app_cache;
     proxy_cache_valid 200 365d;
@@ -309,6 +324,9 @@ server {
 
   # Next.js image optimization — transformation endpoint, not immutable
   location /_next/image {
+    limit_req zone=global_limit burst=2500 nodelay;
+    limit_req_status 429;
+
     proxy_pass http://web:3000;
     proxy_set_header Host              $host;
     proxy_set_header X-Real-IP         $remote_addr;
@@ -340,6 +358,9 @@ server {
 
   # Frontend catch-all
   location / {
+    limit_req zone=global_limit burst=2500 nodelay;
+    limit_req_status 429;
+
     proxy_pass http://web:3000;
     proxy_set_header Host              $host;
     proxy_set_header X-Real-IP         $remote_addr;

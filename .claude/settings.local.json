@@ -11,7 +11,9 @@
       "Bash(grep:*)",
       "Bash(ls:*)",
       "Bash(find:*)",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "Bash(podman exec *)",
+      "Bash(redis-cli -h 127.0.0.1 -p 6379 ping)"
     ]
   }
 }
