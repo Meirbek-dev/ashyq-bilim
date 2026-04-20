@@ -56,10 +56,13 @@ const nextConfig: NextConfig = {
     if (!isServer) {
       const splitChunks = config.optimization?.splitChunks;
       if (splitChunks && typeof splitChunks === 'object') {
-        // Merge tiny chunks together — reduces the ~20 parallel JS requests
-        // on first load that trigger rate limiting at the upstream proxy.
-        splitChunks.minSize = 80_000;       // 80 KB min (default ~20 KB)
-        splitChunks.maxInitialRequests = 12; // max chunks on initial load (default 25)
+        // Upstream proxy rate-limits by our server IP, not by client IP, so all
+        // concurrent users share one burst bucket. Reducing parallel requests per
+        // page load is the only app-side mitigation until the admin exempts
+        // /_next/static/ from rate limiting.
+        splitChunks.minSize = 500_000;      // 120 KB min (default ~20 KB)
+        splitChunks.maxInitialRequests = 6; // max chunks on initial load (default 25)
+        splitChunks.maxAsyncRequests = 10;  // max lazy-load chunks (default 30)
       }
     }
     return config;
