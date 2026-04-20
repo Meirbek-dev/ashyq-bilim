@@ -20,7 +20,7 @@
     "knip": "knip"
   },
   "dependencies": {
-    "@base-ui/react": "^1.4.0",
+    "@base-ui/react": "^1.4.1",
     "@hello-pangea/dnd": "^18.0.1",
     "@hookform/resolvers": "^5.2.2",
     "@icons-pack/react-simple-icons": "^13.13.0",

@@ -271,6 +271,26 @@ docker run --rm \
   -v "${BACKUP_PATH}/app_content:/backup" \
   alpine sh -c "cd /data && cp -a /backup/. ."
 
+
+# 3 (Powershell). Restore volumes (prefix is your Compose project name, default: ashyq-bilim)
+
+$BACKUP_PATH = ($PWD.ProviderPath -replace '\\','/')
+
+podman run --rm `
+  -v ashyq-bilim_postgres_data:/data `
+  -v "${BACKUP_PATH}/temp-restore/backup/postgres:/backup" `
+  alpine sh -c "cp -a /backup/. /data/"
+
+podman run --rm `
+  -v ashyq-bilim_redis_data:/data `
+  -v "${BACKUP_PATH}/temp-restore/backup/redis:/backup" `
+  alpine sh -c "cp -a /backup/. /data/"
+
+podman run --rm `
+  -v ashyq-bilim_app_content:/data `
+  -v "${BACKUP_PATH}/temp-restore/backup/app_content:/backup" `
+  alpine sh -c "cp -a /backup/. /data/"
+
 # 4. Start
 docker-compose up -d
 
