@@ -586,7 +586,7 @@
       "showPassword": "Show password",
       "signInWithGoogle": "Sign in with Google",
       "signup": "Sign up",
-      "title": "Login - {platformName}",
+      "title": "Login",
       "sessionExpired": "Your session expired. Please sign in again.",
       "sessionRevoked": "Your session was revoked. Please sign in again.",
       "sessionRecoveryFailed": "We could not recover your session. Please sign in again.",
@@ -623,14 +623,13 @@
       "goBack": "Back to Login",
       "hi": "Hi",
       "join": "Join",
-      "joinQuestion": "would you like to join {platformName}?",
       "loading": "Loading...",
       "loginToAccount": "Login to your account",
       "password": "Password",
       "passwordPlaceholder": "Enter your password",
       "signInWithGoogle": "Sign in with Google",
       "submit": "Submit",
-      "title": "Sign up - {platformName}",
+      "title": "Sign up",
       "redirecting": "Redirecting...",
       "formComponentNeeded": "Signup form component needed.",
       "username": "Username",
@@ -6184,7 +6183,6 @@
   },
   "HomePage": {
     "Collections": {
-      "collectionOfCourses": "Collections of courses from {platformName}",
       "newCollection": "New Collection",
       "noContent": "No collections yet",
       "noContentDescription": "Create collections to organize your courses and content",
@@ -6927,7 +6925,6 @@
     "errorSomethingWentWrong": "Something went wrong. Please try again later.",
     "hi": "Hi",
     "join": "Join ",
-    "joinQuestion": "join {platformName}?",
     "submit": "Submit "
   },
   "Trail": {

@@ -601,7 +601,7 @@
       "signInWithGoogle": "Google арқылы кіру",
       "signup": "Тіркелу",
       "sso": "Бір реттік жүйеге кіру (SSO)",
-      "title": "Кіру - {platformName}",
+      "title": "Кіру",
       "welcomeBack": "Қайтып келуіңізбен! Тіркелгі деректеріңізді енгізіңіз.",
       "sessionExpired": "Сеансыңыз аяқталды. Қайта кіріңіз.",
       "sessionRevoked": "Сеансыңыз кері қайтарылды. Қайта кіріңіз.",
@@ -640,7 +640,6 @@
       "goBack": "Кіру дегенге қайта келу",
       "hi": "Сәлем",
       "join": "Қосылу",
-      "joinQuestion": "{platformName} қосылғыңыз келеді ме?",
       "loading": "Жүктелуде...",
       "loginToAccount": "Аккаунтқа кіру",
       "password": "Құпия сөз",
@@ -648,7 +647,7 @@
       "redirecting": "Бағытталуда...",
       "signInWithGoogle": "Google арқылы кіру",
       "submit": "Жіберу",
-      "title": "Тіркелу - {platformName}",
+      "title": "Тіркелу",
       "username": "Пайдаланушы аты",
       "usernamePlaceholder": "Пайдаланушы атыңызды енгізіңіз",
       "continueWithGoogle": "Google арқылы жалғастыру",
@@ -6214,7 +6213,6 @@
   },
   "HomePage": {
     "Collections": {
-      "collectionOfCourses": "{platformName} ұйымынан курстар жинағы",
       "newCollection": "Жаңа жинақ",
       "noContent": "Әзірге жинақтар жоқ",
       "noContentDescription": "Өз курстарыңыз және контентіңізді ұйымдастыру үшін жинақтар құрыңыз",
@@ -6967,7 +6965,6 @@
     "errorSomethingWentWrong": "Бірдеңе дұрыс болмады. Кейінірек қайталап көріңіз.",
     "hi": "Сәлем",
     "join": "Қосылу ",
-    "joinQuestion": "{platformName} ұйымына қосылу?",
     "submit": "Жіберу "
   },
   "Trail": {

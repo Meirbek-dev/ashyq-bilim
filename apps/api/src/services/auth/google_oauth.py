@@ -1,7 +1,7 @@
 import base64
 import hashlib
 import secrets
-from functools import lru_cache
+import time
 from typing import Any
 
 import httpx
@@ -16,13 +16,22 @@ from src.services.cache.redis_client import get_redis_client
 
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 PKCE_TTL = 600  # 10 minutes
+_METADATA_CACHE_TTL = 3600  # 1 hour — discovery doc rarely changes
+
+_metadata_cache: dict[str, Any] = {}
+_metadata_cached_at: float = 0.0
 
 
 async def _get_google_metadata() -> dict[str, Any]:
+    global _metadata_cache, _metadata_cached_at
+    if _metadata_cache and time.monotonic() - _metadata_cached_at < _METADATA_CACHE_TTL:
+        return _metadata_cache
     async with httpx.AsyncClient(timeout=10.0) as client:
         response = await client.get(GOOGLE_DISCOVERY_URL)
         response.raise_for_status()
-        return response.json()
+        _metadata_cache = response.json()
+        _metadata_cached_at = time.monotonic()
+        return _metadata_cache
 
 
 # ── State JWT (carries frontend callback URL through OAuth round-trip) ────────
@@ -97,7 +106,7 @@ def _consume_pkce_verifier(state_jti: str) -> str | None:
 # ── Public API ────────────────────────────────────────────────────────────────
 
 
-def get_google_authorize_url(
+async def get_google_authorize_url(
     client_id: str,
     redirect_uri: str,
     callback: str,
@@ -107,7 +116,7 @@ def get_google_authorize_url(
     code_verifier, code_challenge = _generate_pkce()
     _store_pkce_verifier(state_jti, code_verifier)
 
-    metadata = httpx.get(GOOGLE_DISCOVERY_URL, timeout=10.0).json()
+    metadata = await _get_google_metadata()
     client = AsyncOAuth2Client(
         client_id=client_id,
         redirect_uri=redirect_uri,

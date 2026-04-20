@@ -625,7 +625,7 @@ async def google_authorize(callback: str) -> RedirectResponse:
     cfg = settings.google_oauth
     if not cfg.client_id or not cfg.client_secret:
         raise HTTPException(status_code=503, detail="Google OAuth is not configured")
-    url = get_google_authorize_url(
+    url = await get_google_authorize_url(
         client_id=cfg.client_id,
         redirect_uri=_backend_callback_url(),
         callback=callback,

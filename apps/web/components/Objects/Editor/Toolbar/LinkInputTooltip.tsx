@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl';
-import type { KeyboardEvent } from 'react';
+import { useId, type KeyboardEvent } from 'react';
 import { Check, X } from 'lucide-react';
 import { useState } from 'react';
 
@@ -24,6 +24,8 @@ const LinkInputTooltip = ({ onSave, onCancel, currentUrl = '' }: LinkInputToolti
     }
   };
 
+  const inputId = useId();
+
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Escape') {
       onCancel();
@@ -36,9 +38,14 @@ const LinkInputTooltip = ({ onSave, onCancel, currentUrl = '' }: LinkInputToolti
         action={handleSubmit}
         className="flex items-center gap-1.5"
       >
+        <label htmlFor={inputId} className="sr-only">
+          {t('enterUrl')}
+        </label>
         <input
+          id={inputId}
           name="url"
           type="text"
+          autoComplete="url"
           placeholder={t('enterUrl')}
           value={url}
           onChange={(e) => setUrl(e.target.value)}
