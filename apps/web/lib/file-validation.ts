@@ -11,13 +11,27 @@ export const FILE_TYPES = {
     maxSize: 10 * 1024 * 1024, // 10MB
   },
   video: {
-    extensions: ['.mp4', '.webm', '.mkv'],
-    mimeTypes: ['video/mp4', 'video/webm', 'video/x-matroska'],
+    extensions: ['.mp4', '.webm', '.mkv', '.mov', '.avi', '.flv'],
+    mimeTypes: ['video/mp4', 'video/webm', 'video/x-matroska', 'video/quicktime', 'video/x-msvideo', 'video/x-flv'],
     maxSize: 1000 * 1024 * 1024, // 1000MB
   },
+  audio: {
+    extensions: ['.mp3', '.wav', '.ogg', '.m4a'],
+    mimeTypes: ['audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/ogg', 'audio/mp4', 'audio/x-m4a'],
+    maxSize: 100 * 1024 * 1024, // 100MB
+  },
   document: {
-    extensions: ['.pdf'],
-    mimeTypes: ['application/pdf'],
+    extensions: ['.pdf', '.pptx', '.docx', '.zip', '.srt', '.vtt'],
+    mimeTypes: [
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/zip',
+      'application/x-zip-compressed',
+      'text/vtt',
+      'text/plain',
+      'application/octet-stream',
+    ],
     maxSize: 100 * 1024 * 1024, // 100MB
   },
 } as const;

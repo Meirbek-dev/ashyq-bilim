@@ -35,7 +35,7 @@ import { Input } from '@components/ui/input';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
-const SUPPORTED_VIDEO_FILES = constructAcceptValue(['mp4', 'mkv', 'webm']);
+const SUPPORTED_VIDEO_FILES = constructAcceptValue(['mp4', 'mkv', 'webm', 'mov', 'avi', 'flv']);
 const SUPPORTED_SUBTITLE_FILES = constructAcceptValue(['srt', 'vtt']);
 
 interface SubtitleFile {

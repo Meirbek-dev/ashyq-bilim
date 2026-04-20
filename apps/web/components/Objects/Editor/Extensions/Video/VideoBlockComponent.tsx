@@ -19,7 +19,7 @@ import type ArtplayerType from 'artplayer';
 import type { Node } from '@tiptap/core';
 import { cn } from '@/lib/utils';
 
-const SUPPORTED_FILES = constructAcceptValue(['webm', 'mkv', 'mp4']);
+const SUPPORTED_FILES = constructAcceptValue(['webm', 'mkv', 'mp4', 'mov', 'avi', 'flv']);
 
 const VIDEO_SIZES = {
   small: { width: 480, label: 'sizeSmall' },

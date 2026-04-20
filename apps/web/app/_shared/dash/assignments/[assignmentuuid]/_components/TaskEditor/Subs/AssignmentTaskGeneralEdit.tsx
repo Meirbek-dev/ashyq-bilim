@@ -21,7 +21,29 @@ import Link from '@components/ui/AppLink';
 import { toast } from 'sonner';
 import * as v from 'valibot';
 
-const SUPPORTED_FILES = constructAcceptValue(['pdf', 'docx', 'mp4', 'mkv', 'jpg', 'png', 'pptx', 'zip']);
+const SUPPORTED_FILES = constructAcceptValue([
+  'pdf',
+  'docx',
+  'pptx',
+  'zip',
+  'srt',
+  'vtt',
+  'mp4',
+  'mkv',
+  'webm',
+  'mov',
+  'avi',
+  'flv',
+  'mp3',
+  'wav',
+  'ogg',
+  'm4a',
+  'jpg',
+  'png',
+  'webp',
+  'gif',
+  'avif',
+]);
 
 const createValidationSchema = (t: (key: string) => string) =>
   v.object({

@@ -38,6 +38,32 @@ def validate_image_content(content: bytes) -> bool:
     return bool(magic_bytes.startswith(b"RIFF") and b"WEBP" in content[:16])
 
 
+def validate_audio_content(content: bytes) -> bool:
+    """Validate audio content using magic bytes."""
+    if len(content) < 12:
+        return False
+
+    magic_bytes = content[:12]
+
+    # MP3: ID3 marker or frame header
+    if magic_bytes.startswith(b"ID3") or magic_bytes[0] == 0xFF:
+        return True
+
+    # WAV: RIFF....WAVE
+    if magic_bytes.startswith(b"RIFF") and content[8:12] == b"WAVE":
+        return True
+
+    # OGG: OggS header
+    if magic_bytes.startswith(b"OggS"):
+        return True
+
+    # M4A: MP4 container with audio brand
+    return (
+        magic_bytes[4:8] == b"ftyp"
+        and magic_bytes[8:12] in (b"M4A ", b"isom", b"mp42", b"mp41")
+    )
+
+
 def validate_video_content(content: bytes) -> bool:
     """Validate video content using magic bytes."""
     if len(content) < 12:
@@ -45,16 +71,50 @@ def validate_video_content(content: bytes) -> bool:
 
     magic_bytes = content[:12]
 
-    # MP4: starts with specific ftyp box signatures
+    # MP4 / MOV: starts with specific ftyp box signatures
     if magic_bytes[4:8] == b"ftyp" and (
         b"mp4" in magic_bytes[8:12]
         or b"M4V" in magic_bytes[8:12]
         or b"isom" in magic_bytes[8:12]
+        or magic_bytes[8:12] == b"qt  "
     ):
         return True
 
-    # WebM: EBML header
+    # AVI: RIFF....AVI
+    if magic_bytes.startswith(b"RIFF") and content[8:12] == b"AVI ":
+        return True
+
+    # FLV: FLV header
+    if magic_bytes.startswith(b"FLV"):
+        return True
+
+    # WebM / MKV: EBML header
     return bool(magic_bytes.startswith(b"\x1aE\xdf\xa3"))
+
+
+def validate_document_content(content: bytes) -> bool:
+    """Validate document and archive content using magic bytes."""
+    if len(content) < 4:
+        return False
+
+    # PDF: %PDF-
+    if content.startswith(b"%PDF-"):
+        return True
+
+    # PPTX / DOCX / ZIP: ZIP container header
+    if content.startswith(b"PK\x03\x04") or content.startswith(b"PK\x05\x06") or content.startswith(b"PK\x07\x08"):
+        return True
+
+    # VTT: WEBVTT
+    if content.startswith(b"WEBVTT"):
+        return True
+
+    # SRT: plain text subtitle
+    try:
+        decoded = content.decode('utf-8-sig')
+        return bool(decoded.strip())
+    except UnicodeDecodeError:
+        return False
 
 
 # File type configurations
@@ -66,16 +126,45 @@ FILE_TYPES = {
         "validator": validate_image_content,
     },
     "video": {
-        "extensions": [".mp4", ".webm", ".mkv"],
-        "mime_types": ["video/mp4", "video/webm", "video/x-matroska"],
+        "extensions": [".mp4", ".webm", ".mkv", ".mov", ".avi", ".flv"],
+        "mime_types": [
+            "video/mp4",
+            "video/webm",
+            "video/x-matroska",
+            "video/quicktime",
+            "video/x-msvideo",
+            "video/x-flv",
+        ],
         "max_size": 1000 * 1024 * 1024,  # 1000MB
         "validator": validate_video_content,
     },
-    "document": {
-        "extensions": [".pdf"],
-        "mime_types": ["application/pdf"],
+    "audio": {
+        "extensions": [".mp3", ".wav", ".ogg", ".m4a"],
+        "mime_types": [
+            "audio/mpeg",
+            "audio/wav",
+            "audio/x-wav",
+            "audio/ogg",
+            "audio/mp4",
+            "audio/x-m4a",
+        ],
         "max_size": 100 * 1024 * 1024,  # 100MB
-        "validator": lambda content: content.startswith(b"%PDF-"),
+        "validator": validate_audio_content,
+    },
+    "document": {
+        "extensions": [".pdf", ".pptx", ".docx", ".zip", ".srt", ".vtt"],
+        "mime_types": [
+            "application/pdf",
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/zip",
+            "application/x-zip-compressed",
+            "text/vtt",
+            "text/plain",
+            "application/octet-stream",
+        ],
+        "max_size": 100 * 1024 * 1024,  # 100MB
+        "validator": validate_document_content,
     },
 }
 
@@ -88,7 +177,7 @@ def validate_upload(
 
     Args:
         file: The uploaded file
-        allowed_types: List of allowed file types ('image', 'video', 'document')
+        allowed_types: List of allowed file types ('image', 'video', 'audio', 'document')
         max_size: Maximum file size in bytes (auto-determined if None)
 
     Returns:

@@ -1195,7 +1195,7 @@ const HeroSectionEditor: FC<{
                     <input
                       id="imageUpload"
                       type="file"
-                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      accept="image/jpeg,image/png,image/webp,image/avif,image/gif"
                       onChange={handleImageUpload}
                       className="hidden"
                       aria-label={t('ImageUploader.ariaLabel')}
@@ -1571,7 +1571,7 @@ const ImageUploader: FC<ImageUploaderProps> = ({ t, onImageUploaded, className, 
       <input
         id={inputId}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept="image/jpeg,image/png,image/webp,image/avif,image/gif"
         onChange={handleFileChange}
         className="hidden"
         aria-label={t('ImageUploader.ariaLabel')}

@@ -28,7 +28,7 @@ async def upload_file(
         directory: Target directory (e.g., "logos", "avatars")
         type_of_dir: "platform" or "users"
         uuid: User UUID for user-scoped uploads; omitted for platform uploads
-        allowed_types: List of allowed file types ('image', 'video', 'document')
+        allowed_types: List of allowed file types ('image', 'video', 'audio', 'document')
         filename_prefix: Prefix for the generated filename
         max_size: Maximum file size in bytes (optional)
 
