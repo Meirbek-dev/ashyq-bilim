@@ -329,13 +329,12 @@ async def add_course_to_trail(
             status_code=status.HTTP_400_BAD_REQUEST, detail="TrailRun already exists"
         )
 
-    statement = select(Trail).where(Trail.user_id == user.id)
-    trail = db_session.exec(statement).first()
-
-    if not trail:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Trail not found"
-        )
+    trail = await check_trail_presence(
+        user_id=user.id,
+        request=request,
+        user=user,
+        db_session=db_session,
+    )
 
     statement = select(TrailRun).where(
         TrailRun.trail_id == trail.id,
