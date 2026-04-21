@@ -7,11 +7,12 @@
  *   data: {"type":"final","content":"full text","aichat_uuid":"..."}
  *   data: {"type":"error","error":"msg","error_code":"CODE"}
  *
- * This adapter translates those events into the AG-UI protocol (StreamChunk)
+ * This adapter translates those events into the AG-UI protocol (AGUIEvent)
  * that TanStack AI's ChatClient expects.
  */
 
 import { normalizeToUIMessage, stream } from '@tanstack/ai-client';
+import { EventType } from '@ag-ui/core';
 import { getAPIUrl } from '@services/config/config';
 import type { TextPart } from '@tanstack/ai-client';
 import { generateUUID } from '@/lib/utils';
@@ -92,7 +93,7 @@ export interface ActivityChatAdapter {
 
 /**
  * Creates a stateful connection adapter that bridges the Python backend's
- * SSE events to the AG-UI StreamChunk protocol used by TanStack AI.
+ * SSE events to the AG-UI protocol used by TanStack AI.
  *
  * Session UUID is managed internally — the adapter automatically routes
  * to `/start` on first call and `/send` on subsequent calls.
@@ -124,7 +125,12 @@ export function createActivityChatAdapter({
 
   const abort = () => currentController?.abort();
 
-  const connection = stream(async function* connection(messages, _data) {
+  // Cast the factory to the parameter type expected by `stream()` so that
+  // TypeScript does not try to unify our yield-inferred Zod objectOutputType
+  // union against AGUIEvent's own Zod-inferred union — they are structurally
+  // equivalent at runtime but the passthrough index signatures make them
+  // incompatible at the type level.
+  const connection = stream((async function* connection(messages, _data) {
     // Extract the last user message text from the UIMessage parts array.
     const lastUser = [...messages].toReversed().find((m) => m.role === 'user');
     const normalizedLastUser = lastUser ? normalizeToUIMessage(lastUser, () => generateUUID()) : null;
@@ -173,7 +179,8 @@ export function createActivityChatAdapter({
     let messageStarted = false;
     let streamedText = '';
 
-    yield { type: 'RUN_STARTED', runId, timestamp: now() };
+    // activityUuid is the stable thread identifier for this chat session.
+    yield { type: EventType.RUN_STARTED, threadId: activityUuid, runId, timestamp: now() };
 
     const reader = response.body!.getReader();
     const decoder = new TextDecoder();
@@ -221,7 +228,7 @@ export function createActivityChatAdapter({
                     : null;
               if (message) {
                 yield {
-                  type: 'CUSTOM',
+                  type: EventType.CUSTOM,
                   name: 'ai_status',
                   value: {
                     status: typeof event.status === 'string' ? event.status : null,
@@ -237,7 +244,7 @@ export function createActivityChatAdapter({
             case 'chunk': {
               if (!messageStarted) {
                 yield {
-                  type: 'TEXT_MESSAGE_START',
+                  type: EventType.TEXT_MESSAGE_START,
                   messageId,
                   role: 'assistant',
                   timestamp: now(),
@@ -247,7 +254,7 @@ export function createActivityChatAdapter({
               if (event.content) {
                 streamedText += event.content as string;
                 yield {
-                  type: 'TEXT_MESSAGE_CONTENT',
+                  type: EventType.TEXT_MESSAGE_CONTENT,
                   messageId,
                   delta: event.content as string,
                   timestamp: now(),
@@ -260,7 +267,7 @@ export function createActivityChatAdapter({
               if (event.aichat_uuid) writeUuid(event.aichat_uuid as string);
               if (!messageStarted) {
                 yield {
-                  type: 'TEXT_MESSAGE_START',
+                  type: EventType.TEXT_MESSAGE_START,
                   messageId,
                   role: 'assistant',
                   timestamp: now(),
@@ -270,29 +277,27 @@ export function createActivityChatAdapter({
               const finalDelta = reconcileFinalMessageDelta(streamedText, (event.content as string) ?? '');
               if (finalDelta) {
                 yield {
-                  type: 'TEXT_MESSAGE_CONTENT',
+                  type: EventType.TEXT_MESSAGE_CONTENT,
                   messageId,
                   delta: finalDelta,
                   timestamp: now(),
                 };
               }
-              yield { type: 'TEXT_MESSAGE_END', messageId, timestamp: now() };
-              yield { type: 'RUN_FINISHED', runId, finishReason: 'stop', timestamp: now() };
+              yield { type: EventType.TEXT_MESSAGE_END, messageId, timestamp: now() };
+              yield { type: EventType.RUN_FINISHED, threadId: activityUuid, runId, timestamp: now() };
               return;
             }
 
             case 'error': {
               // Close an open message before signalling the error.
               if (messageStarted) {
-                yield { type: 'TEXT_MESSAGE_END', messageId, timestamp: now() };
+                yield { type: EventType.TEXT_MESSAGE_END, messageId, timestamp: now() };
               }
+              // RunErrorEvent is flat per AG-UI spec — message and code at top level.
               yield {
-                type: 'RUN_ERROR',
-                runId,
-                error: {
-                  message: (event.error as string) ?? 'Streaming failed',
-                  code: event.error_code as string | undefined,
-                },
+                type: EventType.RUN_ERROR,
+                message: (event.error as string) ?? 'Streaming failed',
+                code: event.error_code as string | undefined,
                 timestamp: now(),
               };
               return;
@@ -308,14 +313,14 @@ export function createActivityChatAdapter({
       // Stream ended without a `final` or `error` event (server closed connection
       // unexpectedly). Emit the missing protocol events so useChat doesn't hang.
       if (messageStarted) {
-        yield { type: 'TEXT_MESSAGE_END', messageId, timestamp: now() };
+        yield { type: EventType.TEXT_MESSAGE_END, messageId, timestamp: now() };
       }
-      yield { type: 'RUN_FINISHED', runId, finishReason: 'stop', timestamp: now() };
+      yield { type: EventType.RUN_FINISHED, threadId: activityUuid, runId, timestamp: now() };
     } finally {
       reader.releaseLock();
       currentController = null;
     }
-  });
+  }) as Parameters<typeof stream>[0]);
 
   return { connection, abort };
 }
