@@ -101,6 +101,8 @@ function redirectToRefresh(req: NextRequest, requestId: string, pathname: string
   return withRequestId(NextResponse.redirect(refreshUrl), requestId);
 }
 
+const VERIFY_TIMEOUT_MS = 5000;
+
 /**
  * Verify the access token signature using the backend's JWKS.
  *
@@ -117,16 +119,25 @@ async function verifyTokenSignature(token: string): Promise<boolean> {
     return !isAccessTokenExpired(token);
   }
   try {
-    await jwtVerify(token, JWKS, {
+    const verifyPromise = jwtVerify(token, JWKS, {
       issuer: 'ashyq-bilim-auth',
       audience: 'ashyq-bilim-api',
       algorithms: ['EdDSA'],
     });
+
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Verification timed out')), VERIFY_TIMEOUT_MS),
+    );
+
+    await Promise.race([verifyPromise, timeoutPromise]);
     return true;
   } catch (error) {
-    // JWTExpired is the normal case for a token that needs refresh
-    if (error instanceof joseErrors.JWTExpired) return false;
-    // Any other error (invalid signature, malformed) → reject
+    const message = error instanceof Error ? error.message : String(error);
+    if (error instanceof joseErrors.JWTExpired) {
+      // Normal expiry case
+    } else {
+      console.warn('[proxy] JWT verification failed or timed out:', message);
+    }
     return false;
   }
 }

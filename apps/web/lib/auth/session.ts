@@ -94,11 +94,17 @@ export const getSession = cache(async (): Promise<Session | null> => {
   if (!token) return null;
 
   try {
-    const { payload } = await jwtVerify<AccessTokenPayload>(token, JWKS, {
+    const verifyPromise = jwtVerify<AccessTokenPayload>(token, JWKS, {
       issuer: 'ashyq-bilim-auth',
       audience: 'ashyq-bilim-api',
       algorithms: ['EdDSA'],
     });
+
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('JWT verification timed out')), 5000),
+    );
+
+    const { payload } = await Promise.race([verifyPromise, timeoutPromise]);
 
     // Guard: tokens issued before the new claim fields were added will be
     // missing `u` or `perms`.  Treat them as expired so the user refreshes

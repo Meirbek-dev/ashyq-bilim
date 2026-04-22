@@ -58,6 +58,8 @@ async function getServerCookieHeader(): Promise<string> {
   }
 }
 
+const DEFAULT_TIMEOUT_MS = 15000; // 15 seconds
+
 export async function apiFetch(path: string, init: ApiFetchInit = {}): Promise<Response> {
   const isServer = typeof globalThis.window === 'undefined';
   const { baseUrl, ...fetchInit } = init;
@@ -74,16 +76,26 @@ export async function apiFetch(path: string, init: ApiFetchInit = {}): Promise<R
     }
   }
 
-  const response = await fetch(url, options);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
 
-  if (!isServer && response.status === 401) {
-    const { pathname } = globalThis.location;
-    if (!isAuthRoute(pathname)) {
-      globalThis.location.assign(buildLoginRedirect());
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+
+    if (!isServer && response.status === 401) {
+      const { pathname } = globalThis.location;
+      if (!isAuthRoute(pathname)) {
+        globalThis.location.assign(buildLoginRedirect());
+      }
     }
-  }
 
-  return response;
+    return response;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 // ── Request utilities (migrated from services/utils/ts/requests.ts) ───────────

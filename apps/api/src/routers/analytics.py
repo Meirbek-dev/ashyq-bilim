@@ -1,3 +1,4 @@
+import asyncio
 from __future__ import annotations
 
 from typing import Annotated
@@ -50,7 +51,7 @@ def _csv_response(stream, filename: str) -> StreamingResponse:
     )
 
 
-def _scope_for(
+async def _scope_for(
     db_session: Session,
     current_user: PublicUser | AnonymousUser,
     filters: AnalyticsFilters,
@@ -58,31 +59,33 @@ def _scope_for(
     action: str,
 ):
     checker = PermissionChecker(db_session)
-    return resolve_teacher_scope(
-        db_session, checker, current_user, filters, action=action
+    return await asyncio.to_thread(
+        resolve_teacher_scope, db_session, checker, current_user, filters, action=action
     )
 
 
-def _course_scope_for(
+async def _course_scope_for(
     db_session: Session,
     current_user: PublicUser | AnonymousUser,
     course_id: int,
     filters: AnalyticsFilters,
 ):
-    scope = _scope_for(db_session, current_user, filters, action="read")
-    ensure_course_in_scope(scope, course_id)
+    scope = await _scope_for(db_session, current_user, filters, action="read")
+    await asyncio.to_thread(ensure_course_in_scope, scope, course_id)
     return scope
 
 
-def _assessment_scope_for(
+async def _assessment_scope_for(
     db_session: Session,
     current_user: PublicUser | AnonymousUser,
     assessment_type: str,
     assessment_id: int,
     filters: AnalyticsFilters,
 ):
-    scope = _scope_for(db_session, current_user, filters, action="read")
-    ensure_assessment_in_scope(db_session, scope, assessment_type, assessment_id)
+    scope = await _scope_for(db_session, current_user, filters, action="read")
+    await asyncio.to_thread(
+        ensure_assessment_in_scope, db_session, scope, assessment_type, assessment_id
+    )
     return scope
 
 
@@ -92,8 +95,8 @@ async def teacher_overview_platform(
     current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
-    scope = _scope_for(db_session, current_user, filters, action="read")
-    return get_teacher_overview(db_session, scope, filters)
+    scope = await _scope_for(db_session, current_user, filters, action="read")
+    return await asyncio.to_thread(get_teacher_overview, db_session, scope, filters)
 
 
 @router.get("/teacher/courses", response_model=TeacherCourseListResponse)
@@ -102,8 +105,8 @@ async def teacher_courses_platform(
     current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
-    scope = _scope_for(db_session, current_user, filters, action="read")
-    return get_teacher_course_list(db_session, scope, filters)
+    scope = await _scope_for(db_session, current_user, filters, action="read")
+    return await asyncio.to_thread(get_teacher_course_list, db_session, scope, filters)
 
 
 @router.get(
@@ -116,16 +119,20 @@ async def teacher_course_detail_by_uuid_platform(
     current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
-    scope = _scope_for(db_session, current_user, filters, action="read")
-    course = db_session.exec(
-        sa_select(Course).where(
-            Course.course_uuid == course_uuid, Course.id.in_(scope.course_ids)
-        )
-    ).first()
+    scope = await _scope_for(db_session, current_user, filters, action="read")
+    course = await asyncio.to_thread(
+        lambda: db_session.exec(
+            sa_select(Course).where(
+                Course.course_uuid == course_uuid, Course.id.in_(scope.course_ids)
+            )
+        ).first()
+    )
     if course is None:
         raise HTTPException(status_code=404, detail="Course not found in scope")
     try:
-        return get_teacher_course_detail(db_session, scope, course.id, filters)
+        return await asyncio.to_thread(
+            get_teacher_course_detail, db_session, scope, course.id, filters
+        )
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
@@ -137,9 +144,11 @@ async def teacher_course_detail_platform(
     current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
-    scope = _course_scope_for(db_session, current_user, course_id, filters)
+    scope = await _course_scope_for(db_session, current_user, course_id, filters)
     try:
-        return get_teacher_course_detail(db_session, scope, course_id, filters)
+        return await asyncio.to_thread(
+            get_teacher_course_detail, db_session, scope, course_id, filters
+        )
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
@@ -150,8 +159,8 @@ async def teacher_assessments_platform(
     current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
-    scope = _scope_for(db_session, current_user, filters, action="read")
-    return get_teacher_assessment_list(db_session, scope, filters)
+    scope = await _scope_for(db_session, current_user, filters, action="read")
+    return await asyncio.to_thread(get_teacher_assessment_list, db_session, scope, filters)
 
 
 @router.get(
@@ -165,7 +174,7 @@ async def teacher_assessment_detail_platform(
     current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
-    scope = _assessment_scope_for(
+    scope = await _assessment_scope_for(
         db_session,
         current_user,
         assessment_type,
@@ -173,8 +182,13 @@ async def teacher_assessment_detail_platform(
         filters,
     )
     try:
-        return get_teacher_assessment_detail(
-            db_session, scope, assessment_type, assessment_id, filters
+        return await asyncio.to_thread(
+            get_teacher_assessment_detail,
+            db_session,
+            scope,
+            assessment_type,
+            assessment_id,
+            filters,
         )
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
@@ -186,8 +200,8 @@ async def teacher_at_risk_learners_platform(
     current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
-    scope = _scope_for(db_session, current_user, filters, action="read")
-    return get_at_risk_learners(db_session, scope, filters)
+    scope = await _scope_for(db_session, current_user, filters, action="read")
+    return await asyncio.to_thread(get_at_risk_learners, db_session, scope, filters)
 
 
 @router.get("/teacher/exports/at-risk.csv")
@@ -196,9 +210,10 @@ async def teacher_at_risk_export_platform(
     current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
-    scope = _scope_for(db_session, current_user, filters, action="export")
+    scope = await _scope_for(db_session, current_user, filters, action="export")
     return _csv_response(
-        export_at_risk_csv(db_session, scope, filters), "teacher-at-risk.csv"
+        await asyncio.to_thread(export_at_risk_csv, db_session, scope, filters),
+        "teacher-at-risk.csv",
     )
 
 
@@ -208,9 +223,9 @@ async def teacher_grading_backlog_export_platform(
     current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
-    scope = _scope_for(db_session, current_user, filters, action="export")
+    scope = await _scope_for(db_session, current_user, filters, action="export")
     return _csv_response(
-        export_grading_backlog_csv(db_session, scope, filters),
+        await asyncio.to_thread(export_grading_backlog_csv, db_session, scope, filters),
         "teacher-grading-backlog.csv",
     )
 
@@ -221,9 +236,9 @@ async def teacher_course_progress_export_platform(
     current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
-    scope = _scope_for(db_session, current_user, filters, action="export")
+    scope = await _scope_for(db_session, current_user, filters, action="export")
     return _csv_response(
-        export_course_progress_csv(db_session, scope, filters),
+        await asyncio.to_thread(export_course_progress_csv, db_session, scope, filters),
         "teacher-course-progress.csv",
     )
 
@@ -234,8 +249,9 @@ async def teacher_assessment_outcomes_export_platform(
     current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
-    scope = _scope_for(db_session, current_user, filters, action="export")
+    scope = await _scope_for(db_session, current_user, filters, action="export")
     return _csv_response(
-        export_assessment_outcomes_csv(db_session, scope, filters),
+        await asyncio.to_thread(export_assessment_outcomes_csv, db_session, scope, filters),
         "teacher-assessment-outcomes.csv",
     )
+
