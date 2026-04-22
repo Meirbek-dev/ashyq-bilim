@@ -130,7 +130,7 @@ export function createActivityChatAdapter({
   // union against AGUIEvent's own Zod-inferred union — they are structurally
   // equivalent at runtime but the passthrough index signatures make them
   // incompatible at the type level.
-  const connection = stream((async function* connection(messages, _data) {
+  const connection = stream(async function* connection(messages, _data) {
     // Extract the last user message text from the UIMessage parts array.
     const lastUser = [...messages].toReversed().find((m) => m.role === 'user');
     const normalizedLastUser = lastUser ? normalizeToUIMessage(lastUser, () => generateUUID()) : null;
@@ -320,7 +320,7 @@ export function createActivityChatAdapter({
       reader.releaseLock();
       currentController = null;
     }
-  }) as Parameters<typeof stream>[0]);
+  } as Parameters<typeof stream>[0]);
 
   return { connection, abort };
 }

@@ -128,11 +128,9 @@ def _apply_lms_sort(query, current_user: "PublicUser | AnonymousUser"):
         )
         .exists()
     )
-    
+
     is_creator = case(
-        (Course.creator_id == current_user.id, 1),
-        (is_creator_author, 1),
-        else_=0
+        (Course.creator_id == current_user.id, 1), (is_creator_author, 1), else_=0
     )
 
     is_collaborator_author = (

@@ -171,6 +171,7 @@ def refresh_analytics(
 def migrate_users_to_platform() -> None:
     """Migrate users without membership into the platform."""
     import asyncio
+
     asyncio.run(_migrate_users_to_platform_task())
 
 
