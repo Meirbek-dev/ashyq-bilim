@@ -113,7 +113,7 @@ const VERIFY_TIMEOUT_MS = 5000;
  * Full session validation (JTI blocklist, Redis session check) still happens
  * server-side in FastAPI on every authenticated API call.
  */
-async function verifyTokenSignature(token: string): Promise<boolean> {
+export async function verifyTokenSignature(token: string): Promise<boolean> {
   if (!JWKS) {
     // JWKS not configured — fall back to expiry-only check
     return !isAccessTokenExpired(token);

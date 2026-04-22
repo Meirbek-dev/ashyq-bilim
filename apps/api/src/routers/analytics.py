@@ -1,6 +1,6 @@
-import asyncio
 from __future__ import annotations
 
+import asyncio
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response
