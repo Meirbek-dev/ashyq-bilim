@@ -22675,7 +22675,7 @@
     },
     "/api/v1/usergroups/{usergroup_id}": {
       "delete": {
-        "description": "Delete UserGroup\n\n**Required Permission**: `usergroup:delete:platform`",
+        "description": "Delete UserGroup\n\n**Required Permission**: `usergroup:delete:platform` or `usergroup:delete:own`",
         "operationId": "api_delete_usergroup_api_v1_usergroups__usergroup_id__delete",
         "parameters": [
           {
@@ -22770,7 +22770,7 @@
         ]
       },
       "put": {
-        "description": "Update UserGroup\n\n**Required Permission**: `usergroup:update:platform`",
+        "description": "Update UserGroup\n\n**Required Permission**: `usergroup:update:platform` or `usergroup:update:own`",
         "operationId": "api_update_usergroup_api_v1_usergroups__usergroup_id__put",
         "parameters": [
           {
@@ -22888,7 +22888,7 @@
     },
     "/api/v1/usergroups/{usergroup_id}/add_users": {
       "post": {
-        "description": "Add Users to UserGroup\n\n**Required Permission**: `usergroup:manage:platform`",
+        "description": "Add Users to UserGroup\n\n**Required Permission**: `usergroup:manage:platform` or `usergroup:manage:own`",
         "operationId": "api_add_users_to_usergroup_api_v1_usergroups__usergroup_id__add_users_post",
         "parameters": [
           {

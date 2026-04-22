@@ -3723,7 +3723,7 @@ export interface paths {
          * Api Update Usergroup
          * @description Update UserGroup
          *
-         *     **Required Permission**: `usergroup:update:platform`
+         *     **Required Permission**: `usergroup:update:platform` or `usergroup:update:own`
          */
         put: operations["api_update_usergroup_api_v1_usergroups__usergroup_id__put"];
         post?: never;
@@ -3731,7 +3731,7 @@ export interface paths {
          * Api Delete Usergroup
          * @description Delete UserGroup
          *
-         *     **Required Permission**: `usergroup:delete:platform`
+         *     **Required Permission**: `usergroup:delete:platform` or `usergroup:delete:own`
          */
         delete: operations["api_delete_usergroup_api_v1_usergroups__usergroup_id__delete"];
         options?: never;
@@ -3772,7 +3772,7 @@ export interface paths {
          * Api Add Users To Usergroup
          * @description Add Users to UserGroup
          *
-         *     **Required Permission**: `usergroup:manage:platform`
+         *     **Required Permission**: `usergroup:manage:platform` or `usergroup:manage:own`
          */
         post: operations["api_add_users_to_usergroup_api_v1_usergroups__usergroup_id__add_users_post"];
         delete?: never;
