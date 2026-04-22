@@ -115,7 +115,7 @@ export default function CourseCreationWizard() {
         name: chapter.name || t('importedChapterName'),
         description: chapter.description || t('importedChapterDescription'),
         thumbnail_image: '',
-        course_id: createdCourse.id,
+        course_uuid: createdCourse.course_uuid,
       });
     }
   };

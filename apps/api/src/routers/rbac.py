@@ -22,7 +22,7 @@ from src.db.users import AnonymousUser, PublicUser
 from src.db.users import User as UserModel
 from src.infra.db.session import get_db_session
 from src.security.auth import get_current_user
-from src.security.rbac import PermissionCheckerDep
+from src.security.rbac import PermissionCheckerDep, mark_user_roles_updated
 
 audit_log = logging.getLogger("rbac.audit")
 
@@ -223,7 +223,7 @@ def list_user_roles(
 
 
 @router.post("/roles/assign")
-def assign_role(
+async def assign_role(
     request: RoleAssignmentRequest,
     current_user: Annotated[PublicUser, Depends(get_current_user)],
     checker: PermissionCheckerDep,
@@ -242,6 +242,12 @@ def assign_role(
         assigned_by=current_user.id,
     )
     db_session.commit()
+
+    # Signal that roles have changed to force JWT refresh
+    user = db_session.get(UserModel, request.user_id)
+    if user:
+        await mark_user_roles_updated(user.user_uuid)
+
     audit_log.info(
         "role_assigned",
         extra={
@@ -254,7 +260,7 @@ def assign_role(
 
 
 @router.post("/roles/revoke")
-def revoke_role(
+async def revoke_role(
     request: RoleRevocationRequest,
     current_user: Annotated[PublicUser, Depends(get_current_user)],
     checker: PermissionCheckerDep,
@@ -272,6 +278,12 @@ def revoke_role(
         role_id=request.role_id,
     )
     db_session.commit()
+
+    # Signal that roles have changed to force JWT refresh
+    user = db_session.get(UserModel, request.user_id)
+    if user:
+        await mark_user_roles_updated(user.user_uuid)
+
     audit_log.info(
         "role_revoked",
         extra={

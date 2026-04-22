@@ -170,8 +170,14 @@ def refresh_analytics(
 @cli.command()
 def migrate_users_to_platform() -> None:
     """Migrate users without membership into the platform."""
+    import asyncio
+    asyncio.run(_migrate_users_to_platform_task())
+
+
+async def _migrate_users_to_platform_task() -> None:
     from src.db.permission_enums import RoleSlug
     from src.db.permissions import Role, UserRole
+    from src.security.rbac import mark_user_roles_updated
 
     settings = get_settings()
     engine = build_engine(settings)
@@ -235,6 +241,8 @@ def migrate_users_to_platform() -> None:
                     print(
                         f"  ✅ Added user {user.username} (ID: {user.id}) to {platform.name}"
                     )
+                    # Force JWT refresh for this user if they are currently logged in
+                    await mark_user_roles_updated(user.user_uuid)
                 except Exception as e:
                     skipped_count += 1
                     print(f"  ⚠️  Skipping user {user.username} (ID: {user.id}): {e!s}")
