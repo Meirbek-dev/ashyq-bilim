@@ -1,5 +1,5 @@
 /** @vitest-environment jsdom */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { SessionProvider, useSessionContext } from '@/components/providers/session-provider';
 import React from 'react';
@@ -48,10 +48,10 @@ const mockSession: Session = {
   },
   roles: [],
   permissions: ['course:read:own', 'course:create:platform'],
-  permissions_timestamp: 123456789,
-  expires_at: 9999999999,
+  permissions_timestamp: 123_456_789,
+  expires_at: 9_999_999_999,
   session_version: 1,
-  expiresAt: 9999999999000,
+  expiresAt: 9_999_999_999_000,
   sessionVersion: 1,
 };
 

@@ -8,7 +8,6 @@ import {
   canSeeAdmin,
   canAccessDashboard,
 } from '@/lib/rbac/navigation-policy';
-import { Actions, Resources, Scopes } from '@/types/permissions';
 
 describe('Navigation Policy', () => {
   const mockCan = (grantedPermissions: Set<string>) => {

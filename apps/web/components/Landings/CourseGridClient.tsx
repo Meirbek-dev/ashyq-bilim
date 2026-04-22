@@ -48,7 +48,7 @@ export default function CourseGridClient({ initialCourses, initialTotal }: Cours
   const sortedCourses = useMemo(() => {
     if (!courses || !trailData?.runs) return courses;
 
-    return [...courses].sort((a, b) => {
+    return [...courses].toSorted((a, b) => {
       const aCleanUuid = a.course_uuid?.replace('course_', '');
       const bCleanUuid = b.course_uuid?.replace('course_', '');
 

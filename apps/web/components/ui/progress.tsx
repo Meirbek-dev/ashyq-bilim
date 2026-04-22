@@ -8,9 +8,6 @@ function Progress({ className, children, value, ...props }: ProgressPrimitive.Ro
   return (
     <ProgressPrimitive.Root
       value={value}
-      getAriaValueText={(formattedValue, currentValue) =>
-        currentValue === null ? 'indeterminate progress' : `${currentValue}%`
-      }
       data-slot="progress"
       className={cn('flex flex-wrap gap-3', className)}
       {...props}

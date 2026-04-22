@@ -35,17 +35,17 @@ describe('verifyTokenSignature timeout', () => {
     (jwtVerify as any).mockReturnValue(new Promise(() => {}));
 
     const verifyPromise = verifyTokenSignature('test-token', mockJWKS);
-    
+
     // Fast forward 6 seconds (timeout is 5s)
     await vi.advanceTimersByTimeAsync(6000);
-    
+
     const result = await verifyPromise;
     expect(result).toBe(false);
   });
 
   it('should return true when jwtVerify resolves quickly', async () => {
     (jwtVerify as any).mockResolvedValue({ payload: {} });
-    
+
     const result = await verifyTokenSignature('test-token', mockJWKS);
     expect(result).toBe(true);
   });

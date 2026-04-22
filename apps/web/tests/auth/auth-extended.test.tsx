@@ -8,7 +8,6 @@ import {
   broadcastSessionRefresh,
   useSessionContext,
 } from '@/components/providers/session-provider';
-import { apiFetch } from '@/lib/api-client';
 import type { Session } from '@/lib/auth/types';
 
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
@@ -56,7 +55,7 @@ const mockSession: Session = {
   permissions_timestamp: Date.now(),
   expires_at: Date.now() + 3600,
   session_version: 1,
-  expiresAt: Date.now() + 3600000,
+  expiresAt: Date.now() + 3_600_000,
   sessionVersion: 1,
 };
 

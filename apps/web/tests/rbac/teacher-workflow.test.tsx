@@ -58,9 +58,9 @@ const createMockSession = (permissions: string[]): Session => ({
   roles: [],
   permissions,
   permissions_timestamp: Date.now(),
-  expires_at: Date.now() + 3600000,
+  expires_at: Date.now() + 3_600_000,
   session_version: 1,
-  expiresAt: Date.now() + 3600000,
+  expiresAt: Date.now() + 3_600_000,
   sessionVersion: 1,
 });
 

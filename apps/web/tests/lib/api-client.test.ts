@@ -29,27 +29,31 @@ describe('apiFetch timeout', () => {
       return new Promise((_, reject) => {
         if (options?.signal) {
           if (options.signal.aborted) {
-             const error = new Error('The operation was aborted');
-             error.name = 'AbortError';
-             reject(error);
-             return;
-          }
-          options.signal.addEventListener('abort', () => {
             const error = new Error('The operation was aborted');
             error.name = 'AbortError';
             reject(error);
-          }, { once: true });
+            return;
+          }
+          options.signal.addEventListener(
+            'abort',
+            () => {
+              const error = new Error('The operation was aborted');
+              error.name = 'AbortError';
+              reject(error);
+            },
+            { once: true },
+          );
         }
       });
     });
 
     const promise = apiFetch('test-endpoint');
-    
+
     // Move forward by 16 seconds (DEFAULT_TIMEOUT_MS is 15s)
     vi.advanceTimersByTime(16000);
-    
+
     await expect(promise).rejects.toThrow(/aborted/);
-    
+
     const lastCall = (global.fetch as any).mock.calls[0];
     const signal = lastCall[1].signal;
     expect(signal.aborted).toBe(true);
@@ -57,10 +61,10 @@ describe('apiFetch timeout', () => {
 
   it('should resolve normally if within timeout', async () => {
     (global.fetch as any).mockResolvedValue(new Response(JSON.stringify({ ok: true }), { status: 200 }));
-    
+
     const response = await apiFetch('test-endpoint');
     const data = await response.json();
-    
+
     expect(data.ok).toBe(true);
   });
 });

@@ -1,12 +1,12 @@
 'use client';
 
-import type { VariantProps } from 'class-variance-authority';
-import { cva } from 'class-variance-authority';
 import { useMemo } from 'react';
+import { cva } from 'class-variance-authority';
+import type { VariantProps } from 'class-variance-authority';
 
-import { Separator } from '@/components/ui/separator';
-import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 
 function FieldSet({ className, ...props }: React.ComponentProps<'fieldset'>) {
   return (
@@ -109,7 +109,7 @@ function FieldTitle({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="field-label"
       className={cn(
-        'flex w-fit items-center gap-2 text-sm leading-snug font-medium group-data-[disabled=true]/field:opacity-50',
+        'flex w-fit items-center gap-2 text-sm font-medium group-data-[disabled=true]/field:opacity-50',
         className,
       )}
       {...props}
@@ -142,7 +142,7 @@ function FieldSeparator({
   return (
     <div
       data-slot="field-separator"
-      data-content={Boolean(children)}
+      data-content={!!children}
       className={cn('relative -my-2 h-5 text-sm group-data-[variant=outline]/field-group:-mb-2', className)}
       {...props}
     >
