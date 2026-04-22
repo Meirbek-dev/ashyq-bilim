@@ -15,4 +15,5 @@ if __name__ == "__main__":
         port=settings.hosting_config.port,
         reload=is_dev_mode,
         access_log=is_dev_mode,
+        timeout_keep_alive=65,
     )

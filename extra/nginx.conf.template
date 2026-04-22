@@ -81,6 +81,19 @@ map $http_x_forwarded_proto $is_forwarded_https {
 }
 
 # ---------------------------------------------------------------------------
+# Upstream pools with keepalive
+# ---------------------------------------------------------------------------
+upstream web_backend {
+  server web:3000;
+  keepalive 32;
+}
+
+upstream api_backend {
+  server api:8000;
+  keepalive 32;
+}
+
+# ---------------------------------------------------------------------------
 # Shared proxy settings
 # ---------------------------------------------------------------------------
 proxy_http_version 1.1;
@@ -92,6 +105,12 @@ proxy_set_header   X-Forwarded-Host  $host;
 proxy_set_header   X-Forwarded-Port  $server_port;
 proxy_set_header   X-Forwarded-Proto $scheme;
 proxy_set_header   X-Request-ID      $request_id;
+
+# Prevent 504 Gateway Time-out by detecting dead connections early
+proxy_socket_keepalive on;
+proxy_connect_timeout 10s;
+proxy_send_timeout 60s;
+proxy_read_timeout 60s;
 
 # ===========================================================================
 # HTTP — redirect to HTTPS for direct browser connections;
@@ -109,25 +128,25 @@ server {
   # Auth endpoints
   location /api/auth {
     if ($is_forwarded_https = 0) { return 301 https://$host$request_uri; }
-    proxy_pass http://web:3000;
+    proxy_pass http://web_backend;
   }
 
   # Backend API auth
   location /api/v1/auth {
     if ($is_forwarded_https = 0) { return 301 https://$host$request_uri; }
-    proxy_pass http://api:8000;
+    proxy_pass http://api_backend;
   }
 
   # Backend API (general)
   location /api/v1 {
     if ($is_forwarded_https = 0) { return 301 https://$host$request_uri; }
-    proxy_pass http://api:8000;
+    proxy_pass http://api_backend;
   }
 
   # Backend static content
   location /content {
     if ($is_forwarded_https = 0) { return 301 https://$host$request_uri; }
-    proxy_pass http://api:8000;
+    proxy_pass http://api_backend;
   }
 
   # Next.js static files
@@ -135,7 +154,7 @@ server {
     access_log off;
 
     if ($is_forwarded_https = 0) { return 301 https://$host$request_uri; }
-    proxy_pass http://web:3000;
+    proxy_pass http://web_backend;
   }
 
   # Next.js image optimizer
@@ -144,18 +163,18 @@ server {
     limit_req_status 429;
 
     if ($is_forwarded_https = 0) { return 301 https://$host$request_uri; }
-    proxy_pass http://web:3000;
+    proxy_pass http://web_backend;
   }
 
   # ISR revalidation / health
   location /api/revalidate {
     if ($is_forwarded_https = 0) { return 301 https://$host$request_uri; }
-    proxy_pass http://web:3000;
+    proxy_pass http://web_backend;
   }
 
   location /api/health {
     if ($is_forwarded_https = 0) { return 301 https://$host$request_uri; }
-    proxy_pass http://web:3000;
+    proxy_pass http://web_backend;
     access_log off;
   }
 
@@ -165,7 +184,7 @@ server {
     limit_req_status 429;
 
     if ($is_forwarded_https = 0) { return 301 https://$host$request_uri; }
-    proxy_pass http://web:3000;
+    proxy_pass http://web_backend;
   }
 }
 
@@ -227,25 +246,32 @@ server {
   location /api/auth {
     limit_req zone=auth_limit burst=20 nodelay;
     limit_req_status 429;
-    proxy_pass http://web:3000;
+    proxy_pass http://web_backend;
+    proxy_read_timeout 300s;
+    proxy_send_timeout 300s;
   }
 
   location /api/v1/auth {
     limit_req zone=auth_limit burst=20 nodelay;
     limit_req_status 429;
-    proxy_pass http://api:8000;
+    proxy_pass http://api_backend;
+    proxy_read_timeout 300s;
+    proxy_send_timeout 300s;
   }
 
   # Python Backend API (general)
   location /api/v1 {
     limit_req zone=api_limit burst=60 nodelay;
     limit_req_status 429;
-    proxy_pass http://api:8000;
+    proxy_pass http://api_backend;
+    proxy_read_timeout 300s;
+    proxy_send_timeout 300s;
   }
+
 
   # Backend static content (user uploads, media)
   location /content {
-    proxy_pass http://api:8000;
+    proxy_pass http://api_backend;
   }
 
   # Next.js static files (_next/static) — content-addressed, cache permanently.
@@ -256,7 +282,7 @@ server {
   location /_next/static {
     access_log off;
 
-    proxy_pass http://web:3000;
+    proxy_pass http://web_backend;
     proxy_cache            app_cache;
     proxy_cache_valid      200 365d;
     proxy_cache_lock       on;
@@ -268,17 +294,17 @@ server {
   location /_next/image {
     limit_req zone=global_limit burst=2500 nodelay;
     limit_req_status 429;
-    proxy_pass http://web:3000;
+    proxy_pass http://web_backend;
   }
 
   # NextJS revalidation (ISR)
   location /api/revalidate {
-    proxy_pass http://web:3000;
+    proxy_pass http://web_backend;
   }
 
   # Next.js health check (must not redirect — used by Docker health check)
   location /api/health {
-    proxy_pass http://web:3000;
+    proxy_pass http://web_backend;
     access_log off;
   }
 
@@ -286,6 +312,7 @@ server {
   location / {
     limit_req zone=global_limit burst=2500 nodelay;
     limit_req_status 429;
-    proxy_pass http://web:3000;
+    proxy_pass http://web_backend;
   }
 }
+

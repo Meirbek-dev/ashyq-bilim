@@ -39,7 +39,9 @@ def build_engine(settings: AppSettings) -> Engine:
         pool_reset_on_return="rollback",
         pool_size=10,
         max_overflow=20,
-        connect_args={"connect_timeout": 5},
+        pool_recycle=3600,
+        pool_timeout=30,
+        connect_args={"connect_timeout": 10},
     )
 
 

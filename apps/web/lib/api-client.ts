@@ -58,7 +58,7 @@ async function getServerCookieHeader(): Promise<string> {
   }
 }
 
-const DEFAULT_TIMEOUT_MS = 15_000; // 15 seconds
+const DEFAULT_TIMEOUT_MS = 30_000; // 30 seconds
 
 export async function apiFetch(path: string, init: ApiFetchInit = {}): Promise<Response> {
   const isServer = typeof globalThis.window === 'undefined';
