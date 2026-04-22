@@ -29,13 +29,6 @@ limit_req_zone $binary_remote_addr zone=api_limit:10m  rate=30r/s;
 limit_req_zone $binary_remote_addr zone=global_limit:10m rate=2000r/s;
 
 # ---------------------------------------------------------------------------
-# Upstream timeouts (applied once here, referenced per-location)
-# ---------------------------------------------------------------------------
-proxy_connect_timeout 10s;
-proxy_send_timeout 60s;
-proxy_read_timeout 60s;
-
-# ---------------------------------------------------------------------------
 # Real-IP — restore original client IP from upstream reverse proxy
 # The edge proxy at 192.168.1.x forwards X-Forwarded-For with the real client IP.
 # ---------------------------------------------------------------------------
