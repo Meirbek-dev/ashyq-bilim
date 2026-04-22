@@ -15,7 +15,8 @@
     "format": "turbo run format",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "taze": "taze -r -w -u"
+    "taze": "taze -r -w -u -i",
+    "deploy": "bash ./extra/deploy.sh"
   },
   "devDependencies": {
     "taze": "^19.11.0",
