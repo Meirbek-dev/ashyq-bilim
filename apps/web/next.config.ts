@@ -23,9 +23,11 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   compress: true,
 
-  // Explicitly allowing university domains for HMR during development
   allowedDevOrigins: ['https://cs-mooc.tou.edu.kz', 'http://192.168.12.35', 'http://192.168.1.46'],
   experimental: {
+    serverActions: {
+      allowedOrigins: ['cs-mooc.tou.edu.kz', 'localhost:3000'],
+    },
     // High-performance caching presets for LMS/Dashboard environments
     staleTimes: {
       dynamic: 30, // Keep dynamic pages fresh (e.g., student progress)

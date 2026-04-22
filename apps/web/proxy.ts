@@ -59,8 +59,8 @@ const PROTECTED_PREFIXES = [
 function buildRequestHeaders(req: NextRequest, requestId: string) {
   const hdrs = new Headers(req.headers);
 
-  hdrs.set('x-forwarded-host', req.headers.get('host') ?? req.nextUrl.host);
-  hdrs.set('x-forwarded-proto', req.nextUrl.protocol.replace(':', ''));
+  hdrs.set('x-forwarded-host', req.headers.get('x-forwarded-host') ?? req.headers.get('host') ?? req.nextUrl.host);
+  hdrs.set('x-forwarded-proto', req.headers.get('x-forwarded-proto') ?? req.nextUrl.protocol.replace(':', ''));
   hdrs.set('x-request-id', requestId);
   // x-pathname is read by requireSession() to build the returnTo redirect URL.
   hdrs.set('x-pathname', req.nextUrl.pathname);
