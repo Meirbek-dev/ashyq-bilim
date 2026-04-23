@@ -41,7 +41,13 @@ def build_engine(settings: AppSettings) -> Engine:
         max_overflow=20,
         pool_recycle=3600,
         pool_timeout=30,
-        connect_args={"connect_timeout": 10},
+        connect_args={
+            "connect_timeout": 10,
+            "keepalives": 1,
+            "keepalives_idle": 30,
+            "keepalives_interval": 10,
+            "keepalives_count": 5,
+        },
     )
 
 
