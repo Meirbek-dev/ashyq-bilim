@@ -26,13 +26,19 @@ const mockUser = {
   email: 'test@example.com',
   first_name: 'Test',
   last_name: 'User',
+  avatar_image: null,
+  bio: null,
+  middle_name: null,
+  theme: 'system',
 };
 
 const mockSession: Session = {
   user: mockUser,
-  roles: [{ role: { id: 1, name: 'User', slug: 'user', priority: 10, is_system: true } }],
+  roles: [{ role: { id: 1, name: 'User', slug: 'user', priority: 10, is_system: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString(), permissions_count: 0, users_count: 1 } }],
   permissions: ['course:read:own', 'course:update:own'],
   permissions_timestamp: Date.now(),
+  expiresAt: Date.now() + 86400000,
+  sessionVersion: 1,
 };
 
 describe('Security Audit - Frontend', () => {
