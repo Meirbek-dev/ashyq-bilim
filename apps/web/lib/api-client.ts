@@ -70,9 +70,12 @@ export async function apiFetch(path: string, init: ApiFetchInit = {}): Promise<R
 
   // Server: forward cookies from the incoming request.
   if (isServer) {
-    const cookieHeader = await getServerCookieHeader();
-    if (cookieHeader) {
-      options.headers = { ...Object.fromEntries(new Headers(options.headers ?? {}).entries()), Cookie: cookieHeader };
+    const existingHeaders = new Headers(options.headers ?? {});
+    if (!existingHeaders.has('Cookie')) {
+      const serverCookieHeader = await getServerCookieHeader();
+      if (serverCookieHeader) {
+        options.headers = { ...Object.fromEntries(existingHeaders.entries()), Cookie: serverCookieHeader };
+      }
     }
   }
 

@@ -49,6 +49,8 @@ export async function GET(request: NextRequest) {
   }
 
   if (!response.ok) {
+    const errorBody = await response.text();
+    console.error(`[auth/refresh] Backend rejected refresh: ${response.status} ${response.statusText}`, errorBody);
     // Refresh rejected (revoked session, expired hard cap, etc.) — send to login.
     const target = isProtectedRoute(returnTo) ? buildLoginRedirect(returnTo) : getPostAuthRedirect(returnTo);
     return clearAuthCookies(NextResponse.redirect(new URL(target, request.url)));
