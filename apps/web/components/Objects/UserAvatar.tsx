@@ -71,7 +71,7 @@ const UserAvatar = (props: UserAvatarProps) => {
 
   const getAvatarUrl = (): string => {
     if (predefined_avatar) {
-      const avatarType = predefined_avatar === 'ai' ? 'platform_logo.svg' : 'empty_avatar.avif';
+      const avatarType = predefined_avatar === 'ai' ? 'platform_logo_light.svg' : 'empty_avatar.avif';
       return getAbsoluteUrl(`/${avatarType}`);
     }
 

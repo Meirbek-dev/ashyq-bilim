@@ -1,18 +1,30 @@
 import Image from 'next/image';
+import { useTheme } from '@/components/providers/theme-provider';
 
 interface AuthLogoProps {
   width?: number;
 }
 
-const AuthLogo = ({ width = 240 }: AuthLogoProps) => (
-  <Image
-    src="/platform_logo_full.svg"
-    alt="Ashyq Bilim"
-    width={width}
-    height={Math.round((width * 119.28) / 327.34)}
-    priority
-    className="m-4 dark:brightness-0 dark:invert"
-  />
-);
+function isDarkTheme(themeName: string): boolean {
+  return themeName === 'dark';
+}
+
+const AuthLogo = ({ width = 240 }: AuthLogoProps) => {
+  const { theme } = useTheme();
+  const src = isDarkTheme(theme.name) ? '/platform_logo_light_full.svg' : '/platform_logo_full.svg';
+
+  return (
+    <div className="m-4">
+      <Image
+        src={src}
+        alt="Ashyq Bilim"
+        width={width}
+        height={Math.round((width * 119.28) / 327.34)}
+        priority
+        className="h-auto w-full"
+      />
+    </div>
+  );
+};
 
 export default AuthLogo;

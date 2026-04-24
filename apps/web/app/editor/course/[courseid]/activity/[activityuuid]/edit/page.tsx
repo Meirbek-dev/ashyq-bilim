@@ -1,6 +1,6 @@
 import EditorOptionsProvider from '@components/Contexts/Editor/EditorContext';
 import { getActivity } from '@services/courses/activities';
-import EditorWrapper from '@components/Objects/Editor/EditorWrapper';
+import EditorWrapper from '@editor/EditorWrapper';
 import { getCourseMetadata } from '@services/courses/courses';
 import { getPlatform } from '@/services/platform/platform';
 import { getTranslations } from 'next-intl/server';

@@ -155,6 +155,22 @@
   --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
 }
 
+:root[data-theme='dark'] .theme-logo-light {
+  display: inline-block;
+}
+
+:root[data-theme='dark'] .theme-logo-dark {
+  display: none;
+}
+
+:root:not([data-theme='dark']) .theme-logo-light {
+  display: none;
+}
+
+:root:not([data-theme='dark']) .theme-logo-dark {
+  display: inline-block;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

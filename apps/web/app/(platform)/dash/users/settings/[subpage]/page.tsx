@@ -9,7 +9,7 @@ import Users from '@/components/Dashboard/Pages/Users/Users/Users';
 import SettingsTabs from '@components/Dashboard/Misc/SettingsTabs';
 import { SquareUserRound, UsersIcon } from 'lucide-react';
 import { getAbsoluteUrl } from '@services/config/config';
-import { use, useEffect, useMemo } from 'react';
+import { Suspense, use, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
@@ -29,6 +29,14 @@ interface TabConfig {
 }
 
 export default function PlatformUsersSettingsPage(props: { params: Promise<{ subpage: string }> }) {
+  return (
+    <Suspense fallback={null}>
+      <PlatformUsersSettingsPageContent {...props} />
+    </Suspense>
+  );
+}
+
+function PlatformUsersSettingsPageContent(props: { params: Promise<{ subpage: string }> }) {
   const params = use(props.params);
   const router = useRouter();
   const t = useTranslations('DashPage.UserSettings');

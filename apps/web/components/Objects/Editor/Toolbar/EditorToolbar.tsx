@@ -4,6 +4,8 @@ import type { Editor } from '@tiptap/react';
 import { useEditorState } from '@tiptap/react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
+import { useTheme } from '@/components/providers/theme-provider';
+import platformLogoDark from '@public/platform_logo.svg';
 import platformLogoLight from '@public/platform_logo_light.svg';
 import { Separator } from '@/components/ui/separator';
 
@@ -30,6 +32,9 @@ interface EditorToolbarProps {
 
 export function EditorToolbar({ editor, onAIToggle }: EditorToolbarProps) {
   const t = useTranslations('DashPage.Editor.Toolbar');
+  const { theme } = useTheme();
+  const logoSrc = theme.name === 'dark' ? platformLogoDark : platformLogoLight;
+
   const editorState = useEditorState({
     editor,
     selector: (ctx) => ({
@@ -110,15 +115,15 @@ export function EditorToolbar({ editor, onAIToggle }: EditorToolbarProps) {
         <button
           type="button"
           onClick={onAIToggle}
-          className="border-border bg-foreground text-background hover:bg-foreground/90 flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors"
+          className="border-border bg-foreground text-background hover:bg-foreground/90 dark:hover:bg-foreground/90 flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors"
           title={t('aiEditor')}
           aria-label={t('aiEditor')}
         >
           <Image
-            width={14}
-            height={14}
-            src={platformLogoLight}
-            alt=""
+            width={18}
+            height={18}
+            src={logoSrc}
+            alt="Ashyq Bilim logo"
             style={{ height: 'auto' }}
           />
           <span>{t('aiEditor')}</span>

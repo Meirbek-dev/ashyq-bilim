@@ -11,7 +11,7 @@ import { getAbsoluteUrl } from '@services/config/config';
 import type { LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { ComponentType } from 'react';
-import { use, useMemo } from 'react';
+import { Suspense, use, useMemo } from 'react';
 
 export interface SettingsParams {
   subpage: string;
@@ -25,6 +25,14 @@ interface NavigationItem {
 }
 
 export default function PlatformUserSettingsPage(props: { params: Promise<{ subpage: string }> }) {
+  return (
+    <Suspense fallback={null}>
+      <PlatformUserSettingsPageContent {...props} />
+    </Suspense>
+  );
+}
+
+function PlatformUserSettingsPageContent(props: { params: Promise<{ subpage: string }> }) {
   const t = useTranslations('DashPage.UserAccountSettings');
   const { subpage } = use(props.params);
 

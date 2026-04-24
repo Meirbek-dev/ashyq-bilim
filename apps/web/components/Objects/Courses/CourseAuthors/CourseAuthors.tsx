@@ -155,10 +155,10 @@ const MultipleAuthors = ({ authors, isMobile }: { authors: Author[]; isMobile: b
 
 const UpdatesSection = ({ courseUuid }: { courseUuid: string }) => {
   const [selectedView, setSelectedView] = useState('list');
-  const { can } = useSession();
+  const { can, isAuthenticated } = useSession();
   const canManageCourse =
     can(Resources.COURSE, Actions.MANAGE, Scopes.OWN) || can(Resources.COURSE, Actions.MANAGE, Scopes.PLATFORM);
-  const { data: updates } = useCourseUpdates(courseUuid);
+  const { data: updates } = useCourseUpdates(courseUuid, { enabled: isAuthenticated });
   const t = useTranslations('Courses.CourseAuthors');
 
   return (
@@ -321,10 +321,10 @@ const NewUpdateForm = ({
 };
 
 const UpdatesListView = ({ courseUuid }: { courseUuid: string }) => {
-  const { can } = useSession();
+  const { can, isAuthenticated } = useSession();
   const canManageCourse =
     can(Resources.COURSE, Actions.MANAGE, Scopes.OWN) || can(Resources.COURSE, Actions.MANAGE, Scopes.PLATFORM);
-  const { data: updates } = useCourseUpdates(courseUuid);
+  const { data: updates } = useCourseUpdates(courseUuid, { enabled: isAuthenticated });
   const t = useTranslations('Courses.CourseAuthors');
   const locale = useDateFnsLocale();
 

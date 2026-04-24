@@ -34,7 +34,8 @@ import { AssignmentProvider } from '@components/Contexts/Assignments/AssignmentC
 import { ActivityAIChatProvider } from '@components/Contexts/AI/ActivityAIChatContext';
 import { useSession } from '@/hooks/useSession';
 import GeneralWrapper from '@/components/Objects/Elements/Wrappers/GeneralWrapper';
-import { Suspense, lazy, useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import dynamic from 'next/dynamic';
 import ActivityBreadcrumbs from '@components/Pages/Activity/ActivityBreadcrumbs';
 import ActivityIndicators from '@components/Pages/Courses/ActivityIndicators';
 import CourseEndView from '@components/Pages/Activity/CourseEndView';
@@ -59,17 +60,30 @@ import Link from '@components/ui/AppLink';
 import { toast } from 'sonner';
 
 // Lazy load heavy components
-const Canva = lazy(() =>
-  import('@components/Objects/Editor/views/InteractiveViewer').then((m) => ({ default: m.InteractiveViewer })),
+const Canva = dynamic(
+  () => import('@components/Objects/Editor/views/InteractiveViewer').then((m) => ({ default: m.InteractiveViewer })),
+  { loading: () => <LoadingFallback />, ssr: false },
 );
-const VideoActivity = lazy(() => import('@components/Objects/Activities/Video/Video'));
-const DocumentPdfActivity = lazy(() => import('@components/Objects/Activities/DocumentPdf/DocumentPdf'));
-const AssignmentStudentActivity = lazy(
+const VideoActivity = dynamic(() => import('@components/Objects/Activities/Video/Video'), {
+  loading: () => <LoadingFallback />, ssr: false,
+});
+const DocumentPdfActivity = dynamic(() => import('@components/Objects/Activities/DocumentPdf/DocumentPdf'), {
+  loading: () => <LoadingFallback />, ssr: false,
+});
+const AssignmentStudentActivity = dynamic(
   () => import('@components/Objects/Activities/Assignment/AssignmentStudentActivity'),
+  { loading: () => <LoadingFallback />, ssr: false },
 );
-const ExamActivity = lazy(() => import('@components/Activities/ExamActivity/ExamActivity'));
-const CodeChallengeActivity = lazy(() => import('@components/Objects/Activities/CodeChallenge/CodeChallengeActivity'));
-const AIActivityAsk = lazy(() => import('@components/Objects/Activities/AI/AIActivityAsk'));
+const ExamActivity = dynamic(() => import('@components/Activities/ExamActivity/ExamActivity'), {
+  loading: () => <LoadingFallback />, ssr: false,
+});
+const CodeChallengeActivity = dynamic(
+  () => import('@components/Objects/Activities/CodeChallenge/CodeChallengeActivity'),
+  { loading: () => <LoadingFallback />, ssr: false },
+);
+const AIActivityAsk = dynamic(() => import('@components/Objects/Activities/AI/AIActivityAsk'), {
+  loading: () => <LoadingFallback />, ssr: false,
+});
 
 // Loading fallback component
 const LoadingFallback = () => (

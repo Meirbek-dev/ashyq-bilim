@@ -41,12 +41,12 @@ function courseDiscussionsHookOptions(
   });
 }
 
-function courseUpdatesHookOptions(courseUuid: string | null | undefined) {
+function courseUpdatesHookOptions(courseUuid: string | null | undefined, enabled = true) {
   const normalizedCourseUuid = courseUuid ?? '';
 
   return queryOptions({
     ...courseUpdatesQueryOptions(normalizedCourseUuid),
-    enabled: Boolean(courseUuid),
+    enabled: enabled && Boolean(courseUuid),
   });
 }
 
@@ -83,8 +83,8 @@ export function useCourseDiscussions(courseUuid: string | null | undefined, opti
   return useQuery(courseDiscussionsHookOptions(courseUuid, options));
 }
 
-export function useCourseUpdates(courseUuid: string | null | undefined) {
-  return useQuery(courseUpdatesHookOptions(courseUuid));
+export function useCourseUpdates(courseUuid: string | null | undefined, options?: { enabled?: boolean }) {
+  return useQuery(courseUpdatesHookOptions(courseUuid, options?.enabled ?? true));
 }
 
 export function useCourseMetadata(courseUuid: string | null | undefined) {

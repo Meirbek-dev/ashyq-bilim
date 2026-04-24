@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Eye } from 'lucide-react';
 import Link from '@components/ui/AppLink';
 import Image from 'next/image';
+import { useTheme } from '@/components/providers/theme-provider';
 import platformLogoDark from '@public/platform_logo.svg';
 import platformLogoLight from '@public/platform_logo_light.svg';
 import UserAvatar from '../../UserAvatar';
@@ -28,6 +29,9 @@ export function EditorHeader({
   onSave,
 }: EditorHeaderProps) {
   const t = useTranslations('DashPage.Editor.Editor');
+  const { theme } = useTheme();
+  console.log(theme.name)
+  const logoSrc = theme.name === 'dark' ? platformLogoLight : platformLogoDark;
 
   return (
     <div className="border-border bg-background flex h-12 items-center justify-between border-b px-3">
@@ -35,18 +39,10 @@ export function EditorHeader({
       <div className="flex min-w-0 items-center gap-2">
         <Link href="/">
           <Image
-            className="hidden rounded-md dark:block"
+            className="rounded-md"
             width={22}
             height={22}
-            src={platformLogoDark}
-            alt="Ashyq Bilim logo"
-            style={{ height: 'auto' }}
-          />
-          <Image
-            className="rounded-md dark:hidden"
-            width={22}
-            height={22}
-            src={platformLogoLight}
+            src={logoSrc}
             alt="Ashyq Bilim logo"
             style={{ height: 'auto' }}
           />

@@ -12,6 +12,7 @@ import {
 import { useActivityAIChat } from '@components/Contexts/AI/ActivityAIChatContext';
 import { AiMarkdownRenderer } from '@components/Shared/AI/AiMarkdownRenderer';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import platformLogo from '@public/platform_logo.svg';
 import platformLogoLight from '@public/platform_logo_light.svg';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
@@ -22,6 +23,7 @@ import { Input } from '@components/ui/input';
 import type { Variants } from 'motion/react';
 import type { Editor } from '@tiptap/react';
 import { useTranslations } from 'next-intl';
+import { useTheme } from '@/components/providers/theme-provider';
 import { cn } from '@/lib/utils';
 import { marked } from 'marked';
 import Image from 'next/image';
@@ -412,6 +414,8 @@ function UserFeedbackModal({
   sendMessageAndGetResponse,
 }: FeedbackModalProps) {
   const t = useTranslations('Activities.AIEditorToolkit');
+  const { theme } = useTheme();
+  const logoSrc = theme.name === 'dark' ? platformLogoLight : platformLogo;
 
   const { getSelectedText, getSelectedBlockText, getEntireText, typeText } = useEditorOperations(editor);
 
@@ -554,7 +558,7 @@ function UserFeedbackModal({
             <Image
               width={18}
               height={18}
-              src={platformLogoLight}
+              src={logoSrc}
               alt={t('platformLogoAlt')}
               className="rounded-sm"
               style={{ height: 'auto' }}
@@ -631,6 +635,8 @@ function UserFeedbackModal({
 
 export default function AIEditorToolkit({ editor, activity, isOpen, onClose }: AIEditorToolkitProps) {
   const t = useTranslations('Activities.AIEditorToolkit');
+  const { theme } = useTheme();
+  const logoSrc = theme.name === 'dark' ? platformLogoLight : platformLogo;
   const { messages, sendMessageAndGetResponse, isLoading, error, clear, stop, abort, resetConversation } =
     useActivityAIChat();
 
@@ -743,9 +749,9 @@ export default function AIEditorToolkit({ editor, activity, isOpen, onClose }: A
               {/* Logo */}
               <div className="flex items-center gap-2 pr-1">
                 <Image
-                  width={18}
-                  height={18}
-                  src={platformLogoLight}
+                  width={20}
+                  height={20}
+                  src={logoSrc}
                   alt={t('aiIconAlt')}
                   className="rounded-sm"
                   style={{ height: 'auto' }}

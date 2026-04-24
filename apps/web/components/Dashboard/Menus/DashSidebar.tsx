@@ -16,7 +16,9 @@ import {
 import { Backpack, BarChart3, BookCopy, Home, LogOut, School, Settings, ShieldCheck, Users } from 'lucide-react';
 import { useNavigationPermissions } from '@/hooks/useNavigationPermissions';
 import { useSession } from '@/hooks/useSession';
+import platformLogo from '@public/platform_logo.svg';
 import platformLogoLight from '@public/platform_logo_light.svg';
+import { useTheme } from '@/components/providers/theme-provider';
 import { logout } from '@services/auth/auth';
 import { getAbsoluteUrl } from '@services/config/config';
 import { Separator } from '@/components/ui/separator';
@@ -210,6 +212,8 @@ const NavItem = ({ item, isCollapsed }: { item: NavigationItem; isCollapsed: boo
 const DashSidebar = ({ className }: SidebarProps) => {
   const { user } = useSession();
   const { state, toggleSidebar } = useSidebar();
+  const { theme } = useTheme();
+  const logoSrc = theme.name === 'dark' ? platformLogo : platformLogoLight;
   const t = useTranslations('SidebarMenu');
   const navigationItems = useNavigationItems();
 
@@ -271,7 +275,7 @@ const DashSidebar = ({ className }: SidebarProps) => {
               <div className="relative h-full w-full">
                 <Image
                   alt={t('ariaLabels.platformLogo')}
-                  src={platformLogoLight}
+                  src={logoSrc}
                   fill
                   sizes="28px"
                   className="object-contain"

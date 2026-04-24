@@ -5,12 +5,15 @@ import { logout } from '@/services/auth/auth';
 import platformLogoFull from '@public/platform_logo_full.svg';
 import platformLogoLightFull from '@public/platform_logo_light_full.svg';
 import UserAvatar from '@components/Objects/UserAvatar';
+import { useTheme } from '@/components/providers/theme-provider';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
 const HomeClient = () => {
   const t = useTranslations('HomeClient');
   const { user: viewer } = useSession();
+  const { theme } = useTheme();
+  const logoSrc = theme.name === 'dark' ? platformLogoLightFull : platformLogoFull;
 
   return (
     <div className="flex flex-col">
@@ -18,20 +21,11 @@ const HomeClient = () => {
         <Image
           quality={100}
           width={230}
-          src={platformLogoLightFull}
+          src={logoSrc}
           alt="Ashyq Bilim logo"
           style={{ height: 'auto' }}
           loading="eager"
-          className="dark:hidden"
-        />
-        <Image
-          quality={100}
-          width={230}
-          src={platformLogoFull}
-          alt="Ashyq Bilim logo"
-          style={{ height: 'auto' }}
-          loading="eager"
-          className="hidden dark:block"
+          className="h-auto w-auto"
         />
       </div>
 

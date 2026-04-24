@@ -64,8 +64,8 @@ const AIActivityAsk = ({ activity: _activity }: AIActivityAskProps) => {
       >
         <Image
           className="rounded-sm"
-          width={16}
-          height={16}
+          width={18}
+          height={18}
           src={platformLogoLight}
           alt={t('askAI')}
           style={{ height: 'auto' }}
@@ -174,18 +174,6 @@ const ActivityChatPanel = () => {
                   {isLoading && <Spinner className="h-3.5 w-3.5 text-zinc-400" />}
                 </div>
                 <div className="flex items-center gap-1">
-                  {/* Stop button — shown while streaming so user can cancel */}
-                  {isLoading && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={stop}
-                      aria-label={t('stopGeneration')}
-                      className="h-7 w-7 text-zinc-500 hover:text-red-400"
-                    >
-                      <span className="flex h-3 w-3 items-center justify-center rounded-sm bg-current" />
-                    </Button>
-                  )}
                   <Button
                     variant="ghost"
                     size="icon"

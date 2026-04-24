@@ -15,20 +15,20 @@ export default async function NotFound() {
         <Image
           quality={100}
           width={270}
-          src={platformLogoLightFull}
-          alt="logo"
-          style={{ height: 'auto' }}
-          loading="eager"
-          className="dark:hidden"
-        />
-        <Image
-          quality={100}
-          width={270}
           src={platformLogoFull}
           alt="logo"
           style={{ height: 'auto' }}
           loading="eager"
-          className="hidden dark:block"
+          className="theme-logo-dark"
+        />
+        <Image
+          quality={100}
+          width={270}
+          src={platformLogoLightFull}
+          alt="logo"
+          style={{ height: 'auto' }}
+          loading="eager"
+          className="theme-logo-light"
         />
       </div>
       <div className="space-y-6 text-center">

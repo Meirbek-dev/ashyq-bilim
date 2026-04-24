@@ -12,7 +12,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import type { LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { use, useMemo } from 'react';
+import { Suspense, use, useMemo } from 'react';
 
 export interface Params {
   subpage: string;
@@ -51,6 +51,14 @@ const SETTING_TABS: TabItem[] = [
 ];
 
 export default function PlatformSettingsPage(props: { params: Promise<{ subpage: string }> }) {
+  return (
+    <Suspense fallback={null}>
+      <PlatformSettingsPageContent {...props} />
+    </Suspense>
+  );
+}
+
+function PlatformSettingsPageContent(props: { params: Promise<{ subpage: string }> }) {
   const t = useTranslations('DashPage.PlatformSettings');
   const params = use(props.params);
 

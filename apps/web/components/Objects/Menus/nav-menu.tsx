@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { BookCopy, Menu, Signpost, SquareLibrary } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { useTheme } from '@/components/providers/theme-provider';
 
 // Components & UI
 import Link from '@components/ui/AppLink';
@@ -26,6 +27,11 @@ import { cn } from '@/lib/utils';
 
 // Assets
 import platformLogoFull from '@public/platform_logo_full.svg';
+import platformLogoLightFull from '@public/platform_logo_light_full.svg';
+
+function isDarkTheme(themeName: string) {
+  return themeName === 'dark';
+}
 
 // ----------------------------------------------------------------------
 // Types & Config
@@ -217,6 +223,8 @@ export default function NavBar() {
   const t = useTranslations('Components.NavMenu');
   const tLinks = useTranslations('Components.NavMenuLinks');
   const { isAuthenticated } = useSession();
+  const { theme } = useTheme();
+  const logoSrc = isDarkTheme(theme.name) ? platformLogoLightFull : platformLogoFull;
 
   const isOnActivityPage = pathname?.includes('/activity/') ?? false;
   const isFocusMode = useFocusMode(isOnActivityPage);
@@ -253,7 +261,7 @@ export default function NavBar() {
             className="focus-visible:ring-ring focus-visible:ring-offset-background flex shrink-0 items-center rounded-md outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           >
             <Image
-              src={platformLogoFull}
+              src={logoSrc}
               alt={t('logoAlt')}
               width={120}
               height={36}
@@ -323,10 +331,10 @@ export default function NavBar() {
               <SheetHeader className="border-border/60 border-b px-6 py-4">
                 <SheetTitle className="sr-only">{t('navigation')}</SheetTitle>
                 <Image
-                  src={platformLogoFull}
+                  src={logoSrc}
                   alt={t('logoAlt')}
-                  width={180}
-                  height={65}
+                  width={163}
+                  height={60}
                   className="h-8 w-auto object-contain"
                 />
               </SheetHeader>

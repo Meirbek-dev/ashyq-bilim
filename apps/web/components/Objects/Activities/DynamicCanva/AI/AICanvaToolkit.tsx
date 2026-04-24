@@ -2,10 +2,12 @@ import { AlertTriangle, BookOpen, Check, FormInput, Languages, Loader2 } from 'l
 import { useActivityAIChat } from '@components/Contexts/AI/ActivityAIChatContext';
 import ToolTip from '@/components/Objects/Elements/Tooltip/Tooltip';
 import platformLogo from '@public/platform_logo.svg';
+import platformLogoLight from '@public/platform_logo_light.svg';
 import { BubbleMenu } from '@tiptap/react/menus';
 import { Button } from '@components/ui/button';
 import type { Editor } from '@tiptap/react';
 import { useTranslations } from 'next-intl';
+import { useTheme } from '@/components/providers/theme-provider';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import Image from 'next/image';
@@ -24,6 +26,8 @@ interface AICanvaToolkitProps {
 
 const AICanvaToolkit = (props: AICanvaToolkitProps) => {
   const t = useTranslations('Activities.AICanvaToolkit');
+  const { theme } = useTheme();
+  const logoSrc = theme.name === 'dark' ? platformLogoLight : platformLogo;
 
   if (!props.editor) {
     return null;
@@ -42,7 +46,7 @@ const AICanvaToolkit = (props: AICanvaToolkitProps) => {
           <Image
             className="rounded-sm"
             width={18}
-            src={platformLogo}
+            src={logoSrc}
             alt={t('aiIconAlt')}
             style={{ height: 'auto' }}
           />

@@ -1,5 +1,5 @@
 import { BarChart2, BookCopy, ClipboardList, School, Settings, ShieldCheck, Users, ChevronRight } from 'lucide-react';
-import touEmblemLight from '@/app/_shared/dash/images/tou_emblem_light.avif';
+import touEmblemLight from '@/app/_shared/dash/images/tou_emblem_light.webp';
 import ServerLink from '@/components/ui/ServerLink';
 import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
@@ -17,6 +17,7 @@ import { requireSession } from '@/lib/auth/session';
 import { sessionCan } from '@/lib/auth/permissions';
 
 import platformLogoFull from '../../../public/platform_logo_full.svg';
+import platformLogoLightFull from '../../../public/platform_logo_light_full.svg';
 import type { Action, Resource, Scope } from '@/types/permissions';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -90,7 +91,15 @@ export default async function PlatformDashHomePage() {
           alt={t('platformLogo')}
           width={210}
           src={platformLogoFull}
-          className="w-40 sm:w-[210px]"
+          className="w-40 sm:w-[210px] theme-logo-dark"
+          style={{ height: 'auto' }}
+          loading="eager"
+        />
+        <Image
+          alt={t('platformLogo')}
+          width={210}
+          src={platformLogoLightFull}
+          className="w-40 sm:w-[210px] theme-logo-light"
           style={{ height: 'auto' }}
           loading="eager"
         />

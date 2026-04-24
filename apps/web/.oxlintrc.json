@@ -88,6 +88,8 @@
     "no-shadow": "off",
     "no-nested-ternary": "off",
     "no-void": "off",
+    "no-relative-parent-imports": "off",
+    "default-case": "off",
     /* Import Plugin Rules */
     "import/no-default-export": "off",
     "import/prefer-default-export": "off",
