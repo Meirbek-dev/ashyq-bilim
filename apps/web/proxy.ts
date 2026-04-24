@@ -97,7 +97,7 @@ function rewriteWithHeaders(req: NextRequest, requestId: string, pathname: strin
 
 function redirectToRefresh(req: NextRequest, requestId: string, pathname: string, search: string) {
   const refreshUrl = `${AUTH_REFRESH_BRIDGE_PATH}?returnTo=${encodeURIComponent(pathname + search)}`;
-  return withRequestId(NextResponse.redirect(refreshUrl), requestId);
+  return withRequestId(NextResponse.redirect(new URL(refreshUrl, req.url)), requestId);
 }
 
 const VERIFY_TIMEOUT_MS = 5000;
