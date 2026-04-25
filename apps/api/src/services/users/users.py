@@ -390,11 +390,7 @@ def _validate_unique_email(
     if db_session.exec(statement).first():
         raise HTTPException(
             status_code=400,
-            detail={
-                "error_code": "email_taken",
-                "message": "Email already exists",
-                "detail": {"code": "email_taken"},
-            },
+            detail="Email already exists",
         )
 
 
