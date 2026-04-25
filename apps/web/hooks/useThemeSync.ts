@@ -54,6 +54,13 @@ export function useThemeSync(themeName: string): void {
           pendingThemeRef.current = null;
         })
         .catch((error: unknown) => {
+          const status = typeof error === 'object' && error && 'status' in error ? Number(error.status) : undefined;
+
+          if (status === 401 || status === 403) {
+            pendingThemeRef.current = null;
+            return;
+          }
+
           console.error('Failed to sync theme to server:', error);
         });
     }, 1000);

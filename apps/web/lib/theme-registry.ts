@@ -2,6 +2,7 @@ import rawThemeRegistry from './theme-registry.generated.json';
 
 export type ThemeMode = 'light' | 'dark';
 export type ThemeTokenMap = Record<string, string>;
+export type ThemeStyles = Record<ThemeMode, ThemeTokenMap>;
 
 export interface ThemeColors {
   readonly background: string;
@@ -11,168 +12,198 @@ export interface ThemeColors {
   readonly accent: string;
 }
 
+export interface ThemePreset {
+  readonly label?: string;
+  readonly source?: string;
+  readonly styles: {
+    readonly light: ThemeTokenMap;
+    readonly dark: ThemeTokenMap;
+  };
+}
+
 export interface ThemeDefinition {
   readonly name: string;
+  readonly label: string;
+  readonly styles: Readonly<ThemeStyles>;
   readonly tokens: Readonly<ThemeTokenMap>;
   readonly colors: Readonly<ThemeColors>;
   readonly resolvedTheme: ThemeMode;
 }
 
 export const THEME_STORAGE_KEY = 'theme';
+export const THEME_MODE_STORAGE_KEY = 'theme-mode';
 export const DEFAULT_THEME_NAME = 'default';
+export const DEFAULT_THEME_MODE: ThemeMode = 'light';
+const THEME_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
-const registry = rawThemeRegistry as Record<string, ThemeTokenMap>;
+const registry = rawThemeRegistry as Record<string, ThemePreset>;
+
+const tokenAliases: Record<string, string[]> = {
+  'letter-spacing': ['tracking-normal'],
+  'tracking-normal': ['letter-spacing'],
+  'shadow-x': ['shadow-offset-x'],
+  'shadow-offset-x': ['shadow-x'],
+  'shadow-y': ['shadow-offset-y'],
+  'shadow-offset-y': ['shadow-y'],
+};
 
 function normalizeThemeTokens(tokens: ThemeTokenMap): ThemeTokenMap {
-  const merged: ThemeTokenMap = {
-    ...tokens,
-  };
+  const normalized: ThemeTokenMap = { ...tokens };
 
-  if (!merged['letter-spacing'] && merged['tracking-normal']) {
-    merged['letter-spacing'] = merged['tracking-normal'];
-  }
+  for (const [token, aliases] of Object.entries(tokenAliases)) {
+    const tokenValue = normalized[token] ?? aliases.map((alias) => normalized[alias]).find(Boolean);
+    if (!tokenValue) continue;
 
-  if (!merged['tracking-normal'] && merged['letter-spacing']) {
-    merged['tracking-normal'] = merged['letter-spacing'];
-  }
-
-  const shadowX = merged['shadow-offset-x'] ?? merged['shadow-x'];
-  const shadowY = merged['shadow-offset-y'] ?? merged['shadow-y'];
-
-  if (shadowX) {
-    merged['shadow-x'] = shadowX;
-    merged['shadow-offset-x'] = shadowX;
-  }
-
-  if (shadowY) {
-    merged['shadow-y'] = shadowY;
-    merged['shadow-offset-y'] = shadowY;
-  }
-
-  return merged;
-}
-
-const defaultThemeTokens = normalizeThemeTokens(registry[DEFAULT_THEME_NAME] ?? {});
-
-function buildThemeDefinition(name: string, partialTokens: ThemeTokenMap): ThemeDefinition {
-  const tokens = normalizeThemeTokens({
-    ...defaultThemeTokens,
-    ...partialTokens,
-  });
-  const background = tokens.background ?? defaultThemeTokens.background ?? 'oklch(1 0 0)';
-  const foreground = tokens.foreground ?? defaultThemeTokens.foreground ?? 'oklch(0.145 0 0)';
-  const primary = tokens.primary ?? defaultThemeTokens.primary ?? foreground;
-  const secondary = tokens.secondary ?? defaultThemeTokens.secondary ?? background;
-  const accent = tokens.accent ?? defaultThemeTokens.accent ?? secondary;
-
-  return {
-    name,
-    tokens,
-    colors: {
-      background,
-      foreground,
-      primary,
-      secondary,
-      accent,
-    },
-    resolvedTheme: inferThemeMode(background),
-  };
-}
-
-function hexToRgb(value: string) {
-  const hex = value.replace('#', '').trim();
-  if (![3, 6].includes(hex.length)) return null;
-
-  const normalized =
-    hex.length === 3
-      ? hex
-          .split('')
-          .map((char) => `${char}${char}`)
-          .join('')
-      : hex;
-
-  const intValue = Number.parseInt(normalized, 16);
-  if (Number.isNaN(intValue)) return null;
-
-  return {
-    r: (intValue >> 16) & 255,
-    g: (intValue >> 8) & 255,
-    b: intValue & 255,
-  };
-}
-
-function rgbToLuminance(r: number, g: number, b: number) {
-  const channels = [r, g, b].map((channel) => {
-    const normalized = channel / 255;
-    return normalized <= 0.03928 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
-  });
-  const [rs = 0, gs = 0, bs = 0] = channels;
-
-  return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
-}
-
-function inferThemeMode(background: string | undefined): ThemeMode {
-  if (!background) return 'light';
-
-  const value = background.trim().toLowerCase();
-
-  const oklchMatch = value.match(/^oklch\(\s*([0-9.]+)/);
-  if (oklchMatch?.[1]) {
-    return Number.parseFloat(oklchMatch[1]) < 0.62 ? 'dark' : 'light';
-  }
-
-  const hslMatch = value.match(/^hsla?\(\s*[-0-9.]+\s+[-0-9.]+%?\s+([-0-9.]+)%/);
-  if (hslMatch?.[1]) {
-    return Number.parseFloat(hslMatch[1]) < 50 ? 'dark' : 'light';
-  }
-
-  const rgbMatch = value.match(/^rgba?\(\s*([0-9.]+)[,\s]+([0-9.]+)[,\s]+([0-9.]+)/);
-  if (rgbMatch?.[1] && rgbMatch[2] && rgbMatch[3]) {
-    const luminance = rgbToLuminance(
-      Number.parseFloat(rgbMatch[1]),
-      Number.parseFloat(rgbMatch[2]),
-      Number.parseFloat(rgbMatch[3]),
-    );
-    return luminance < 0.34 ? 'dark' : 'light';
-  }
-
-  if (value.startsWith('#')) {
-    const rgb = hexToRgb(value);
-    if (rgb) {
-      return rgbToLuminance(rgb.r, rgb.g, rgb.b) < 0.34 ? 'dark' : 'light';
+    normalized[token] = tokenValue;
+    for (const alias of aliases) {
+      normalized[alias] = tokenValue;
     }
   }
 
-  return 'light';
+  const shadowTokens = buildShadowTokens(normalized);
+  for (const [key, value] of Object.entries(shadowTokens)) {
+    normalized[key] ??= value;
+  }
+
+  return normalized;
 }
 
-export const themes = Object.entries(registry).map(([name, tokens]) => buildThemeDefinition(name, tokens));
-export const themeNames = themes.map((theme) => theme.name);
-export const darkThemeNames = themes.filter((theme) => theme.resolvedTheme === 'dark').map((theme) => theme.name);
+function withAlpha(color: string, alpha: number): string {
+  const trimmed = color.trim();
+  const alphaValue = Math.max(0, alpha).toFixed(2);
 
-const themeMap = new Map(themes.map((theme) => [theme.name, theme] as const));
+  if (/^(hsl|oklch|oklab|rgb|lab|lch)\(/i.test(trimmed) && !trimmed.includes('/')) {
+    return trimmed.replace(/\)$/, ` / ${alphaValue})`);
+  }
 
-export function getTheme(name: string): ThemeDefinition {
-  return themeMap.get(name) ?? themeMap.get(DEFAULT_THEME_NAME) ?? buildThemeDefinition(DEFAULT_THEME_NAME, {});
+  return `color-mix(in srgb, ${trimmed} ${Math.round(alpha * 100)}%, transparent)`;
+}
+
+function pxNumber(value: string | undefined, fallback = 0): number {
+  if (!value) return fallback;
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function buildShadowTokens(tokens: ThemeTokenMap): ThemeTokenMap {
+  const offsetX = tokens['shadow-offset-x'] ?? tokens['shadow-x'] ?? '0';
+  const offsetY = tokens['shadow-offset-y'] ?? tokens['shadow-y'] ?? '1px';
+  const blur = tokens['shadow-blur'] ?? '3px';
+  const spread = tokens['shadow-spread'] ?? '0px';
+  const opacity = pxNumber(tokens['shadow-opacity'], 0.1);
+  const shadowColor = tokens['shadow-color'] ?? 'oklch(0 0 0)';
+  const firstLayer = (multiplier: number) => `${offsetX} ${offsetY} ${blur} ${spread} ${withAlpha(shadowColor, opacity * multiplier)}`;
+  const secondLayer = (fixedOffsetY: string, fixedBlur: string) => {
+    const secondSpread = `${pxNumber(spread) - 1}px`;
+    return `${offsetX} ${fixedOffsetY} ${fixedBlur} ${secondSpread} ${withAlpha(shadowColor, opacity)}`;
+  };
+
+  return {
+    'shadow-2xs': firstLayer(0.5),
+    'shadow-xs': firstLayer(0.5),
+    'shadow-sm': `${firstLayer(1)}, ${secondLayer('1px', '2px')}`,
+    shadow: `${firstLayer(1)}, ${secondLayer('1px', '2px')}`,
+    'shadow-md': `${firstLayer(1)}, ${secondLayer('2px', '4px')}`,
+    'shadow-lg': `${firstLayer(1)}, ${secondLayer('4px', '6px')}`,
+    'shadow-xl': `${firstLayer(1)}, ${secondLayer('8px', '10px')}`,
+    'shadow-2xl': firstLayer(2.5),
+  };
+}
+
+const defaultPreset = registry[DEFAULT_THEME_NAME];
+const defaultLightTokens = normalizeThemeTokens(defaultPreset?.styles.light ?? {});
+const defaultDarkTokens = normalizeThemeTokens(defaultPreset?.styles.dark ?? defaultLightTokens);
+
+function defaultTokensForMode(mode: ThemeMode): ThemeTokenMap {
+  return mode === 'dark' ? defaultDarkTokens : defaultLightTokens;
+}
+
+function buildModeTokens(mode: ThemeMode, partialTokens: ThemeTokenMap): ThemeTokenMap {
+  return normalizeThemeTokens({
+    ...defaultTokensForMode(mode),
+    ...partialTokens,
+  });
+}
+
+function buildColors(tokens: ThemeTokenMap): ThemeColors {
+  const background = tokens.background ?? 'oklch(1 0 0)';
+  const foreground = tokens.foreground ?? 'oklch(0.145 0 0)';
+
+  return {
+    background,
+    foreground,
+    primary: tokens.primary ?? foreground,
+    secondary: tokens.secondary ?? background,
+    accent: tokens.accent ?? tokens.secondary ?? background,
+  };
+}
+
+function buildThemeDefinition(name: string, preset: ThemePreset | undefined, mode: ThemeMode): ThemeDefinition {
+  const light = buildModeTokens('light', preset?.styles.light ?? {});
+  const dark = buildModeTokens('dark', preset?.styles.dark ?? {});
+  const tokens = mode === 'dark' ? dark : light;
+
+  return {
+    name,
+    label: preset?.label ?? name,
+    styles: { light, dark },
+    tokens,
+    colors: buildColors(tokens),
+    resolvedTheme: mode,
+  };
+}
+
+function isThemeMode(value: string | null | undefined): value is ThemeMode {
+  return value === 'light' || value === 'dark';
+}
+
+export const themeNames = Object.keys(registry);
+export const themes = themeNames.map((name) => buildThemeDefinition(name, registry[name], DEFAULT_THEME_MODE));
+export const darkThemeNames = themeNames;
+
+export function getTheme(name: string, mode: ThemeMode = DEFAULT_THEME_MODE): ThemeDefinition {
+  const preset = registry[name] ?? registry[DEFAULT_THEME_NAME];
+  const resolvedName = registry[name] ? name : DEFAULT_THEME_NAME;
+
+  return buildThemeDefinition(resolvedName, preset, mode);
 }
 
 export function getStoredTheme(): string | null {
   if (typeof window === 'undefined') return null;
   const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
-  return storedTheme && themeMap.has(storedTheme) ? storedTheme : null;
+  return storedTheme && storedTheme in registry ? storedTheme : null;
+}
+
+export function getStoredThemeMode(): ThemeMode | null {
+  if (typeof window === 'undefined') return null;
+  const storedMode = window.localStorage.getItem(THEME_MODE_STORAGE_KEY);
+  return isThemeMode(storedMode) ? storedMode : null;
+}
+
+export function getSystemThemeMode(): ThemeMode {
+  if (typeof window === 'undefined') return DEFAULT_THEME_MODE;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 export function applyTheme(theme: ThemeDefinition): void {
   if (typeof document === 'undefined') return;
 
   const root = document.documentElement;
+  for (const [key, value] of Object.entries(theme.tokens)) {
+    root.style.setProperty(`--${key}`, value);
+  }
+
   root.setAttribute('data-theme', theme.name);
   root.setAttribute('data-mode', theme.resolvedTheme);
   root.classList.toggle('dark', theme.resolvedTheme === 'dark');
   root.style.colorScheme = theme.resolvedTheme;
+
   window.localStorage.setItem(THEME_STORAGE_KEY, theme.name);
+  window.localStorage.setItem(THEME_MODE_STORAGE_KEY, theme.resolvedTheme);
+  document.cookie = `${THEME_STORAGE_KEY}=${encodeURIComponent(theme.name)}; path=/; max-age=${THEME_COOKIE_MAX_AGE}; samesite=lax`;
+  document.cookie = `${THEME_MODE_STORAGE_KEY}=${theme.resolvedTheme}; path=/; max-age=${THEME_COOKIE_MAX_AGE}; samesite=lax`;
 }
 
-export function isDarkThemeName(themeName: string): boolean {
-  return getTheme(themeName).resolvedTheme === 'dark';
+export function isDarkThemeName(_themeName: string): boolean {
+  return false;
 }

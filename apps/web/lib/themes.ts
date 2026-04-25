@@ -1,8 +1,12 @@
 export {
   DEFAULT_THEME_NAME,
+  DEFAULT_THEME_MODE,
+  THEME_MODE_STORAGE_KEY,
   THEME_STORAGE_KEY,
   applyTheme,
   darkThemeNames,
+  getStoredThemeMode,
+  getSystemThemeMode,
   getStoredTheme,
   getTheme,
   isDarkThemeName,
@@ -11,5 +15,6 @@ export {
   type ThemeColors,
   type ThemeDefinition as Theme,
   type ThemeMode,
+  type ThemeStyles,
   type ThemeTokenMap,
 } from './theme-registry';

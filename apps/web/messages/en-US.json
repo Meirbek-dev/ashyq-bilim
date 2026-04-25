@@ -1395,7 +1395,9 @@
       "navigation": "Navigation",
       "openMenu": "Open menu",
       "overlayClose": "Close menu overlay",
-      "search": "Search"
+      "search": "Search",
+      "switchToDark": "Switch to dark mode",
+      "switchToLight": "Switch to light mode"
     },
     "NavMenuLinks": {
       "collections": "Collections",
@@ -5477,6 +5479,8 @@
           "accent": "Accent",
           "accentColor": "Accent color",
           "beta": "BETA",
+          "modeDescription": "Switch the active theme between its light and dark palettes.",
+          "modeTitle": "Light / Dark Mode",
           "primary": "Primary",
           "primaryColor": "Primary color",
           "secondary": "Secondary",

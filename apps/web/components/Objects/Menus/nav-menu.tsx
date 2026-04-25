@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { NavigationMenu, NavigationMenuItem, NavigationMenuList } from '@/components/ui/navigation-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
+import { ThemeModeToggle } from '@/components/theme-mode-toggle';
 import { SearchBar } from '@/components/Objects/Search/SearchBar';
 import { LocaleSwitcher } from '@/components/Utils/LocaleSwitcher';
 import { HeaderProfileBox } from '@/components/Security/HeaderProfileBox';
@@ -298,6 +299,10 @@ export default function NavBar() {
             <LocaleSwitcher />
           </div>
 
+          <ThemeModeToggle
+            className="mx-1"
+          />
+
           <div className="hidden md:flex">
             <HeaderProfileBox />
           </div>
@@ -372,10 +377,15 @@ export default function NavBar() {
                   <Label className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
                     {t('language')}
                   </Label>
-                  <LocaleSwitcher
-                    className="w-full"
-                    isMobile
-                  />
+                  <div className="flex items-center gap-2">
+                    <LocaleSwitcher
+                      className="flex-1"
+                      isMobile
+                    />
+                    <ThemeModeToggle
+                      className="shrink-0"
+                    />
+                  </div>
                 </section>
               </div>
 

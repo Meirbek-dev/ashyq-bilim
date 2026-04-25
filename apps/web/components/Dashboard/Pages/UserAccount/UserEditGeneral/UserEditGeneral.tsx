@@ -35,6 +35,7 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import type { ChangeEvent, ElementType } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { Textarea } from '@components/ui/textarea';
+import { ThemeModeToggle } from '@/components/theme-mode-toggle';
 import { ThemeSelector } from '@/lib/theme-system';
 import { Button } from '@components/ui/button';
 import { getUserLocale } from '@/i18n/locale';
@@ -428,8 +429,17 @@ const UserEditForm = ({ form, profilePicture }: UserEditFormProps) => {
             />
           </div>
 
-          {/* Theme Selector */}
-          <ThemeSelector className="border-t pt-6" />
+          {/* Theme Controls */}
+          <div className="space-y-5 border-t pt-6">
+            <ThemeSelector />
+            <div className="flex flex-wrap items-center justify-start gap-4">
+              <div className="space-y-1">
+                <Label className="text-base font-medium">{t('themeSelector.modeTitle')}</Label>
+                <p className="text-muted-foreground text-xs">{t('themeSelector.modeDescription')}</p>
+              </div>
+              <ThemeModeToggle className="ml-4"/>
+            </div>
+          </div>
 
           <div className="space-y-4">
             <div className="flex flex-col gap-3">

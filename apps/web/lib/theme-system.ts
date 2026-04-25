@@ -12,9 +12,13 @@ export { ThemeProvider, useTheme } from '@/components/providers/theme-provider';
 // Core theme utilities
 export {
   DEFAULT_THEME_NAME,
+  DEFAULT_THEME_MODE,
+  THEME_MODE_STORAGE_KEY,
   THEME_STORAGE_KEY,
   applyTheme,
   darkThemeNames,
+  getStoredThemeMode,
+  getSystemThemeMode,
   getStoredTheme,
   getTheme,
   isDarkThemeName,
@@ -23,6 +27,7 @@ export {
   type Theme,
   type ThemeColors,
   type ThemeMode,
+  type ThemeStyles,
   type ThemeTokenMap,
 } from '@/lib/themes';
 

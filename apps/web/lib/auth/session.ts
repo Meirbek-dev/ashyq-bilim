@@ -1,7 +1,7 @@
 import 'server-only';
 import { cache } from 'react';
 import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { redirect, unstable_rethrow } from 'next/navigation';
 import { apiFetch } from '@/lib/api-client';
 import type { Session, UserSessionResponse } from './types';
 
@@ -27,6 +27,8 @@ export const getSession = cache(async (): Promise<Session | null> => {
       sessionVersion: sessionData.session_version ?? null,
     };
   } catch (error) {
+    unstable_rethrow(error);
+
     const message = error instanceof Error ? error.message : String(error);
     console.warn('[getSession] Failed to fetch session from backend:', message);
     return null;

@@ -1396,7 +1396,9 @@
       "navigation": "Навигация",
       "openMenu": "Открыть меню",
       "overlayClose": "Закрыть меню",
-      "search": "Поиск"
+      "search": "Поиск",
+      "switchToDark": "Переключить на тёмный режим",
+      "switchToLight": "Переключить на светлый режим"
     },
     "NavMenuLinks": {
       "collections": "Коллекции",
@@ -5503,6 +5505,8 @@
           "accent": "Акцент",
           "accentColor": "Акцентный цвет",
           "beta": "БЕТА",
+          "modeDescription": "Переключает активную тему между светлой и тёмной палитрой.",
+          "modeTitle": "Светлый / тёмный режим",
           "primary": "Начальный",
           "primaryColor": "Основной цвет",
           "secondary": "вторичный",

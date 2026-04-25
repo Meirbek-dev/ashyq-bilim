@@ -1395,7 +1395,9 @@
       "navigation": "Навигация",
       "openMenu": "Ашық мәзір",
       "overlayClose": "Мәзірді жабыңыз",
-      "search": "Іздеу"
+      "search": "Іздеу",
+      "switchToDark": "Қараңғы режимге ауыстыру",
+      "switchToLight": "Жарық режимге ауыстыру"
     },
     "NavMenuLinks": {
       "collections": "Жинақтар",
@@ -5503,6 +5505,8 @@
           "accent": "Акцент",
           "accentColor": "Акцент түсі",
           "beta": "БЕТА",
+          "modeDescription": "Белсенді тақырыпты жарық және қараңғы палитра арасында ауыстырады.",
+          "modeTitle": "Жарық / қараңғы режим",
           "primary": "Негізгі",
           "primaryColor": "Негізгі түс",
           "secondary": "Екінші",

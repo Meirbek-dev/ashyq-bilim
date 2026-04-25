@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   const userId = session?.user?.id;
 
   if (!session?.user || typeof userId !== 'number') {
-    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    return NextResponse.json({ detail: 'Authentication required' }, { status: 401 });
   }
 
   try {
@@ -16,19 +16,20 @@ export async function POST(request: NextRequest) {
     const theme = typeof body?.theme === 'string' ? body.theme.trim() : '';
 
     if (!theme) {
-      return NextResponse.json({ error: 'Theme is required' }, { status: 400 });
+      return NextResponse.json({ detail: 'Theme is required' }, { status: 400 });
     }
 
     await updateUserTheme(userId, theme);
 
     return NextResponse.json({ updated: true }, { status: 200 });
   } catch (error) {
+    const status = typeof (error as { status?: unknown }).status === 'number' ? (error as { status: number }).status : 500;
+
     return NextResponse.json(
       {
-        error: 'Failed to update theme',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        detail: error instanceof Error ? error.message : 'Failed to update theme',
       },
-      { status: 500 },
+      { status: status >= 400 && status < 600 ? status : 500 },
     );
   }
 }

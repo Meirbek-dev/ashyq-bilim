@@ -94,8 +94,11 @@ export async function updateUserAvatar(userId: number, avatarFile: File): Promis
 }
 
 export async function updateUserTheme(userId: number, theme: string): Promise<void> {
-  const response = await apiFetch(`users/preferences/theme/${userId}?theme=${encodeURIComponent(theme)}`, {
-    method: 'PUT',
+  const response = await fetch('/api/user/theme', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ theme }),
   });
 
   await requireOkJson<unknown>(response);
