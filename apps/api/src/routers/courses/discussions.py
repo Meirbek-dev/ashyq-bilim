@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query, Request
 from sqlmodel import Session
 
+from src.auth.users import get_public_user
 from src.db.courses.discussions import (
     CourseDiscussionCreate,
     CourseDiscussionRead,
@@ -12,7 +13,6 @@ from src.db.courses.discussions import (
 )
 from src.db.users import PublicUser
 from src.infra.db.session import get_db_session
-from src.security.auth import get_current_user
 from src.services.courses.discussions import (
     create_discussion,
     delete_discussion,
@@ -33,7 +33,7 @@ async def api_get_course_discussions(
     request: Request,
     course_uuid: str,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     include_replies: Annotated[
         bool, Query(description="Include replies in response")
     ] = False,
@@ -56,7 +56,7 @@ async def api_create_course_discussion(
     course_uuid: str,
     discussion_object: CourseDiscussionCreate,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ) -> CourseDiscussionRead:
     """
     Create new Course Discussion
@@ -73,7 +73,7 @@ async def api_update_course_discussion(
     discussion_uuid: str,
     discussion_object: CourseDiscussionUpdate,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ) -> CourseDiscussionRead:
     """
     Update Course Discussion by discussion_uuid
@@ -89,7 +89,7 @@ async def api_delete_course_discussion(
     course_uuid: str,
     discussion_uuid: str,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ):
     """
     Delete Course Discussion by discussion_uuid
@@ -103,7 +103,7 @@ async def api_like_course_discussion(
     course_uuid: str,
     discussion_uuid: str,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ) -> DiscussionLikeRead:
     """
     Like a Course Discussion
@@ -117,7 +117,7 @@ async def api_unlike_course_discussion(
     course_uuid: str,
     discussion_uuid: str,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ):
     """
     Unlike a Course Discussion
@@ -131,7 +131,7 @@ async def api_toggle_course_discussion_like(
     course_uuid: str,
     discussion_uuid: str,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ):
     """
     Toggle like status for a Course Discussion (like if not liked, unlike if liked)
@@ -147,7 +147,7 @@ async def api_toggle_course_discussion_dislike(
     course_uuid: str,
     discussion_uuid: str,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ):
     """
     Toggle dislike status for a Course Discussion (dislike if not disliked, undislike if disliked)
@@ -163,7 +163,7 @@ async def api_get_discussion_replies(
     course_uuid: str,
     discussion_uuid: str,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     limit: Annotated[
         int, Query(le=100, description="Number of replies to return")
     ] = 50,

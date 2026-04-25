@@ -1,12 +1,17 @@
 """Authentication backend — JWT transport + strategy."""
 
-from fastapi_users.authentication import AuthenticationBackend, CookieTransport, JWTStrategy
+from fastapi_users.authentication import (
+    AuthenticationBackend,
+    CookieTransport,
+    JWTStrategy,
+)
+from src.auth.users_lifetimes import ACCESS_TOKEN_EXPIRE
 
 from config.config import get_settings
-from src.security.auth_lifetimes import ACCESS_TOKEN_EXPIRE
 from src.security.keys import get_jwt_secret
 
 ACCESS_COOKIE_KEY = "access_token_cookie"
+
 
 def get_cookie_transport() -> CookieTransport:
     settings = get_settings()
@@ -23,11 +28,13 @@ def get_cookie_transport() -> CookieTransport:
         cookie_samesite="lax",
     )
 
+
 def get_jwt_strategy() -> JWTStrategy:
     return JWTStrategy(
         secret=get_jwt_secret(),
         lifetime_seconds=int(ACCESS_TOKEN_EXPIRE.total_seconds()),
     )
+
 
 auth_backend = AuthenticationBackend(
     name="jwt",

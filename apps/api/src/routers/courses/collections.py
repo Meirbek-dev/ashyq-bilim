@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
 
+from src.auth.users import get_optional_public_user, get_public_user
 from src.db.collections import (
     CollectionCreate,
     CollectionRead,
@@ -10,7 +11,6 @@ from src.db.collections import (
 )
 from src.db.users import AnonymousUser
 from src.infra.db.session import get_db_session
-from src.security.auth import get_current_user, get_current_user_optional
 from src.services.courses.collections import (
     create_collection,
     delete_collection,
@@ -27,7 +27,7 @@ router = APIRouter()
 async def api_create_collection(
     request: Request,
     collection_object: CollectionCreate,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
 ) -> CollectionRead:
     """
@@ -41,7 +41,7 @@ async def api_get_collection(
     request: Request,
     collection_uuid: str,
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ],
     db_session=Depends(get_db_session),
 ) -> CollectionReadWithPermissions:
@@ -57,7 +57,7 @@ async def api_get_platform_collections(
     page: int,
     limit: int,
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ],
     db_session=Depends(get_db_session),
 ) -> list[CollectionReadWithPermissions]:
@@ -78,7 +78,7 @@ async def api_update_collection(
     request: Request,
     collection_object: CollectionUpdate,
     collection_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
 ) -> CollectionRead:
     """
@@ -93,7 +93,7 @@ async def api_update_collection(
 async def api_delete_collection(
     request: Request,
     collection_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
 ):
     """

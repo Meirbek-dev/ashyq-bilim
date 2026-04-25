@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Form, Request, UploadFile
 
+from src.auth.users import get_optional_public_user, get_public_user
 from src.db.courses.activities import (
     ActivityCreate,
     ActivityRead,
@@ -11,7 +12,6 @@ from src.db.courses.activities import (
 from src.db.strict_base_model import PydanticStrictBaseModel
 from src.db.users import AnonymousUser, PublicUser
 from src.infra.db.session import get_db_session
-from src.security.auth import get_current_user, get_current_user_optional
 from src.services.courses.activities.activities import (
     create_activity,
     delete_activity,
@@ -36,7 +36,7 @@ class ActivityDetailResponse(PydanticStrictBaseModel):
 async def api_create_activity(
     request: Request,
     activity_object: ActivityCreate,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
 ) -> ActivityRead:
     return await create_activity(request, activity_object, current_user, db_session)
@@ -47,7 +47,7 @@ async def api_get_activity(
     request: Request,
     activity_uuid: str,
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ],
     db_session=Depends(get_db_session),
 ) -> ActivityReadWithPermissions:
@@ -61,7 +61,7 @@ async def api_update_activity(
     request: Request,
     activity_object: ActivityUpdate,
     activity_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
 ) -> ActivityRead:
     return await update_activity(
@@ -73,7 +73,7 @@ async def api_update_activity(
 async def api_delete_activity(
     request: Request,
     activity_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
 ) -> dict:
     return await delete_activity(request, activity_uuid, current_user, db_session)
@@ -87,7 +87,7 @@ async def api_create_video_activity(
     request: Request,
     name: Annotated[str, Form()],
     chapter_id: Annotated[int, Form()],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
     details: Annotated[str, Form()] = "{}",
     video_file: UploadFile | None = None,
@@ -113,7 +113,7 @@ async def api_create_video_activity(
 async def api_create_external_video_activity(
     request: Request,
     external_video: ExternalVideo,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
 ) -> ActivityRead:
     return await create_external_video_activity(
@@ -126,7 +126,7 @@ async def api_create_documentpdf_activity(
     request: Request,
     name: Annotated[str, Form()],
     chapter_id: Annotated[int, Form()],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
     pdf_file: UploadFile | None = None,
     pdf_uploaded_path: Annotated[str | None, Form()] = None,

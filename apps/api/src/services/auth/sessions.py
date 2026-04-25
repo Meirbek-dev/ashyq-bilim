@@ -24,13 +24,13 @@ from typing import Literal
 
 from fastapi import HTTPException, status
 from sqlmodel import Session, select
-
-from src.db.auth_sessions import AuthSession
-from src.db.users import User
-from src.security.auth_lifetimes import (
+from src.auth.users_lifetimes import (
     REFRESH_TOKEN_EXPIRE,
     REFRESH_TOKEN_HARD_CAP_EXPIRE,
 )
+
+from src.db.auth_sessions import AuthSession
+from src.db.users import User
 from src.services.cache.redis_client import get_async_redis_client
 
 logger = logging.getLogger(__name__)

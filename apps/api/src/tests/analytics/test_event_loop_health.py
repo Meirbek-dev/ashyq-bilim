@@ -1,15 +1,15 @@
 import asyncio
-import time
 import inspect
-from unittest.mock import patch, MagicMock
-from sqlalchemy.orm import Session
+import time
+from unittest.mock import MagicMock, patch
 
 import pytest
 from fastapi import FastAPI
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.orm import Session
 
-from src.infra.db.session import get_db_session
 from src.app.factory import create_app
+from src.infra.db.session import get_db_session
 from src.services.analytics.filters import AnalyticsFilters
 
 
@@ -42,7 +42,7 @@ async def test_analytics_does_not_block_event_loop():
     ):
         # We also need to bypass authentication for this test
         with patch(
-            "src.routers.analytics.get_current_user", return_value=MagicMock(id=1)
+            "src.routers.analytics.get_public_user", return_value=MagicMock(id=1)
         ):
             with patch(
                 "src.routers.analytics._scope_for",

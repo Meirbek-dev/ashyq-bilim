@@ -138,7 +138,7 @@ async def get_submissions_for_activity(
                 )
 
     if late_only:
-        query = query.where(Submission.is_late == True)  # noqa: E712
+        query = query.where(Submission.is_late == True)
 
     if search:
         term = f"%{search}%"
@@ -221,7 +221,7 @@ async def get_submission_stats(
         select(func.count()).where(
             Submission.activity_id == activity_id,
             Submission.status != SubmissionStatus.DRAFT,
-            Submission.is_late == True,  # noqa: E712
+            Submission.is_late == True,
         )
     ).one()
 

@@ -3898,7 +3898,7 @@ export interface paths {
          * Api Get Current User
          * @description Get current user
          */
-        get: operations["api_get_current_user_api_v1_users_profile_get"];
+        get: operations["api_get_public_user_api_v1_users_profile_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3958,7 +3958,7 @@ export interface paths {
          * Api Get Current User Session
          * @description Get current user session.
          */
-        get: operations["api_get_current_user_session_api_v1_users_session_get"];
+        get: operations["api_get_public_user_session_api_v1_users_session_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -6097,7 +6097,7 @@ export interface components {
              * Type
              * @enum {string}
              */
-            type: "youtube" | "vimeo";
+            type: "youtube";
             /** Uri */
             uri: string;
         };
@@ -15212,7 +15212,7 @@ export interface operations {
             };
         };
     };
-    api_get_current_user_api_v1_users_profile_get: {
+    api_get_public_user_api_v1_users_profile_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -15297,7 +15297,7 @@ export interface operations {
             };
         };
     };
-    api_get_current_user_session_api_v1_users_session_get: {
+    api_get_public_user_session_api_v1_users_session_get: {
         parameters: {
             query?: never;
             header?: never;

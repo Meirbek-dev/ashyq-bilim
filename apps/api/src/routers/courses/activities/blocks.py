@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Form, Request, UploadFile
 
+from src.auth.users import get_optional_public_user, get_public_user
 from src.db.courses.blocks import BlockRead
 from src.db.courses.quiz import (
     QuizAttemptRead,
@@ -11,7 +12,6 @@ from src.db.courses.quiz import (
 )
 from src.db.users import AnonymousUser, PublicUser
 from src.infra.db.session import get_db_session
-from src.security.auth import get_current_user, get_current_user_optional
 from src.services.blocks.block_types.imageBlock.imageBlock import (
     create_image_block,
     get_image_block,
@@ -43,7 +43,7 @@ async def api_create_image_file_block(
     file_object: UploadFile,
     activity_uuid: Annotated[str, Form()],
     db_session=Depends(get_db_session),
-    current_user: Annotated[PublicUser, Depends(get_current_user)] = None,
+    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
 ) -> BlockRead:
     """
     Create new image file
@@ -57,7 +57,7 @@ async def api_get_image_file_block(
     block_uuid: str,
     db_session=Depends(get_db_session),
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ] = None,
 ) -> BlockRead:
     """
@@ -77,7 +77,7 @@ async def api_create_video_file_block(
     file_object: UploadFile,
     activity_uuid: Annotated[str, Form()],
     db_session=Depends(get_db_session),
-    current_user: Annotated[PublicUser, Depends(get_current_user)] = None,
+    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
 ) -> BlockRead:
     """
     Create new video file
@@ -91,7 +91,7 @@ async def api_get_video_file_block(
     block_uuid: str,
     db_session=Depends(get_db_session),
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ] = None,
 ) -> BlockRead:
     """
@@ -111,7 +111,7 @@ async def api_create_pdf_file_block(
     file_object: UploadFile,
     activity_uuid: Annotated[str, Form()],
     db_session=Depends(get_db_session),
-    current_user: Annotated[PublicUser, Depends(get_current_user)] = None,
+    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
 ) -> BlockRead:
     """
     Create new pdf file
@@ -125,7 +125,7 @@ async def api_get_pdf_file_block(
     block_uuid: str,
     db_session=Depends(get_db_session),
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ] = None,
 ) -> BlockRead:
     """
@@ -145,7 +145,7 @@ async def api_submit_quiz(
     activity_id: int,
     submission: QuizSubmissionRequest,
     db_session=Depends(get_db_session),
-    current_user: Annotated[PublicUser, Depends(get_current_user)] = None,
+    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
 ):
     """
     Submit a quiz attempt and receive grading results.
@@ -165,7 +165,7 @@ async def api_get_quiz_attempts(
     activity_id: int,
     user_id: int | None = None,
     db_session=Depends(get_db_session),
-    current_user: Annotated[PublicUser, Depends(get_current_user)] = None,
+    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
 ):
     """
     Get quiz attempts for an activity.
@@ -184,7 +184,7 @@ async def api_get_quiz_stats(
     request: Request,
     activity_id: int,
     db_session=Depends(get_db_session),
-    current_user: Annotated[PublicUser, Depends(get_current_user)] = None,
+    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
 ):
     """
     Get per-question statistics for a quiz (teachers only).

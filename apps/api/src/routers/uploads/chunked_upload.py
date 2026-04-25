@@ -6,9 +6,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 
+from src.auth.users import get_public_user
 from src.db.strict_base_model import PydanticStrictBaseModel
 from src.db.users import PublicUser
-from src.security.auth import get_current_user
 from src.services.utils.chunked_upload import (
     cleanup_session,
     complete_upload,
@@ -64,7 +64,7 @@ async def initiate_chunked_upload(
     filename: Annotated[str, Form()],
     total_chunks: Annotated[int, Form()],
     file_size: Annotated[int, Form()],
-    current_user: Annotated[PublicUser, Depends(get_current_user)] = None,
+    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
 ):
     """
     Initiate a chunked upload session.
@@ -100,7 +100,7 @@ async def upload_chunk(
     upload_id: Annotated[str, Form()],
     chunk_index: Annotated[int, Form()],
     chunk: Annotated[UploadFile, File()],
-    current_user: Annotated[PublicUser, Depends(get_current_user)] = None,
+    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
 ):
     """
     Upload a single chunk.
@@ -128,7 +128,7 @@ async def upload_chunk(
 @router.post("/complete", response_model=ChunkedUploadCompleteResponse)
 async def complete_chunked_upload(
     upload_id: Annotated[str, Form()],
-    current_user: Annotated[PublicUser, Depends(get_current_user)] = None,
+    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
 ):
     """
     Complete the chunked upload by assembling all chunks.
@@ -172,7 +172,7 @@ async def complete_chunked_upload(
 @router.get("/status/{upload_id}", response_model=ChunkedUploadStatusResponse)
 async def get_upload_status(
     upload_id: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)] = None,
+    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
 ):
     """
     Get the status of an upload session.
@@ -189,7 +189,7 @@ async def get_upload_status(
 @router.delete("/{upload_id}", response_model=ChunkedUploadCancelResponse)
 async def cancel_upload(
     upload_id: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)] = None,
+    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
 ):
     """
     Cancel an upload and clean up temporary files.

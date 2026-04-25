@@ -8,10 +8,10 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy import select as sa_select
 from sqlmodel import Session
 
+from src.auth.users import get_public_user
 from src.db.courses.courses import Course
 from src.db.users import AnonymousUser, PublicUser
 from src.infra.db.session import get_db_session
-from src.security.auth import get_current_user
 from src.security.rbac import PermissionChecker
 from src.services.analytics import (
     export_assessment_outcomes_csv,
@@ -92,7 +92,7 @@ async def _assessment_scope_for(
 @router.get("/teacher/overview", response_model=TeacherOverviewResponse)
 async def teacher_overview_platform(
     filters: Annotated[AnalyticsFilters, Depends(get_analytics_filters)],
-    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     scope = await _scope_for(db_session, current_user, filters, action="read")
@@ -102,7 +102,7 @@ async def teacher_overview_platform(
 @router.get("/teacher/courses", response_model=TeacherCourseListResponse)
 async def teacher_courses_platform(
     filters: Annotated[AnalyticsFilters, Depends(get_analytics_filters)],
-    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     scope = await _scope_for(db_session, current_user, filters, action="read")
@@ -116,7 +116,7 @@ async def teacher_courses_platform(
 async def teacher_course_detail_by_uuid_platform(
     course_uuid: str,
     filters: Annotated[AnalyticsFilters, Depends(get_analytics_filters)],
-    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     scope = await _scope_for(db_session, current_user, filters, action="read")
@@ -141,7 +141,7 @@ async def teacher_course_detail_by_uuid_platform(
 async def teacher_course_detail_platform(
     course_id: int,
     filters: Annotated[AnalyticsFilters, Depends(get_analytics_filters)],
-    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     scope = await _course_scope_for(db_session, current_user, course_id, filters)
@@ -156,7 +156,7 @@ async def teacher_course_detail_platform(
 @router.get("/teacher/assessments", response_model=TeacherAssessmentListResponse)
 async def teacher_assessments_platform(
     filters: Annotated[AnalyticsFilters, Depends(get_analytics_filters)],
-    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     scope = await _scope_for(db_session, current_user, filters, action="read")
@@ -173,7 +173,7 @@ async def teacher_assessment_detail_platform(
     assessment_type: str,
     assessment_id: int,
     filters: Annotated[AnalyticsFilters, Depends(get_analytics_filters)],
-    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     scope = await _assessment_scope_for(
@@ -199,7 +199,7 @@ async def teacher_assessment_detail_platform(
 @router.get("/teacher/learners/at-risk", response_model=AtRiskLearnersResponse)
 async def teacher_at_risk_learners_platform(
     filters: Annotated[AnalyticsFilters, Depends(get_analytics_filters)],
-    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     scope = await _scope_for(db_session, current_user, filters, action="read")
@@ -209,7 +209,7 @@ async def teacher_at_risk_learners_platform(
 @router.get("/teacher/exports/at-risk.csv")
 async def teacher_at_risk_export_platform(
     filters: Annotated[AnalyticsFilters, Depends(get_analytics_filters)],
-    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     scope = await _scope_for(db_session, current_user, filters, action="export")
@@ -222,7 +222,7 @@ async def teacher_at_risk_export_platform(
 @router.get("/teacher/exports/grading-backlog.csv")
 async def teacher_grading_backlog_export_platform(
     filters: Annotated[AnalyticsFilters, Depends(get_analytics_filters)],
-    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     scope = await _scope_for(db_session, current_user, filters, action="export")
@@ -235,7 +235,7 @@ async def teacher_grading_backlog_export_platform(
 @router.get("/teacher/exports/course-progress.csv")
 async def teacher_course_progress_export_platform(
     filters: Annotated[AnalyticsFilters, Depends(get_analytics_filters)],
-    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     scope = await _scope_for(db_session, current_user, filters, action="export")
@@ -248,7 +248,7 @@ async def teacher_course_progress_export_platform(
 @router.get("/teacher/exports/assessment-outcomes.csv")
 async def teacher_assessment_outcomes_export_platform(
     filters: Annotated[AnalyticsFilters, Depends(get_analytics_filters)],
-    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     scope = await _scope_for(db_session, current_user, filters, action="export")

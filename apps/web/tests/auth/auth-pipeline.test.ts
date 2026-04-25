@@ -62,7 +62,7 @@ describe('Frontend Auth Actions', () => {
       }
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
-      const [url, options] = mockFetch.mock.calls[0];
+      const [url, options] = mockFetch.mock.calls[0]!;
       expect(url).toBe('http://api.test/auth/login');
       expect(options.method).toBe('POST');
       expect(options.body).toBeInstanceOf(URLSearchParams);
@@ -126,8 +126,8 @@ describe('Frontend Auth Actions', () => {
       }
 
       expect(mockFetch).toHaveBeenCalledTimes(2);
-      expect(mockFetch.mock.calls[0][0]).toBe('http://api.test/auth/register');
-      expect(mockFetch.mock.calls[1][0]).toBe('http://api.test/auth/login');
+      expect(mockFetch.mock.calls[0]![0]).toBe('http://api.test/auth/register');
+      expect(mockFetch.mock.calls[1]![0]).toBe('http://api.test/auth/login');
     });
 
     it('should handle signup failure with signupCode', async () => {
@@ -192,7 +192,7 @@ describe('Frontend Auth Actions', () => {
       }
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
-      expect(mockFetch.mock.calls[0][0]).toBe('http://api.test/auth/logout');
+      expect(mockFetch.mock.calls[0]![0]).toBe('http://api.test/auth/logout');
     });
   });
 });

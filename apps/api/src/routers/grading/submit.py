@@ -14,10 +14,10 @@ from fastapi import status as http_status
 from sqlalchemy import desc
 from sqlmodel import Session, select
 
+from src.auth.users import get_public_user
 from src.db.grading.submissions import AssessmentType, Submission, SubmissionRead
 from src.db.users import PublicUser
 from src.infra.db.session import get_db_session
-from src.security.auth import get_current_user
 from src.services.grading.settings_loader import load_activity_settings
 from src.services.grading.submit import start_submission, submit_assessment
 
@@ -30,7 +30,7 @@ async def api_start_submission(
     activity_id: int,
     assessment_type: AssessmentType,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ) -> SubmissionRead:
     """
     Create a DRAFT Submission and record the server-stamped start time.
@@ -54,7 +54,7 @@ async def api_submit_assessment(
     assessment_type: AssessmentType,
     answers_payload: dict,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     violation_count: Annotated[int, Query(ge=0)] = 0,
 ) -> SubmissionRead:
     """
@@ -81,7 +81,7 @@ async def api_submit_assessment(
 async def api_get_my_submissions(
     activity_id: int,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ) -> list[SubmissionRead]:
     """Get the current user's submissions for an activity (most-recent first)."""
     submissions = db_session.exec(
@@ -99,7 +99,7 @@ async def api_get_my_submissions(
 async def api_get_my_submission(
     submission_uuid: str,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ) -> SubmissionRead:
     """
     Student fetches one of their own submissions to see grade/feedback.

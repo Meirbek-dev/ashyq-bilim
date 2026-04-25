@@ -5267,8 +5267,7 @@
           },
           "type": {
             "enum": [
-              "youtube",
-              "vimeo"
+              "youtube"
             ],
             "title": "Type",
             "type": "string"
@@ -23394,7 +23393,7 @@
     "/api/v1/users/profile": {
       "get": {
         "description": "Get current user",
-        "operationId": "api_get_current_user_api_v1_users_profile_get",
+        "operationId": "api_get_public_user_api_v1_users_profile_get",
         "responses": {
           "200": {
             "content": {
@@ -23535,7 +23534,7 @@
     "/api/v1/users/session": {
       "get": {
         "description": "Get current user session.",
-        "operationId": "api_get_current_user_session_api_v1_users_session_get",
+        "operationId": "api_get_public_user_session_api_v1_users_session_get",
         "responses": {
           "200": {
             "content": {

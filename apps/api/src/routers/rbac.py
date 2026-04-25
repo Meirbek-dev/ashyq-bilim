@@ -17,11 +17,11 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 from sqlmodel import Session, select
 
+from src.auth.users import get_optional_public_user, get_public_user
 from src.db.permissions import Role, UserRole
 from src.db.users import AnonymousUser, PublicUser
 from src.db.users import User as UserModel
 from src.infra.db.session import get_db_session
-from src.security.auth import get_current_user, get_current_user_optional
 from src.security.rbac import PermissionCheckerDep, mark_user_roles_updated
 
 audit_log = logging.getLogger("rbac.audit")
@@ -125,7 +125,7 @@ def check_permission(
     request: Request,
     body: PermissionCheckRequest,
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ],
     checker: PermissionCheckerDep,
 ):
@@ -143,7 +143,7 @@ def check_permissions_batch(
     request: Request,
     body: BatchPermissionCheckRequest,
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ],
     checker: PermissionCheckerDep,
 ):
@@ -160,7 +160,7 @@ def check_permissions_batch(
 @router.get("/me/permissions", response_model=UserPermissionsResponse)
 def get_my_permissions(
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ],
     checker: PermissionCheckerDep,
 ):
@@ -187,7 +187,7 @@ def get_my_permissions(
 @router.get("/user-roles", response_model=list[UserRoleAssignmentResponse])
 def list_user_roles(
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)] = None,
+    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
     checker: PermissionCheckerDep = None,
 ):
     """List user↔role assignments."""
@@ -231,7 +231,7 @@ def list_user_roles(
 @router.post("/roles/assign")
 async def assign_role(
     request: RoleAssignmentRequest,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     checker: PermissionCheckerDep,
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
@@ -268,7 +268,7 @@ async def assign_role(
 @router.post("/roles/revoke")
 async def revoke_role(
     request: RoleRevocationRequest,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     checker: PermissionCheckerDep,
     db_session: Annotated[Session, Depends(get_db_session)],
 ):

@@ -3,6 +3,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, Request, UploadFile
 from sqlmodel import Session
 
+from src.auth.users import get_public_user
 from src.db.platform import (
     PaginatedPlatformUsers,
     PlatformRead,
@@ -11,7 +12,6 @@ from src.db.platform import (
 from src.db.strict_base_model import PydanticStrictBaseModel
 from src.db.users import PublicUser
 from src.infra.db.session import get_db_session
-from src.security.auth import get_current_user
 from src.security.rbac import PermissionCheckerDep
 from src.services.platform import get_platform
 from src.services.platform_admin import (
@@ -62,7 +62,7 @@ def api_get_platform(
 @router.get("/members")
 def api_get_platform_users(
     request: Request,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
     checker: PermissionCheckerDep,
     page: int = 1,
@@ -86,7 +86,7 @@ def api_update_platform_user_role(
     request: Request,
     user_id: int,
     role_id: int,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
     checker: PermissionCheckerDep,
 ):
@@ -111,7 +111,7 @@ def api_update_platform_user_role(
 def api_remove_user_from_platform(
     request: Request,
     user_id: int,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
     checker: PermissionCheckerDep,
 ):
@@ -131,7 +131,7 @@ def api_remove_user_from_platform(
 async def api_update_platform_logo(
     request: Request,
     logo_file: UploadFile,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
     checker: PermissionCheckerDep,
 ):
@@ -153,7 +153,7 @@ async def api_update_platform_logo(
 async def api_update_platform_thumbnail(
     request: Request,
     thumbnail_file: UploadFile,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
     checker: PermissionCheckerDep,
 ):
@@ -175,7 +175,7 @@ async def api_update_platform_thumbnail(
 async def api_update_platform_preview(
     request: Request,
     preview_file: UploadFile,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
     checker: PermissionCheckerDep,
 ):
@@ -197,7 +197,7 @@ async def api_update_platform_preview(
 def api_update_platform(
     request: Request,
     platform_object: PlatformUpdate,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
     checker: PermissionCheckerDep,
 ) -> PlatformRead:
@@ -214,7 +214,7 @@ def api_update_platform(
 def api_update_platform_landing(
     request: Request,
     landing_object: dict[str, Any],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
     checker: PermissionCheckerDep,
 ):
@@ -231,7 +231,7 @@ def api_update_platform_landing(
 async def api_upload_platform_landing_content(
     request: Request,
     content_file: UploadFile,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
     checker: PermissionCheckerDep,
 ):

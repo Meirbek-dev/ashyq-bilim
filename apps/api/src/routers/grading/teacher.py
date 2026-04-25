@@ -14,6 +14,7 @@ from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
 from sqlmodel import Session
 
+from src.auth.users import get_public_user
 from src.db.grading.schemas import BatchGradeRequest, BatchGradeResponse
 from src.db.grading.submissions import (
     SubmissionListResponse,
@@ -23,7 +24,6 @@ from src.db.grading.submissions import (
 )
 from src.db.users import PublicUser
 from src.infra.db.session import get_db_session
-from src.security.auth import get_current_user
 from src.services.grading.teacher import (
     batch_grade_submissions,
     export_grades_csv,
@@ -40,7 +40,7 @@ router = APIRouter()
 async def api_list_submissions(
     activity_id: int,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     status_filter: Annotated[str | None, Query(alias="status")] = None,
     late_only: Annotated[bool, Query()] = False,
     search: Annotated[str | None, Query()] = None,
@@ -79,7 +79,7 @@ async def api_list_submissions(
 async def api_get_submission_stats(
     activity_id: int,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ) -> SubmissionStats:
     """Aggregate statistics for the teacher dashboard header."""
     return await get_submission_stats(
@@ -93,7 +93,7 @@ async def api_get_submission_stats(
 def api_export_submissions_csv(
     activity_id: int,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ) -> StreamingResponse:
     """
     Export all non-draft submissions for an activity as CSV.
@@ -118,7 +118,7 @@ def api_export_submissions_csv(
 async def api_batch_grade_submissions(
     batch_request: BatchGradeRequest,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ) -> BatchGradeResponse:
     """Save teacher grades for multiple submissions in a single request."""
     return await batch_grade_submissions(
@@ -132,7 +132,7 @@ async def api_batch_grade_submissions(
 async def api_get_submission(
     submission_uuid: str,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ) -> SubmissionRead:
     """Fetch a single submission with full answers and grading breakdown."""
     return await get_submission_for_teacher(
@@ -147,7 +147,7 @@ async def api_save_grade(
     submission_uuid: str,
     grade_input: TeacherGradeInput,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ) -> SubmissionRead:
     """
     Save a teacher-entered final score and optional per-item feedback.

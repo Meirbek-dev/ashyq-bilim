@@ -21,13 +21,20 @@ fastapi_users = FastAPIUsers[User, int](
     [auth_backend],
 )
 
-def get_public_user(user: User = Depends(fastapi_users.current_user(active=True))) -> PublicUser:
+
+def get_public_user(
+    user: User = Depends(fastapi_users.current_user(active=True)),
+) -> PublicUser:
     return PublicUser.model_validate(user)
 
-def get_optional_public_user(user: User | None = Depends(fastapi_users.current_user(active=True, optional=True))) -> PublicUser | AnonymousUser:
+
+def get_optional_public_user(
+    user: User | None = Depends(fastapi_users.current_user(active=True, optional=True)),
+) -> PublicUser | AnonymousUser:
     if user is None:
         return AnonymousUser()
     return PublicUser.model_validate(user)
+
 
 def _require_superuser(user: PublicUser = Depends(get_public_user)) -> PublicUser:
     if not user.is_superuser:
@@ -37,14 +44,17 @@ def _require_superuser(user: PublicUser = Depends(get_public_user)) -> PublicUse
         )
     return user
 
+
 CurrentActiveUser = Annotated[PublicUser, Depends(get_public_user)]
-CurrentOptionalUser = Annotated[PublicUser | AnonymousUser, Depends(get_optional_public_user)]
+CurrentOptionalUser = Annotated[
+    PublicUser | AnonymousUser, Depends(get_optional_public_user)
+]
 CurrentSuperuser = Annotated[PublicUser, Depends(_require_superuser)]
 
 __all__ = [
-    "fastapi_users",
-    "auth_backend",
     "CurrentActiveUser",
     "CurrentOptionalUser",
     "CurrentSuperuser",
+    "auth_backend",
+    "fastapi_users",
 ]

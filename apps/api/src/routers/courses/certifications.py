@@ -4,6 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query, Request
 from sqlmodel import Session
 
+from src.auth.users import get_public_user
 from src.db.courses.certifications import (
     CertificationCreate,
     CertificationRead,
@@ -11,7 +12,6 @@ from src.db.courses.certifications import (
 )
 from src.db.users import PublicUser
 from src.infra.db.session import get_db_session
-from src.security.auth import get_current_user
 from src.services.courses.certifications import (
     create_certification,
     delete_certification,
@@ -30,7 +30,7 @@ router = APIRouter()
 async def api_create_certification(
     request: Request,
     certification_object: CertificationCreate,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> CertificationRead:
     """
@@ -45,7 +45,7 @@ async def api_create_certification(
 async def api_get_certification(
     request: Request,
     certification_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> CertificationRead:
     """
@@ -60,7 +60,7 @@ async def api_get_certification(
 async def api_get_certifications_by_course(
     request: Request,
     course_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> list[CertificationRead]:
     """
@@ -76,7 +76,7 @@ async def api_update_certification(
     request: Request,
     certification_uuid: str,
     certification_object: CertificationUpdate,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> CertificationRead:
     """
@@ -91,7 +91,7 @@ async def api_update_certification(
 async def api_delete_certification(
     request: Request,
     certification_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
     last_known_update_date: Annotated[datetime | None, Query()] = None,
 ):
@@ -111,7 +111,7 @@ async def api_delete_certification(
 async def api_get_user_certificates_for_course(
     request: Request,
     course_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> list[dict]:
     """
@@ -139,7 +139,7 @@ async def api_get_certificate_by_user_certification_uuid(
 @router.get("/user/all")
 async def api_get_all_user_certificates(
     request: Request,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> list[dict]:
     """

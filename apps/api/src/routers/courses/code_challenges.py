@@ -14,6 +14,7 @@ from pydantic import ValidationError, field_validator
 from sqlmodel import Session, func, select
 from ulid import ULID
 
+from src.auth.users import get_optional_public_user, get_public_user
 from src.db.courses.activities import (
     Activity,
     ActivityCreate,
@@ -46,7 +47,6 @@ from src.db.courses.courses import Course
 from src.db.strict_base_model import PydanticStrictBaseModel
 from src.db.users import AnonymousUser, PublicUser, User
 from src.infra.db.session import get_db_session
-from src.security.auth import get_current_user, get_current_user_optional
 from src.security.rbac import (
     AuthenticationRequired,
     PermissionChecker,
@@ -166,7 +166,7 @@ async def check_judge0_health():
 async def get_code_challenge(
     activity_uuid: str,
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
@@ -182,7 +182,7 @@ async def get_code_challenge(
 async def get_challenge_settings_endpoint(
     activity_uuid: str,
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
@@ -253,7 +253,7 @@ class SettingsUpdateRequest(PydanticStrictBaseModel):
 async def update_challenge_settings(
     activity_uuid: str,
     settings_update: SettingsUpdateRequest,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     """Update code challenge settings (instructor only)"""
@@ -315,7 +315,7 @@ async def submit_code_challenge(
     activity_uuid: str,
     submission: CodeSubmissionCreate,
     background_tasks: BackgroundTasks,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     """Submit a solution to the code challenge"""
@@ -526,7 +526,7 @@ def award_challenge_xp(submission: CodeSubmission, db_session: Session):
 async def run_visible_tests(
     activity_uuid: str,
     submission: CodeSubmissionCreate,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     """Run visible test cases only (pre-submission testing)"""
@@ -589,7 +589,7 @@ class CustomTestRequest(PydanticStrictBaseModel):
 async def run_custom_test(
     activity_uuid: str,
     request_body: CustomTestRequest,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     """Run code with custom input (no expected output comparison)"""
@@ -643,7 +643,7 @@ async def run_custom_test(
 @router.get("/{activity_uuid}/submissions", response_model=list[CodeSubmissionRead])
 async def get_submission_history(
     activity_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
     limit: Annotated[int, Query(le=100)] = 20,
     offset: Annotated[int, Query(ge=0)] = 0,
@@ -672,7 +672,7 @@ async def get_submission_history(
 @router.get("/submissions/{submission_uuid}", response_model=CodeSubmissionDetail)
 async def get_submission_detail(
     submission_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     """Get detailed submission including source code"""
@@ -710,7 +710,7 @@ async def get_submission_detail(
 async def get_student_analytics(
     activity_uuid: str,
     user_id: int,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     """Get analytics for a student on a code challenge"""
@@ -794,7 +794,7 @@ async def get_student_analytics(
 @router.get("/{activity_uuid}/analytics", response_model=InstructorAnalytics)
 async def get_challenge_analytics(
     activity_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     """Get analytics for a code challenge (instructor only)"""
@@ -884,7 +884,7 @@ async def get_leaderboard(
     activity_uuid: str,
     timeframe: Literal["all", "week", "month"] = "all",
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user)
+        PublicUser | AnonymousUser, Depends(get_public_user)
     ] = None,
     db_session: Annotated[Session, Depends(get_db_session)] = None,
     limit: Annotated[int, Query(le=100)] = 100,

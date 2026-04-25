@@ -56,5 +56,5 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         await revoke_all_user_sessions(user.id)
 
 
-async def get_user_manager(user_db = Depends(get_user_db)):
+async def get_user_manager(user_db=Depends(get_user_db)):
     yield UserManager(user_db)

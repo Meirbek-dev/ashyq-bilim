@@ -15,6 +15,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from sqlmodel import Session
 
+from src.auth.users import get_public_user
 from src.db.gamification import (
     DashboardRead,
     GamificationProfile,
@@ -33,7 +34,6 @@ from src.db.gamification import (
 from src.db.strict_base_model import PydanticStrictBaseModel
 from src.db.users import PublicUser
 from src.infra.db.session import get_db_session
-from src.security.auth import get_current_user
 from src.security.rbac import PermissionCheckerDep
 from src.services.gamification import service
 from src.services.gamification.service import (
@@ -89,7 +89,7 @@ def _transaction_to_read(tx: XPTransaction) -> TransactionRead:
 
 @router.get("/", response_model=DashboardRead)
 async def get_unified_dashboard(
-    user: Annotated[PublicUser, Depends(get_current_user)],
+    user: Annotated[PublicUser, Depends(get_public_user)],
     db: Annotated[Session, Depends(get_db_session)],
 ) -> DashboardRead:
     """Unified endpoint: Get complete gamification dashboard, profile, leaderboard, and config"""
@@ -125,7 +125,7 @@ async def get_unified_dashboard(
 @router.post("/xp", response_model=XPAwardResponse)
 async def award_xp(
     payload: XPAwardRequest,
-    user: Annotated[PublicUser, Depends(get_current_user)],
+    user: Annotated[PublicUser, Depends(get_public_user)],
     db: Annotated[Session, Depends(get_db_session)],
     checker: PermissionCheckerDep,
 ):
@@ -180,7 +180,7 @@ async def award_xp(
 @router.post("/streaks/{streak_type}", response_model=StreakUpdateRead)
 async def update_streak(
     streak_type: DBStreakType,
-    user: Annotated[PublicUser, Depends(get_current_user)],
+    user: Annotated[PublicUser, Depends(get_public_user)],
     db: Annotated[Session, Depends(get_db_session)],
 ):
     try:
@@ -208,7 +208,7 @@ async def update_streak(
 @router.patch("/preferences", response_model=ProfileRead)
 async def update_preferences(
     data: Annotated[dict[str, Any], Body()] = ...,
-    user: Annotated[PublicUser, Depends(get_current_user)] = None,
+    user: Annotated[PublicUser, Depends(get_public_user)] = None,
     db: Annotated[Session, Depends(get_db_session)] = None,
 ):
     if not isinstance(data, dict):
@@ -225,7 +225,7 @@ async def update_preferences(
 async def get_leaderboard(
     limit: Annotated[int, Query(ge=1, le=100)] = 10,
     offset: Annotated[int, Query(ge=0)] = 0,
-    user: Annotated[PublicUser, Depends(get_current_user)] = None,
+    user: Annotated[PublicUser, Depends(get_public_user)] = None,
     db: Annotated[Session, Depends(get_db_session)] = None,
 ):
     try:
@@ -237,7 +237,7 @@ async def get_leaderboard(
 
 @router.get("/rank", response_model=UserRankRead)
 async def get_user_rank(
-    user: Annotated[PublicUser, Depends(get_current_user)],
+    user: Annotated[PublicUser, Depends(get_public_user)],
     db: Annotated[Session, Depends(get_db_session)],
 ) -> UserRankRead:
     """Return the current user's rank within the platform."""

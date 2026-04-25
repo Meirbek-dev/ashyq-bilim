@@ -1251,7 +1251,7 @@ async def get_all_exam_attempts(
         .join(User, User.id == ExamAttempt.user_id)
         .where(
             ExamAttempt.exam_id == exam.id,
-            ExamAttempt.is_preview == False,  # noqa: E712
+            ExamAttempt.is_preview == False,
         )
         .order_by(ExamAttempt.started_at.desc())
     )

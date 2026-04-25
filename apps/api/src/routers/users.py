@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Request, Response, UploadFile
 from pydantic import EmailStr
 from sqlmodel import Session
 
+from src.auth.users import get_optional_public_user, get_public_user
 from src.db.courses.courses import CourseRead
 from src.db.users import (
     PublicUser,
@@ -14,7 +15,6 @@ from src.db.users import (
     UserUpdatePassword,
 )
 from src.infra.db.session import get_db_session
-from src.security.auth import get_current_user, get_current_user_optional
 from src.security.rbac import (
     PermissionCheckerDep,
     PermissionDenied,
@@ -41,8 +41,8 @@ router = APIRouter()
 
 
 @router.get("/profile", response_model=UserRead)
-def api_get_current_user(
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+def api_get_public_user(
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ) -> UserRead:
     """
     Get current user
@@ -51,10 +51,10 @@ def api_get_current_user(
 
 
 @router.get("/session", response_model=UserSession)
-def api_get_current_user_session(
+def api_get_public_user_session(
     request: Request,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ) -> UserSession:
     """
     Get current user session.
@@ -71,7 +71,7 @@ async def api_create_user_without_platform(
     *,
     request: Request,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user_optional)],
+    current_user: Annotated[PublicUser, Depends(get_optional_public_user)],
     user_object: UserCreate,
 ) -> UserRead:
     """
@@ -87,7 +87,7 @@ def api_get_user_by_id(
     *,
     request: Request,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     user_id: int,
     response: Response,
 ) -> UserRead:
@@ -104,7 +104,7 @@ def api_get_user_by_uuid(
     *,
     request: Request,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     user_uuid: str,
 ) -> UserRead:
     """
@@ -118,7 +118,7 @@ def api_get_user_by_username(
     *,
     request: Request,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     username: str,
     response: Response,
 ) -> UserRead:
@@ -135,7 +135,7 @@ def api_update_user(
     *,
     request: Request,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     checker: PermissionCheckerDep,
     user_id: int,
     user_object: UserUpdate,
@@ -160,7 +160,7 @@ async def api_update_avatar_user(
     request: Request,
     user_id: int,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     checker: PermissionCheckerDep,
     avatar_file: UploadFile | None = None,
 ) -> UserRead:
@@ -183,7 +183,7 @@ def api_update_user_password(
     *,
     request: Request,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     user_id: int,
     form: UserUpdatePassword,
 ) -> UserRead:
@@ -204,7 +204,7 @@ def api_update_user_theme(
     *,
     request: Request,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     user_id: int,
     theme: str,
 ) -> UserRead:
@@ -220,7 +220,7 @@ def api_update_user_locale(
     *,
     request: Request,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     user_id: int,
     locale: str,
 ) -> UserRead:
@@ -236,7 +236,7 @@ async def api_change_password_with_reset_code(
     *,
     request: Request,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     new_password: str,
     email: EmailStr,
     reset_code: str,
@@ -259,7 +259,7 @@ async def api_send_password_reset_email(
     *,
     request: Request,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     email: EmailStr,
 ):
     """
@@ -278,7 +278,7 @@ def api_delete_user(
     *,
     request: Request,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     checker: PermissionCheckerDep,
     user_id: int,
 ):
@@ -303,7 +303,7 @@ async def api_get_user_courses(
     *,
     request: Request,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     user_id: int,
     page: int = 1,
     limit: int = 20,

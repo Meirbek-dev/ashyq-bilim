@@ -10,9 +10,9 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 from sqlmodel import Session
 
+from src.auth.users import get_public_user
 from src.db.users import PublicUser
 from src.infra.db.session import get_db_session
-from src.security.auth import get_current_user
 from src.services.ai.ai import (
     ai_send_activity_chat_message,
     ai_send_activity_chat_message_stream,
@@ -82,7 +82,7 @@ async def _monitor_disconnect(
 async def api_ai_start_activity_chat_session(
     request: Request,
     chat_session_object: StartActivityAIChatSession,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> ActivityAIChatSessionResponse:
     """
@@ -119,7 +119,7 @@ async def api_ai_start_activity_chat_session(
 async def api_ai_send_activity_chat_message(
     request: Request,
     chat_session_object: SendActivityAIChatMessage,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> ActivityAIChatSessionResponse:
     """
@@ -152,7 +152,7 @@ async def api_ai_send_activity_chat_message(
 async def api_ai_start_activity_chat_session_stream(
     request: Request,
     chat_session_object: StartActivityAIChatSession,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> StreamingResponse:
     """
@@ -245,7 +245,7 @@ async def api_ai_start_activity_chat_session_stream(
 async def api_ai_send_activity_chat_message_stream(
     request: Request,
     chat_session_object: SendActivityAIChatMessage,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> StreamingResponse:
     """

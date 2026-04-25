@@ -4,7 +4,7 @@ fastapi-users requires an async UserDatabase interface.  Our app uses
 synchronous SQLModel sessions throughout.  This adapter bridges the two by
 calling synchronous session methods directly from async methods — the same
 pattern already used elsewhere in the codebase (e.g. asyncio.to_thread in
-get_current_user_from_token).  Each DB call is fast and non-blocking in practice.
+get_public_user_from_token).  Each DB call is fast and non-blocking in practice.
 """
 
 from typing import Any

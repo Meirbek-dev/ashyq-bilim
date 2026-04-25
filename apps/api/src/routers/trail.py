@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, Request
 
+from src.auth.users import get_optional_public_user, get_public_user
 from src.db.trails import TrailCreate, TrailRead
 from src.db.users import AnonymousUser, PublicUser
 from src.infra.db.session import get_db_session
-from src.security.auth import get_current_user, get_current_user_optional
 from src.services.trail.trail import (
     Trail,
     add_activity_to_trail,
@@ -21,7 +21,7 @@ router = APIRouter()
 async def api_start_trail(
     request: Request,
     trail_object: TrailCreate,
-    user=Depends(get_current_user),
+    user=Depends(get_public_user),
     db_session=Depends(get_db_session),
 ) -> Trail:
     """
@@ -33,7 +33,7 @@ async def api_start_trail(
 @router.get("")
 async def api_get_user_trail(
     request: Request,
-    user=Depends(get_current_user_optional),
+    user=Depends(get_optional_public_user),
     db_session=Depends(get_db_session),
 ) -> TrailRead:
     """
@@ -48,7 +48,7 @@ async def api_get_user_trail(
 async def api_add_course_to_trail(
     request: Request,
     course_uuid: str,
-    user=Depends(get_current_user),
+    user=Depends(get_public_user),
     db_session=Depends(get_db_session),
 ) -> TrailRead:
     """
@@ -61,7 +61,7 @@ async def api_add_course_to_trail(
 async def api_remove_course_to_trail(
     request: Request,
     course_uuid: str,
-    user=Depends(get_current_user),
+    user=Depends(get_public_user),
     db_session=Depends(get_db_session),
 ) -> TrailRead:
     """
@@ -74,7 +74,7 @@ async def api_remove_course_to_trail(
 async def api_add_activity_to_trail(
     request: Request,
     activity_uuid: str,
-    user=Depends(get_current_user),
+    user=Depends(get_public_user),
     db_session=Depends(get_db_session),
 ) -> TrailRead:
     """
@@ -87,7 +87,7 @@ async def api_add_activity_to_trail(
 async def api_remove_activity_from_trail(
     request: Request,
     activity_uuid: str,
-    user=Depends(get_current_user),
+    user=Depends(get_public_user),
     db_session=Depends(get_db_session),
 ) -> TrailRead:
     """

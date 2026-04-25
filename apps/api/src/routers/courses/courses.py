@@ -4,6 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Form, Request, Response, UploadFile
 from sqlmodel import Session
 
+from src.auth.users import get_optional_public_user, get_public_user
 from src.db.courses.course_updates import (
     CourseUpdateCreate,
     CourseUpdateRead,
@@ -22,7 +23,6 @@ from src.db.resource_authors import ResourceAuthorshipEnum, ResourceAuthorshipSt
 from src.db.strict_base_model import PydanticStrictBaseModel
 from src.db.users import AnonymousUser, PublicUser
 from src.infra.db.session import get_db_session
-from src.security.auth import get_current_user, get_current_user_optional
 from src.security.rbac import PermissionCheckerDep
 from src.services.courses.contributors import (
     add_bulk_course_contributors,
@@ -117,7 +117,7 @@ async def api_create_course(
     thumbnail_type: Annotated[ThumbnailType, Form()] = ThumbnailType.IMAGE,
     thumbnail: UploadFile | None = None,
     template: Annotated[str | None, Form()] = None,
-    current_user: Annotated[PublicUser, Depends(get_current_user)] = None,
+    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
     checker: PermissionCheckerDep = None,
     db_session=Depends(get_db_session),
 ) -> CourseRead:
@@ -154,7 +154,7 @@ async def api_create_course_thumbnail(
     thumbnail_type: Annotated[ThumbnailType, Form()] = ThumbnailType.IMAGE,
     last_known_update_date: Annotated[datetime | None, Form()] = None,
     thumbnail: UploadFile | None = None,
-    current_user: Annotated[PublicUser, Depends(get_current_user)] = None,
+    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
     db_session=Depends(get_db_session),
 ) -> CourseRead:
     """
@@ -177,7 +177,7 @@ async def api_get_course(
     course_uuid: str,
     db_session: Annotated[Session, Depends(get_db_session)],
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ],
     checker: PermissionCheckerDep,
 ) -> CourseRead:
@@ -200,7 +200,7 @@ async def api_get_course_meta(
     course_uuid: str,
     with_unpublished_activities: bool = False,
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ] = None,
     db_session=Depends(get_db_session),
     checker: PermissionCheckerDep = None,
@@ -254,7 +254,7 @@ async def api_get_platform_courses(
     page: int,
     limit: int,
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ] = None,
     db_session=Depends(get_db_session),
 ) -> list[CourseReadWithPermissions]:
@@ -301,7 +301,7 @@ async def api_get_platform_editable_courses(
     query: str | None = None,
     sort_by: str | None = "updated",
     preset: str | None = "all",
-    current_user: Annotated[PublicUser, Depends(get_current_user)] = None,
+    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
     db_session=Depends(get_db_session),
 ) -> list[CourseReadWithPermissions]:
     courses, total_count, summary = await list_editable_courses(
@@ -333,7 +333,7 @@ async def api_search_platform_courses(
     page: int = 1,
     limit: int = 20,
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ] = None,
     db_session=Depends(get_db_session),
 ) -> list[CourseRead]:
@@ -346,7 +346,7 @@ async def api_update_course_metadata(
     course_uuid: str,
     metadata_object: CourseMetadataUpdate,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ) -> CourseRead:
     return await update_course_metadata(
         request, course_uuid, metadata_object, current_user, db_session
@@ -359,7 +359,7 @@ async def api_update_course_access(
     course_uuid: str,
     access_object: CourseAccessUpdate,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ) -> CourseRead:
     return await update_course_access(
         request, course_uuid, access_object, current_user, db_session
@@ -371,7 +371,7 @@ async def api_delete_course(
     request: Request,
     course_uuid: str,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ):
     """
     Delete Course by ID
@@ -386,7 +386,7 @@ async def api_apply_course_contributor(
     request: Request,
     course_uuid: str,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ):
     """
     Apply to be a contributor for a course
@@ -401,7 +401,7 @@ async def api_get_course_updates(
     request: Request,
     course_uuid: str,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ) -> list[CourseUpdateRead]:
     """
     Get Course Updates by course_uuid
@@ -417,7 +417,7 @@ async def api_create_course_update(
     course_uuid: str,
     update_object: CourseUpdateCreate,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ) -> CourseUpdateRead:
     """
     Create new Course Update
@@ -434,7 +434,7 @@ async def api_update_course_update(
     courseupdate_uuid: str,
     update_object: CourseUpdateUpdate,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ) -> CourseUpdateRead:
     """
     Update Course Update by courseupdate_uuid
@@ -450,7 +450,7 @@ async def api_delete_course_update(
     course_uuid: str,
     courseupdate_uuid: str,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ):
     """
     Delete Course Update by courseupdate_uuid
@@ -464,7 +464,7 @@ async def api_get_course_contributors(
     course_uuid: str,
     db_session: Annotated[Session, Depends(get_db_session)],
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ],
 ):
     """
@@ -481,7 +481,7 @@ async def api_update_course_contributor(
     authorship: ResourceAuthorshipEnum,
     authorship_status: ResourceAuthorshipStatusEnum,
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ):
     """
     Update a course contributor's role and status
@@ -505,7 +505,7 @@ async def api_add_bulk_course_contributors(
     course_uuid: str,
     usernames: list[str],
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ):
     """
     Add multiple contributors to a course by their usernames
@@ -523,7 +523,7 @@ async def api_remove_bulk_course_contributors(
     course_uuid: str,
     usernames: list[str],
     db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
 ):
     """
     Remove multiple contributors from a course by their usernames
@@ -539,7 +539,7 @@ async def api_get_course_user_rights(
     course_uuid: str,
     db_session: Annotated[Session, Depends(get_db_session)],
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ],
 ) -> dict:
     """

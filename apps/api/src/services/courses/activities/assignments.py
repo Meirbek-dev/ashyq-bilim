@@ -82,7 +82,7 @@ def _coerce_datetime(
             return None
 
         if "T" in normalized:
-            parsed = datetime.fromisoformat(normalized.replace("Z", "+00:00"))
+            parsed = datetime.fromisoformat(normalized)
         else:
             parsed = datetime.combine(
                 datetime.fromisoformat(normalized).date(),

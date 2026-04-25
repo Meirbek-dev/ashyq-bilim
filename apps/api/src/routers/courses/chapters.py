@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
 
+from src.auth.users import get_optional_public_user, get_public_user
 from src.db.courses.chapters import (
     ActivityOrderPayload,
     ChapterCreateRequest,
@@ -12,7 +13,6 @@ from src.db.courses.chapters import (
 )
 from src.db.users import AnonymousUser, PublicUser
 from src.infra.db.session import get_db_session
-from src.security.auth import get_current_user, get_current_user_optional
 from src.services.courses.chapters import (
     create_chapter,
     delete_chapter,
@@ -30,7 +30,7 @@ router = APIRouter()
 async def api_create_coursechapter(
     request: Request,
     coursechapter_object: ChapterCreateRequest,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
 ) -> ChapterRead:
     return await create_chapter(request, coursechapter_object, current_user, db_session)
@@ -41,7 +41,7 @@ async def api_get_coursechapter(
     request: Request,
     chapter_uuid: str,
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ],
     db_session=Depends(get_db_session),
 ) -> ChapterRead:
@@ -53,7 +53,7 @@ async def api_move_chapter_to_order(
     request: Request,
     chapter_uuid: str,
     payload: ChapterOrderPayload,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
 ) -> ChapterRead:
     """Move a chapter to a specific position within its course (atomic)."""
@@ -68,7 +68,7 @@ async def api_move_activity_to_order(
     chapter_uuid: str,
     activity_uuid: str,
     payload: ActivityOrderPayload,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
 ) -> dict:
     """Move an activity to a specific position, optionally into a different chapter (atomic)."""
@@ -87,7 +87,7 @@ async def api_reorder_chapters_and_activities(
     request: Request,
     course_uuid: str,
     order: ChapterUpdateOrder,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
 ) -> dict:
     """Bulk reorder all chapters and activities (legacy — prefer atomic endpoints)."""
@@ -101,7 +101,7 @@ async def api_update_coursechapter(
     request: Request,
     coursechapter_object: ChapterUpdate,
     chapter_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
 ) -> ChapterRead:
     return await update_chapter(
@@ -113,7 +113,7 @@ async def api_update_coursechapter(
 async def api_delete_coursechapter(
     request: Request,
     chapter_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
 ) -> dict:
     return await delete_chapter(request, chapter_uuid, current_user, db_session)

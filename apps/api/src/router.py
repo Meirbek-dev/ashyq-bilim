@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 
+from src.auth.users import auth_backend, fastapi_users
 from src.routers import (
     analytics,
     auth,
@@ -32,8 +33,6 @@ from src.routers.uploads import chunked_upload
 from src.routers.utils import router as utils_router
 from src.services.dev.dev import isDevModeEnabledOrRaise
 
-from src.auth.users import fastapi_users, auth_backend
-
 v1_router = APIRouter(prefix="/api/v1")
 
 # Auth domains
@@ -48,6 +47,7 @@ v1_router.include_router(
     tags=["auth"],
 )
 from src.db.users import UserCreate, UserRead
+
 v1_router.include_router(
     fastapi_users.get_register_router(UserRead, UserCreate),
     prefix="/auth",

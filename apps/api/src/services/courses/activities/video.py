@@ -195,7 +195,7 @@ async def create_video_activity(
 class ExternalVideo(PydanticStrictBaseModel):
     name: str
     uri: str
-    type: Literal["youtube", "vimeo"]
+    type: Literal["youtube"]
     chapter_id: int
     details: str = "{}"
 

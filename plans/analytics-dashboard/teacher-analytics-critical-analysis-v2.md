@@ -425,7 +425,7 @@ onClick={() => window.open(href, '_blank', 'noopener,noreferrer')}
 ```
 
 The export URLs include no access token. Export routes (`/orgs/{org_id}/teacher/exports/*.csv`) rely
-on `get_current_user` which reads the `Authorization` header or session cookie. Opening in a new tab
+on `get_public_user` which reads the `Authorization` header or session cookie. Opening in a new tab
 sends the session cookie but if the deployment uses Bearer-token-only auth (which
 `getTeacherOverview` proves is the pattern — it passes `accessToken` explicitly), the export
 endpoint will return 401 in a blank tab with no user-visible error.

@@ -1,11 +1,13 @@
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 from fastapi import HTTPException
+
 from src.security.rbac import (
-    PermissionChecker,
-    PermissionDenied,
     AuthenticationRequired,
     FeatureDisabled,
+    PermissionChecker,
+    PermissionDenied,
     ResourceAccessDenied,
 )
 
@@ -138,7 +140,7 @@ class TestRBACResolution:
         user_id = (
             0
             if kwargs.get("resource_owner_id") == 0
-            and list(granted_perms)[0].endswith(":own")
+            and next(iter(granted_perms)).endswith(":own")
             else 1
         )
         if user_id == 0:

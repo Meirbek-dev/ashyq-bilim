@@ -10,6 +10,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
+from src.auth.users import get_public_user
 from src.db.permissions import PermissionRead, RoleCreate, RoleRead, RoleUpdate
 from src.db.users import PublicUser
 from src.repositories.role_repository import RoleRepositoryDep
@@ -18,7 +19,6 @@ from src.routers.role_audit_store import (
     append_role_audit_event,
     list_role_audit_events,
 )
-from src.security.auth import get_current_user
 from src.security.rbac import PermissionChecker, PermissionCheckerDep
 
 audit_log = logging.getLogger("rbac.audit")
@@ -39,7 +39,7 @@ def _caller_max_priority(checker: PermissionChecker, user_id: int) -> int:
 
 @router.get("/permissions/all", response_model=list[PermissionRead])
 def list_all_permissions(
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     checker: PermissionCheckerDep,
     repo: RoleRepositoryDep,
 ):
@@ -50,7 +50,7 @@ def list_all_permissions(
 
 @router.get("", response_model=list[RoleRead])
 def list_roles(
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     checker: PermissionCheckerDep,
     repo: RoleRepositoryDep,
 ):
@@ -72,7 +72,7 @@ def list_roles(
 
 @router.get("/audit-log", response_model=RoleAuditListResponse)
 def get_role_audit_log(
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     checker: PermissionCheckerDep,
     page: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1, le=100)] = 20,
@@ -92,7 +92,7 @@ def get_role_audit_log(
 @router.get("/{role_id}", response_model=RoleRead)
 def get_role(
     role_id: int,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     checker: PermissionCheckerDep,
     repo: RoleRepositoryDep,
 ):
@@ -111,7 +111,7 @@ def get_role(
 @router.post("", response_model=RoleRead)
 def create_role(
     body: RoleCreate,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     checker: PermissionCheckerDep,
     repo: RoleRepositoryDep,
 ):
@@ -139,7 +139,7 @@ def create_role(
 def update_role(
     role_id: int,
     body: RoleUpdate,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     checker: PermissionCheckerDep,
     repo: RoleRepositoryDep,
 ):
@@ -178,7 +178,7 @@ def update_role(
 @router.delete("/{role_id}")
 def delete_role(
     role_id: int,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     checker: PermissionCheckerDep,
     repo: RoleRepositoryDep,
 ):
@@ -209,7 +209,7 @@ def delete_role(
 @router.get("/{role_id}/users/count")
 def get_role_users_count(
     role_id: int,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     checker: PermissionCheckerDep,
     repo: RoleRepositoryDep,
 ):
@@ -224,7 +224,7 @@ def get_role_users_count(
 @router.get("/{role_id}/permissions", response_model=list[PermissionRead])
 def get_role_permissions(
     role_id: int,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     checker: PermissionCheckerDep,
     repo: RoleRepositoryDep,
 ):
@@ -240,7 +240,7 @@ def get_role_permissions(
 def add_permission_to_role(
     role_id: int,
     body: AddPermissionBody,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     checker: PermissionCheckerDep,
     repo: RoleRepositoryDep,
 ):
@@ -282,7 +282,7 @@ def add_permission_to_role(
 def remove_permission_from_role(
     role_id: int,
     permission_id: int,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     checker: PermissionCheckerDep,
     repo: RoleRepositoryDep,
 ):

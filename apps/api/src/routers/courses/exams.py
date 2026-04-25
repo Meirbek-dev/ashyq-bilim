@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Request, UploadFile
 from sqlmodel import Session
 
+from src.auth.users import get_optional_public_user, get_public_user
 from src.db.courses.exams import (
     ExamAttemptRead,
     ExamCreate,
@@ -15,7 +16,6 @@ from src.db.courses.exams import (
 )
 from src.db.users import AnonymousUser, PublicUser
 from src.infra.db.session import get_db_session
-from src.security.auth import get_current_user, get_current_user_optional
 from src.services.courses.activities.exams import (
     create_exam,
     create_exam_with_activity,
@@ -70,7 +70,7 @@ async def api_get_exam_config():
 async def api_create_exam(
     request: Request,
     exam_object: ExamCreate,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> ExamRead:
     return await create_exam(request, exam_object, current_user, db_session)
@@ -80,7 +80,7 @@ async def api_create_exam(
 async def api_create_exam_with_activity(
     request: Request,
     exam_object: ExamCreateWithActivity,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> dict:
     return await create_exam_with_activity(
@@ -93,7 +93,7 @@ async def api_get_exam(
     request: Request,
     exam_uuid: str,
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> ExamRead:
@@ -105,7 +105,7 @@ async def api_get_exam_from_activity(
     request: Request,
     activity_uuid: str,
     current_user: Annotated[
-        PublicUser | AnonymousUser, Depends(get_current_user_optional)
+        PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> ExamRead:
@@ -119,7 +119,7 @@ async def api_update_exam(
     request: Request,
     exam_uuid: str,
     exam_object: ExamUpdate,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> ExamRead:
     return await update_exam(request, exam_uuid, exam_object, current_user, db_session)
@@ -129,7 +129,7 @@ async def api_update_exam(
 async def api_delete_exam(
     request: Request,
     exam_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> dict[str, str]:
     return await delete_exam(request, exam_uuid, current_user, db_session)
@@ -143,7 +143,7 @@ async def api_create_question(
     request: Request,
     exam_uuid: str,
     question_object: QuestionCreate,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> QuestionRead:
     return await create_question(
@@ -155,7 +155,7 @@ async def api_create_question(
 async def api_get_questions(
     request: Request,
     exam_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> list[QuestionRead]:
     return await read_questions(request, exam_uuid, current_user, db_session)
@@ -166,7 +166,7 @@ async def api_update_question(
     request: Request,
     question_uuid: str,
     question_object: QuestionUpdate,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> QuestionRead:
     return await update_question(
@@ -178,7 +178,7 @@ async def api_update_question(
 async def api_delete_question(
     request: Request,
     question_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> dict[str, str]:
     return await delete_question(request, question_uuid, current_user, db_session)
@@ -191,7 +191,7 @@ async def api_delete_question(
 async def api_start_exam_attempt(
     request: Request,
     exam_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> ExamAttemptRead:
     return await start_exam_attempt(request, exam_uuid, current_user, db_session)
@@ -202,7 +202,7 @@ async def api_submit_exam_attempt(
     request: Request,
     exam_uuid: str,
     attempt_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> ExamAttemptRead:
     # Parse answers from request body
@@ -219,7 +219,7 @@ async def api_record_violation(
     exam_uuid: str,
     attempt_uuid: str,
     violation_data: dict,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> ExamAttemptRead:
     violation_type = violation_data.get("type", "UNKNOWN")
@@ -232,7 +232,7 @@ async def api_record_violation(
 async def api_get_my_attempts(
     request: Request,
     exam_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> list[ExamAttemptRead]:
     return await get_user_attempts(request, exam_uuid, current_user, db_session)
@@ -242,7 +242,7 @@ async def api_get_my_attempts(
 async def api_get_attempt_by_uuid(
     request: Request,
     attempt_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> ExamAttemptRead:
     """
@@ -260,7 +260,7 @@ async def api_get_attempt_by_uuid(
 async def api_get_all_attempts(
     request: Request,
     exam_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> list[dict]:
     """Get all exam attempts for teacher results dashboard"""
@@ -271,7 +271,7 @@ async def api_get_all_attempts(
 async def api_export_questions_csv(
     request: Request,
     exam_uuid: str,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     """Export exam questions to CSV"""
@@ -295,7 +295,7 @@ async def api_import_questions_csv(
     request: Request,
     exam_uuid: str,
     file: UploadFile,
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> dict:
     """Import exam questions from CSV"""
@@ -310,7 +310,7 @@ async def api_reorder_questions(
     request: Request,
     exam_uuid: str,
     question_order: list[dict],  # [{"question_uuid": str, "order_index": int}, ...]
-    current_user: Annotated[PublicUser, Depends(get_current_user)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> dict:
     """Bulk update question order"""
