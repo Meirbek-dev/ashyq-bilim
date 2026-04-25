@@ -659,7 +659,9 @@
       "confirmPassword": "Құпиясөзді растаңыз",
       "confirmPasswordPlaceholder": "Құпиясөзді қайта енгізіңіз",
       "alreadyHaveAccount": "Аккаунтыңыз бар ма?",
-      "signIn": "Кіру"
+      "signIn": "Кіру",
+      "emailTaken": "Бұл email-мен аккаунт бұрыннан бар",
+      "usernameTaken": "Бұл пайдаланушы аты бос емес"
     },
     "password": "Пароль",
     "passwordPlaceholder": "Құпия сөзді енгізіңіз"

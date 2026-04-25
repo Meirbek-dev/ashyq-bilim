@@ -660,7 +660,9 @@
       "confirmPassword": "Подтвердить пароль",
       "confirmPasswordPlaceholder": "Подтвердите пароль",
       "alreadyHaveAccount": "Уже есть аккаунт?",
-      "signIn": "Войти"
+      "signIn": "Войти",
+      "emailTaken": "Аккаунт с таким email уже существует",
+      "usernameTaken": "Это имя пользователя уже занято"
     },
     "password": "Пароль",
     "passwordPlaceholder": "Введите ваш пароль"

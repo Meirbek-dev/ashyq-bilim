@@ -643,7 +643,9 @@
       "confirmPassword": "Confirm Password",
       "confirmPasswordPlaceholder": "Confirm your password",
       "alreadyHaveAccount": "Already have an account?",
-      "signIn": "Sign in"
+      "signIn": "Sign in",
+      "emailTaken": "An account with this email already exists",
+      "usernameTaken": "This username is already taken"
     },
     "password": "Password",
     "passwordPlaceholder": "Enter your password"
