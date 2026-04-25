@@ -1,6 +1,6 @@
 import logging
 from typing import Annotated
-from urllib.parse import urlparse
+from urllib.parse import parse_qsl, urlencode, urlparse, urlsplit, urlunsplit
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse
@@ -18,7 +18,11 @@ from src.security.auth_cookies import (
     set_access_cookie,
     set_refresh_cookie,
 )
-from src.services.auth.google_oauth import exchange_google_code, get_google_authorize_url
+from src.services.auth.google_oauth import (
+    exchange_google_code,
+    get_frontend_callback_from_state,
+    get_google_authorize_url,
+)
 from src.services.auth.sessions import (
     create_auth_session,
     get_user_active_sessions,
@@ -97,6 +101,21 @@ def _validate_callback_url(callback: str) -> None:
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
         detail="Invalid callback URL",
+    )
+
+
+def _build_google_error_redirect(callback: str, error_code: str) -> str:
+    parts = urlsplit(callback)
+    query = dict(parse_qsl(parts.query, keep_blank_values=True))
+    query["error"] = error_code
+    return urlunsplit(
+        (
+            parts.scheme,
+            parts.netloc,
+            parts.path,
+            urlencode(query),
+            parts.fragment,
+        )
     )
 
 
@@ -245,17 +264,21 @@ async def google_callback(
     error: str | None = None,
 ):
     """Handle Google OAuth callback."""
+    frontend_callback = get_frontend_callback_from_state(state) or "/"
+
     if error:
         logger.error("Google OAuth error: %s", error)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Google OAuth error: {error}",
+        return RedirectResponse(
+            url=_build_google_error_redirect(frontend_callback, "google_oauth_error"),
+            status_code=status.HTTP_307_TEMPORARY_REDIRECT,
         )
 
     if not code:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Missing authorization code",
+        return RedirectResponse(
+            url=_build_google_error_redirect(
+                frontend_callback, "missing_authorization_code"
+            ),
+            status_code=status.HTTP_307_TEMPORARY_REDIRECT,
         )
 
     settings = get_settings()
@@ -270,7 +293,7 @@ async def google_callback(
             state=state,
         )
 
-        frontend_callback = userinfo.get("frontend_callback", "/")
+        frontend_callback = userinfo.get("frontend_callback", frontend_callback)
 
         user = await find_or_create_google_user(
             request=request,
@@ -283,13 +306,21 @@ async def google_callback(
         response.status_code = status.HTTP_307_TEMPORARY_REDIRECT
         response.headers["Location"] = frontend_callback
 
-    except HTTPException:
-        raise
+    except HTTPException as exc:
+        logger.warning(
+            "Google OAuth callback failed | status=%s | detail=%s",
+            exc.status_code,
+            exc.detail,
+        )
+        return RedirectResponse(
+            url=_build_google_error_redirect(frontend_callback, "google_auth_failed"),
+            status_code=status.HTTP_307_TEMPORARY_REDIRECT,
+        )
     except Exception:
         logger.exception("Unexpected error during Google OAuth callback")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An unexpected error occurred during authentication",
+        return RedirectResponse(
+            url=_build_google_error_redirect(frontend_callback, "google_auth_failed"),
+            status_code=status.HTTP_307_TEMPORARY_REDIRECT,
         )
     else:
         return response

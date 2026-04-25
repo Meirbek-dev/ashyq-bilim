@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import hashlib
 import logging
@@ -19,6 +20,20 @@ logger = logging.getLogger(__name__)
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 PKCE_TTL = 600  # 10 minutes
 _METADATA_CACHE_TTL = 3600
+_DISCOVERY_TIMEOUT = httpx.Timeout(connect=5.0, read=10.0, write=10.0, pool=5.0)
+_TOKEN_TIMEOUT = httpx.Timeout(connect=10.0, read=30.0, write=30.0, pool=10.0)
+_USERINFO_TIMEOUT = httpx.Timeout(connect=5.0, read=15.0, write=15.0, pool=5.0)
+_RETRYABLE_HTTP_ERRORS = (
+    httpx.ConnectError,
+    httpx.ConnectTimeout,
+    httpx.ProxyError,
+    httpx.ReadError,
+    httpx.ReadTimeout,
+    httpx.RemoteProtocolError,
+    httpx.WriteError,
+    httpx.WriteTimeout,
+)
+_TOKEN_REQUEST_ATTEMPTS = 3
 _REQUIRED_METADATA_KEYS = (
     "authorization_endpoint",
     "token_endpoint",
@@ -32,6 +47,10 @@ _GOOGLE_METADATA_FALLBACK: dict[str, str] = {
 
 _metadata_cache: dict[str, Any] = {}
 _metadata_cached_at: float = 0.0
+
+
+def _build_google_client(timeout: httpx.Timeout) -> httpx.AsyncClient:
+    return httpx.AsyncClient(timeout=timeout)
 
 
 def _validate_google_metadata(metadata: dict[str, Any]) -> dict[str, Any]:
@@ -51,7 +70,7 @@ async def _get_google_metadata() -> dict[str, Any]:
         return _metadata_cache
 
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with _build_google_client(_DISCOVERY_TIMEOUT) as client:
             response = await client.get(GOOGLE_DISCOVERY_URL)
             response.raise_for_status()
             metadata = _validate_google_metadata(response.json())
@@ -142,6 +161,77 @@ async def _consume_pkce_verifier(state_jti: str) -> str | None:
     return verifier
 
 
+def get_frontend_callback_from_state(state: str | None) -> str | None:
+    if not state:
+        return None
+    callback, _state_jti = _decode_state(state)
+    return callback
+
+
+async def _post_google_token(
+    client: httpx.AsyncClient,
+    token_endpoint: str,
+    token_data: dict[str, Any],
+    *,
+    redirect_uri: str,
+    code_verifier_present: bool,
+) -> httpx.Response:
+    last_exc: httpx.HTTPError | None = None
+    for attempt in range(1, _TOKEN_REQUEST_ATTEMPTS + 1):
+        try:
+            response = await client.post(token_endpoint, data=token_data)
+            response.raise_for_status()
+            return response
+        except httpx.HTTPStatusError:
+            raise
+        except _RETRYABLE_HTTP_ERRORS as exc:
+            last_exc = exc
+            if attempt >= _TOKEN_REQUEST_ATTEMPTS:
+                break
+            logger.warning(
+                "Google token exchange transient network error; retrying | endpoint=%s | redirect_uri=%s | pkce=%s | attempt=%s/%s | error_type=%s",
+                token_endpoint,
+                redirect_uri,
+                "yes" if code_verifier_present else "no",
+                attempt,
+                _TOKEN_REQUEST_ATTEMPTS,
+                type(exc).__name__,
+            )
+            await asyncio.sleep(0.5 * attempt)
+    assert last_exc is not None
+    raise last_exc
+
+
+async def _get_google_userinfo(
+    client: httpx.AsyncClient,
+    userinfo_endpoint: str,
+    access_token: str,
+) -> dict[str, Any]:
+    try:
+        response = await client.get(
+            userinfo_endpoint,
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+    except _RETRYABLE_HTTP_ERRORS as exc:
+        logger.error(
+            "Google userinfo network error | endpoint=%s | error_type=%s",
+            userinfo_endpoint,
+            type(exc).__name__,
+            exc_info=exc,
+        )
+        raise HTTPException(
+            status_code=503,
+            detail="Google OAuth service temporarily unavailable",
+        ) from exc
+
+    if response.status_code != 200:
+        raise HTTPException(
+            status_code=400,
+            detail="Failed to fetch Google user info",
+        )
+    return response.json()
+
+
 # ── Public API ────────────────────────────────────────────────────────────────
 
 
@@ -184,8 +274,18 @@ async def exchange_google_code(
     if state:
         frontend_callback, state_jti = _decode_state(state)
         code_verifier = await _consume_pkce_verifier(state_jti)
+        if not code_verifier:
+            logger.warning(
+                "Missing Google PKCE verifier for callback | state_jti=%s | redirect_uri=%s",
+                state_jti,
+                redirect_uri,
+            )
+            raise HTTPException(
+                status_code=400,
+                detail="Google OAuth session expired. Please try again.",
+            )
 
-    async with httpx.AsyncClient(timeout=15.0) as client:
+    async with _build_google_client(_TOKEN_TIMEOUT) as client:
         token_data: dict[str, Any] = {
             "client_id": client_id,
             "client_secret": client_secret,
@@ -197,11 +297,13 @@ async def exchange_google_code(
             token_data["code_verifier"] = code_verifier
 
         try:
-            token_resp = await client.post(
+            token_resp = await _post_google_token(
+                client,
                 metadata["token_endpoint"],
-                data=token_data,
+                token_data,
+                redirect_uri=redirect_uri,
+                code_verifier_present=code_verifier is not None,
             )
-            token_resp.raise_for_status()
         except httpx.HTTPStatusError as exc:
             # Log Google's actual error body so we can diagnose the root cause.
             try:
@@ -220,10 +322,17 @@ async def exchange_google_code(
                 detail="Failed to exchange Google authorization code",
             ) from exc
         except httpx.HTTPError as exc:
-            logger.error("Google token exchange network error: %s | redirect_uri=%s", exc, redirect_uri)
+            logger.error(
+                "Google token exchange network error | endpoint=%s | redirect_uri=%s | pkce=%s | error_type=%s",
+                metadata["token_endpoint"],
+                redirect_uri,
+                "yes" if code_verifier else "no",
+                type(exc).__name__,
+                exc_info=exc,
+            )
             raise HTTPException(
-                status_code=400,
-                detail="Failed to exchange Google authorization code",
+                status_code=503,
+                detail="Google OAuth service temporarily unavailable",
             ) from exc
 
         token = token_resp.json()
@@ -234,16 +343,11 @@ async def exchange_google_code(
                 detail="Google token response missing access_token",
             )
 
-        userinfo_resp = await client.get(
+    async with _build_google_client(_USERINFO_TIMEOUT) as userinfo_client:
+        userinfo = await _get_google_userinfo(
+            userinfo_client,
             metadata["userinfo_endpoint"],
-            headers={"Authorization": f"Bearer {access_token}"},
+            access_token,
         )
-        if userinfo_resp.status_code != 200:
-            raise HTTPException(
-                status_code=400,
-                detail="Failed to fetch Google user info",
-            )
-
-        userinfo = userinfo_resp.json()
         userinfo["frontend_callback"] = frontend_callback
         return userinfo
