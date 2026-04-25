@@ -191,8 +191,16 @@ def _generate_pkce() -> tuple[str, str]:
 
 async def _store_pkce_verifier(state_jti: str, code_verifier: str) -> None:
     r = get_async_redis_client()
-    if r:
-        await r.set(f"pkce:{state_jti}", code_verifier, ex=PKCE_TTL)
+    if not r:
+        # Redis is required to hold the PKCE verifier across the OAuth round-trip.
+        # Fail here (at authorize time) rather than silently sending a PKCE
+        # challenge that can never be verified, which would produce a confusing
+        # "session expired" error at callback time.
+        raise HTTPException(
+            status_code=503,
+            detail="Authentication service temporarily unavailable. Please try again.",
+        )
+    await r.set(f"pkce:{state_jti}", code_verifier, ex=PKCE_TTL)
 
 
 async def _consume_pkce_verifier(state_jti: str) -> str | None:

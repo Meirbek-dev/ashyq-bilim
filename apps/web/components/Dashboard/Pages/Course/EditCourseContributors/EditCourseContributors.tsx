@@ -502,12 +502,10 @@ const EditCourseContributors = () => {
             >
               <PopoverTrigger
                 render={(triggerProps) => (
-                  <div
-                    {...triggerProps}
-                    className={`relative w-full ${triggerProps.className ?? ''}`}
-                  >
+                  <div className="relative w-full">
                     <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
                     <Input
+                      {...triggerProps}
                       className="pl-8"
                       placeholder={t('searchUsersPlaceholder')}
                       value={searchQuery}

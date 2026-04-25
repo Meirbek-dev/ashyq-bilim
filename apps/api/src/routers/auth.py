@@ -264,7 +264,17 @@ async def google_callback(
     error: str | None = None,
 ):
     """Handle Google OAuth callback."""
-    frontend_callback = get_frontend_callback_from_state(state) or "/"
+    # Resolve the frontend callback URL before anything else so that all error
+    # redirects land in the right place.  If the state JWT is expired or
+    # tampered with, _decode_state raises HTTPException — catch it here and
+    # fall back to "/" rather than letting the exception bubble up as a raw
+    # JSON error to the browser.
+    frontend_callback = "/"
+    try:
+        if state:
+            frontend_callback = get_frontend_callback_from_state(state) or "/"
+    except HTTPException:
+        pass
 
     if error:
         logger.error("Google OAuth error: %s", error)
