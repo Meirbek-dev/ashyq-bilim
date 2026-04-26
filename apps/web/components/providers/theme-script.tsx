@@ -1,5 +1,14 @@
 import { getTheme, THEME_CACHE_STORAGE_KEY, THEME_MODE_STORAGE_KEY } from '@/lib/themes';
 import type { Theme } from '@/lib/themes';
+import {
+  GOOGLE_FONT_QUERY_BY_FAMILY,
+  GOOGLE_FONTS_ASSET_ORIGIN,
+  GOOGLE_FONTS_STYLESHEET_ORIGIN,
+  SYSTEM_FONT_FAMILY_KEYS,
+  THEME_FONT_FAMILIES_ATTRIBUTE,
+  THEME_FONT_LINK_ATTRIBUTE,
+  THEME_FONT_TOKENS,
+} from '@/lib/theme-fonts';
 
 function safeJson(value: unknown): string {
   const json = JSON.stringify(value);
@@ -23,19 +32,13 @@ export function ThemeScript({ initialTheme }: ThemeScriptProps) {
       var modeStorageKey = ${safeJson(THEME_MODE_STORAGE_KEY)};
       var cacheStorageKey = ${safeJson(THEME_CACHE_STORAGE_KEY)};
       var defaultTokensByMode = ${safeJson(defaultTokensByMode)};
-      var systemFonts = {
-        "ui-sans-serif": true,
-        "ui-serif": true,
-        "ui-monospace": true,
-        "system-ui": true,
-        "sans-serif": true,
-        "serif": true,
-        "monospace": true,
-        "cursive": true,
-        "fantasy": true,
-        "-apple-system": true,
-        "blinkmacsystemfont": true
-      };
+      var fontTokens = ${safeJson(THEME_FONT_TOKENS)};
+      var systemFonts = ${safeJson(Object.fromEntries(SYSTEM_FONT_FAMILY_KEYS.map((family) => [family, true])))};
+      var googleFontQueries = ${safeJson(GOOGLE_FONT_QUERY_BY_FAMILY)};
+      var googleFontsStylesheetOrigin = ${safeJson(GOOGLE_FONTS_STYLESHEET_ORIGIN)};
+      var googleFontsAssetOrigin = ${safeJson(GOOGLE_FONTS_ASSET_ORIGIN)};
+      var themeFontLinkAttribute = ${safeJson(THEME_FONT_LINK_ATTRIBUTE)};
+      var themeFontFamiliesAttribute = ${safeJson(THEME_FONT_FAMILIES_ATTRIBUTE)};
 
       function getStoredMode() {
         try {
@@ -64,23 +67,139 @@ export function ThemeScript({ initialTheme }: ThemeScriptProps) {
           : "light";
       }
 
-      function extractFontFamily(fontFamilyValue) {
-        if (!fontFamilyValue) return null;
-        var firstFont = fontFamilyValue.split(",")[0];
-        if (!firstFont) return null;
-        var cleanFont = firstFont.trim().replace(/['"]/g, "");
-        if (!cleanFont || systemFonts[cleanFont.toLowerCase()]) return null;
-        return cleanFont;
+      function normalizeFontFamilyKey(family) {
+        return family.trim().replace(/^['"]|['"]$/g, "").replace(/\\s+/g, " ").toLowerCase();
       }
 
-      function loadGoogleFont(family) {
-        var href = "https://fonts.googleapis.com/css2?family="
-          + encodeURIComponent(family)
-          + ":wght@400,500,600,700&display=swap";
-        if (document.querySelector('link[href="' + href + '"]')) return;
+      function readFirstFontFamily(fontFamilyValue) {
+        var quote = null;
+        var family = "";
+
+        for (var index = 0; index < fontFamilyValue.length; index += 1) {
+          var char = fontFamilyValue[index];
+
+          if (quote) {
+            if (char === quote) quote = null;
+            family += char;
+            continue;
+          }
+
+          if (char === '"' || char === "'") {
+            quote = char;
+            family += char;
+            continue;
+          }
+
+          if (char === ",") break;
+          family += char;
+        }
+
+        var cleanFamily = family.trim().replace(/^['"]|['"]$/g, "");
+        return cleanFamily || null;
+      }
+
+      function getGoogleFontFamily(fontFamilyValue) {
+        if (!fontFamilyValue) return null;
+
+        var family = readFirstFontFamily(fontFamilyValue);
+        if (!family) return null;
+
+        var familyKey = normalizeFontFamilyKey(family);
+        if (systemFonts[familyKey]) return null;
+
+        for (var googleFamily in googleFontQueries) {
+          if (
+            Object.prototype.hasOwnProperty.call(googleFontQueries, googleFamily) &&
+            normalizeFontFamilyKey(googleFamily) === familyKey
+          ) {
+            return googleFamily;
+          }
+        }
+
+        return null;
+      }
+
+      function readLoadedFontFamilies() {
+        var loaded = {};
+        var links = document.querySelectorAll("link[" + themeFontLinkAttribute + "]");
+
+        for (var linkIndex = 0; linkIndex < links.length; linkIndex += 1) {
+          var rawFamilies = links[linkIndex].getAttribute(themeFontFamiliesAttribute);
+          if (!rawFamilies) continue;
+
+          var families = rawFamilies.split("|");
+          for (var familyIndex = 0; familyIndex < families.length; familyIndex += 1) {
+            loaded[families[familyIndex]] = true;
+          }
+        }
+
+        return loaded;
+      }
+
+      function stylesheetExists(href) {
+        var links = document.querySelectorAll('link[rel="stylesheet"]');
+
+        for (var index = 0; index < links.length; index += 1) {
+          if (links[index].href === href || links[index].getAttribute("href") === href) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+
+      function ensurePreconnect(href, crossOrigin) {
+        var links = document.querySelectorAll('link[rel="preconnect"]');
+
+        for (var index = 0; index < links.length; index += 1) {
+          if (links[index].href === href || links[index].getAttribute("href") === href) {
+            return;
+          }
+        }
+
+        var link = document.createElement("link");
+        link.rel = "preconnect";
+        link.href = href;
+        if (crossOrigin) link.crossOrigin = "anonymous";
+        document.head.appendChild(link);
+      }
+
+      function buildFontStylesheetHref(families) {
+        if (families.length === 0) return null;
+        families.sort();
+
+        var familyParams = families.map(function(family) {
+          return "family=" + googleFontQueries[family].trim().replace(/ /g, "+");
+        }).join("&");
+
+        return googleFontsStylesheetOrigin + "/css2?" + familyParams + "&display=swap";
+      }
+
+      function loadGoogleFonts(families) {
+        var loaded = readLoadedFontFamilies();
+        var seen = {};
+        var missingFamilies = [];
+
+        for (var index = 0; index < families.length; index += 1) {
+          var family = families[index];
+          if (!family || loaded[family] || seen[family]) continue;
+          seen[family] = true;
+          missingFamilies.push(family);
+        }
+
+        var href = buildFontStylesheetHref(missingFamilies);
+        if (!href) return;
+
+        ensurePreconnect(googleFontsStylesheetOrigin, false);
+        ensurePreconnect(googleFontsAssetOrigin, true);
+
+        if (stylesheetExists(href)) return;
+
         var link = document.createElement("link");
         link.rel = "stylesheet";
         link.href = href;
+        link.setAttribute(themeFontLinkAttribute, "true");
+        link.setAttribute(themeFontFamiliesAttribute, missingFamilies.join("|"));
         document.head.appendChild(link);
       }
 
@@ -104,10 +223,12 @@ export function ThemeScript({ initialTheme }: ThemeScriptProps) {
       root.style.colorScheme = mode;
 
       try {
-        ["font-sans", "font-serif", "font-mono"].forEach(function(token) {
-          var family = extractFontFamily(tokens[token]);
-          if (family) loadGoogleFont(family);
+        var families = [];
+        fontTokens.forEach(function(token) {
+          var family = getGoogleFontFamily(tokens[token]);
+          if (family) families.push(family);
         });
+        loadGoogleFonts(families);
       } catch (error) {
         console.warn("Theme font initialization failed:", error);
       }

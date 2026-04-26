@@ -4,7 +4,18 @@ import DevScriptLoader from '@/components/DevScriptLoader';
 import { ThemeScript } from '@/components/providers/theme-script';
 import { getSession } from '@/lib/auth/session';
 import { cookies } from 'next/headers';
-import { DEFAULT_THEME_MODE, DEFAULT_THEME_NAME, getTheme, THEME_MODE_STORAGE_KEY } from '@/lib/themes';
+import {
+  DEFAULT_THEME_MODE,
+  DEFAULT_THEME_NAME,
+  getTheme,
+  THEME_MODE_STORAGE_KEY,
+} from '@/lib/themes';
+import {
+  getThemeFontStylesheetHref,
+  resolveThemeFontFamilies,
+  THEME_FONT_FAMILIES_ATTRIBUTE,
+  THEME_FONT_LINK_ATTRIBUTE,
+} from '@/lib/theme-fonts';
 import type { ThemeMode } from '@/lib/themes';
 import type { CSSProperties } from 'react';
 import { Suspense } from 'react';
@@ -21,11 +32,13 @@ function getThemeStyle(theme: ReturnType<typeof getTheme>): CSSProperties {
   };
 }
 
-async function LocalizedApp({ children }: { children: React.ReactNode }) {
+async function LocalizedApp({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const cookieStore = await cookies();
-  const rawMode = cookieStore.get(THEME_MODE_STORAGE_KEY)?.value;
-  const initialThemeMode: ThemeMode = rawMode === 'dark' ? 'dark' : 'light';
-
+  const initialThemeMode = getInitialThemeMode(cookieStore.get(THEME_MODE_STORAGE_KEY)?.value);
   const [locale, messages, initialSession] = await Promise.all([getLocale(), getMessages(), getSession()]);
 
   setRequestLocale(locale);
@@ -45,7 +58,13 @@ async function LocalizedApp({ children }: { children: React.ReactNode }) {
   );
 }
 
+function getInitialThemeMode(rawMode: string | undefined): ThemeMode {
+  return rawMode === 'dark' ? 'dark' : DEFAULT_THEME_MODE;
+}
+
 const initialTheme = getTheme(DEFAULT_THEME_NAME, DEFAULT_THEME_MODE);
+const initialThemeFontHref = getThemeFontStylesheetHref(initialTheme.tokens);
+const initialThemeFontFamilies = resolveThemeFontFamilies(initialTheme.tokens);
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -68,8 +87,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link
           rel="preconnect"
           href="https://fonts.gstatic.com"
-          crossOrigin=""
+          crossOrigin="anonymous"
         />
+        {initialThemeFontHref && (
+          <link
+            rel="stylesheet"
+            href={initialThemeFontHref}
+            {...{
+              [THEME_FONT_LINK_ATTRIBUTE]: 'true',
+              [THEME_FONT_FAMILIES_ATTRIBUTE]: initialThemeFontFamilies.join('|'),
+            }}
+          />
+        )}
         <ThemeScript initialTheme={initialTheme} />
       </head>
 
