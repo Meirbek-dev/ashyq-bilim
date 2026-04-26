@@ -6873,7 +6873,7 @@
       "description": "Bright, bubbly theme with pastel accents and clean contrasts for a playful yet modern look",
       "name": "Soft Pop"
     },
-    "solarDusk": {
+    "solar-dusk": {
       "description": "Warm, golden tones fading into deep shadows-captures the calm glow of dusk before nightfall",
       "name": "Solar Dusk"
     },
@@ -6928,6 +6928,90 @@
     "vscode": {
       "description": "Developer-friendly VS Code theme with cool blues and clean code aesthetics",
       "name": "VS Code"
+    },
+    "modern-minimal": {
+      "description": "Sleek minimal theme with clean lines and modern palette",
+      "name": "Modern Minimal"
+    },
+    "t3-chat": {
+      "description": "Modern chat-inspired design with vibrant magentas and cool contrasts for lively conversations",
+      "name": "T3 Chat"
+    },
+    "kodama-grove": {
+      "description": "Nature-inspired theme with peaceful forest green and earthy tones",
+      "name": "Kodama Grove"
+    },
+    "cosmic-night": {
+      "description": "Deep purple cosmic theme with starry night aesthetics",
+      "name": "Cosmic Night"
+    },
+    "bold-tech": {
+      "description": "Bold purple tech theme with vibrant accents",
+      "name": "Bold Tech"
+    },
+    "amber-minimal": {
+      "description": "Minimalistic amber theme",
+      "name": "Amber Minimal"
+    },
+    "mono": {
+      "description": "Minimal monochrome theme with clean grayscale contrast",
+      "name": "Mono"
+    },
+    "mocha-mousse": {
+      "description": "Warm coffee-inspired theme with rich mocha and cream tones",
+      "name": "Mocha Mousse"
+    },
+    "doom-64": {
+      "description": "Retro gaming theme inspired by Doom 64 with sharp corners and bold colors",
+      "name": "Doom 64"
+    },
+    "quantum-rose": {
+      "description": "Futuristic rose-tinted theme with quantum-inspired pink and magenta hues",
+      "name": "Quantum Rose"
+    },
+    "elegant-luxury": {
+      "description": "Sophisticated luxury theme with elegant cream tones and rich mahogany accents",
+      "name": "Elegant Luxury"
+    },
+    "neo-brutalism": {
+      "description": "Bold brutalist design with thick black borders and strong shadows",
+      "name": "Neo Brutalism"
+    },
+    "pastel-dreams": {
+      "description": "Dreamy pastel theme with soft lavender and pink cotton candy colors",
+      "name": "Pastel Dreams"
+    },
+    "clean-slate": {
+      "description": "Crisp minimalist theme with clean neutral tones",
+      "name": "Clean Slate"
+    },
+    "ocean-breeze": {
+      "description": "Refreshing ocean-inspired theme with cool turquoise and seafoam tones",
+      "name": "Ocean Breeze"
+    },
+    "retro-arcade": {
+      "description": "Bold neon-inspired palette with playful contrasts, evoking the vibrant glow of 80s arcades",
+      "name": "Retro Arcade"
+    },
+    "midnight-bloom": {
+      "description": "Elegant nighttime theme with rich purple blooms and soft shadows",
+      "name": "Midnight Bloom"
+    },
+    "northern-lights": {
+      "description": "Magical aurora borealis theme with ethereal green and purple gradients",
+      "name": "Northern Lights"
+    },
+    "vintage-paper": {
+      "description": "Soft parchment tones with muted contrasts, evoking the warmth and texture of aged paper",
+      "name": "Vintage Paper"
+    },
+    "sunset-horizon": {
+      "description": "Radiant oranges and glowing ambers that reflect the warmth of a summer sunset on the horizon",
+      "name": "Sunset Horizon"
+    },
+    "starry-night": {
+      "description": "Deep midnight blues and luminous highlights, evoking a tranquil star-filled night sky",
+      "name": "Starry Night"
     }
   },
   "ToastMessages": {

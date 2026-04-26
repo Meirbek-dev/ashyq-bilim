@@ -31,7 +31,7 @@ export function buildFontCssUrl(
   weights: readonly string[] = DEFAULT_FONT_WEIGHTS,
 ): string {
   const encodedFamily = encodeURIComponent(family);
-  return `https://fonts.googleapis.com/css2?family=${encodedFamily}:wght@${weights.join(';')}&display=swap`;
+  return `https://fonts.googleapis.com/css2?family=${encodedFamily}:wght@${weights.join(',')}&display=swap`;
 }
 
 export function loadGoogleFont(

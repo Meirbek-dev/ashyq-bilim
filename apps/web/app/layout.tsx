@@ -3,7 +3,14 @@ import { IntlProvider } from '@/components/providers/IntlProvider';
 import DevScriptLoader from '@/components/DevScriptLoader';
 import { ThemeScript } from '@/components/providers/theme-script';
 import { getSession } from '@/lib/auth/session';
-import { DEFAULT_THEME_MODE, DEFAULT_THEME_NAME, getTheme } from '@/lib/themes';
+import { cookies } from 'next/headers';
+import {
+  DEFAULT_THEME_MODE,
+  DEFAULT_THEME_NAME,
+  getTheme,
+  THEME_MODE_STORAGE_KEY,
+  type ThemeMode,
+} from '@/lib/themes';
 import type { CSSProperties } from 'react';
 import { Suspense } from 'react';
 import RootProviders from './root-providers';
@@ -20,6 +27,10 @@ function getThemeStyle(theme: ReturnType<typeof getTheme>): CSSProperties {
 }
 
 async function LocalizedApp({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
+  const rawMode = cookieStore.get(THEME_MODE_STORAGE_KEY)?.value;
+  const initialThemeMode: ThemeMode = rawMode === 'dark' ? 'dark' : 'light';
+
   const [locale, messages, initialSession] = await Promise.all([getLocale(), getMessages(), getSession()]);
 
   setRequestLocale(locale);
@@ -31,6 +42,7 @@ async function LocalizedApp({ children }: { children: React.ReactNode }) {
     >
       <RootProviders
         initialSession={initialSession}
+        initialThemeMode={initialThemeMode}
       >
         <main>{children}</main>
       </RootProviders>

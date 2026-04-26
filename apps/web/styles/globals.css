@@ -45,7 +45,6 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --radius: 0.5rem;
 
   --shadow-2xs: var(--shadow-2xs);
   --shadow-xs: var(--shadow-xs);
@@ -106,7 +105,7 @@
 }
 
 :root,
-:root[data-theme='default'] {
+:root[data-theme='modern-minimal'] {
   --background: oklch(1 0 0);
   --foreground: oklch(0.3211 0 0);
   --card: oklch(1 0 0);
