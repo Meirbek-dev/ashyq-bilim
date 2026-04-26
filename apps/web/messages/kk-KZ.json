@@ -975,6 +975,138 @@
       "label": "Навигация",
       "more": "Көбірек"
     },
+    "DashboardAnalytics": {
+      "adminAnalyticsPanel": {
+        "title": "Әкімші аналитикасы",
+        "description": "Платформа деңгейіндегі жүктеме, курстардың жағдайы, когорта ұстау, бағдарламаның өнімділігі және контент ROI.",
+        "teacherWorkloadComparison": "Мұғалім жүктемесін салыстыру",
+        "courseHealthRanking": "Курстың денсаулық рейтингі",
+        "teacher": "Мұғалім",
+        "backlog": "Backlog",
+        "atRisk": "Қауіп астында",
+        "course": "Курс",
+        "health": "Денсаулық",
+        "completion": "Аяқтау",
+        "cohortRetention": "Когорта ұстау",
+        "cohort": "Когорта",
+        "retention": "Ұстау",
+        "learners": "Оқушылар",
+        "contentROI": "Контент ROI",
+        "roi": "ROI",
+        "passCompletion": "Өту/аяқтау",
+        "noData": "N/A"
+      },
+      "teacherWorkloadPanel": {
+        "title": "Мұғалім жүктемесі",
+        "description": "Backlog, SLA бұзылуы, кері байланыс кешігуі және жақын арадағы жүктеме болжамын қараңыз.",
+        "backlog": "Backlog",
+        "slaBreaches": "SLA бұзылулары",
+        "forecast7d": "7 күндік болжам",
+        "bucket0_24": "0-24с:",
+        "bucket1_3d": "1-3к:",
+        "bucket3_7d": "3-7к:",
+        "bucket7dPlus": "7к+:",
+        "medianFeedback": "Орташа кері байланыс:",
+        "assignment": "Тапсырма",
+        "course": "Курс",
+        "waiting": "Күту",
+        "oldest": "Ең ескі",
+        "noSubmissions": "Тексеруді күткен тапсырма жоқ.",
+        "na": "N/A"
+      },
+      "dataQualityPanel": {
+        "title": "Деректер сапасы",
+        "description": "Сенімділік, шығу тегі, оқиға көзінің қамтуы және аналитикадан тыс қалулар.",
+        "mode": "Режим",
+        "lastRollup": "Соңғы жинақтау",
+        "liveQuery": "live query",
+        "confidence": "Сенімділік",
+        "confidenceLevels": {
+          "high": "Жоғары",
+          "medium": "Орташа",
+          "low": "Төмен"
+        },
+        "freshness": "Шалқару:",
+        "previewAttemptsExcluded": "Алдын ала қарау талпыныстары шығарылды:",
+        "teacherAttemptsExcluded": "Мұғалім талпыныстары шығарылды:",
+        "thinCourses": "Деректері жеткіліксіз курстар:",
+        "noIssues": "Деректер сапасы мәселелері анықталған жоқ.",
+        "issueSeverity": {
+          "critical": "Маңызды",
+          "warning": "Ескерту",
+          "info": "Ақпарат"
+        }
+      },
+      "contentBottlenecksTable": {
+        "title": "Мазмұн тарлығы",
+        "description": "Оқушылардың тұрып қалатын, шығатын, көп рет сәтсіздікке ұшырайтын немесе ескірген материалда нашар көрсеткіш көрсететін әрекеттері.",
+        "activity": "Іс-әрекет",
+        "signal": "Сигнал",
+        "completion": "Аяқталу",
+        "exits": "Шығулар",
+        "evidence": "Дәлел",
+        "signals": {
+          "high_time_low_completion": "Уақытты бітірмейтін",
+          "exit_after_open": "Ашу кейін шығу",
+          "repeated_assessment_failures": "Бағалау сәтсіздіктері",
+          "stale_low_performance": "Ескірген контент"
+        },
+        "noBottlenecks": "Ағымдағы сүзгі үшін тарлықтар табылмады.",
+        "na": "N/A"
+      },
+      "insightFeedPanel": {
+        "title": "Инсайттар таспасы",
+        "description": "Оқушыларға әсері мен оперативтік маңыздылығы бойынша басымдық берілген сигналдар.",
+        "inspect": "Тексеру",
+        "noInsights": "Ағымдағы сүзгі үшін басым инсайттар жоқ.",
+        "severity": {
+          "critical": "Маңызды",
+          "warning": "Ескерту",
+          "info": "Ақпарат"
+        }
+      },
+      "forecastingPanel": {
+        "title": "Болжамдар",
+        "description": "Ағымдағы қарқына негізделген аяқталу, бағалау және тексеру қауіптері.",
+        "confidenceLabel": "{level} сенімділік",
+        "noForecastRisks": "Бұл сүзгі үшін болжамдық тәуекелдер жоқ.",
+        "confidenceLevels": {
+          "high": "Жоғары",
+          "medium": "Орташа",
+          "low": "Төмен"
+        },
+        "severity": {
+          "critical": "Маңызды",
+          "warning": "Ескерту",
+          "info": "Ақпарат"
+        }
+      },
+      "drillThroughAuditPanel": {
+        "title": "Деректер аудиті",
+        "description": "Тақырыптық көрсеткіштердің артындағы оқушылар немесе тапсырма жолдарын зерттеңіз.",
+        "metrics": {
+          "active_learners": "Белсенді оқушылар",
+          "completion_rate": "Аяқтау көрсеткіші",
+          "backlog": "Backlog",
+          "pass_rate": "Өту көрсеткіші"
+        },
+        "rows": "{count, plural, one {# жол} few {# жол} other {# жол}}",
+        "chooseMetric": "Көз жолдарын жүктеу үшін метриканы таңдаңыз.",
+        "noSourceRows": "Бұл метрика үшін көз жолдары табылмады.",
+        "yes": "Иә",
+        "no": "Жоқ",
+        "na": "N/A",
+        "couldNotLoadRows": "Деректер жолдарын жүктеу мүмкін болмады."
+      },
+      "savedViewsBar": {
+        "nameFirst": "Бірінші кезекте бұл көрініске атау беріңіз.",
+        "saved": "Аналитикалық көрініс сақталды.",
+        "couldNotSave": "Көріністі сақтау мүмкін болмады.",
+        "noSavedViews": "Әлі сақталған көріністер жоқ.",
+        "namePlaceholder": "Ағымдағы сүзгілерді сақтау",
+        "save": "Сақтау"
+      }
+    },
     "Button": {
       "newCollection": "Жаңа жинақ",
       "newCourse": "Жаңа курс"
@@ -3282,11 +3414,6 @@
       "noAccess": "Сізде әлі бақылау тақтасының функцияларына рұқсат жоқ.",
       "platformLogo": "Ashyq Bilim логотипі",
       "touUniversity": "Торайғыров Университеті"
-    },
-    "Components": {
-      "Breadcrumb": {
-        "more": "Көбірек"
-      }
     },
     "CourseOverview": {
       "courseLabel": "Курс",

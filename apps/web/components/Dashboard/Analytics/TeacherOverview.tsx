@@ -23,7 +23,6 @@ const DataQualityPanel = lazy(() => import('./DataQualityPanel'));
 const DrillThroughAuditPanel = lazy(() => import('./DrillThroughAuditPanel'));
 const ForecastingPanel = lazy(() => import('./ForecastingPanel'));
 const GradingBacklogPanel = lazy(() => import('./GradingBacklogPanel'));
-const InsightFeedPanel = lazy(() => import('./InsightFeedPanel'));
 const SavedViewsBar = lazy(() => import('./SavedViewsBar'));
 const AtRiskLearnersTable = lazy(() => import('./AtRiskLearnersTable'));
 const CourseHealthTable = lazy(() => import('./CourseHealthTable'));
@@ -238,10 +237,7 @@ export default function TeacherOverview({ query, data, adminData, courseOptions 
         </Suspense>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
-        <Suspense fallback={<SectionFallback height="h-[420px]" />}>
-          <InsightFeedPanel items={data.insights} />
-        </Suspense>
+      <div className="grid gap-6">
         <Suspense fallback={<SectionFallback height="h-[420px]" />}>
           <TeacherWorkloadPanel workload={data.workload} />
         </Suspense>

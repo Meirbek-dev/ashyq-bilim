@@ -9,6 +9,7 @@ import { Save, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 interface SavedViewsBarProps {
   query: AnalyticsQuery;
@@ -27,6 +28,7 @@ const serializeQuery = (query: Record<string, unknown>) => {
 
 export default function SavedViewsBar({ query }: SavedViewsBarProps) {
   const router = useRouter();
+  const t = useTranslations('Components.DashboardAnalytics');
   const [name, setName] = useState('');
   const [views, setViews] = useState<SavedAnalyticsViewRow[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -46,7 +48,7 @@ export default function SavedViewsBar({ query }: SavedViewsBarProps) {
   const handleSave = async () => {
     const trimmedName = name.trim();
     if (!trimmedName) {
-      toast.error('Name this view first.');
+      toast.error(t('savedViewsBar.nameFirst'));
       return;
     }
     setIsSaving(true);
@@ -61,9 +63,9 @@ export default function SavedViewsBar({ query }: SavedViewsBarProps) {
       );
       setViews((current) => [saved, ...current.filter((item) => item.id !== saved.id)]);
       setName('');
-      toast.success('Analytics view saved.');
+      toast.success(t('savedViewsBar.saved'));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Could not save view.');
+      toast.error(error instanceof Error ? error.message : t('savedViewsBar.couldNotSave'));
     } finally {
       setIsSaving(false);
     }
@@ -85,13 +87,13 @@ export default function SavedViewsBar({ query }: SavedViewsBarProps) {
               {view.name}
             </Button>
           ))}
-          {!views.length ? <span className="text-muted-foreground text-sm">No saved views yet.</span> : null}
+          {!views.length ? <span className="text-muted-foreground text-sm">{t('savedViewsBar.noSavedViews')}</span> : null}
         </div>
         <div className="flex w-full gap-2 sm:w-auto">
           <Input
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder="Save current filters"
+            placeholder={t('savedViewsBar.namePlaceholder')}
             className="sm:w-[220px]"
           />
           <Button
@@ -100,7 +102,7 @@ export default function SavedViewsBar({ query }: SavedViewsBarProps) {
             disabled={isSaving}
           >
             <Save className="h-4 w-4" />
-            Save
+            {t('savedViewsBar.save')}
           </Button>
         </div>
       </CardContent>

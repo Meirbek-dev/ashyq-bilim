@@ -9,23 +9,36 @@ import { getTeacherDrillThrough } from '@services/analytics/teacher';
 import { ListFilter, Search } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 interface DrillThroughAuditPanelProps {
   query: AnalyticsQuery;
   assessmentPreview: AssessmentOutlierRow[];
 }
 
-const displayValue = (value: unknown) => {
-  if (typeof value === 'boolean') return value ? 'yes' : 'no';
-  if (value === null || value === undefined || value === '') return 'n/a';
-  if (Array.isArray(value)) return value.join(', ');
-  return String(value);
-};
-
 export default function DrillThroughAuditPanel({ query, assessmentPreview }: DrillThroughAuditPanelProps) {
+  const t = useTranslations('Components.DashboardAnalytics');
   const [result, setResult] = useState<DrillThroughResponse | null>(null);
   const [loadingMetric, setLoadingMetric] = useState<DrillThroughResponse['metric'] | null>(null);
   const assessment = assessmentPreview.find((item) => item.pass_rate !== null) ?? assessmentPreview[0];
+
+  const displayValue = (value: unknown) => {
+    if (typeof value === 'boolean') return value ? t('drillThroughAuditPanel.yes') : t('drillThroughAuditPanel.no');
+    if (value === null || value === undefined || value === '') return t('drillThroughAuditPanel.na');
+    if (Array.isArray(value)) return value.join(', ');
+    return String(value);
+  };
+
+  const metricLabel = (metric: string) => {
+    const labels: Record<string, string> = {
+      active_learners: t('drillThroughAuditPanel.metrics.active_learners'),
+      completion_rate: t('drillThroughAuditPanel.metrics.completion_rate'),
+      backlog: t('drillThroughAuditPanel.metrics.backlog'),
+      pass_rate: t('drillThroughAuditPanel.metrics.pass_rate'),
+    };
+
+    return labels[metric] ?? metric.replaceAll('_', ' ');
+  };
 
   const loadMetric = async (metric: DrillThroughResponse['metric']) => {
     setLoadingMetric(metric);
@@ -42,7 +55,7 @@ export default function DrillThroughAuditPanel({ query, assessmentPreview }: Dri
       );
       setResult(response);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Could not load drill-through rows.');
+      toast.error(error instanceof Error ? error.message : t('drillThroughAuditPanel.couldNotLoadRows'));
     } finally {
       setLoadingMetric(null);
     }
@@ -55,9 +68,9 @@ export default function DrillThroughAuditPanel({ query, assessmentPreview }: Dri
       <CardHeader>
         <div className="flex items-center gap-2">
           <ListFilter className="h-5 w-5" />
-          <CardTitle>Drill-through audit trail</CardTitle>
+          <CardTitle>{t('drillThroughAuditPanel.title')}</CardTitle>
         </div>
-        <CardDescription>Inspect the learner or submission rows behind headline metrics.</CardDescription>
+        <CardDescription>{t('drillThroughAuditPanel.description')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap gap-2">
@@ -71,7 +84,7 @@ export default function DrillThroughAuditPanel({ query, assessmentPreview }: Dri
               disabled={loadingMetric !== null}
             >
               <Search className="h-3.5 w-3.5" />
-              {metric.replaceAll('_', ' ')}
+              {metricLabel(metric)}
             </Button>
           ))}
           <Button
@@ -82,20 +95,20 @@ export default function DrillThroughAuditPanel({ query, assessmentPreview }: Dri
             disabled={loadingMetric !== null || !assessment}
           >
             <Search className="h-3.5 w-3.5" />
-            pass rate
+            {t('drillThroughAuditPanel.metrics.pass_rate')}
           </Button>
         </div>
 
         {result ? (
           <div className="space-y-2">
             <Badge variant="outline">
-              {result.metric.replaceAll('_', ' ')}: {result.total} rows
+              {metricLabel(result.metric)}: {t('drillThroughAuditPanel.rows', { count: result.total })}
             </Badge>
             <Table>
               <TableHeader>
                 <TableRow>
                   {columns.map((column) => (
-                    <TableHead key={column}>{column.replaceAll('_', ' ')}</TableHead>
+                    <TableHead key={column}>{metricLabel(column)}</TableHead>
                   ))}
                 </TableRow>
               </TableHeader>
@@ -118,7 +131,7 @@ export default function DrillThroughAuditPanel({ query, assessmentPreview }: Dri
                       colSpan={Math.max(columns.length, 1)}
                       className="text-muted-foreground"
                     >
-                      No source rows found for this metric.
+                      {t('drillThroughAuditPanel.noSourceRows')}
                     </TableCell>
                   </TableRow>
                 ) : null}
@@ -126,7 +139,7 @@ export default function DrillThroughAuditPanel({ query, assessmentPreview }: Dri
             </Table>
           </div>
         ) : (
-          <div className="text-muted-foreground text-sm">Choose a metric to load its source rows.</div>
+          <div className="text-muted-foreground text-sm">{t('drillThroughAuditPanel.chooseMetric')}</div>
         )}
       </CardContent>
     </Card>

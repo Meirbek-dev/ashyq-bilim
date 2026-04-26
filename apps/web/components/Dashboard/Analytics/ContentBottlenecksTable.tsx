@@ -5,47 +5,37 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { ContentBottleneckRow } from '@/types/analytics';
 import { RouteOff } from 'lucide-react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface ContentBottlenecksTableProps {
   rows: ContentBottleneckRow[];
 }
 
-const signalLabel = (signal: ContentBottleneckRow['signal']) => {
-  switch (signal) {
-    case 'high_time_low_completion':
-      return 'Time sink';
-    case 'exit_after_open':
-      return 'Exit after open';
-    case 'repeated_assessment_failures':
-      return 'Assessment failure';
-    case 'stale_low_performance':
-      return 'Stale content';
-  }
-};
-
 export default function ContentBottlenecksTable({ rows }: ContentBottlenecksTableProps) {
   const locale = useLocale();
+  const t = useTranslations('Components.DashboardAnalytics');
   const numberFormatter = new Intl.NumberFormat(locale);
+  const signalLabel = (signal: ContentBottleneckRow['signal']) =>
+    t(`contentBottlenecksTable.signals.${signal}`);
 
   return (
     <Card className="shadow-sm">
       <CardHeader>
         <div className="flex items-center gap-2">
           <RouteOff className="h-5 w-5" />
-          <CardTitle>Content bottlenecks</CardTitle>
+          <CardTitle>{t('contentBottlenecksTable.title')}</CardTitle>
         </div>
-        <CardDescription>Activities where learners stall, exit, repeatedly fail, or underperform on stale material.</CardDescription>
+        <CardDescription>{t('contentBottlenecksTable.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Activity</TableHead>
-              <TableHead>Signal</TableHead>
-              <TableHead>Completion</TableHead>
-              <TableHead>Exits</TableHead>
-              <TableHead>Evidence</TableHead>
+              <TableHead>{t('contentBottlenecksTable.activity')}</TableHead>
+              <TableHead>{t('contentBottlenecksTable.signal')}</TableHead>
+              <TableHead>{t('contentBottlenecksTable.completion')}</TableHead>
+              <TableHead>{t('contentBottlenecksTable.exits')}</TableHead>
+              <TableHead>{t('contentBottlenecksTable.evidence')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -62,7 +52,7 @@ export default function ContentBottlenecksTable({ rows }: ContentBottlenecksTabl
                 </TableCell>
                 <TableCell>
                   {row.completion_rate === null || row.completion_rate === undefined
-                    ? 'n/a'
+                    ? t('contentBottlenecksTable.na')
                     : `${numberFormatter.format(row.completion_rate)}%`}
                 </TableCell>
                 <TableCell>{numberFormatter.format(row.exit_count)}</TableCell>
@@ -75,7 +65,7 @@ export default function ContentBottlenecksTable({ rows }: ContentBottlenecksTabl
                   colSpan={5}
                   className="text-muted-foreground"
                 >
-                  No bottlenecks detected for the current filter.
+                  {t('contentBottlenecksTable.noBottlenecks')}
                 </TableCell>
               </TableRow>
             ) : null}

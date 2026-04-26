@@ -959,6 +959,138 @@
       "label": "Breadcrumb",
       "more": "More"
     },
+    "DashboardAnalytics": {
+      "adminAnalyticsPanel": {
+        "title": "Admin analytics",
+        "description": "Platform-level workload, course health, cohort retention, program performance, and content ROI.",
+        "teacherWorkloadComparison": "Teacher workload comparison",
+        "courseHealthRanking": "Course health ranking",
+        "teacher": "Teacher",
+        "backlog": "Backlog",
+        "atRisk": "At risk",
+        "course": "Course",
+        "health": "Health",
+        "completion": "Completion",
+        "cohortRetention": "Cohort retention",
+        "cohort": "Cohort",
+        "retention": "Retention",
+        "learners": "Learners",
+        "contentROI": "Content ROI",
+        "roi": "ROI",
+        "passCompletion": "Pass/completion",
+        "noData": "N/A"
+      },
+      "teacherWorkloadPanel": {
+        "title": "Teacher workload",
+        "description": "Review backlog, SLA pressure, feedback latency, and near-term load forecast.",
+        "backlog": "Backlog",
+        "slaBreaches": "SLA breaches",
+        "forecast7d": "7d forecast",
+        "bucket0_24": "0-24h:",
+        "bucket1_3d": "1-3d:",
+        "bucket3_7d": "3-7d:",
+        "bucket7dPlus": "7d+:",
+        "medianFeedback": "Median feedback:",
+        "assignment": "Assignment",
+        "course": "Course",
+        "waiting": "Waiting",
+        "oldest": "Oldest",
+        "noSubmissions": "No submissions are waiting for review.",
+        "na": "N/A"
+      },
+      "dataQualityPanel": {
+        "title": "Data quality",
+        "description": "Confidence, provenance, event source coverage, and analytics exclusions.",
+        "mode": "Mode",
+        "lastRollup": "Last rollup",
+        "liveQuery": "live query",
+        "confidence": "Confidence",
+        "confidenceLevels": {
+          "high": "High",
+          "medium": "Medium",
+          "low": "Low"
+        },
+        "freshness": "Freshness:",
+        "previewAttemptsExcluded": "Preview attempts excluded:",
+        "teacherAttemptsExcluded": "Teacher attempts excluded:",
+        "thinCourses": "Thin courses:",
+        "noIssues": "No data quality issues detected.",
+        "issueSeverity": {
+          "critical": "Critical",
+          "warning": "Warning",
+          "info": "Info"
+        }
+      },
+      "contentBottlenecksTable": {
+        "title": "Content bottlenecks",
+        "description": "Activities where learners stall, exit, repeatedly fail, or underperform on stale material.",
+        "activity": "Activity",
+        "signal": "Signal",
+        "completion": "Completion",
+        "exits": "Exits",
+        "evidence": "Evidence",
+        "signals": {
+          "high_time_low_completion": "Time sink",
+          "exit_after_open": "Exit after open",
+          "repeated_assessment_failures": "Assessment failure",
+          "stale_low_performance": "Stale content"
+        },
+        "noBottlenecks": "No bottlenecks detected for the current filter.",
+        "na": "N/A"
+      },
+      "insightFeedPanel": {
+        "title": "Insight feed",
+        "description": "Prioritized signals ranked by learner impact and operational urgency.",
+        "inspect": "Inspect",
+        "noInsights": "No priority insights for the current filter.",
+        "severity": {
+          "critical": "Critical",
+          "warning": "Warning",
+          "info": "Info"
+        }
+      },
+      "forecastingPanel": {
+        "title": "Forecasts",
+        "description": "Completion, grading, and assessment risks projected from current pace.",
+        "confidenceLabel": "{level} confidence",
+        "noForecastRisks": "No forecast risks for this filter.",
+        "confidenceLevels": {
+          "high": "High",
+          "medium": "Medium",
+          "low": "Low"
+        },
+        "severity": {
+          "critical": "Critical",
+          "warning": "Warning",
+          "info": "Info"
+        }
+      },
+      "drillThroughAuditPanel": {
+        "title": "Drill-through audit trail",
+        "description": "Inspect the learner or submission rows behind headline metrics.",
+        "metrics": {
+          "active_learners": "Active learners",
+          "completion_rate": "Completion rate",
+          "backlog": "Backlog",
+          "pass_rate": "Pass rate"
+        },
+        "rows": "{count, plural, one {# row} other {# rows}}",
+        "chooseMetric": "Choose a metric to load its source rows.",
+        "noSourceRows": "No source rows found for this metric.",
+        "yes": "Yes",
+        "no": "No",
+        "na": "N/A",
+        "couldNotLoadRows": "Could not load drill-through rows."
+      },
+      "savedViewsBar": {
+        "nameFirst": "Name this view first.",
+        "saved": "Analytics view saved.",
+        "couldNotSave": "Could not save view.",
+        "noSavedViews": "No saved views yet.",
+        "namePlaceholder": "Save current filters",
+        "save": "Save"
+      }
+    },
     "Button": {
       "newCollection": "New Collection",
       "newCourse": "New Course"
@@ -3251,11 +3383,6 @@
       "noAccess": "You don’t have access to dashboard features yet.",
       "platformLogo": "Ashyq Bilim Logo",
       "touUniversity": "Toraighyrov University"
-    },
-    "Components": {
-      "Breadcrumb": {
-        "more": "More"
-      }
     },
     "CourseOverview": {
       "courseLabel": "Course",

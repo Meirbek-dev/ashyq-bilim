@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { AdminAnalyticsResponse } from '@/types/analytics';
 import { Building2 } from 'lucide-react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface AdminAnalyticsPanelProps {
   data: AdminAnalyticsResponse;
@@ -13,25 +13,26 @@ interface AdminAnalyticsPanelProps {
 export default function AdminAnalyticsPanel({ data }: AdminAnalyticsPanelProps) {
   const locale = useLocale();
   const numberFormatter = new Intl.NumberFormat(locale);
+  const t = useTranslations('Components.DashboardAnalytics');
 
   return (
     <Card className="shadow-sm">
       <CardHeader>
         <div className="flex items-center gap-2">
           <Building2 className="h-5 w-5" />
-          <CardTitle>Admin analytics</CardTitle>
+          <CardTitle>{t('adminAnalyticsPanel.title')}</CardTitle>
         </div>
-        <CardDescription>Platform-level workload, course health, cohort retention, program performance, and content ROI.</CardDescription>
+        <CardDescription>{t('adminAnalyticsPanel.description')}</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-6 xl:grid-cols-2">
         <div>
-          <div className="mb-2 text-sm font-medium">Teacher workload comparison</div>
+          <div className="mb-2 text-sm font-medium">{t('adminAnalyticsPanel.teacherWorkloadComparison')}</div>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Teacher</TableHead>
-                <TableHead>Backlog</TableHead>
-                <TableHead>At risk</TableHead>
+                <TableHead>{t('adminAnalyticsPanel.teacher')}</TableHead>
+                <TableHead>{t('adminAnalyticsPanel.backlog')}</TableHead>
+                <TableHead>{t('adminAnalyticsPanel.atRisk')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -46,13 +47,13 @@ export default function AdminAnalyticsPanel({ data }: AdminAnalyticsPanelProps) 
           </Table>
         </div>
         <div>
-          <div className="mb-2 text-sm font-medium">Course health ranking</div>
+          <div className="mb-2 text-sm font-medium">{t('adminAnalyticsPanel.courseHealthRanking')}</div>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Course</TableHead>
-                <TableHead>Health</TableHead>
-                <TableHead>Completion</TableHead>
+                <TableHead>{t('adminAnalyticsPanel.course')}</TableHead>
+                <TableHead>{t('adminAnalyticsPanel.health')}</TableHead>
+                <TableHead>{t('adminAnalyticsPanel.completion')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -60,20 +61,20 @@ export default function AdminAnalyticsPanel({ data }: AdminAnalyticsPanelProps) 
                 <TableRow key={row.course_id}>
                   <TableCell className="max-w-[260px] truncate">{row.course_name}</TableCell>
                   <TableCell>{numberFormatter.format(row.health_score)}</TableCell>
-                  <TableCell>{numberFormatter.format(row.completion_rate)}%</TableCell>
+                  <TableCell>{`${numberFormatter.format(row.completion_rate)}%`}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </div>
         <div>
-          <div className="mb-2 text-sm font-medium">Cohort retention</div>
+          <div className="mb-2 text-sm font-medium">{t('adminAnalyticsPanel.cohortRetention')}</div>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Cohort</TableHead>
-                <TableHead>Retention</TableHead>
-                <TableHead>Learners</TableHead>
+                <TableHead>{t('adminAnalyticsPanel.cohort')}</TableHead>
+                <TableHead>{t('adminAnalyticsPanel.retention')}</TableHead>
+                <TableHead>{t('adminAnalyticsPanel.learners')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -82,7 +83,7 @@ export default function AdminAnalyticsPanel({ data }: AdminAnalyticsPanelProps) 
                   <TableCell className="max-w-[220px] truncate">{row.cohort_name}</TableCell>
                   <TableCell>
                     {row.retention_rate === null || row.retention_rate === undefined
-                      ? 'n/a'
+                      ? t('adminAnalyticsPanel.noData')
                       : `${numberFormatter.format(row.retention_rate)}%`}
                   </TableCell>
                   <TableCell>{row.learners}</TableCell>
@@ -92,13 +93,13 @@ export default function AdminAnalyticsPanel({ data }: AdminAnalyticsPanelProps) 
           </Table>
         </div>
         <div>
-          <div className="mb-2 text-sm font-medium">Content ROI</div>
+          <div className="mb-2 text-sm font-medium">{t('adminAnalyticsPanel.contentROI')}</div>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Course</TableHead>
-                <TableHead>ROI</TableHead>
-                <TableHead>Pass/completion</TableHead>
+                <TableHead>{t('adminAnalyticsPanel.course')}</TableHead>
+                <TableHead>{t('adminAnalyticsPanel.roi')}</TableHead>
+                <TableHead>{t('adminAnalyticsPanel.passCompletion')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -107,10 +108,10 @@ export default function AdminAnalyticsPanel({ data }: AdminAnalyticsPanelProps) 
                   <TableCell className="max-w-[260px] truncate">{row.course_name}</TableCell>
                   <TableCell>
                     {row.content_roi_score === null || row.content_roi_score === undefined
-                      ? 'n/a'
+                      ? t('adminAnalyticsPanel.noData')
                       : numberFormatter.format(row.content_roi_score)}
                   </TableCell>
-                  <TableCell>{numberFormatter.format(row.completion_rate)}%</TableCell>
+                  <TableCell>{`${numberFormatter.format(row.completion_rate)}%`}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
