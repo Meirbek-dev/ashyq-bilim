@@ -60,6 +60,219 @@ class InterventionSummary(PydanticStrictBaseModel):
     avg_risk_delta_after_intervention: float | None = None
 
 
+class ContentBottleneckRow(PydanticStrictBaseModel):
+    course_id: int
+    course_name: str
+    activity_id: int
+    activity_name: str
+    activity_type: str
+    signal: Literal[
+        "high_time_low_completion",
+        "exit_after_open",
+        "repeated_assessment_failures",
+        "stale_low_performance",
+    ]
+    severity: Literal["info", "warning", "critical"]
+    completion_rate: float | None = None
+    started_learners: int = 0
+    completed_learners: int = 0
+    avg_time_seconds: float | None = None
+    exit_count: int = 0
+    failed_assessments: int = 0
+    stale_days: int | None = None
+    note: str
+
+
+class WorkloadAgingBuckets(PydanticStrictBaseModel):
+    h0_24: int = 0
+    d1_3: int = 0
+    d3_7: int = 0
+    d7_plus: int = 0
+
+
+class GradingBacklogItem(PydanticStrictBaseModel):
+    course_id: int
+    course_name: str
+    assessment_id: int
+    assessment_type: Literal["assignment"]
+    title: str
+    awaiting_review: int
+    oldest_submitted_at: str | None = None
+    age_hours: float | None = None
+    sla_breaches: int = 0
+
+
+class TeacherWorkloadSummary(PydanticStrictBaseModel):
+    backlog_total: int = 0
+    sla_breaches: int = 0
+    median_feedback_latency_hours: float | None = None
+    aging_buckets: WorkloadAgingBuckets
+    forecast_backlog_7d: int = 0
+    backlog_by_assignment: list[GradingBacklogItem]
+
+
+class InsightFeedItem(PydanticStrictBaseModel):
+    id: str
+    category: Literal[
+        "risk",
+        "assessment",
+        "content",
+        "workload",
+        "completion",
+        "intervention",
+    ]
+    severity: Literal["info", "warning", "critical"]
+    priority: int
+    title: str
+    body: str
+    course_id: int | None = None
+    activity_id: int | None = None
+    assessment_type: str | None = None
+    assessment_id: int | None = None
+    learner_count: int | None = None
+    href: str | None = None
+
+
+class SavedAnalyticsViewCreate(PydanticStrictBaseModel):
+    name: str
+    view_type: str = "overview"
+    query: dict[str, object] = {}  # noqa: RUF012
+
+
+class SavedAnalyticsViewRow(PydanticStrictBaseModel):
+    id: int
+    teacher_user_id: int
+    name: str
+    view_type: str
+    query: dict[str, object]
+    created_at: str
+    updated_at: str
+
+
+class SavedAnalyticsViewListResponse(PydanticStrictBaseModel):
+    generated_at: str
+    total: int = 0
+    items: list[SavedAnalyticsViewRow]
+
+
+class DrillThroughResponse(PydanticStrictBaseModel):
+    generated_at: str
+    metric: Literal["active_learners", "completion_rate", "pass_rate", "backlog"]
+    total: int = 0
+    items: list[dict[str, object]] = []  # noqa: RUF012
+
+
+class DataQualityIssue(PydanticStrictBaseModel):
+    id: str
+    severity: Literal["info", "warning", "critical"]
+    title: str
+    detail: str
+    course_id: int | None = None
+    source: str | None = None
+
+
+class AnalyticsDataQuality(PydanticStrictBaseModel):
+    mode: Literal["live", "rollup"]
+    last_rollup_time: str | None = None
+    freshness_seconds: int = 0
+    confidence_level: Literal["low", "medium", "high"]
+    missing_event_sources: list[str]
+    courses_without_enough_data: list[dict[str, object]]
+    excluded_preview_attempts: int = 0
+    excluded_teacher_attempts: int = 0
+    issues: list[DataQualityIssue]
+
+
+class ForecastItem(PydanticStrictBaseModel):
+    id: str
+    type: Literal[
+        "completion_target_miss",
+        "grading_backlog_7d",
+        "course_completion_deadline",
+        "assessment_failure_risk",
+    ]
+    severity: Literal["info", "warning", "critical"]
+    title: str
+    prediction: str
+    confidence_level: Literal["low", "medium", "high"]
+    course_id: int | None = None
+    course_name: str | None = None
+    assessment_type: str | None = None
+    assessment_id: int | None = None
+    learner_count: int | None = None
+    expected_value: float | None = None
+    target_value: float | None = None
+    deadline_at: str | None = None
+
+
+class AnomalyItem(PydanticStrictBaseModel):
+    id: str
+    type: Literal[
+        "engagement_drop",
+        "submission_spike",
+        "fast_quiz_completion",
+        "score_distribution_shift",
+    ]
+    severity: Literal["info", "warning", "critical"]
+    title: str
+    detail: str
+    observed_value: float | None = None
+    baseline_value: float | None = None
+    course_id: int | None = None
+    course_name: str | None = None
+    assessment_type: str | None = None
+    assessment_id: int | None = None
+    activity_id: int | None = None
+
+
+class AdminAnalyticsTeacherRow(PydanticStrictBaseModel):
+    teacher_user_id: int
+    teacher_display_name: str
+    managed_course_count: int
+    workload_backlog: int
+    sla_breaches: int
+    median_feedback_latency_hours: float | None = None
+    at_risk_learners: int
+
+
+class AdminAnalyticsCourseRow(PydanticStrictBaseModel):
+    course_id: int
+    course_uuid: str
+    course_name: str
+    health_score: float
+    completion_rate: float
+    active_learners_7d: int
+    at_risk_learners: int
+    content_roi_score: float | None = None
+
+
+class AdminAnalyticsCohortRow(PydanticStrictBaseModel):
+    cohort_id: int
+    cohort_name: str
+    learners: int
+    retained_learners: int
+    retention_rate: float | None = None
+    avg_progress_pct: float | None = None
+
+
+class AdminAnalyticsProgramRow(PydanticStrictBaseModel):
+    program_id: int | None = None
+    program_name: str
+    course_count: int
+    learner_count: int
+    completion_rate: float | None = None
+    health_score: float | None = None
+
+
+class AdminAnalyticsResponse(PydanticStrictBaseModel):
+    generated_at: str
+    teacher_workload_comparison: list[AdminAnalyticsTeacherRow]
+    course_health_ranking: list[AdminAnalyticsCourseRow]
+    cohort_retention: list[AdminAnalyticsCohortRow]
+    department_program_performance: list[AdminAnalyticsProgramRow]
+    content_roi: list[AdminAnalyticsCourseRow]
+
+
 class TeacherInterventionCreate(PydanticStrictBaseModel):
     user_id: int
     course_id: int
@@ -158,8 +371,14 @@ class TeacherOverviewResponse(PydanticStrictBaseModel):
     summary: TeacherOverviewSummary
     trends: TeacherOverviewTrends
     alerts: list[AlertItem]
+    insights: list[InsightFeedItem]
+    data_quality: AnalyticsDataQuality
+    forecasts: list[ForecastItem]
+    anomalies: list[AnomalyItem]
     risk_distribution: RiskDistributionCounts
     intervention_summary: InterventionSummary
+    workload: TeacherWorkloadSummary
+    content_bottlenecks: list[ContentBottleneckRow]
     at_risk_preview: list[AtRiskLearnerRow]
     course_preview: list[TeacherCourseRow]
     assessment_preview: list[AssessmentOutlierRow]
@@ -265,6 +484,7 @@ class TeacherCourseDetailResponse(PydanticStrictBaseModel):
     at_risk_learners: list[AtRiskLearnerRow]
     assessment_outliers: list[AssessmentOutlierRow]
     content_health: list[ContentHealthRow]
+    content_bottlenecks: list[ContentBottleneckRow]
 
 
 class TeacherAssessmentListResponse(PydanticStrictBaseModel):

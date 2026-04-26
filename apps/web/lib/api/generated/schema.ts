@@ -324,6 +324,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/analytics/teacher/drill-through/{metric}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Teacher Drillthrough Platform */
+        get: operations["teacher_drillthrough_platform_api_v1_analytics_teacher_drill_through__metric__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/analytics/teacher/exports/assessment-outcomes.csv": {
         parameters: {
             query?: never;
@@ -439,6 +456,41 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/teacher/saved-views": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Teacher Saved Views Platform */
+        get: operations["teacher_saved_views_platform_api_v1_analytics_teacher_saved_views_get"];
+        put?: never;
+        /** Save Teacher Saved View Platform */
+        post: operations["save_teacher_saved_view_platform_api_v1_analytics_teacher_saved_views_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/teacher/saved-views/{view_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Teacher Saved View Platform */
+        delete: operations["delete_teacher_saved_view_platform_api_v1_analytics_teacher_saved_views__view_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5580,6 +5632,57 @@ export interface components {
             /** Label */
             label: string;
         };
+        /** ContentBottleneckRow */
+        ContentBottleneckRow: {
+            /** Activity Id */
+            activity_id: number;
+            /** Activity Name */
+            activity_name: string;
+            /** Activity Type */
+            activity_type: string;
+            /** Avg Time Seconds */
+            avg_time_seconds?: number | null;
+            /**
+             * Completed Learners
+             * @default 0
+             */
+            completed_learners: number;
+            /** Completion Rate */
+            completion_rate?: number | null;
+            /** Course Id */
+            course_id: number;
+            /** Course Name */
+            course_name: string;
+            /**
+             * Exit Count
+             * @default 0
+             */
+            exit_count: number;
+            /**
+             * Failed Assessments
+             * @default 0
+             */
+            failed_assessments: number;
+            /** Note */
+            note: string;
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "info" | "warning" | "critical";
+            /**
+             * Signal
+             * @enum {string}
+             */
+            signal: "high_time_low_completion" | "exit_after_open" | "repeated_assessment_failures" | "stale_low_performance";
+            /** Stale Days */
+            stale_days?: number | null;
+            /**
+             * Started Learners
+             * @default 0
+             */
+            started_learners: number;
+        };
         /** ContentHealthRow */
         ContentHealthRow: {
             /** Course Id */
@@ -6023,6 +6126,28 @@ export interface components {
          * @enum {string}
          */
         DiscussionType: "post" | "reply";
+        /** DrillThroughResponse */
+        DrillThroughResponse: {
+            /** Generated At */
+            generated_at: string;
+            /**
+             * Items
+             * @default []
+             */
+            items: {
+                [key: string]: unknown;
+            }[];
+            /**
+             * Metric
+             * @enum {string}
+             */
+            metric: "active_learners" | "completion_rate" | "pass_rate" | "backlog";
+            /**
+             * Total
+             * @default 0
+             */
+            total: number;
+        };
         /** ErrorModel */
         ErrorModel: {
             /** Detail */
@@ -6281,6 +6406,33 @@ export interface components {
             /** User Answer */
             user_answer?: unknown;
         };
+        /** GradingBacklogItem */
+        GradingBacklogItem: {
+            /** Age Hours */
+            age_hours?: number | null;
+            /** Assessment Id */
+            assessment_id: number;
+            /**
+             * Assessment Type
+             * @constant
+             */
+            assessment_type: "assignment";
+            /** Awaiting Review */
+            awaiting_review: number;
+            /** Course Id */
+            course_id: number;
+            /** Course Name */
+            course_name: string;
+            /** Oldest Submitted At */
+            oldest_submitted_at?: string | null;
+            /**
+             * Sla Breaches
+             * @default 0
+             */
+            sla_breaches: number;
+            /** Title */
+            title: string;
+        };
         /**
          * GradingBreakdown
          * @description Complete grading result for a submission.
@@ -6326,6 +6478,39 @@ export interface components {
             count: number;
             /** Label */
             label: string;
+        };
+        /** InsightFeedItem */
+        InsightFeedItem: {
+            /** Activity Id */
+            activity_id?: number | null;
+            /** Assessment Id */
+            assessment_id?: number | null;
+            /** Assessment Type */
+            assessment_type?: string | null;
+            /** Body */
+            body: string;
+            /**
+             * Category
+             * @enum {string}
+             */
+            category: "risk" | "assessment" | "content" | "workload" | "completion" | "intervention";
+            /** Course Id */
+            course_id?: number | null;
+            /** Href */
+            href?: string | null;
+            /** Id */
+            id: string;
+            /** Learner Count */
+            learner_count?: number | null;
+            /** Priority */
+            priority: number;
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "info" | "warning" | "critical";
+            /** Title */
+            title: string;
         };
         /**
          * InstructorAnalytics
@@ -7080,6 +7265,54 @@ export interface components {
             /** Priority */
             priority?: number | null;
         };
+        /** SavedAnalyticsViewCreate */
+        SavedAnalyticsViewCreate: {
+            /** Name */
+            name: string;
+            /**
+             * Query
+             * @default {}
+             */
+            query: {
+                [key: string]: unknown;
+            };
+            /**
+             * View Type
+             * @default overview
+             */
+            view_type: string;
+        };
+        /** SavedAnalyticsViewListResponse */
+        SavedAnalyticsViewListResponse: {
+            /** Generated At */
+            generated_at: string;
+            /** Items */
+            items: components["schemas"]["SavedAnalyticsViewRow"][];
+            /**
+             * Total
+             * @default 0
+             */
+            total: number;
+        };
+        /** SavedAnalyticsViewRow */
+        SavedAnalyticsViewRow: {
+            /** Created At */
+            created_at: string;
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Query */
+            query: {
+                [key: string]: unknown;
+            };
+            /** Teacher User Id */
+            teacher_user_id: number;
+            /** Updated At */
+            updated_at: string;
+            /** View Type */
+            view_type: string;
+        };
         /** SearchResult */
         SearchResult: {
             /** Collections */
@@ -7404,6 +7637,8 @@ export interface components {
             assessment_outliers: components["schemas"]["AssessmentOutlierRow"][];
             /** At Risk Learners */
             at_risk_learners: components["schemas"]["AtRiskLearnerRow"][];
+            /** Content Bottlenecks */
+            content_bottlenecks: components["schemas"]["ContentBottleneckRow"][];
             /** Content Health */
             content_health: components["schemas"]["ContentHealthRow"][];
             /** Course */
@@ -7627,6 +7862,8 @@ export interface components {
              * @enum {string}
              */
             compare: "previous_period" | "none";
+            /** Content Bottlenecks */
+            content_bottlenecks: components["schemas"]["ContentBottleneckRow"][];
             /**
              * Course Options
              * @default []
@@ -7643,6 +7880,8 @@ export interface components {
             freshness_seconds: number;
             /** Generated At */
             generated_at: string;
+            /** Insights */
+            insights: components["schemas"]["InsightFeedItem"][];
             intervention_summary: components["schemas"]["InterventionSummary"];
             risk_distribution: components["schemas"]["RiskDistributionCounts"];
             scope: components["schemas"]["TeacherOverviewScope"];
@@ -7653,6 +7892,7 @@ export interface components {
              * @enum {string}
              */
             window: "7d" | "28d" | "90d";
+            workload: components["schemas"]["TeacherWorkloadSummary"];
         };
         /** TeacherOverviewScope */
         TeacherOverviewScope: {
@@ -7682,6 +7922,29 @@ export interface components {
             grading_completed: components["schemas"]["TimeSeriesPoint"][];
             /** Submissions */
             submissions: components["schemas"]["TimeSeriesPoint"][];
+        };
+        /** TeacherWorkloadSummary */
+        TeacherWorkloadSummary: {
+            aging_buckets: components["schemas"]["WorkloadAgingBuckets"];
+            /** Backlog By Assignment */
+            backlog_by_assignment: components["schemas"]["GradingBacklogItem"][];
+            /**
+             * Backlog Total
+             * @default 0
+             */
+            backlog_total: number;
+            /**
+             * Forecast Backlog 7D
+             * @default 0
+             */
+            forecast_backlog_7d: number;
+            /** Median Feedback Latency Hours */
+            median_feedback_latency_hours?: number | null;
+            /**
+             * Sla Breaches
+             * @default 0
+             */
+            sla_breaches: number;
         };
         /**
          * TestCaseResult
@@ -8151,6 +8414,29 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /** WorkloadAgingBuckets */
+        WorkloadAgingBuckets: {
+            /**
+             * D1 3
+             * @default 0
+             */
+            d1_3: number;
+            /**
+             * D3 7
+             * @default 0
+             */
+            d3_7: number;
+            /**
+             * D7 Plus
+             * @default 0
+             */
+            d7_plus: number;
+            /**
+             * H0 24
+             * @default 0
+             */
+            h0_24: number;
         };
         /**
          * XPAwardRequest
@@ -8806,6 +9092,53 @@ export interface operations {
             };
         };
     };
+    teacher_drillthrough_platform_api_v1_analytics_teacher_drill_through__metric__get: {
+        parameters: {
+            query?: {
+                course_id?: number | null;
+                assessment_type?: string | null;
+                assessment_id?: number | null;
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path: {
+                metric: "active_learners" | "completion_rate" | "pass_rate" | "backlog";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DrillThroughResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     teacher_assessment_outcomes_export_platform_api_v1_analytics_teacher_exports_assessment_outcomes_csv_get: {
         parameters: {
             query?: {
@@ -9136,6 +9469,136 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["TeacherOverviewResponse"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    teacher_saved_views_platform_api_v1_analytics_teacher_saved_views_get: {
+        parameters: {
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedAnalyticsViewListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    save_teacher_saved_view_platform_api_v1_analytics_teacher_saved_views_post: {
+        parameters: {
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavedAnalyticsViewCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedAnalyticsViewRow"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_teacher_saved_view_platform_api_v1_analytics_teacher_saved_views__view_id__delete: {
+        parameters: {
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path: {
+                view_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

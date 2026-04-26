@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 from fastapi.responses import StreamingResponse
@@ -15,21 +15,29 @@ from src.infra.db.session import get_db_session
 from src.security.rbac import PermissionChecker
 from src.services.analytics import (
     create_teacher_intervention,
+    delete_analytics_view,
     export_assessment_outcomes_csv,
     export_at_risk_csv,
     export_course_progress_csv,
     export_grading_backlog_csv,
     get_at_risk_learners,
+    get_drillthrough_rows,
     get_teacher_assessment_detail,
     get_teacher_assessment_list,
     get_teacher_course_detail,
     get_teacher_course_list,
     get_teacher_overview,
+    list_saved_analytics_views,
     list_teacher_interventions,
+    save_analytics_view,
 )
 from src.services.analytics.filters import AnalyticsFilters, get_analytics_filters
 from src.services.analytics.schemas import (
     AtRiskLearnersResponse,
+    DrillThroughResponse,
+    SavedAnalyticsViewCreate,
+    SavedAnalyticsViewListResponse,
+    SavedAnalyticsViewRow,
     TeacherAssessmentDetailResponse,
     TeacherAssessmentListResponse,
     TeacherCourseDetailResponse,
@@ -248,6 +256,90 @@ async def create_teacher_intervention_platform(
         db_session,
         scope,
         payload,
+    )
+
+
+@router.get(
+    "/teacher/saved-views",
+    response_model=SavedAnalyticsViewListResponse,
+)
+async def teacher_saved_views_platform(
+    filters: Annotated[AnalyticsFilters, Depends(get_analytics_filters)],
+    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_public_user)],
+    db_session: Annotated[Session, Depends(get_db_session)],
+):
+    scope = await _scope_for(db_session, current_user, filters, action="read")
+    return await asyncio.to_thread(list_saved_analytics_views, db_session, scope)
+
+
+@router.post(
+    "/teacher/saved-views",
+    response_model=SavedAnalyticsViewRow,
+)
+async def save_teacher_saved_view_platform(
+    payload: SavedAnalyticsViewCreate,
+    filters: Annotated[AnalyticsFilters, Depends(get_analytics_filters)],
+    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_public_user)],
+    db_session: Annotated[Session, Depends(get_db_session)],
+):
+    scope = await _scope_for(db_session, current_user, filters, action="read")
+    return await asyncio.to_thread(save_analytics_view, db_session, scope, payload)
+
+
+@router.delete("/teacher/saved-views/{view_id}", status_code=204)
+async def delete_teacher_saved_view_platform(
+    view_id: int,
+    filters: Annotated[AnalyticsFilters, Depends(get_analytics_filters)],
+    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_public_user)],
+    db_session: Annotated[Session, Depends(get_db_session)],
+):
+    scope = await _scope_for(db_session, current_user, filters, action="read")
+    deleted = await asyncio.to_thread(
+        delete_analytics_view, db_session, scope, view_id
+    )
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Saved view not found")
+    return Response(status_code=204)
+
+
+@router.get(
+    "/teacher/drill-through/{metric}",
+    response_model=DrillThroughResponse,
+)
+async def teacher_drillthrough_platform(
+    metric: Literal["active_learners", "completion_rate", "pass_rate", "backlog"],
+    filters: Annotated[AnalyticsFilters, Depends(get_analytics_filters)],
+    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_public_user)],
+    db_session: Annotated[Session, Depends(get_db_session)],
+    course_id: int | None = None,
+    assessment_type: str | None = None,
+    assessment_id: int | None = None,
+):
+    scope = await _scope_for(db_session, current_user, filters, action="read")
+    if course_id is not None:
+        await asyncio.to_thread(ensure_course_in_scope, scope, course_id)
+    if metric == "pass_rate":
+        if assessment_type is None or assessment_id is None:
+            raise HTTPException(
+                status_code=422,
+                detail="assessment_type and assessment_id are required for pass_rate",
+            )
+        await asyncio.to_thread(
+            ensure_assessment_in_scope,
+            db_session,
+            scope,
+            assessment_type,
+            assessment_id,
+        )
+    return await asyncio.to_thread(
+        get_drillthrough_rows,
+        db_session,
+        scope,
+        filters,
+        metric,
+        course_id=course_id,
+        assessment_type=assessment_type,
+        assessment_id=assessment_id,
     )
 
 

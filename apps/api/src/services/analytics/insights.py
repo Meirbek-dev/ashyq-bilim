@@ -1,0 +1,119 @@
+from __future__ import annotations
+
+from src.services.analytics.schemas import (
+    AssessmentOutlierRow,
+    AtRiskLearnerRow,
+    ContentBottleneckRow,
+    InsightFeedItem,
+    TeacherCourseRow,
+    TeacherWorkloadSummary,
+)
+
+
+def build_insight_feed(
+    *,
+    risk_rows: list[AtRiskLearnerRow],
+    course_rows: list[TeacherCourseRow],
+    assessment_rows: list[AssessmentOutlierRow],
+    bottlenecks: list[ContentBottleneckRow],
+    workload: TeacherWorkloadSummary,
+    limit: int = 10,
+) -> list[InsightFeedItem]:
+    items: list[InsightFeedItem] = []
+
+    newly_at_risk_by_course: dict[int, list[AtRiskLearnerRow]] = {}
+    for row in risk_rows:
+        if row.risk_trend == "newly_at_risk" and row.risk_level in {"medium", "high"}:
+            newly_at_risk_by_course.setdefault(row.course_id, []).append(row)
+    for course_id, learners in newly_at_risk_by_course.items():
+        course_name = learners[0].course_name
+        items.append(
+            InsightFeedItem(
+                id=f"risk-new-{course_id}",
+                category="risk",
+                severity="critical" if len(learners) >= 10 else "warning",
+                priority=95 + min(20, len(learners)),
+                title=f"{course_name} has {len(learners)} newly at-risk learners.",
+                body="Risk increased against each learner's previous baseline; review the watchlist before the next session.",
+                course_id=course_id,
+                learner_count=len(learners),
+                href="/dash/analytics/learners/at-risk",
+            )
+        )
+
+    for row in assessment_rows:
+        if row.pass_rate is None or row.pass_rate >= 65:
+            continue
+        reason = "quality diagnostics" if row.discrimination_index is not None else "low pass rate"
+        items.append(
+            InsightFeedItem(
+                id=f"assessment-{row.assessment_type}-{row.assessment_id}",
+                category="assessment",
+                severity="critical" if row.pass_rate < 45 else "warning",
+                priority=80 + int(65 - row.pass_rate),
+                title=f"{row.title} pass rate is {row.pass_rate}%.",
+                body=f"The outlier is driven by {reason}; open the assessment diagnostics before reusing it.",
+                course_id=row.course_id,
+                activity_id=row.activity_id,
+                assessment_type=row.assessment_type,
+                assessment_id=row.assessment_id,
+                href=f"/dash/analytics/assessments/{row.assessment_type}/{row.assessment_id}",
+            )
+        )
+
+    for bottleneck in bottlenecks[:4]:
+        items.append(
+            InsightFeedItem(
+                id=f"content-{bottleneck.signal}-{bottleneck.activity_id}",
+                category="content",
+                severity=bottleneck.severity,
+                priority=70
+                + (20 if bottleneck.severity == "critical" else 10)
+                + min(10, bottleneck.exit_count),
+                title=f"{bottleneck.activity_name} is a content bottleneck.",
+                body=bottleneck.note,
+                course_id=bottleneck.course_id,
+                activity_id=bottleneck.activity_id,
+                learner_count=bottleneck.started_learners,
+                href=f"/dash/analytics/courses?course_ids={bottleneck.course_id}",
+            )
+        )
+
+    if workload.backlog_total:
+        items.append(
+            InsightFeedItem(
+                id="workload-backlog",
+                category="workload",
+                severity="critical" if workload.sla_breaches else "warning",
+                priority=85 + min(25, workload.sla_breaches),
+                title=f"{workload.backlog_total} submissions are awaiting review.",
+                body=f"{workload.sla_breaches} have breached the {72}h grading SLA; forecast is {workload.forecast_backlog_7d} in 7 days.",
+                href="/dash/analytics?drill=backlog",
+            )
+        )
+
+    improved_courses = [
+        row
+        for row in course_rows
+        if row.historical_completion_delta_pct is not None
+        and row.historical_completion_delta_pct >= 10
+    ]
+    for row in improved_courses[:3]:
+        items.append(
+            InsightFeedItem(
+                id=f"completion-improved-{row.course_id}",
+                category="completion",
+                severity="info",
+                priority=45 + int(row.historical_completion_delta_pct or 0),
+                title=f"{row.course_name} completion improved by {row.historical_completion_delta_pct} points.",
+                body="This cohort is outperforming the course historical baseline.",
+                course_id=row.course_id,
+                href=f"/dash/analytics/courses/{row.course_uuid}",
+            )
+        )
+
+    severity_score = {"critical": 2, "warning": 1, "info": 0}
+    items.sort(
+        key=lambda item: (item.priority, severity_score[item.severity]), reverse=True
+    )
+    return items[:limit]

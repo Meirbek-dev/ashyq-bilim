@@ -11,8 +11,10 @@ from src.db.analytics import (
     LearnerRiskSnapshot,
 )
 from src.services.analytics.assessments import build_assessment_rows
+from src.services.analytics.bottlenecks import build_content_bottlenecks
 from src.services.analytics.courses import build_course_rows
 from src.services.analytics.filters import AnalyticsFilters
+from src.services.analytics.insights import build_insight_feed
 from src.services.analytics.interventions import summarize_interventions
 from src.services.analytics.queries import (
     ActivityEvent,
@@ -45,6 +47,7 @@ from src.services.analytics.schemas import (
     TimeSeriesPoint,
 )
 from src.services.analytics.scope import TeacherAnalyticsScope
+from src.services.analytics.workload import build_teacher_workload
 
 
 def _metric(
@@ -286,6 +289,8 @@ def get_teacher_overview(
         scope, filters, db_session, context=context
     )
     assessment_rows = build_assessment_rows(context, filters)
+    workload = build_teacher_workload(context, filters)
+    content_bottlenecks = build_content_bottlenecks(context, filters)
     negative_engagement_courses = sum(
         1
         for row in course_rows
@@ -535,8 +540,17 @@ def get_teacher_overview(
         ),
         trends=trends,
         alerts=alerts,
+        insights=build_insight_feed(
+            risk_rows=risk_rows,
+            course_rows=course_rows,
+            assessment_rows=assessment_rows,
+            bottlenecks=content_bottlenecks,
+            workload=workload,
+        ),
         risk_distribution=risk_distribution,
         intervention_summary=summarize_interventions(db_session, scope),
+        workload=workload,
+        content_bottlenecks=content_bottlenecks,
         at_risk_preview=risk_rows[:8],
         course_preview=course_rows[:8],
         assessment_preview=assessment_rows[:8],

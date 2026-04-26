@@ -2,6 +2,7 @@ import { getTeacherCourseDetailByUuid, normalizeAnalyticsQuery } from '@services
 import AssessmentOutliersTable from '@components/Dashboard/Analytics/AssessmentOutliersTable';
 import { getAnalyticsSeverityLabel, getAnalyticsSignalLabel } from '@/lib/analytics/labels';
 import CompletionFunnelChart from '@components/Dashboard/Analytics/CompletionFunnelChart';
+import ContentBottlenecksTable from '@components/Dashboard/Analytics/ContentBottlenecksTable';
 import EngagementAreaChart from '@components/Dashboard/Analytics/EngagementAreaChart';
 import AtRiskLearnersTable from '@components/Dashboard/Analytics/AtRiskLearnersTable';
 import AnalyticsEmptyState from '@components/Dashboard/Analytics/AnalyticsEmptyState';
@@ -106,6 +107,7 @@ async function PlatformAnalyticsCourseDetailPageInner(props: {
         </Card>
 
         <AssessmentOutliersTable rows={detail.assessment_outliers} />
+        <ContentBottlenecksTable rows={detail.content_bottlenecks} />
         <AtRiskLearnersTable
           rows={detail.at_risk_learners}
           title={t('pages.courseAtRiskTitle')}

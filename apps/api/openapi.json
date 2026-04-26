@@ -3769,6 +3769,118 @@
         "title": "CommonFailureRow",
         "type": "object"
       },
+      "ContentBottleneckRow": {
+        "properties": {
+          "activity_id": {
+            "title": "Activity Id",
+            "type": "integer"
+          },
+          "activity_name": {
+            "title": "Activity Name",
+            "type": "string"
+          },
+          "activity_type": {
+            "title": "Activity Type",
+            "type": "string"
+          },
+          "avg_time_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Time Seconds"
+          },
+          "completed_learners": {
+            "default": 0,
+            "title": "Completed Learners",
+            "type": "integer"
+          },
+          "completion_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completion Rate"
+          },
+          "course_id": {
+            "title": "Course Id",
+            "type": "integer"
+          },
+          "course_name": {
+            "title": "Course Name",
+            "type": "string"
+          },
+          "exit_count": {
+            "default": 0,
+            "title": "Exit Count",
+            "type": "integer"
+          },
+          "failed_assessments": {
+            "default": 0,
+            "title": "Failed Assessments",
+            "type": "integer"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "info",
+              "warning",
+              "critical"
+            ],
+            "title": "Severity",
+            "type": "string"
+          },
+          "signal": {
+            "enum": [
+              "high_time_low_completion",
+              "exit_after_open",
+              "repeated_assessment_failures",
+              "stale_low_performance"
+            ],
+            "title": "Signal",
+            "type": "string"
+          },
+          "stale_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stale Days"
+          },
+          "started_learners": {
+            "default": 0,
+            "title": "Started Learners",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "course_id",
+          "course_name",
+          "activity_id",
+          "activity_name",
+          "activity_type",
+          "signal",
+          "severity",
+          "note"
+        ],
+        "title": "ContentBottleneckRow",
+        "type": "object"
+      },
       "ContentHealthRow": {
         "properties": {
           "course_id": {
@@ -5025,6 +5137,44 @@
         "title": "DiscussionType",
         "type": "string"
       },
+      "DrillThroughResponse": {
+        "properties": {
+          "generated_at": {
+            "title": "Generated At",
+            "type": "string"
+          },
+          "items": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "metric": {
+            "enum": [
+              "active_learners",
+              "completion_rate",
+              "pass_rate",
+              "backlog"
+            ],
+            "title": "Metric",
+            "type": "string"
+          },
+          "total": {
+            "default": 0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "generated_at",
+          "metric"
+        ],
+        "title": "DrillThroughResponse",
+        "type": "object"
+      },
       "ErrorModel": {
         "properties": {
           "detail": {
@@ -5673,6 +5823,72 @@
         "title": "GradedItem",
         "type": "object"
       },
+      "GradingBacklogItem": {
+        "properties": {
+          "age_hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age Hours"
+          },
+          "assessment_id": {
+            "title": "Assessment Id",
+            "type": "integer"
+          },
+          "assessment_type": {
+            "const": "assignment",
+            "title": "Assessment Type",
+            "type": "string"
+          },
+          "awaiting_review": {
+            "title": "Awaiting Review",
+            "type": "integer"
+          },
+          "course_id": {
+            "title": "Course Id",
+            "type": "integer"
+          },
+          "course_name": {
+            "title": "Course Name",
+            "type": "string"
+          },
+          "oldest_submitted_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oldest Submitted At"
+          },
+          "sla_breaches": {
+            "default": 0,
+            "title": "Sla Breaches",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "course_id",
+          "course_name",
+          "assessment_id",
+          "assessment_type",
+          "title",
+          "awaiting_review"
+        ],
+        "title": "GradingBacklogItem",
+        "type": "object"
+      },
       "GradingBreakdown": {
         "description": "Complete grading result for a submission.",
         "properties": {
@@ -5750,6 +5966,123 @@
           "count"
         ],
         "title": "HistogramBucket",
+        "type": "object"
+      },
+      "InsightFeedItem": {
+        "properties": {
+          "activity_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activity Id"
+          },
+          "assessment_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assessment Id"
+          },
+          "assessment_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assessment Type"
+          },
+          "body": {
+            "title": "Body",
+            "type": "string"
+          },
+          "category": {
+            "enum": [
+              "risk",
+              "assessment",
+              "content",
+              "workload",
+              "completion",
+              "intervention"
+            ],
+            "title": "Category",
+            "type": "string"
+          },
+          "course_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Course Id"
+          },
+          "href": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Href"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "learner_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Learner Count"
+          },
+          "priority": {
+            "title": "Priority",
+            "type": "integer"
+          },
+          "severity": {
+            "enum": [
+              "info",
+              "warning",
+              "critical"
+            ],
+            "title": "Severity",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "category",
+          "severity",
+          "priority",
+          "title",
+          "body"
+        ],
+        "title": "InsightFeedItem",
         "type": "object"
       },
       "InstructorAnalytics": {
@@ -7674,6 +8007,100 @@
         "title": "RoleUpdate",
         "type": "object"
       },
+      "SavedAnalyticsViewCreate": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "query": {
+            "additionalProperties": true,
+            "default": {},
+            "title": "Query",
+            "type": "object"
+          },
+          "view_type": {
+            "default": "overview",
+            "title": "View Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "SavedAnalyticsViewCreate",
+        "type": "object"
+      },
+      "SavedAnalyticsViewListResponse": {
+        "properties": {
+          "generated_at": {
+            "title": "Generated At",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SavedAnalyticsViewRow"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "default": 0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "generated_at",
+          "items"
+        ],
+        "title": "SavedAnalyticsViewListResponse",
+        "type": "object"
+      },
+      "SavedAnalyticsViewRow": {
+        "properties": {
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "query": {
+            "additionalProperties": true,
+            "title": "Query",
+            "type": "object"
+          },
+          "teacher_user_id": {
+            "title": "Teacher User Id",
+            "type": "integer"
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string"
+          },
+          "view_type": {
+            "title": "View Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "teacher_user_id",
+          "name",
+          "view_type",
+          "query",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "SavedAnalyticsViewRow",
+        "type": "object"
+      },
       "SearchResult": {
         "properties": {
           "collections": {
@@ -8610,6 +9037,13 @@
             "title": "At Risk Learners",
             "type": "array"
           },
+          "content_bottlenecks": {
+            "items": {
+              "$ref": "#/components/schemas/ContentBottleneckRow"
+            },
+            "title": "Content Bottlenecks",
+            "type": "array"
+          },
           "content_health": {
             "items": {
               "$ref": "#/components/schemas/ContentHealthRow"
@@ -8665,7 +9099,8 @@
           "activity_dropoff",
           "at_risk_learners",
           "assessment_outliers",
-          "content_health"
+          "content_health",
+          "content_bottlenecks"
         ],
         "title": "TeacherCourseDetailResponse",
         "type": "object"
@@ -9181,6 +9616,13 @@
             "title": "Compare",
             "type": "string"
           },
+          "content_bottlenecks": {
+            "items": {
+              "$ref": "#/components/schemas/ContentBottleneckRow"
+            },
+            "title": "Content Bottlenecks",
+            "type": "array"
+          },
           "course_options": {
             "default": [],
             "items": {
@@ -9209,6 +9651,13 @@
             "title": "Generated At",
             "type": "string"
           },
+          "insights": {
+            "items": {
+              "$ref": "#/components/schemas/InsightFeedItem"
+            },
+            "title": "Insights",
+            "type": "array"
+          },
           "intervention_summary": {
             "$ref": "#/components/schemas/InterventionSummary"
           },
@@ -9232,6 +9681,9 @@
             ],
             "title": "Window",
             "type": "string"
+          },
+          "workload": {
+            "$ref": "#/components/schemas/TeacherWorkloadSummary"
           }
         },
         "required": [
@@ -9243,8 +9695,11 @@
           "summary",
           "trends",
           "alerts",
+          "insights",
           "risk_distribution",
           "intervention_summary",
+          "workload",
+          "content_bottlenecks",
           "at_risk_preview",
           "course_preview",
           "assessment_preview"
@@ -9351,6 +9806,52 @@
           "grading_completed"
         ],
         "title": "TeacherOverviewTrends",
+        "type": "object"
+      },
+      "TeacherWorkloadSummary": {
+        "properties": {
+          "aging_buckets": {
+            "$ref": "#/components/schemas/WorkloadAgingBuckets"
+          },
+          "backlog_by_assignment": {
+            "items": {
+              "$ref": "#/components/schemas/GradingBacklogItem"
+            },
+            "title": "Backlog By Assignment",
+            "type": "array"
+          },
+          "backlog_total": {
+            "default": 0,
+            "title": "Backlog Total",
+            "type": "integer"
+          },
+          "forecast_backlog_7d": {
+            "default": 0,
+            "title": "Forecast Backlog 7D",
+            "type": "integer"
+          },
+          "median_feedback_latency_hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Feedback Latency Hours"
+          },
+          "sla_breaches": {
+            "default": 0,
+            "title": "Sla Breaches",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "aging_buckets",
+          "backlog_by_assignment"
+        ],
+        "title": "TeacherWorkloadSummary",
         "type": "object"
       },
       "TestCaseResult": {
@@ -10675,6 +11176,32 @@
           "type"
         ],
         "title": "ValidationError",
+        "type": "object"
+      },
+      "WorkloadAgingBuckets": {
+        "properties": {
+          "d1_3": {
+            "default": 0,
+            "title": "D1 3",
+            "type": "integer"
+          },
+          "d3_7": {
+            "default": 0,
+            "title": "D3 7",
+            "type": "integer"
+          },
+          "d7_plus": {
+            "default": 0,
+            "title": "D7 Plus",
+            "type": "integer"
+          },
+          "h0_24": {
+            "default": 0,
+            "title": "H0 24",
+            "type": "integer"
+          }
+        },
+        "title": "WorkloadAgingBuckets",
         "type": "object"
       },
       "XPAwardRequest": {
@@ -12423,6 +12950,275 @@
         ]
       }
     },
+    "/api/v1/analytics/teacher/drill-through/{metric}": {
+      "get": {
+        "operationId": "teacher_drillthrough_platform_api_v1_analytics_teacher_drill_through__metric__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "metric",
+            "required": true,
+            "schema": {
+              "enum": [
+                "active_learners",
+                "completion_rate",
+                "pass_rate",
+                "backlog"
+              ],
+              "title": "Metric",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "course_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Course Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "assessment_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Assessment Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "assessment_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Assessment Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "default": "28d",
+              "enum": [
+                "7d",
+                "28d",
+                "90d"
+              ],
+              "title": "Window",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "compare",
+            "required": false,
+            "schema": {
+              "default": "previous_period",
+              "enum": [
+                "previous_period",
+                "none"
+              ],
+              "title": "Compare",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "bucket",
+            "required": false,
+            "schema": {
+              "default": "day",
+              "enum": [
+                "day",
+                "week"
+              ],
+              "title": "Bucket",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "bucket_start",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Bucket Start"
+            }
+          },
+          {
+            "in": "query",
+            "name": "course_ids",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Course Ids"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cohort_ids",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cohort Ids"
+            }
+          },
+          {
+            "in": "query",
+            "name": "teacher_user_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Teacher User Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "timezone",
+            "required": false,
+            "schema": {
+              "default": "UTC",
+              "title": "Timezone",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort_by",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Sort By"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort_order",
+            "required": false,
+            "schema": {
+              "default": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "title": "Sort Order",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DrillThroughResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Teacher Drillthrough Platform",
+        "tags": [
+          "analytics"
+        ]
+      }
+    },
     "/api/v1/analytics/teacher/exports/assessment-outcomes.csv": {
       "get": {
         "operationId": "teacher_assessment_outcomes_export_platform_api_v1_analytics_teacher_exports_assessment_outcomes_csv_get",
@@ -14098,6 +14894,634 @@
           }
         ],
         "summary": "Teacher Overview Platform",
+        "tags": [
+          "analytics"
+        ]
+      }
+    },
+    "/api/v1/analytics/teacher/saved-views": {
+      "get": {
+        "operationId": "teacher_saved_views_platform_api_v1_analytics_teacher_saved_views_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "default": "28d",
+              "enum": [
+                "7d",
+                "28d",
+                "90d"
+              ],
+              "title": "Window",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "compare",
+            "required": false,
+            "schema": {
+              "default": "previous_period",
+              "enum": [
+                "previous_period",
+                "none"
+              ],
+              "title": "Compare",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "bucket",
+            "required": false,
+            "schema": {
+              "default": "day",
+              "enum": [
+                "day",
+                "week"
+              ],
+              "title": "Bucket",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "bucket_start",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Bucket Start"
+            }
+          },
+          {
+            "in": "query",
+            "name": "course_ids",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Course Ids"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cohort_ids",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cohort Ids"
+            }
+          },
+          {
+            "in": "query",
+            "name": "teacher_user_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Teacher User Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "timezone",
+            "required": false,
+            "schema": {
+              "default": "UTC",
+              "title": "Timezone",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort_by",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Sort By"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort_order",
+            "required": false,
+            "schema": {
+              "default": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "title": "Sort Order",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedAnalyticsViewListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Teacher Saved Views Platform",
+        "tags": [
+          "analytics"
+        ]
+      },
+      "post": {
+        "operationId": "save_teacher_saved_view_platform_api_v1_analytics_teacher_saved_views_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "default": "28d",
+              "enum": [
+                "7d",
+                "28d",
+                "90d"
+              ],
+              "title": "Window",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "compare",
+            "required": false,
+            "schema": {
+              "default": "previous_period",
+              "enum": [
+                "previous_period",
+                "none"
+              ],
+              "title": "Compare",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "bucket",
+            "required": false,
+            "schema": {
+              "default": "day",
+              "enum": [
+                "day",
+                "week"
+              ],
+              "title": "Bucket",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "bucket_start",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Bucket Start"
+            }
+          },
+          {
+            "in": "query",
+            "name": "course_ids",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Course Ids"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cohort_ids",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cohort Ids"
+            }
+          },
+          {
+            "in": "query",
+            "name": "teacher_user_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Teacher User Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "timezone",
+            "required": false,
+            "schema": {
+              "default": "UTC",
+              "title": "Timezone",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort_by",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Sort By"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort_order",
+            "required": false,
+            "schema": {
+              "default": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "title": "Sort Order",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavedAnalyticsViewCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedAnalyticsViewRow"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Save Teacher Saved View Platform",
+        "tags": [
+          "analytics"
+        ]
+      }
+    },
+    "/api/v1/analytics/teacher/saved-views/{view_id}": {
+      "delete": {
+        "operationId": "delete_teacher_saved_view_platform_api_v1_analytics_teacher_saved_views__view_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "view_id",
+            "required": true,
+            "schema": {
+              "title": "View Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "default": "28d",
+              "enum": [
+                "7d",
+                "28d",
+                "90d"
+              ],
+              "title": "Window",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "compare",
+            "required": false,
+            "schema": {
+              "default": "previous_period",
+              "enum": [
+                "previous_period",
+                "none"
+              ],
+              "title": "Compare",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "bucket",
+            "required": false,
+            "schema": {
+              "default": "day",
+              "enum": [
+                "day",
+                "week"
+              ],
+              "title": "Bucket",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "bucket_start",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Bucket Start"
+            }
+          },
+          {
+            "in": "query",
+            "name": "course_ids",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Course Ids"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cohort_ids",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cohort Ids"
+            }
+          },
+          {
+            "in": "query",
+            "name": "teacher_user_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Teacher User Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "timezone",
+            "required": false,
+            "schema": {
+              "default": "UTC",
+              "title": "Timezone",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort_by",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Sort By"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort_order",
+            "required": false,
+            "schema": {
+              "default": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "title": "Sort Order",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Delete Teacher Saved View Platform",
         "tags": [
           "analytics"
         ]

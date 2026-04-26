@@ -10,6 +10,7 @@ from src.db.analytics import DailyCourseMetrics
 from src.db.courses.courses import Course
 from src.db.usergroups import UserGroup
 from src.services.analytics.assessments import build_assessment_rows
+from src.services.analytics.bottlenecks import build_content_bottlenecks
 from src.services.analytics.filters import AnalyticsFilters
 from src.services.analytics.queries import (
     build_activity_events,
@@ -750,4 +751,7 @@ def get_teacher_course_detail(
         at_risk_learners=risk_rows[:20],
         assessment_outliers=assessment_rows[:12],
         content_health=content_health,
+        content_bottlenecks=build_content_bottlenecks(
+            context, filters, course_id=course_id, limit=12
+        ),
     )

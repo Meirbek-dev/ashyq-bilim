@@ -16,9 +16,14 @@ import Link from 'next/link';
 const AnalyticsRiskDistributionChart = lazy(() => import('./AnalyticsRiskDistributionChart'));
 const AnalyticsMultiSeriesTrendChart = lazy(() => import('./AnalyticsMultiSeriesTrendChart'));
 const AssessmentOutliersTable = lazy(() => import('./AssessmentOutliersTable'));
+const ContentBottlenecksTable = lazy(() => import('./ContentBottlenecksTable'));
+const DrillThroughAuditPanel = lazy(() => import('./DrillThroughAuditPanel'));
 const GradingBacklogPanel = lazy(() => import('./GradingBacklogPanel'));
+const InsightFeedPanel = lazy(() => import('./InsightFeedPanel'));
+const SavedViewsBar = lazy(() => import('./SavedViewsBar'));
 const AtRiskLearnersTable = lazy(() => import('./AtRiskLearnersTable'));
 const CourseHealthTable = lazy(() => import('./CourseHealthTable'));
+const TeacherWorkloadPanel = lazy(() => import('./TeacherWorkloadPanel'));
 const TeacherKpiCharts = lazy(() => import('./TeacherKpiCharts'));
 const TeacherKpiCards = lazy(() => import('./TeacherKpiCards'));
 
@@ -196,6 +201,10 @@ export default function TeacherOverview({ query, data, courseOptions = [], cohor
         cohortOptions={cohortOptions.length ? cohortOptions : data.cohort_options}
       />
 
+      <Suspense fallback={<SectionFallback height="h-[96px]" />}>
+        <SavedViewsBar query={query} />
+      </Suspense>
+
       <Suspense fallback={<SectionFallback height="h-[220px]" />}>
         <TeacherKpiCards cards={kpiCards} />
       </Suspense>
@@ -220,6 +229,27 @@ export default function TeacherOverview({ query, data, courseOptions = [], cohor
           <GradingBacklogPanel
             backlogCount={data.summary.ungraded_submissions.value}
             alerts={data.alerts}
+          />
+        </Suspense>
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
+        <Suspense fallback={<SectionFallback height="h-[420px]" />}>
+          <InsightFeedPanel items={data.insights} />
+        </Suspense>
+        <Suspense fallback={<SectionFallback height="h-[420px]" />}>
+          <TeacherWorkloadPanel workload={data.workload} />
+        </Suspense>
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[1.2fr_1fr]">
+        <Suspense fallback={<SectionFallback height="h-[420px]" />}>
+          <ContentBottlenecksTable rows={data.content_bottlenecks} />
+        </Suspense>
+        <Suspense fallback={<SectionFallback height="h-[420px]" />}>
+          <DrillThroughAuditPanel
+            query={query}
+            assessmentPreview={data.assessment_preview}
           />
         </Suspense>
       </div>

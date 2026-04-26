@@ -225,3 +225,25 @@ class TeacherIntervention(SQLModel, table=True):
     resolved_at: datetime | None = Field(
         default=None, sa_column=Column(DateTime(timezone=True), nullable=True)
     )
+
+
+class AnalyticsSavedView(SQLModel, table=True):
+    __tablename__ = "analytics_saved_view"
+
+    id: int | None = Field(default=None, primary_key=True)
+    teacher_user_id: int = Field(index=True)
+    name: str
+    view_type: str = Field(default="overview", index=True)
+    query: dict = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(tz=UTC),
+        sa_column=Column(
+            DateTime(timezone=True), server_default=func.now(), nullable=False
+        ),
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(tz=UTC),
+        sa_column=Column(
+            DateTime(timezone=True), server_default=func.now(), nullable=False
+        ),
+    )

@@ -9,6 +9,10 @@ type TeacherCourseDetailResponse = components['schemas']['TeacherCourseDetailRes
 type TeacherAssessmentListResponse = components['schemas']['TeacherAssessmentListResponse'];
 type TeacherAssessmentDetailResponse = components['schemas']['TeacherAssessmentDetailResponse'];
 type AtRiskLearnersResponse = components['schemas']['AtRiskLearnersResponse'];
+type DrillThroughResponse = components['schemas']['DrillThroughResponse'];
+type SavedAnalyticsViewCreate = components['schemas']['SavedAnalyticsViewCreate'];
+type SavedAnalyticsViewListResponse = components['schemas']['SavedAnalyticsViewListResponse'];
+type SavedAnalyticsViewRow = components['schemas']['SavedAnalyticsViewRow'];
 
 export interface TeacherInterventionCreate {
   user_id: number;
@@ -74,6 +78,10 @@ async function analyticsRequest<T>(path: string, query?: AnalyticsQuery, init?: 
     const payload = await response.json().catch(() => ({}));
     const message = payload?.detail?.message || payload?.detail || `Analytics request failed (${response.status})`;
     throw new Error(message);
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
   }
 
   return response.json();
@@ -142,6 +150,35 @@ export function createTeacherIntervention(payload: TeacherInterventionCreate, qu
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
+}
+
+export function getSavedAnalyticsViews(query?: AnalyticsQuery) {
+  return analyticsRequest<SavedAnalyticsViewListResponse>('teacher/saved-views', query);
+}
+
+export function saveAnalyticsView(payload: SavedAnalyticsViewCreate, query?: AnalyticsQuery) {
+  return analyticsRequest<SavedAnalyticsViewRow>('teacher/saved-views', query, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteAnalyticsView(viewId: number, query?: AnalyticsQuery) {
+  return analyticsRequest<void>(`teacher/saved-views/${viewId}`, query, {
+    method: 'DELETE',
+  });
+}
+
+export function getTeacherDrillThrough(
+  metric: DrillThroughResponse['metric'],
+  query?: AnalyticsQuery & {
+    course_id?: number;
+    assessment_type?: AssessmentType;
+    assessment_id?: number;
+  },
+) {
+  return analyticsRequest<DrillThroughResponse>(`teacher/drill-through/${metric}`, query);
 }
 
 export function getAnalyticsExportUrl(
