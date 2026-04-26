@@ -129,8 +129,7 @@ async def create_exam(
 
     # Create exam
     exam_uuid = f"exam_{ULID()}"
-    activity_now = datetime.now(UTC)
-    now = activity_now.isoformat()
+    now = _utc_now_iso()
 
     exam = Exam(
         exam_uuid=exam_uuid,
@@ -332,7 +331,8 @@ async def create_exam_with_activity(
 
     # Create activity
     activity_uuid = f"activity_{ULID()}"
-    now = _utc_now_iso()
+    activity_now = datetime.now(UTC)
+    now = activity_now.isoformat()
 
     last_in_chapter = db_session.exec(
         select(Activity)
