@@ -34,6 +34,23 @@ export default function TeacherOverview({ query, data, courseOptions = [], cohor
   const locale = useLocale();
   const router = useRouter();
 
+  const buildScopedHref = (pathname: string, overrides: Partial<AnalyticsQuery> = {}) => {
+    const params = new URLSearchParams();
+    const scopedQuery = { ...query, ...overrides };
+    if (scopedQuery.window) params.set('window', scopedQuery.window);
+    if (scopedQuery.compare) params.set('compare', scopedQuery.compare);
+    if (scopedQuery.bucket) params.set('bucket', scopedQuery.bucket);
+    if (scopedQuery.course_ids) params.set('course_ids', String(scopedQuery.course_ids));
+    if (scopedQuery.cohort_ids) params.set('cohort_ids', String(scopedQuery.cohort_ids));
+    if (scopedQuery.teacher_user_id) params.set('teacher_user_id', String(scopedQuery.teacher_user_id));
+    if (scopedQuery.timezone) params.set('timezone', scopedQuery.timezone);
+    if (scopedQuery.bucket_start) params.set('bucket_start', String(scopedQuery.bucket_start));
+    if (scopedQuery.sort_by) params.set('sort_by', String(scopedQuery.sort_by));
+    if (scopedQuery.sort_order) params.set('sort_order', scopedQuery.sort_order);
+    const serialized = params.toString();
+    return serialized ? `${pathname}?${serialized}` : pathname;
+  };
+
   function formatFreshness(seconds: number): string {
     if (seconds <= 0) return t('freshness.live');
     if (seconds < 60) return t('freshness.seconds', { seconds });
@@ -301,7 +318,7 @@ export default function TeacherOverview({ query, data, courseOptions = [], cohor
           </Suspense>
           <p className="text-muted-foreground mt-2 text-sm">
             <Link
-              href="/dash/analytics/courses"
+              href={buildScopedHref('/dash/analytics/courses')}
               className="text-blue-600 hover:underline"
             >
               {t('overview.viewAllCourses')}
@@ -328,7 +345,7 @@ export default function TeacherOverview({ query, data, courseOptions = [], cohor
           </Suspense>
           <p className="text-muted-foreground mt-2 text-sm">
             <Link
-              href="/dash/analytics/assessments"
+              href={buildScopedHref('/dash/analytics/assessments')}
               className="text-blue-600 hover:underline"
             >
               {t('overview.viewAllAssessments')}
@@ -364,7 +381,7 @@ export default function TeacherOverview({ query, data, courseOptions = [], cohor
         {data.at_risk_total > 0 && (
           <p className="text-muted-foreground mt-2 text-sm">
             <Link
-              href="/dash/analytics/learners/at-risk"
+              href={buildScopedHref('/dash/analytics/learners/at-risk')}
               className="text-blue-600 hover:underline"
             >
               {t('overview.viewAllAtRisk')}

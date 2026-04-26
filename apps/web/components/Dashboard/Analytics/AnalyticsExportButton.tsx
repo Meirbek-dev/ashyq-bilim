@@ -4,6 +4,7 @@ import { Download, Loader2 } from 'lucide-react';
 import { downloadAnalyticsExport } from '@services/analytics/teacher';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface AnalyticsExportButtonProps {
   href: string;
@@ -25,6 +26,7 @@ export default function AnalyticsExportButton({ href, label }: AnalyticsExportBu
       globalThis.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Export failed:', error);
+      toast.error(error instanceof Error ? error.message : 'Export failed');
     } finally {
       setLoading(false);
     }

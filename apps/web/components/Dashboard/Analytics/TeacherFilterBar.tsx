@@ -4,7 +4,7 @@ import { getAnalyticsBucketLabel, getAnalyticsCompareLabel } from '@/lib/analyti
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import type { AnalyticsFilterOption, AnalyticsQuery } from '@/types/analytics';
 import { usePathname, useRouter } from 'next/navigation';
-import { useMemo, useState, useTransition } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Filter, Globe2 } from 'lucide-react';
@@ -65,6 +65,28 @@ export default function TeacherFilterBar({
     sort_order: query.sort_order || 'desc',
   });
 
+  useEffect(() => {
+    setFormState({
+      window: query.window || '28d',
+      compare: query.compare || 'previous_period',
+      bucket: query.bucket || 'day',
+      course_ids: query.course_ids || '',
+      cohort_ids: query.cohort_ids || '',
+      timezone: query.timezone || 'UTC',
+      sort_by: query.sort_by || '',
+      sort_order: query.sort_order || 'desc',
+    });
+  }, [
+    query.window,
+    query.compare,
+    query.bucket,
+    query.course_ids,
+    query.cohort_ids,
+    query.timezone,
+    query.sort_by,
+    query.sort_order,
+  ]);
+
   const sortOptions = [
     { value: '', label: t('filters.sortDefault') },
     { value: 'risk', label: t('filters.sortRisk') },
@@ -82,6 +104,7 @@ export default function TeacherFilterBar({
     params.set('bucket', nextState.bucket || 'day');
     if (nextState.course_ids) params.set('course_ids', nextState.course_ids);
     if (nextState.cohort_ids) params.set('cohort_ids', nextState.cohort_ids);
+    if (query.teacher_user_id) params.set('teacher_user_id', String(query.teacher_user_id));
     if (nextState.sort_by) params.set('sort_by', nextState.sort_by);
     if (nextState.sort_order) params.set('sort_order', nextState.sort_order);
     if (nextState.timezone) params.set('timezone', nextState.timezone);

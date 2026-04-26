@@ -4,7 +4,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Annotated, Literal
 
 from fastapi import HTTPException, Query
-from pydantic import field_validator
+from pydantic import Field, field_validator
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from src.db.strict_base_model import PydanticStrictBaseModel
@@ -51,8 +51,8 @@ class AnalyticsFilters(PydanticStrictBaseModel):
     compare: ComparePreset = "previous_period"
     bucket: Bucket = "day"
     bucket_start: datetime | None = None
-    course_ids: list[int] = []
-    cohort_ids: list[int] = []
+    course_ids: list[int] = Field(default_factory=list)
+    cohort_ids: list[int] = Field(default_factory=list)
     teacher_user_id: int | None = None
     timezone: str = "UTC"
     page: int = 1

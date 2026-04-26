@@ -514,14 +514,17 @@ def _build_code_rows(
         submissions_by_activity[activity.id].append((submission, activity))
 
     rows: list[AssessmentOutlierRow] = []
-    for activity_id, submissions in submissions_by_activity.items():
-        activity = context.activities_by_id.get(activity_id)
-        if (
-            activity is None
-            or activity.course_id is None
-            or activity.activity_type != ActivityTypeEnum.TYPE_CODE_CHALLENGE
-        ):
+    code_activities = [
+        activity
+        for activity in context.activities_by_id.values()
+        if activity.course_id is not None
+        and activity.activity_type == ActivityTypeEnum.TYPE_CODE_CHALLENGE
+    ]
+    for activity in code_activities:
+        if activity.id is None:
             continue
+        activity_id = activity.id
+        submissions = submissions_by_activity.get(activity_id, [])
         eligible = len(eligible_by_course.get(activity.course_id, set()))
         submitted_users = {
             submission.user_id
@@ -826,6 +829,9 @@ def get_teacher_assessment_detail(
             attempts_by_user[attempt.user_id].append(attempt)
             if attempt.score is not None and attempt.max_score:
                 scores.append((float(attempt.score) / float(attempt.max_score)) * 100)
+        submitted_users = {
+            attempt.user_id for attempt, _exam in records if attempt.submitted_at
+        }
         learner_rows = []
         for user_id, attempts in attempts_by_user.items():
             best_score = max(
@@ -867,8 +873,8 @@ def get_teacher_assessment_detail(
             pass_threshold_bucket_label=_score_bucket(threshold),
             summary=TeacherAssessmentDetailSummary(
                 eligible_learners=eligible,
-                submitted_learners=len(attempts_by_user),
-                submission_rate=safe_pct(len(attempts_by_user), eligible),
+                submitted_learners=len(submitted_users),
+                submission_rate=safe_pct(len(submitted_users), eligible),
                 pass_rate=safe_pct(
                     sum(1 for score in scores if score >= threshold), len(scores)
                 ),
@@ -910,6 +916,9 @@ def get_teacher_assessment_detail(
             attempts_by_user[attempt.user_id].append(attempt)
             if attempt.end_ts and attempt.max_score:
                 scores.append((float(attempt.score) / float(attempt.max_score)) * 100)
+        submitted_users = {
+            attempt.user_id for attempt, _activity in records if attempt.end_ts
+        }
         question_breakdown = []
         for stat in [
             item
@@ -978,8 +987,8 @@ def get_teacher_assessment_detail(
             pass_threshold_bucket_label=_score_bucket(60),
             summary=TeacherAssessmentDetailSummary(
                 eligible_learners=eligible,
-                submitted_learners=len(attempts_by_user),
-                submission_rate=safe_pct(len(attempts_by_user), eligible),
+                submitted_learners=len(submitted_users),
+                submission_rate=safe_pct(len(submitted_users), eligible),
                 pass_rate=safe_pct(
                     sum(1 for score in scores if score >= 60), len(scores)
                 ),
@@ -1032,6 +1041,11 @@ def get_teacher_assessment_detail(
                 for failed in failed_tests:
                     key = str(failed.get("id") if isinstance(failed, dict) else failed)
                     failure_counter[key] += 1
+        submitted_users = {
+            submission.user_id
+            for submission, _activity in records
+            if submission.status.value == "COMPLETED"
+        }
         learner_rows = []
         for user_id, attempts in attempts_by_user.items():
             ordered_attempts = sorted(attempts, key=lambda item: item.created_at)
@@ -1063,8 +1077,8 @@ def get_teacher_assessment_detail(
             pass_threshold_bucket_label=_score_bucket(60),
             summary=TeacherAssessmentDetailSummary(
                 eligible_learners=eligible,
-                submitted_learners=len(attempts_by_user),
-                submission_rate=safe_pct(len(attempts_by_user), eligible),
+                submitted_learners=len(submitted_users),
+                submission_rate=safe_pct(len(submitted_users), eligible),
                 pass_rate=safe_pct(
                     sum(1 for score in scores if score >= 60), len(scores)
                 ),

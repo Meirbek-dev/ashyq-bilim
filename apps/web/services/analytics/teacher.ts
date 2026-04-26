@@ -24,6 +24,18 @@ const buildQueryString = (query: AnalyticsQuery = {}) => {
 const getFirstQueryValue = (value: string | string[] | undefined): string | undefined =>
   Array.isArray(value) ? value[0] : value;
 
+const getPositiveInteger = (value: string | undefined, fallback: number): number => {
+  if (!value) return fallback;
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+};
+
+const getOptionalInteger = (value: string | undefined): number | undefined => {
+  if (!value) return undefined;
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+};
+
 async function analyticsRequest<T>(path: string, query?: AnalyticsQuery): Promise<T> {
   const response = await apiFetch(`analytics/${path}${buildQueryString(query)}`);
 
@@ -46,10 +58,10 @@ export function normalizeAnalyticsQuery(searchParams: Record<string, string | st
     bucket: (getFirstQueryValue(searchParams.bucket) as AnalyticsQuery['bucket']) || 'day',
     course_ids: getFirstQueryValue(searchParams.course_ids),
     cohort_ids: getFirstQueryValue(searchParams.cohort_ids),
-    teacher_user_id: teacherUserId ? Number(teacherUserId) : undefined,
+    teacher_user_id: getOptionalInteger(teacherUserId),
     timezone: getFirstQueryValue(searchParams.timezone) || 'UTC',
-    page: page ? Number(page) : 1,
-    page_size: pageSize ? Number(pageSize) : 25,
+    page: getPositiveInteger(page, 1),
+    page_size: getPositiveInteger(pageSize, 25),
     sort_by: getFirstQueryValue(searchParams.sort_by),
     sort_order: (getFirstQueryValue(searchParams.sort_order) as AnalyticsQuery['sort_order']) || 'desc',
     bucket_start: getFirstQueryValue(searchParams.bucket_start),

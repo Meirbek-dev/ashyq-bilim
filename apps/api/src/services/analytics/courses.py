@@ -47,10 +47,15 @@ def _build_rollup_course_rows(
 ) -> tuple[str, list[TeacherCourseRow]] | None:
     if not supports_rollup_reads(filters):
         return None
+    teacher_filter_id = (
+        scope.teacher_user_id
+        if filters.teacher_user_id is not None or not scope.has_platform_scope
+        else None
+    )
     rollups = list_latest_course_rollups(
         db_session,
         course_ids=scope.course_ids,
-        teacher_user_id=scope.teacher_user_id,
+        teacher_user_id=teacher_filter_id,
     )
     if not rollups:
         return None

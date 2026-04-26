@@ -1,4 +1,14 @@
-from src.services.analytics.assessments import _attempt_distribution, _score_bucket
+from datetime import UTC, datetime
+from types import SimpleNamespace
+
+from src.db.courses.activities import ActivityTypeEnum
+from src.services.analytics.assessments import (
+    _attempt_distribution,
+    _score_bucket,
+    build_assessment_rows,
+)
+from src.services.analytics.filters import AnalyticsFilters
+from src.services.analytics.queries import AnalyticsContext
 
 
 def test_score_bucket_groups_scores_into_ranges() -> None:
@@ -18,3 +28,49 @@ def test_attempt_distribution_rolls_up_high_attempt_counts() -> None:
     assert lookup["1"] == 1
     assert lookup["2"] == 1
     assert lookup["5+"] == 2
+
+
+def test_assessment_rows_include_code_challenge_without_attempts() -> None:
+    now = datetime(2026, 4, 26, tzinfo=UTC)
+    context = AnalyticsContext(
+        generated_at=now,
+        courses_by_id={1: SimpleNamespace(id=1, name="Course")},
+        activities_by_id={
+            11: SimpleNamespace(
+                id=11,
+                course_id=1,
+                name="Code",
+                activity_type=ActivityTypeEnum.TYPE_CODE_CHALLENGE,
+            ),
+        },
+        chapters_by_id={},
+        course_chapters=[],
+        chapter_activities=[],
+        trail_runs=[
+            SimpleNamespace(id=100, course_id=1, user_id=5),
+            SimpleNamespace(id=101, course_id=1, user_id=6),
+        ],
+        trail_steps=[],
+        certificates=[],
+        assignments=[],
+        assignment_submissions=[],
+        exams=[],
+        exam_attempts=[],
+        quiz_attempts=[],
+        quiz_question_stats=[],
+        code_submissions=[],
+        users_by_id={},
+        usergroup_names_by_id={},
+        cohort_ids_by_user={},
+    )
+
+    rows = build_assessment_rows(
+        context,
+        AnalyticsFilters(window="28d", compare="previous_period", bucket="day"),
+    )
+
+    rows_by_type = {row.assessment_type: row for row in rows}
+    assert rows_by_type["code_challenge"].submission_rate == 0
+    assert rows_by_type["code_challenge"].outlier_reason_codes == [
+        "low_submission_rate"
+    ]

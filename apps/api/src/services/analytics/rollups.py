@@ -39,6 +39,10 @@ def supports_rollup_reads(filters: AnalyticsFilters) -> bool:
     )
 
 
+def supports_teacher_rollup_reads(filters: AnalyticsFilters) -> bool:
+    return supports_rollup_reads(filters) and not filters.course_ids
+
+
 def _unwrap_scalar_date(value: Any) -> date | None:
     if value is None or isinstance(value, date):
         return value
@@ -207,7 +211,7 @@ def refresh_teacher_analytics_rollups(
     from src.services.analytics.courses import build_course_rows
     from src.services.analytics.risk import build_risk_rows
 
-    target_date = snapshot_date or date.today()
+    target_date = snapshot_date or datetime.now(tz=UTC).date()
     filters = AnalyticsFilters(
         window="28d", compare="previous_period", bucket="day", timezone="UTC"
     )

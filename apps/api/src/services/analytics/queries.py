@@ -32,6 +32,7 @@ from src.db.users import User
 ModelT = TypeVar("ModelT")
 LeftT = TypeVar("LeftT")
 RightT = TypeVar("RightT")
+UTC_ZONE = ZoneInfo("UTC")
 
 
 @dataclass(slots=True)
@@ -215,9 +216,7 @@ def display_name(user: User | None) -> str:
     return joined or user.username or user.email
 
 
-def bucket_start(
-    ts: datetime, bucket: str, tzinfo: ZoneInfo = ZoneInfo("UTC")
-) -> datetime:
+def bucket_start(ts: datetime, bucket: str, tzinfo: ZoneInfo = UTC_ZONE) -> datetime:
     normalized = ts.astimezone(tzinfo)
     if bucket == "week":
         start = normalized - timedelta(days=normalized.weekday())
@@ -232,7 +231,7 @@ def build_series(
     end: datetime,
     *,
     distinct_users: bool = False,
-    tzinfo: ZoneInfo = ZoneInfo("UTC"),
+    tzinfo: ZoneInfo = UTC_ZONE,
 ) -> list[tuple[datetime, float]]:
     buckets: dict[datetime, float | set[int]] = {}
     cursor = bucket_start(start, bucket, tzinfo)
@@ -318,9 +317,10 @@ def load_analytics_context(
 ) -> AnalyticsContext:
     """Load analytics context for the given course IDs.
 
-    ``activity_start`` and ``activity_end`` bound which ``TrailStep`` and ``TrailRun`` rows are
-    fetched, reducing memory usage for large platforms with long history.  When omitted all rows
-    are returned (backwards-compatible behaviour).
+    ``activity_start`` and ``activity_end`` bound event-like assessment rows.  Progress rows
+    (``TrailRun`` and ``TrailStep``) remain unbounded because they are also the denominator for
+    enrolment, completion, and risk metrics.  Dropping old progress rows makes a quiet but still
+    enrolled learner disappear from analytics entirely.
     """
     if not course_ids:
         return AnalyticsContext(
@@ -383,14 +383,10 @@ def load_analytics_context(
     ]
 
     trail_run_stmt = select(TrailRun).where(TrailRun.course_id.in_(course_ids))
-    if activity_start is not None:
-        trail_run_stmt = trail_run_stmt.where(TrailRun.update_date >= activity_start)
     trail_runs = [
         _unwrap_model(run, TrailRun) for run in db_session.exec(trail_run_stmt).all()
     ]
     trail_step_stmt = select(TrailStep).where(TrailStep.course_id.in_(course_ids))
-    if activity_start is not None:
-        trail_step_stmt = trail_step_stmt.where(TrailStep.update_date >= activity_start)
     if activity_end is not None:
         trail_step_stmt = trail_step_stmt.where(TrailStep.update_date <= activity_end)
     trail_steps = [
@@ -795,5 +791,5 @@ def assessment_pass_threshold(settings: dict | None) -> float:
     raw = (settings or {}).get("passing_score", 60)
     try:
         return float(raw)
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         return 60.0

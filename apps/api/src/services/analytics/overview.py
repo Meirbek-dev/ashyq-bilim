@@ -5,7 +5,11 @@ from datetime import date, timedelta
 from sqlalchemy import func, select
 from sqlmodel import Session
 
-from src.db.analytics import DailyTeacherMetrics, LearnerRiskSnapshot
+from src.db.analytics import (
+    DailyCourseMetrics,
+    DailyTeacherMetrics,
+    LearnerRiskSnapshot,
+)
 from src.services.analytics.assessments import build_assessment_rows
 from src.services.analytics.courses import build_course_rows
 from src.services.analytics.filters import AnalyticsFilters
@@ -26,7 +30,7 @@ from src.services.analytics.risk import build_risk_rows
 from src.services.analytics.rollups import (
     freshness_seconds_from_rollup,
     get_latest_teacher_rollup,
-    supports_rollup_reads,
+    supports_teacher_rollup_reads,
 )
 from src.services.analytics.schemas import (
     AlertItem,
@@ -77,9 +81,12 @@ def _query_previous_at_risk_count(
     db_session: Session, course_ids: list[int], before_date: date
 ) -> float | None:
     """Return the at-risk learner count from the most recent LearnerRiskSnapshot before *before_date*."""
+    latest_date_filters = [LearnerRiskSnapshot.snapshot_date < before_date]
+    if course_ids:
+        latest_date_filters.append(LearnerRiskSnapshot.course_id.in_(course_ids))
     latest_date_result = db_session.exec(
         select(func.max(LearnerRiskSnapshot.snapshot_date)).where(
-            LearnerRiskSnapshot.snapshot_date < before_date,
+            *latest_date_filters,
         )
     ).one_or_none()
     latest_date = latest_date_result if isinstance(latest_date_result, date) else None
@@ -129,6 +136,63 @@ def _query_previous_teacher_metrics(
     return db_session.exec(stmt).first()
 
 
+def _query_previous_course_metric_sum(
+    db_session: Session,
+    course_ids: list[int],
+    before_date: date,
+    metric_name: str,
+) -> float | None:
+    if not course_ids:
+        return None
+    latest_date_result = db_session.exec(
+        select(func.max(DailyCourseMetrics.metric_date)).where(
+            DailyCourseMetrics.metric_date < before_date,
+            DailyCourseMetrics.course_id.in_(course_ids),
+        )
+    ).one_or_none()
+    latest_date = latest_date_result if isinstance(latest_date_result, date) else None
+    if latest_date is None:
+        return None
+    column = getattr(DailyCourseMetrics, metric_name)
+    value = db_session.exec(
+        select(func.coalesce(func.sum(column), 0)).where(
+            DailyCourseMetrics.metric_date == latest_date,
+            DailyCourseMetrics.course_id.in_(course_ids),
+        )
+    ).one_or_none()
+    return float(value) if value is not None else 0.0
+
+
+def _query_previous_negative_engagement_for_courses(
+    db_session: Session, course_ids: list[int], before_date: date
+) -> float | None:
+    if not course_ids:
+        return None
+    latest_date_result = db_session.exec(
+        select(func.max(DailyCourseMetrics.metric_date)).where(
+            DailyCourseMetrics.metric_date < before_date,
+            DailyCourseMetrics.course_id.in_(course_ids),
+        )
+    ).one_or_none()
+    latest_date = latest_date_result if isinstance(latest_date_result, date) else None
+    if latest_date is None:
+        return None
+    result = db_session.exec(
+        select(func.count()).select_from(DailyCourseMetrics).where(
+            DailyCourseMetrics.metric_date == latest_date,
+            DailyCourseMetrics.course_id.in_(course_ids),
+            DailyCourseMetrics.engagement_delta_pct < 0,
+        )
+    ).one_or_none()
+    return float(result if result is not None else 0)
+
+
+def _teacher_rollup_id(scope: TeacherAnalyticsScope, filters: AnalyticsFilters) -> int:
+    if scope.has_platform_scope and filters.teacher_user_id is None:
+        return 0
+    return scope.teacher_user_id
+
+
 def get_teacher_overview(
     db_session: Session, scope: TeacherAnalyticsScope, filters: AnalyticsFilters
 ) -> TeacherOverviewResponse:
@@ -167,10 +231,11 @@ def get_teacher_overview(
         }
     )
     teacher_rollup = None
-    if supports_rollup_reads(filters):
+    teacher_rollup_id = _teacher_rollup_id(scope, filters)
+    if supports_teacher_rollup_reads(filters):
         teacher_rollup = get_latest_teacher_rollup(
             db_session,
-            teacher_user_id=scope.teacher_user_id,
+            teacher_user_id=teacher_rollup_id,
         )
 
     enrolled = len(snapshots)
@@ -196,8 +261,12 @@ def get_teacher_overview(
     previous_at_risk = _query_previous_at_risk_count(
         db_session, scope.course_ids, previous_end.date()
     )
-    previous_teacher_metrics = _query_previous_teacher_metrics(
-        db_session, scope.teacher_user_id, previous_end.date()
+    previous_teacher_metrics = (
+        _query_previous_teacher_metrics(
+            db_session, teacher_rollup_id, previous_end.date()
+        )
+        if supports_teacher_rollup_reads(filters)
+        else None
     )
     ungraded_submissions = sum(
         1
@@ -217,8 +286,24 @@ def get_teacher_overview(
         if row.engagement_delta_pct is not None and row.engagement_delta_pct < 0
     )
     # Query the previous period's DailyTeacherMetrics to get actual previous value instead of hardcoded 0.
-    previous_negative_engagement = _query_previous_negative_engagement(
-        db_session, scope.teacher_user_id, previous_end.date()
+    previous_negative_engagement = (
+        _query_previous_negative_engagement(
+            db_session, teacher_rollup_id, previous_end.date()
+        )
+        if supports_teacher_rollup_reads(filters)
+        else _query_previous_negative_engagement_for_courses(
+            db_session, scope.course_ids, previous_end.date()
+        )
+    )
+    previous_ungraded_submissions = (
+        float(previous_teacher_metrics.ungraded_submissions)
+        if previous_teacher_metrics is not None
+        else _query_previous_course_metric_sum(
+            db_session,
+            scope.course_ids,
+            previous_end.date(),
+            "ungraded_submissions",
+        )
     )
 
     completions_events = []
@@ -419,9 +504,7 @@ def get_teacher_overview(
                     if teacher_rollup is not None
                     else ungraded_submissions
                 ),
-                float(previous_teacher_metrics.ungraded_submissions)
-                if previous_teacher_metrics is not None
-                else None,
+                previous_ungraded_submissions,
                 is_higher_better=False,
             ),
             negative_engagement_courses=_metric(
