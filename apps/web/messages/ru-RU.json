@@ -5515,6 +5515,9 @@
           "searchPlaceholder": "Поиск тем...",
           "randomButtonTitle": "Случайная тема",
           "noThemesFound": "Темы не найдены.",
+          "toggleMode": "Переключить светлый / тёмный режим",
+          "previousTheme": "Предыдущая тема",
+          "nextTheme": "Следующая тема",
           "themeCount": "{count, plural, one {# тема} few {# темы} many {# тем} other {# темы}}"
         },
         "title": "Настройки аккаунта",

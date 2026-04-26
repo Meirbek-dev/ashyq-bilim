@@ -5515,6 +5515,9 @@
           "searchPlaceholder": "Тақырыптарды іздеу...",
           "randomButtonTitle": "Кездейсоқ тақырып",
           "noThemesFound": "Тақырыптар табылмады.",
+          "toggleMode": "Жарық / қараңғы режимді ауыстыру",
+          "previousTheme": "Алдыңғы тақырып",
+          "nextTheme": "Келесі тақырып",
           "themeCount": "{count, plural, one {# тақырып} few {# тақырып} many {# тақырып} other {# тақырып}}"
         },
         "title": "Аккаунт параметрлері",

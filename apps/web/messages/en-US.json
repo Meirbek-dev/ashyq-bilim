@@ -5489,6 +5489,9 @@
           "searchPlaceholder": "Search themes...",
           "randomButtonTitle": "Random theme",
           "noThemesFound": "No themes found.",
+          "toggleMode": "Toggle light / dark mode",
+          "previousTheme": "Previous theme",
+          "nextTheme": "Next theme",
           "themeCount": "{count, plural, one {# theme} other {# themes}}"
         },
         "title": "Account Settings",
