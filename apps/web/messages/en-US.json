@@ -7031,6 +7031,94 @@
     "starry-night": {
       "description": "Deep midnight blues and luminous highlights, evoking a tranquil star-filled night sky",
       "name": "Starry Night"
+    },
+    "astro-vista": {
+      "description": "A pastel cosmic theme with soft blue-violet hues and silvery accents.",
+      "name": "Astro Vista"
+    },
+    "beso-colors": {
+      "description": "A bold palette with rich purples, deep blues, and juicy green highlights.",
+      "name": "Beso Colors"
+    },
+    "brownie": {
+      "description": "A warm brown theme with caramel, chocolate, and creamy beige tones.",
+      "name": "Brownie"
+    },
+    "celestial": {
+      "description": "A night-sky inspired theme with deep indigo and subtle luminous glow.",
+      "name": "Celestial"
+    },
+    "claude-plus": {
+      "description": "A bright professional theme with soft gray, blue, and cream tones.",
+      "name": "Claude Plus"
+    },
+    "leadgen": {
+      "description": "A cool business theme with strong blues and violet accents.",
+      "name": "Leadgen"
+    },
+    "light-green": {
+      "description": "A fresh green theme with soft natural shades and a clean light base.",
+      "name": "Light Green"
+    },
+    "melancholic-mint": {
+      "description": "A soft mint theme with muted green tones and calm pastel accents.",
+      "name": "Melancholic Mint"
+    },
+    "open-profile": {
+      "description": "A minimalist theme with airy white space and delicate translucent accents.",
+      "name": "Open Profile"
+    },
+    "party-rock": {
+      "description": "A high-contrast theme with bright purple and neon pink highlights for evening energy.",
+      "name": "Party Rock"
+    },
+    "portfolio": {
+      "description": "A sleek professional theme with neutral tones and sharp color accents.",
+      "name": "Portfolio"
+    },
+    "resolve": {
+      "description": "A modern theme with deep graphite shades and rich saturated accents.",
+      "name": "Resolve"
+    },
+    "sage-garden-plus": {
+      "description": "A gentle sage theme with soft green and creamy warm hues.",
+      "name": "Sage Garden Plus"
+    },
+    "sakura": {
+      "description": "A blossom-inspired theme with tender pink and peach sakura tones.",
+      "name": "Sakura"
+    },
+    "sandstone": {
+      "description": "A warm sandstone theme with terracotta and beige accents.",
+      "name": "Sandstone"
+    },
+    "shadcn-default": {
+      "description": "A universal light theme with crisp white and cool gray tones.",
+      "name": "Shadcn Default"
+    },
+    "twitter-plus": {
+      "description": "A fresh theme with iconic blue highlights and bright contrast on white.",
+      "name": "Twitter Plus"
+    },
+    "violete-eye": {
+      "description": "A stylish theme with deep violet and midnight blue tones.",
+      "name": "Violete Eye"
+    },
+    "vtron": {
+      "description": "An energetic theme with neon blue and cyan highlights.",
+      "name": "Vtron"
+    },
+    "whatsapp": {
+      "description": "A green theme with rich malachite accents and a clean light background.",
+      "name": "WhatsApp"
+    },
+    "yellow": {
+      "description": "A sunny theme with bright lemon and soft cream shades.",
+      "name": "Yellow"
+    },
+    "zen": {
+      "description": "A calm theme with natural gray and warm beige tones.",
+      "name": "Zen"
     }
   },
   "ToastMessages": {
