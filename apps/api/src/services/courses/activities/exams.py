@@ -129,7 +129,8 @@ async def create_exam(
 
     # Create exam
     exam_uuid = f"exam_{ULID()}"
-    now = _utc_now_iso()
+    activity_now = datetime.now(UTC)
+    now = activity_now.isoformat()
 
     exam = Exam(
         exam_uuid=exam_uuid,
@@ -351,8 +352,9 @@ async def create_exam_with_activity(
         chapter_id=chapter.id,
         course_id=course.id,  # keep legacy column in sync
         order=next_order,
-        creation_date=now,
-        update_date=now,
+        creator_id=current_user.id,
+        creation_date=activity_now,
+        update_date=activity_now,
     )
 
     db_session.add(activity)
