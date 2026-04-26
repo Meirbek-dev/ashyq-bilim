@@ -33,6 +33,17 @@ export default function TeacherOverview({ query, data, courseOptions = [], cohor
   const t = useTranslations('TeacherAnalytics');
   const locale = useLocale();
   const router = useRouter();
+  const interventionSummary = (
+    data as TeacherOverviewResponse & {
+      intervention_summary?: {
+        total: number;
+        open: number;
+        resolved: number;
+        recovered_learners: number;
+        avg_risk_delta_after_intervention: number | null;
+      };
+    }
+  ).intervention_summary;
 
   const buildScopedHref = (pathname: string, overrides: Partial<AnalyticsQuery> = {}) => {
     const params = new URLSearchParams();
@@ -258,6 +269,31 @@ export default function TeacherOverview({ query, data, courseOptions = [], cohor
         </Card>
       </div>
 
+      {interventionSummary && (
+        <Card className="shadow-sm">
+          <CardHeader>
+            <CardTitle>Intervention outcomes</CardTitle>
+            <CardDescription>Logged teacher actions and observed recovery signals for this analytics scope.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-3 sm:grid-cols-4">
+            {[
+              ['Logged', interventionSummary.total],
+              ['Open', interventionSummary.open],
+              ['Resolved', interventionSummary.resolved],
+              ['Recovered', interventionSummary.recovered_learners],
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="bg-muted rounded-lg border p-4"
+              >
+                <div className="text-muted-foreground text-xs tracking-wider uppercase">{label}</div>
+                <div className="text-foreground mt-2 text-2xl font-semibold">{value}</div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
       <Card className="shadow-sm">
         <CardHeader>
           <CardTitle>{t('overview.alertsTitle')}</CardTitle>
@@ -376,6 +412,7 @@ export default function TeacherOverview({ query, data, courseOptions = [], cohor
             title={t('overview.watchlistTitle')}
             description={t('overview.watchlistDescription')}
             storageKey="overview-risk"
+            query={query}
           />
         </Suspense>
         {data.at_risk_total > 0 && (

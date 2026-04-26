@@ -15,6 +15,13 @@ interface AssessmentOutliersTableProps {
   serverPaginated?: boolean;
 }
 
+type EnhancedAssessmentOutlierRow = AssessmentOutlierRow & {
+  score_variance?: number | null;
+  reliability_score?: number | null;
+  discrimination_index?: number | null;
+  suspicious_flag?: string | null;
+};
+
 export default function AssessmentOutliersTable({ rows, storageKey, serverPaginated }: AssessmentOutliersTableProps) {
   const t = useTranslations('TeacherAnalytics');
   const columns: ColumnDef<AssessmentOutlierRow>[] = [
@@ -56,10 +63,26 @@ export default function AssessmentOutliersTable({ rows, storageKey, serverPagina
       accessorKey: 'difficulty_score',
       header: t('assessmentOutliers.colDifficulty'),
       cell: ({ row }) => {
-        const v = row.original.difficulty_score;
+        const assessment = row.original as EnhancedAssessmentOutlierRow;
+        const v = assessment.difficulty_score;
         if (v === null) return t('atRisk.na');
         // difficulty_score = round(100 - pass_rate, 2) → already on a 0–100 scale.
-        return `${Math.round(v ?? 0)}%`;
+        return (
+          <div>
+            <div>{Math.round(v ?? 0)}%</div>
+            {assessment.discrimination_index !== null && assessment.discrimination_index !== undefined && (
+              <div className="text-muted-foreground text-[11px]">D {assessment.discrimination_index}</div>
+            )}
+            {assessment.suspicious_flag && (
+              <Badge
+                variant="warning"
+                className="mt-1"
+              >
+                {assessment.suspicious_flag.replaceAll('_', ' ')}
+              </Badge>
+            )}
+          </div>
+        );
       },
     },
     {

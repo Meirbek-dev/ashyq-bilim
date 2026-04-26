@@ -56,6 +56,7 @@ async function PlatformAnalyticsAtRiskPageInner(props: {
         </div>
         <AtRiskLearnersTable
           rows={risk.items}
+          query={query}
           title={t('pages.atRiskPageTitle')}
           description={t('pages.atRiskPageDescription', { total: risk.total })}
           storageKey="at-risk-page"

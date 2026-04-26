@@ -52,6 +52,52 @@ class RiskDistributionCounts(PydanticStrictBaseModel):
     low: int = 0
 
 
+class InterventionSummary(PydanticStrictBaseModel):
+    total: int = 0
+    open: int = 0
+    resolved: int = 0
+    recovered_learners: int = 0
+    avg_risk_delta_after_intervention: float | None = None
+
+
+class TeacherInterventionCreate(PydanticStrictBaseModel):
+    user_id: int
+    course_id: int
+    intervention_type: Literal[
+        "message_sent",
+        "submission_graded",
+        "extension_granted",
+        "meeting_scheduled",
+        "learner_recovered",
+    ]
+    status: Literal["planned", "completed", "resolved"] = "completed"
+    outcome: str | None = None
+    notes: str | None = None
+    payload: dict[str, object] = {}  # noqa: RUF012
+
+
+class TeacherInterventionRow(PydanticStrictBaseModel):
+    id: int
+    teacher_user_id: int
+    user_id: int
+    course_id: int
+    intervention_type: str
+    status: str
+    outcome: str | None = None
+    notes: str | None = None
+    risk_score_before: float | None = None
+    risk_score_after: float | None = None
+    created_at: str
+    updated_at: str
+    resolved_at: str | None = None
+
+
+class TeacherInterventionListResponse(PydanticStrictBaseModel):
+    generated_at: str
+    total: int = 0
+    items: list[TeacherInterventionRow]
+
+
 class AtRiskLearnerRow(PydanticStrictBaseModel):
     user_id: int
     course_id: int
@@ -66,8 +112,18 @@ class AtRiskLearnerRow(PydanticStrictBaseModel):
     missing_required_assessments: int
     risk_score: float
     risk_level: Literal["low", "medium", "high"]
-    risk_components: dict[str, float] = {}
+    risk_components: dict[str, float] = {}  # noqa: RUF012
     reason_codes: list[str]
+    risk_trend: Literal["newly_at_risk", "worsening", "improving", "recovered", "stable"] = "stable"
+    previous_risk_score: float | None = None
+    risk_score_delta: float | None = None
+    top_contributing_factor: str | None = None
+    confidence_level: Literal["low", "medium", "high"] = "medium"
+    why_now: str | None = None
+    intervention_count: int = 0
+    last_intervention_type: str | None = None
+    last_intervention_at: str | None = None
+    last_intervention_outcome: str | None = None
     recommended_action: str
 
 
@@ -103,14 +159,15 @@ class TeacherOverviewResponse(PydanticStrictBaseModel):
     trends: TeacherOverviewTrends
     alerts: list[AlertItem]
     risk_distribution: RiskDistributionCounts
+    intervention_summary: InterventionSummary
     at_risk_preview: list[AtRiskLearnerRow]
-    course_preview: list["TeacherCourseRow"]
-    assessment_preview: list["AssessmentOutlierRow"]
+    course_preview: list[TeacherCourseRow]
+    assessment_preview: list[AssessmentOutlierRow]
     course_total: int = 0
     assessment_total: int = 0
     at_risk_total: int = 0
-    course_options: list[AnalyticsFilterOption] = []
-    cohort_options: list[AnalyticsFilterOption] = []
+    course_options: list[AnalyticsFilterOption] = []  # noqa: RUF012
+    cohort_options: list[AnalyticsFilterOption] = []  # noqa: RUF012
 
 
 class TeacherCourseRow(PydanticStrictBaseModel):
@@ -124,6 +181,10 @@ class TeacherCourseRow(PydanticStrictBaseModel):
     ungraded_submissions: int
     content_health_score: float
     assessment_difficulty_score: float | None = None
+    teacher_completion_delta_pct: float | None = None
+    platform_completion_delta_pct: float | None = None
+    historical_completion_delta_pct: float | None = None
+    cohort_completion_delta_pct: float | None = None
     last_content_update_at: str | None = None
     top_alert: AlertItem | None = None
 
@@ -134,8 +195,8 @@ class TeacherCourseListResponse(PydanticStrictBaseModel):
     page: int = 1
     page_size: int = 25
     items: list[TeacherCourseRow]
-    course_options: list[AnalyticsFilterOption] = []
-    cohort_options: list[AnalyticsFilterOption] = []
+    course_options: list[AnalyticsFilterOption] = []  # noqa: RUF012
+    cohort_options: list[AnalyticsFilterOption] = []  # noqa: RUF012
 
 
 class FunnelStep(PydanticStrictBaseModel):
@@ -177,6 +238,10 @@ class AssessmentOutlierRow(PydanticStrictBaseModel):
     grading_latency_hours_p50: float | None = None
     grading_latency_hours_p90: float | None = None
     difficulty_score: float | None = None
+    score_variance: float | None = None
+    reliability_score: float | None = None
+    discrimination_index: float | None = None
+    suspicious_flag: str | None = None
     outlier_reason_codes: list[str]
 
 
@@ -208,8 +273,8 @@ class TeacherAssessmentListResponse(PydanticStrictBaseModel):
     page: int = 1
     page_size: int = 25
     items: list[AssessmentOutlierRow]
-    course_options: list[AnalyticsFilterOption] = []
-    cohort_options: list[AnalyticsFilterOption] = []
+    course_options: list[AnalyticsFilterOption] = []  # noqa: RUF012
+    cohort_options: list[AnalyticsFilterOption] = []  # noqa: RUF012
 
 
 class HistogramBucket(PydanticStrictBaseModel):
@@ -222,6 +287,10 @@ class QuestionDifficultyRow(PydanticStrictBaseModel):
     question_label: str
     accuracy_pct: float | None = None
     avg_time_seconds: float | None = None
+    discrimination_index: float | None = None
+    strong_miss_pct: float | None = None
+    weak_correct_pct: float | None = None
+    distractor_issue_count: int = 0
 
 
 class CommonFailureRow(PydanticStrictBaseModel):
@@ -274,5 +343,5 @@ class AtRiskLearnersResponse(PydanticStrictBaseModel):
     page: int = 1
     page_size: int = 25
     items: list[AtRiskLearnerRow]
-    course_options: list[AnalyticsFilterOption] = []
-    cohort_options: list[AnalyticsFilterOption] = []
+    course_options: list[AnalyticsFilterOption] = []  # noqa: RUF012
+    cohort_options: list[AnalyticsFilterOption] = []  # noqa: RUF012

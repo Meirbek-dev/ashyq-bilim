@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from datetime import timedelta
+from datetime import date, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlmodel import Session
 
+from src.db.analytics import DailyCourseMetrics
 from src.db.courses.courses import Course
 from src.db.usergroups import UserGroup
 from src.services.analytics.assessments import build_assessment_rows
@@ -21,7 +22,7 @@ from src.services.analytics.queries import (
     to_iso,
     to_tz_iso,
 )
-from src.services.analytics.risk import build_risk_rows
+from src.services.analytics.risk import build_risk_rows, enrich_risk_rows
 from src.services.analytics.rollups import (
     list_latest_assessment_rollups,
     list_latest_course_rollups,
@@ -40,6 +41,32 @@ from src.services.analytics.schemas import (
     TimeSeriesPoint,
 )
 from src.services.analytics.scope import TeacherAnalyticsScope, ensure_course_in_scope
+
+
+def _previous_completion_by_course(
+    db_session: Session, course_ids: list[int], before_date: date
+) -> dict[int, float]:
+    if not course_ids:
+        return {}
+    latest_date = db_session.exec(
+        select(func.max(DailyCourseMetrics.metric_date)).where(
+            DailyCourseMetrics.metric_date < before_date,
+            DailyCourseMetrics.course_id.in_(course_ids),
+        )
+    ).scalar_one_or_none()
+    if latest_date is None:
+        return {}
+    rows = db_session.exec(
+        select(DailyCourseMetrics).where(
+            DailyCourseMetrics.metric_date == latest_date,
+            DailyCourseMetrics.course_id.in_(course_ids),
+        )
+    ).all()
+    return {
+        row.course_id: float(row.completion_rate)
+        for row in rows
+        if row.completion_rate is not None
+    }
 
 
 def _build_rollup_course_rows(
@@ -132,6 +159,25 @@ def _build_rollup_course_rows(
         )
 
     sort_by = filters.sort_by or "pressure"
+    if rows:
+        average_completion = round(
+            sum(row.completion_rate for row in rows) / len(rows), 1
+        )
+        completion_values = sorted(row.completion_rate for row in rows)
+        median_completion = completion_values[len(completion_values) // 2]
+        rows = [
+            row.model_copy(
+                update={
+                    "teacher_completion_delta_pct": round(
+                        row.completion_rate - average_completion, 1
+                    ),
+                    "platform_completion_delta_pct": round(
+                        row.completion_rate - median_completion, 1
+                    ),
+                }
+            )
+            for row in rows
+        ]
     reverse = filters.sort_order != "asc"
     sort_map = {
         "name": lambda row: row.course_name.lower(),
@@ -166,17 +212,22 @@ def build_course_rows(
     allowed_user_ids = cohort_user_ids(context, filters.cohort_ids)
     events = build_activity_events(context, allowed_user_ids)
     snapshots = progress_snapshots(context, allowed_user_ids)
+    all_snapshots = progress_snapshots(context)
     risk_rows = build_risk_rows(context, filters)
     assessments = build_assessment_rows(context, filters)
     now = context.generated_at
     current_start, _current_end = filters.window_bounds(now=now)
     previous_start, previous_end = filters.previous_window_bounds(now=now)
+    previous_completion = _previous_completion_by_course(
+        db_session, scope.course_ids, current_start.date()
+    )
     risk_by_course = defaultdict(list)
     for row in risk_rows:
         risk_by_course[row.course_id].append(row)
     assessments_by_course = defaultdict(list)
     for assessment in assessments:
         assessments_by_course[assessment.course_id].append(assessment)
+    all_completion_by_course: dict[int, float] = {}
 
     rows: list[TeacherCourseRow] = []
     for course_id in scope.course_ids:
@@ -197,10 +248,20 @@ def build_course_rows(
         course_snapshots = [
             snapshot for key, snapshot in snapshots.items() if key[0] == course_id
         ]
+        all_course_snapshots = [
+            snapshot for key, snapshot in all_snapshots.items() if key[0] == course_id
+        ]
         completion_rate = (
             safe_pct(
                 sum(1 for snapshot in course_snapshots if snapshot.is_completed),
                 len(course_snapshots),
+            )
+            or 0.0
+        )
+        all_completion_by_course[course_id] = (
+            safe_pct(
+                sum(1 for snapshot in all_course_snapshots if snapshot.is_completed),
+                len(all_course_snapshots),
             )
             or 0.0
         )
@@ -317,6 +378,39 @@ def build_course_rows(
             )
         )
     sort_by = filters.sort_by or "pressure"
+    if rows:
+        average_completion = round(
+            sum(row.completion_rate for row in rows) / len(rows), 1
+        )
+        completion_values = sorted(row.completion_rate for row in rows)
+        median_completion = completion_values[len(completion_values) // 2]
+        rows = [
+            row.model_copy(
+                update={
+                    "teacher_completion_delta_pct": round(
+                        row.completion_rate - average_completion, 1
+                    ),
+                    "platform_completion_delta_pct": round(
+                        row.completion_rate - median_completion, 1
+                    ),
+                    "historical_completion_delta_pct": round(
+                        row.completion_rate
+                        - previous_completion.get(row.course_id, row.completion_rate),
+                        1,
+                    )
+                    if row.course_id in previous_completion
+                    else None,
+                    "cohort_completion_delta_pct": round(
+                        row.completion_rate
+                        - all_completion_by_course.get(row.course_id, row.completion_rate),
+                        1,
+                    )
+                    if filters.cohort_ids
+                    else None,
+                }
+            )
+            for row in rows
+        ]
     reverse = filters.sort_order != "asc"
     sort_map = {
         "name": lambda row: row.course_name.lower(),
@@ -427,7 +521,14 @@ def get_teacher_course_detail(
         snapshot for key, snapshot in snapshots.items() if key[0] == course_id
     ]
     risk_rows = [
-        row for row in build_risk_rows(context, filters) if row.course_id == course_id
+        row
+        for row in enrich_risk_rows(
+            db_session,
+            scope,
+            build_risk_rows(context, filters),
+            generated_date=context.generated_at.date(),
+        )
+        if row.course_id == course_id
     ]
     assessment_rows = [
         row

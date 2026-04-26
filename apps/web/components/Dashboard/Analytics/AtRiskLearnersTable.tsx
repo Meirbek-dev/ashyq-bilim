@@ -2,10 +2,14 @@
 
 import { getAnalyticsReasonCodeLabel, getAnalyticsRiskLevelLabel } from '@/lib/analytics/labels';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { AtRiskLearnerRow } from '@/types/analytics';
+import type { AnalyticsQuery, AtRiskLearnerRow } from '@/types/analytics';
+import { createTeacherIntervention } from '@services/analytics/teacher';
 import type { ColumnDef } from '@tanstack/react-table';
 import AnalyticsDataTable from './AnalyticsDataTable';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
@@ -15,7 +19,21 @@ interface AtRiskLearnersTableProps {
   rows: AtRiskLearnerRow[];
   storageKey?: string;
   serverPaginated?: boolean;
+  query?: AnalyticsQuery;
 }
+
+type EnhancedAtRiskLearnerRow = AtRiskLearnerRow & {
+  risk_trend?: 'newly_at_risk' | 'worsening' | 'improving' | 'recovered' | 'stable';
+  previous_risk_score?: number | null;
+  risk_score_delta?: number | null;
+  top_contributing_factor?: string | null;
+  confidence_level?: 'low' | 'medium' | 'high';
+  why_now?: string | null;
+  intervention_count?: number;
+  last_intervention_type?: string | null;
+  last_intervention_at?: string | null;
+  last_intervention_outcome?: string | null;
+};
 
 const riskVariant = (level: AtRiskLearnerRow['risk_level']) => {
   if (level === 'high') return 'destructive';
@@ -29,10 +47,36 @@ export default function AtRiskLearnersTable({
   rows,
   storageKey,
   serverPaginated,
+  query,
 }: AtRiskLearnersTableProps) {
   const t = useTranslations('TeacherAnalytics');
+  const [pendingKey, setPendingKey] = useState<string | null>(null);
   const resolvedTitle = title ?? t('atRisk.defaultTitle');
   const resolvedDescription = description ?? t('atRisk.defaultDescription');
+  const logIntervention = async (
+    row: EnhancedAtRiskLearnerRow,
+    interventionType: 'message_sent' | 'meeting_scheduled' | 'learner_recovered',
+  ) => {
+    const key = `${row.course_id}:${row.user_id}:${interventionType}`;
+    setPendingKey(key);
+    try {
+      await createTeacherIntervention(
+        {
+          user_id: row.user_id,
+          course_id: row.course_id,
+          intervention_type: interventionType,
+          status: interventionType === 'learner_recovered' ? 'resolved' : 'completed',
+          outcome: interventionType === 'learner_recovered' ? 'Recovered from risk' : null,
+        },
+        query,
+      );
+      toast.success('Intervention logged');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to log intervention');
+    } finally {
+      setPendingKey(null);
+    }
+  };
   const columns: ColumnDef<AtRiskLearnerRow>[] = [
     {
       accessorKey: 'user_display_name',
@@ -73,12 +117,21 @@ export default function AtRiskLearnersTable({
       accessorKey: 'risk_score',
       header: t('atRisk.colRisk'),
       cell: ({ row }) => {
-        const c = row.original.risk_components;
+        const riskRow = row.original as EnhancedAtRiskLearnerRow;
+        const c = riskRow.risk_components;
         return (
           <div className="space-y-1">
-            <Badge variant={riskVariant(row.original.risk_level)}>
-              {getAnalyticsRiskLevelLabel(t, row.original.risk_level)} · {row.original.risk_score}
+            <Badge variant={riskVariant(riskRow.risk_level)}>
+              {getAnalyticsRiskLevelLabel(t, riskRow.risk_level)} · {riskRow.risk_score}
             </Badge>
+            {riskRow.risk_trend && riskRow.risk_trend !== 'stable' && (
+              <div className="text-muted-foreground text-[11px]">
+                {riskRow.risk_trend.replaceAll('_', ' ')}
+                {riskRow.risk_score_delta !== null && riskRow.risk_score_delta !== undefined
+                  ? ` (${riskRow.risk_score_delta > 0 ? '+' : ''}${riskRow.risk_score_delta})`
+                  : ''}
+              </div>
+            )}
             {/* Readable component breakdown replacing the old I/P/F/M/G abbreviations */}
             <div className="text-muted-foreground max-w-[280px] text-[11px] leading-4">
               {[
@@ -102,6 +155,9 @@ export default function AtRiskLearnersTable({
       cell: ({ row }) => (
         <div className="text-muted-foreground max-w-[220px] text-xs whitespace-normal">
           {row.original.reason_codes.map((code) => getAnalyticsReasonCodeLabel(t, code)).join(', ')}
+          {(row.original as EnhancedAtRiskLearnerRow).why_now && (
+            <div className="mt-1 text-[11px]">{(row.original as EnhancedAtRiskLearnerRow).why_now}</div>
+          )}
         </div>
       ),
     },
@@ -109,21 +165,52 @@ export default function AtRiskLearnersTable({
       accessorKey: 'recommended_action',
       header: t('atRisk.colAction'),
       cell: ({ row }) => {
-        const hasGradingBlock = row.original.open_grading_blocks > 0;
-        const gradingHref = row.original.course_uuid
-          ? `/dash/analytics/courses/${row.original.course_uuid}`
+        const riskRow = row.original as EnhancedAtRiskLearnerRow;
+        const hasGradingBlock = riskRow.open_grading_blocks > 0;
+        const gradingHref = riskRow.course_uuid
+          ? `/dash/analytics/courses/${riskRow.course_uuid}`
           : '/dash/assignments';
         return (
           <div className="text-muted-foreground max-w-[280px] space-y-1 text-sm whitespace-normal">
-            <span>{row.original.recommended_action}</span>
+            <span>{riskRow.recommended_action}</span>
+            <div className="text-[11px]">
+              {riskRow.intervention_count ? `${riskRow.intervention_count} interventions logged` : 'No interventions logged'}
+            </div>
             {hasGradingBlock && gradingHref && (
               <Link
                 href={gradingHref}
                 className="block text-xs text-emerald-700 hover:underline"
               >
-                {t('atRisk.gradeSubmissions', { count: row.original.open_grading_blocks })} →
+                {t('atRisk.gradeSubmissions', { count: riskRow.open_grading_blocks })} →
               </Link>
             )}
+            <div className="flex flex-wrap gap-1 pt-1">
+              {[
+                ['message_sent', 'Message'],
+                ['meeting_scheduled', 'Meeting'],
+                ['learner_recovered', 'Recovered'],
+              ].map(([type, label]) => {
+                const key = `${riskRow.course_id}:${riskRow.user_id}:${type}`;
+                return (
+                  <Button
+                    key={type}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    disabled={pendingKey === key}
+                    onClick={() =>
+                      logIntervention(
+                        riskRow,
+                        type as 'message_sent' | 'meeting_scheduled' | 'learner_recovered',
+                      )
+                    }
+                  >
+                    {label}
+                  </Button>
+                );
+              })}
+            </div>
           </div>
         );
       },

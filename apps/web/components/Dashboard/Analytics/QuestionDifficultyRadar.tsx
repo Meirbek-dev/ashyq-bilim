@@ -18,6 +18,7 @@ export default function QuestionDifficultyRadar({ title, description, data }: Qu
   const radarData = data.slice(0, MAX).map((row) => ({
     label: row.question_label,
     accuracy: row.accuracy_pct ?? 0,
+    discrimination: (row as QuestionDifficultyRow & { discrimination_index?: number | null }).discrimination_index ?? 0,
   }));
 
   return (
@@ -38,6 +39,11 @@ export default function QuestionDifficultyRadar({ title, description, data }: Qu
               color: 'var(--chart-2)',
               valueFormatter: (value) => `${Math.round(Number(value ?? 0))}%`,
             },
+            discrimination: {
+              label: 'Discrimination',
+              color: 'var(--chart-4)',
+              valueFormatter: (value) => Number(value ?? 0).toFixed(2),
+            },
           }}
         >
           <RadarChart data={radarData}>
@@ -54,8 +60,36 @@ export default function QuestionDifficultyRadar({ title, description, data }: Qu
               stroke="var(--color-accuracy)"
               strokeWidth={2}
             />
+            <Radar
+              dataKey="discrimination"
+              fill="var(--color-discrimination)"
+              fillOpacity={0.15}
+              stroke="var(--color-discrimination)"
+              strokeWidth={2}
+            />
           </RadarChart>
         </ChartContainer>
+        <div className="mt-3 grid gap-2 md:grid-cols-2">
+          {data.slice(0, MAX).map((row) => {
+            const quality = row as QuestionDifficultyRow & {
+              strong_miss_pct?: number | null;
+              weak_correct_pct?: number | null;
+              distractor_issue_count?: number | null;
+            };
+            return (
+              <div
+                key={row.question_id}
+                className="bg-muted rounded-md border p-3 text-xs"
+              >
+                <div className="font-medium">{row.question_label}</div>
+                <div className="text-muted-foreground mt-1">
+                  Strong miss {quality.strong_miss_pct ?? 0}% · Weak correct {quality.weak_correct_pct ?? 0}% · Distractor
+                  issues {quality.distractor_issue_count ?? 0}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </CardContent>
     </Card>
   );

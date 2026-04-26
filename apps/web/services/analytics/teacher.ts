@@ -10,6 +10,37 @@ type TeacherAssessmentListResponse = components['schemas']['TeacherAssessmentLis
 type TeacherAssessmentDetailResponse = components['schemas']['TeacherAssessmentDetailResponse'];
 type AtRiskLearnersResponse = components['schemas']['AtRiskLearnersResponse'];
 
+export interface TeacherInterventionCreate {
+  user_id: number;
+  course_id: number;
+  intervention_type:
+    | 'message_sent'
+    | 'submission_graded'
+    | 'extension_granted'
+    | 'meeting_scheduled'
+    | 'learner_recovered';
+  status?: 'planned' | 'completed' | 'resolved';
+  outcome?: string | null;
+  notes?: string | null;
+  payload?: Record<string, unknown>;
+}
+
+export interface TeacherInterventionRow {
+  id: number;
+  teacher_user_id: number;
+  user_id: number;
+  course_id: number;
+  intervention_type: TeacherInterventionCreate['intervention_type'];
+  status: 'planned' | 'completed' | 'resolved';
+  outcome: string | null;
+  notes: string | null;
+  risk_score_before: number | null;
+  risk_score_after: number | null;
+  created_at: string;
+  updated_at: string;
+  resolved_at: string | null;
+}
+
 const buildQueryString = (query: AnalyticsQuery = {}) => {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(query)) {
@@ -36,8 +67,8 @@ const getOptionalInteger = (value: string | undefined): number | undefined => {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
 };
 
-async function analyticsRequest<T>(path: string, query?: AnalyticsQuery): Promise<T> {
-  const response = await apiFetch(`analytics/${path}${buildQueryString(query)}`);
+async function analyticsRequest<T>(path: string, query?: AnalyticsQuery, init?: RequestInit): Promise<T> {
+  const response = await apiFetch(`analytics/${path}${buildQueryString(query)}`, init);
 
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}));
@@ -103,6 +134,14 @@ export function getTeacherAssessmentDetail({ assessmentType, assessmentId, query
 
 export function getAtRiskLearners(query?: AnalyticsQuery) {
   return analyticsRequest<AtRiskLearnersResponse>('teacher/learners/at-risk', query);
+}
+
+export function createTeacherIntervention(payload: TeacherInterventionCreate, query?: AnalyticsQuery) {
+  return analyticsRequest<TeacherInterventionRow>(`teacher/interventions`, query, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
 }
 
 export function getAnalyticsExportUrl(

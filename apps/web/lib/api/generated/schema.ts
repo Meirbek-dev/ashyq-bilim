@@ -392,6 +392,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/analytics/teacher/interventions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Teacher Interventions Platform */
+        get: operations["teacher_interventions_platform_api_v1_analytics_teacher_interventions_get"];
+        put?: never;
+        /** Create Teacher Intervention Platform */
+        post: operations["create_teacher_intervention_platform_api_v1_analytics_teacher_interventions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/analytics/teacher/learners/at-risk": {
         parameters: {
             query?: never;
@@ -2309,6 +2327,23 @@ export interface paths {
          *     - Teachers/admins can access any attempt for exams they manage
          */
         get: operations["api_get_attempt_by_uuid_api_v1_exams_attempts__attempt_uuid__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/exams/attempts/{attempt_uuid}/questions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Api Get Attempt Review Questions */
+        get: operations["api_get_attempt_review_questions_api_v1_exams_attempts__attempt_uuid__questions_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4399,6 +4434,8 @@ export interface components {
             course_name: string;
             /** Difficulty Score */
             difficulty_score?: number | null;
+            /** Discrimination Index */
+            discrimination_index?: number | null;
             /** Grading Latency Hours P50 */
             grading_latency_hours_p50?: number | null;
             /** Grading Latency Hours P90 */
@@ -4409,8 +4446,14 @@ export interface components {
             outlier_reason_codes: string[];
             /** Pass Rate */
             pass_rate?: number | null;
+            /** Reliability Score */
+            reliability_score?: number | null;
+            /** Score Variance */
+            score_variance?: number | null;
             /** Submission Rate */
             submission_rate?: number | null;
+            /** Suspicious Flag */
+            suspicious_flag?: string | null;
             /** Title */
             title: string;
         };
@@ -4691,6 +4734,12 @@ export interface components {
         AtRiskLearnerRow: {
             /** Cohort Name */
             cohort_name?: string | null;
+            /**
+             * Confidence Level
+             * @default medium
+             * @enum {string}
+             */
+            confidence_level: "low" | "medium" | "high";
             /** Course Id */
             course_id: number;
             /** Course Name */
@@ -4701,10 +4750,23 @@ export interface components {
             days_since_last_activity?: number | null;
             /** Failed Assessments */
             failed_assessments: number;
+            /**
+             * Intervention Count
+             * @default 0
+             */
+            intervention_count: number;
+            /** Last Intervention At */
+            last_intervention_at?: string | null;
+            /** Last Intervention Outcome */
+            last_intervention_outcome?: string | null;
+            /** Last Intervention Type */
+            last_intervention_type?: string | null;
             /** Missing Required Assessments */
             missing_required_assessments: number;
             /** Open Grading Blocks */
             open_grading_blocks: number;
+            /** Previous Risk Score */
+            previous_risk_score?: number | null;
             /** Progress Pct */
             progress_pct: number;
             /** Reason Codes */
@@ -4725,10 +4787,22 @@ export interface components {
             risk_level: "low" | "medium" | "high";
             /** Risk Score */
             risk_score: number;
+            /** Risk Score Delta */
+            risk_score_delta?: number | null;
+            /**
+             * Risk Trend
+             * @default stable
+             * @enum {string}
+             */
+            risk_trend: "newly_at_risk" | "worsening" | "improving" | "recovered" | "stable";
+            /** Top Contributing Factor */
+            top_contributing_factor?: string | null;
             /** User Display Name */
             user_display_name: string;
             /** User Id */
             user_id: number;
+            /** Why Now */
+            why_now?: string | null;
         };
         /** AtRiskLearnersResponse */
         AtRiskLearnersResponse: {
@@ -6283,6 +6357,31 @@ export interface components {
             /** Unique Students */
             unique_students: number;
         };
+        /** InterventionSummary */
+        InterventionSummary: {
+            /** Avg Risk Delta After Intervention */
+            avg_risk_delta_after_intervention?: number | null;
+            /**
+             * Open
+             * @default 0
+             */
+            open: number;
+            /**
+             * Recovered Learners
+             * @default 0
+             */
+            recovered_learners: number;
+            /**
+             * Resolved
+             * @default 0
+             */
+            resolved: number;
+            /**
+             * Total
+             * @default 0
+             */
+            total: number;
+        };
         /**
          * ItemFeedback
          * @description Optional per-item feedback from the teacher.
@@ -6620,10 +6719,21 @@ export interface components {
             accuracy_pct?: number | null;
             /** Avg Time Seconds */
             avg_time_seconds?: number | null;
+            /** Discrimination Index */
+            discrimination_index?: number | null;
+            /**
+             * Distractor Issue Count
+             * @default 0
+             */
+            distractor_issue_count: number;
             /** Question Id */
             question_id: string;
             /** Question Label */
             question_label: string;
+            /** Strong Miss Pct */
+            strong_miss_pct?: number | null;
+            /** Weak Correct Pct */
+            weak_correct_pct?: number | null;
         };
         /**
          * QuestionRead
@@ -7367,6 +7477,8 @@ export interface components {
             assessment_difficulty_score?: number | null;
             /** At Risk Learners */
             at_risk_learners: number;
+            /** Cohort Completion Delta Pct */
+            cohort_completion_delta_pct?: number | null;
             /** Completion Rate */
             completion_rate: number;
             /** Content Health Score */
@@ -7379,8 +7491,14 @@ export interface components {
             course_uuid: string;
             /** Engagement Delta Pct */
             engagement_delta_pct?: number | null;
+            /** Historical Completion Delta Pct */
+            historical_completion_delta_pct?: number | null;
             /** Last Content Update At */
             last_content_update_at?: string | null;
+            /** Platform Completion Delta Pct */
+            platform_completion_delta_pct?: number | null;
+            /** Teacher Completion Delta Pct */
+            teacher_completion_delta_pct?: number | null;
             top_alert?: components["schemas"]["AlertItem"] | null;
             /** Ungraded Submissions */
             ungraded_submissions: number;
@@ -7410,6 +7528,76 @@ export interface components {
              * @default GRADED
              */
             status: string;
+        };
+        /** TeacherInterventionCreate */
+        TeacherInterventionCreate: {
+            /** Course Id */
+            course_id: number;
+            /**
+             * Intervention Type
+             * @enum {string}
+             */
+            intervention_type: "message_sent" | "submission_graded" | "extension_granted" | "meeting_scheduled" | "learner_recovered";
+            /** Notes */
+            notes?: string | null;
+            /** Outcome */
+            outcome?: string | null;
+            /**
+             * Payload
+             * @default {}
+             */
+            payload: {
+                [key: string]: unknown;
+            };
+            /**
+             * Status
+             * @default completed
+             * @enum {string}
+             */
+            status: "planned" | "completed" | "resolved";
+            /** User Id */
+            user_id: number;
+        };
+        /** TeacherInterventionListResponse */
+        TeacherInterventionListResponse: {
+            /** Generated At */
+            generated_at: string;
+            /** Items */
+            items: components["schemas"]["TeacherInterventionRow"][];
+            /**
+             * Total
+             * @default 0
+             */
+            total: number;
+        };
+        /** TeacherInterventionRow */
+        TeacherInterventionRow: {
+            /** Course Id */
+            course_id: number;
+            /** Created At */
+            created_at: string;
+            /** Id */
+            id: number;
+            /** Intervention Type */
+            intervention_type: string;
+            /** Notes */
+            notes?: string | null;
+            /** Outcome */
+            outcome?: string | null;
+            /** Resolved At */
+            resolved_at?: string | null;
+            /** Risk Score After */
+            risk_score_after?: number | null;
+            /** Risk Score Before */
+            risk_score_before?: number | null;
+            /** Status */
+            status: string;
+            /** Teacher User Id */
+            teacher_user_id: number;
+            /** Updated At */
+            updated_at: string;
+            /** User Id */
+            user_id: number;
         };
         /** TeacherOverviewResponse */
         TeacherOverviewResponse: {
@@ -7455,6 +7643,7 @@ export interface components {
             freshness_seconds: number;
             /** Generated At */
             generated_at: string;
+            intervention_summary: components["schemas"]["InterventionSummary"];
             risk_distribution: components["schemas"]["RiskDistributionCounts"];
             scope: components["schemas"]["TeacherOverviewScope"];
             summary: components["schemas"]["TeacherOverviewSummary"];
@@ -8772,6 +8961,96 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    teacher_interventions_platform_api_v1_analytics_teacher_interventions_get: {
+        parameters: {
+            query?: {
+                user_id?: number | null;
+                course_id?: number | null;
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeacherInterventionListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_teacher_intervention_platform_api_v1_analytics_teacher_interventions_post: {
+        parameters: {
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TeacherInterventionCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeacherInterventionRow"];
                 };
             };
             /** @description Validation Error */
@@ -12445,6 +12724,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ExamAttemptRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_attempt_review_questions_api_v1_exams_attempts__attempt_uuid__questions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuestionRead"][];
                 };
             };
             /** @description Validation Error */

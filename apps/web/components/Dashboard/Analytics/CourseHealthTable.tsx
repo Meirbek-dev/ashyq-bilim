@@ -14,6 +14,13 @@ interface CourseHealthTableProps {
   serverPaginated?: boolean;
 }
 
+type EnhancedTeacherCourseRow = TeacherCourseRow & {
+  teacher_completion_delta_pct?: number | null;
+  platform_completion_delta_pct?: number | null;
+  historical_completion_delta_pct?: number | null;
+  cohort_completion_delta_pct?: number | null;
+};
+
 export default function CourseHealthTable({ rows, storageKey, serverPaginated }: CourseHealthTableProps) {
   const t = useTranslations('TeacherAnalytics');
   const columns: ColumnDef<TeacherCourseRow>[] = [
@@ -33,7 +40,19 @@ export default function CourseHealthTable({ rows, storageKey, serverPaginated }:
     {
       accessorKey: 'completion_rate',
       header: t('courseHealth.colCompletion'),
-      cell: ({ row }) => `${row.original.completion_rate}%`,
+      cell: ({ row }) => {
+        const course = row.original as EnhancedTeacherCourseRow;
+        return (
+          <div>
+            <div>{course.completion_rate}%</div>
+            <div className="text-muted-foreground text-[11px]">
+              {course.teacher_completion_delta_pct !== null && course.teacher_completion_delta_pct !== undefined
+                ? `${course.teacher_completion_delta_pct > 0 ? '+' : ''}${course.teacher_completion_delta_pct} vs teacher avg`
+                : ''}
+            </div>
+          </div>
+        );
+      },
     },
     { accessorKey: 'at_risk_learners', header: t('courseHealth.colRisk') },
     { accessorKey: 'ungraded_submissions', header: t('courseHealth.colUngraded') },
@@ -41,10 +60,22 @@ export default function CourseHealthTable({ rows, storageKey, serverPaginated }:
       accessorKey: 'content_health_score',
       header: t('courseHealth.colHealth'),
       cell: ({ row }) => {
-        const v = row.original.content_health_score;
+        const course = row.original as EnhancedTeacherCourseRow;
+        const v = course.content_health_score;
         if (v === null) return t('atRisk.na');
         // Score is already on a 0–100 scale (freshness × 0.55 + avg_progress × 0.45).
-        return `${Math.round(v)}%`;
+        return (
+          <div>
+            <div>{Math.round(v)}%</div>
+            {course.historical_completion_delta_pct !== null &&
+              course.historical_completion_delta_pct !== undefined && (
+                <div className="text-muted-foreground text-[11px]">
+                  {course.historical_completion_delta_pct > 0 ? '+' : ''}
+                  {course.historical_completion_delta_pct} vs history
+                </div>
+              )}
+          </div>
+        );
       },
     },
     {

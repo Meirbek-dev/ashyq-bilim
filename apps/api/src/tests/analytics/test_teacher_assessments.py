@@ -4,7 +4,10 @@ from types import SimpleNamespace
 from src.db.courses.activities import ActivityTypeEnum
 from src.services.analytics.assessments import (
     _attempt_distribution,
+    _discrimination_index,
+    _reliability_score,
     _score_bucket,
+    _score_variance,
     build_assessment_rows,
 )
 from src.services.analytics.filters import AnalyticsFilters
@@ -28,6 +31,15 @@ def test_attempt_distribution_rolls_up_high_attempt_counts() -> None:
     assert lookup["1"] == 1
     assert lookup["2"] == 1
     assert lookup["5+"] == 2
+
+
+def test_assessment_quality_helpers_expose_variance_reliability_and_discrimination() -> None:
+    scores = [25, 40, 60, 85, 95]
+    scores_by_user = {idx: score for idx, score in enumerate(scores, start=1)}
+
+    assert _score_variance(scores) > 0
+    assert _reliability_score(scores) is not None
+    assert _discrimination_index(scores_by_user) is not None
 
 
 def test_assessment_rows_include_code_challenge_without_attempts() -> None:

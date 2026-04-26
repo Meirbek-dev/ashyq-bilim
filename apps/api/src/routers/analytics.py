@@ -14,6 +14,7 @@ from src.db.users import AnonymousUser, PublicUser
 from src.infra.db.session import get_db_session
 from src.security.rbac import PermissionChecker
 from src.services.analytics import (
+    create_teacher_intervention,
     export_assessment_outcomes_csv,
     export_at_risk_csv,
     export_course_progress_csv,
@@ -24,6 +25,7 @@ from src.services.analytics import (
     get_teacher_course_detail,
     get_teacher_course_list,
     get_teacher_overview,
+    list_teacher_interventions,
 )
 from src.services.analytics.filters import AnalyticsFilters, get_analytics_filters
 from src.services.analytics.schemas import (
@@ -32,6 +34,9 @@ from src.services.analytics.schemas import (
     TeacherAssessmentListResponse,
     TeacherCourseDetailResponse,
     TeacherCourseListResponse,
+    TeacherInterventionCreate,
+    TeacherInterventionListResponse,
+    TeacherInterventionRow,
     TeacherOverviewResponse,
 )
 from src.services.analytics.scope import (
@@ -204,6 +209,46 @@ async def teacher_at_risk_learners_platform(
 ):
     scope = await _scope_for(db_session, current_user, filters, action="read")
     return await asyncio.to_thread(get_at_risk_learners, db_session, scope, filters)
+
+
+@router.get(
+    "/teacher/interventions",
+    response_model=TeacherInterventionListResponse,
+)
+async def teacher_interventions_platform(
+    filters: Annotated[AnalyticsFilters, Depends(get_analytics_filters)],
+    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_public_user)],
+    db_session: Annotated[Session, Depends(get_db_session)],
+    user_id: int | None = None,
+    course_id: int | None = None,
+):
+    scope = await _scope_for(db_session, current_user, filters, action="read")
+    return await asyncio.to_thread(
+        list_teacher_interventions,
+        db_session,
+        scope,
+        user_id=user_id,
+        course_id=course_id,
+    )
+
+
+@router.post(
+    "/teacher/interventions",
+    response_model=TeacherInterventionRow,
+)
+async def create_teacher_intervention_platform(
+    payload: TeacherInterventionCreate,
+    filters: Annotated[AnalyticsFilters, Depends(get_analytics_filters)],
+    current_user: Annotated[PublicUser | AnonymousUser, Depends(get_public_user)],
+    db_session: Annotated[Session, Depends(get_db_session)],
+):
+    scope = await _scope_for(db_session, current_user, filters, action="read")
+    return await asyncio.to_thread(
+        create_teacher_intervention,
+        db_session,
+        scope,
+        payload,
+    )
 
 
 @router.get("/teacher/exports/at-risk.csv")

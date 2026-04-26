@@ -1,6 +1,11 @@
 import pytest
 
+from datetime import date
+from types import SimpleNamespace
+from unittest.mock import MagicMock
+
 from src.security.rbac import PermissionDenied
+from src.services.analytics.courses import _previous_completion_by_course
 from src.services.analytics.queries import _unwrap_model, _unwrap_pair, display_name
 from src.services.analytics.scope import (
     TeacherAnalyticsScope,
@@ -96,3 +101,27 @@ def test_unwrap_pair_returns_models_from_row_mapping() -> None:
 
 def test_display_name_returns_russian_unknown_for_missing_user() -> None:
     assert display_name(None) == "Неизвестный пользователь"
+
+
+def test_previous_completion_by_course_uses_scalar_max_date() -> None:
+    db_session = MagicMock()
+
+    first_result = MagicMock()
+    first_result.scalar_one_or_none.return_value = date(2026, 1, 1)
+
+    second_result = MagicMock()
+    second_result.all.return_value = [
+        SimpleNamespace(course_id=2, completion_rate=0.75),
+        SimpleNamespace(course_id=3, completion_rate=None),
+    ]
+
+    db_session.exec.side_effect = [first_result, second_result]
+
+    result = _previous_completion_by_course(
+        db_session, [2, 3], date(2026, 2, 1)
+    )
+
+    assert result == {2: 0.75}
+    first_result.scalar_one_or_none.assert_called_once()
+    first_result.one_or_none.assert_not_called()
+    second_result.all.assert_called_once()

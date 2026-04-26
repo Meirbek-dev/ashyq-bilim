@@ -110,6 +110,7 @@ async function PlatformAnalyticsCourseDetailPageInner(props: {
           rows={detail.at_risk_learners}
           title={t('pages.courseAtRiskTitle')}
           description={t('pages.courseAtRiskDescription')}
+          query={query}
         />
       </div>
     );

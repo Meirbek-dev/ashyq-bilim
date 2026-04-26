@@ -265,6 +265,103 @@ def _score_distribution(scores: list[float]) -> list[HistogramBucket]:
     ]
 
 
+def _score_variance(scores: list[float]) -> float | None:
+    if len(scores) < 2:
+        return None
+    average = sum(scores) / len(scores)
+    return round(sum((score - average) ** 2 for score in scores) / len(scores), 2)
+
+
+def _reliability_score(scores: list[float]) -> float | None:
+    variance = _score_variance(scores)
+    if variance is None:
+        return None
+    # Normalize rough score spread to a 0-100 quality signal. Extremely low variance often
+    # means the assessment is not separating learner performance; extremely high variance
+    # usually means it is noisy or uneven.
+    ideal_variance = 350.0
+    distance = abs(variance - ideal_variance)
+    return round(max(0.0, 100 - (distance / ideal_variance) * 100), 1)
+
+
+def _discrimination_index(scores_by_user: dict[int, float]) -> float | None:
+    if len(scores_by_user) < 4:
+        return None
+    ordered = sorted(scores_by_user.values())
+    group_size = max(1, round(len(ordered) * 0.27))
+    weak = ordered[:group_size]
+    strong = ordered[-group_size:]
+    return round((sum(strong) / len(strong) - sum(weak) / len(weak)) / 100, 2)
+
+
+def _suspicious_flag(
+    *, pass_rate: float | None, score_variance: float | None, discrimination: float | None
+) -> str | None:
+    if pass_rate is not None and pass_rate >= 95:
+        return "too_easy"
+    if pass_rate is not None and pass_rate <= 20:
+        return "too_hard"
+    if discrimination is not None and discrimination < 0.15:
+        return "low_discrimination"
+    if score_variance is not None and score_variance < 25:
+        return "low_variance"
+    return None
+
+
+def _quality_by_question_from_quiz_attempts(attempts: list) -> dict[str, dict[str, float | int]]:
+    scored_attempts: list[tuple[float, object]] = []
+    for attempt in attempts:
+        if not attempt.end_ts or not attempt.max_score:
+            continue
+        score_pct = (float(attempt.score) / float(attempt.max_score)) * 100
+        scored_attempts.append((score_pct, attempt))
+    if len(scored_attempts) < 4:
+        return {}
+    ordered = sorted(scored_attempts, key=lambda item: item[0])
+    group_size = max(1, round(len(ordered) * 0.27))
+    weak = {id(attempt) for _score, attempt in ordered[:group_size]}
+    strong = {id(attempt) for _score, attempt in ordered[-group_size:]}
+    totals: dict[str, dict[str, int]] = defaultdict(
+        lambda: {"strong": 0, "strong_miss": 0, "weak": 0, "weak_correct": 0}
+    )
+    for _score, attempt in scored_attempts:
+        items = (attempt.grading_result or {}).get("items", [])
+        if not isinstance(items, list):
+            continue
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            question_id = str(item.get("item_id") or item.get("question_id") or "")
+            if not question_id:
+                continue
+            correct = item.get("correct")
+            if id(attempt) in strong:
+                totals[question_id]["strong"] += 1
+                if correct is False:
+                    totals[question_id]["strong_miss"] += 1
+            if id(attempt) in weak:
+                totals[question_id]["weak"] += 1
+                if correct is True:
+                    totals[question_id]["weak_correct"] += 1
+    quality: dict[str, dict[str, float | int]] = {}
+    for question_id, counts in totals.items():
+        strong_accuracy = safe_pct(
+            counts["strong"] - counts["strong_miss"], counts["strong"]
+        )
+        weak_accuracy = safe_pct(counts["weak_correct"], counts["weak"])
+        if strong_accuracy is None or weak_accuracy is None:
+            continue
+        quality[question_id] = {
+            "discrimination_index": round((strong_accuracy - weak_accuracy) / 100, 2),
+            "strong_miss_pct": safe_pct(counts["strong_miss"], counts["strong"]) or 0.0,
+            "weak_correct_pct": weak_accuracy,
+            "distractor_issue_count": 1
+            if counts["strong"] and (safe_pct(counts["strong_miss"], counts["strong"]) or 0) > 35
+            else 0,
+        }
+    return quality
+
+
 def _build_assignment_rows(
     context: AnalyticsContext,
     snapshots: dict[tuple[int, int], object],
@@ -300,9 +397,12 @@ def _build_assignment_rows(
             if submission.submission_status.value == "GRADED"
         ]
         grades = [float(submission.grade) for submission in graded]
+        scores_by_user = {submission.user_id: float(submission.grade) for submission in graded}
         pass_rate = safe_pct(
             sum(1 for submission in graded if submission.grade >= 60), len(graded)
         )
+        variance = _score_variance(grades)
+        discrimination = _discrimination_index(scores_by_user)
         latency_hours = [
             value
             for value in (
@@ -345,6 +445,14 @@ def _build_assignment_rows(
                 grading_latency_hours_p50=percentile(latency_hours, 0.5),
                 grading_latency_hours_p90=percentile(latency_hours, 0.9),
                 difficulty_score=difficulty_score,
+                score_variance=variance,
+                reliability_score=_reliability_score(grades),
+                discrimination_index=discrimination,
+                suspicious_flag=_suspicious_flag(
+                    pass_rate=pass_rate,
+                    score_variance=variance,
+                    discrimination=discrimination,
+                ),
                 outlier_reason_codes=outlier_reason_codes,
             )
         )
@@ -387,11 +495,18 @@ def _build_exam_rows(
             for attempt, _ in attempts
             if attempt.score is not None and attempt.max_score
         ]
+        scores_by_user = {
+            attempt.user_id: (float(attempt.score or 0) / float(attempt.max_score)) * 100
+            for attempt, _ in attempts
+            if attempt.score is not None and attempt.max_score
+        }
         attempts_by_user = Counter(attempt.user_id for attempt, _ in attempts)
         threshold = assessment_pass_threshold(exam.settings)
         pass_rate = safe_pct(
             sum(1 for score in scores if score >= threshold), len(scores)
         )
+        variance = _score_variance(scores)
+        discrimination = _discrimination_index(scores_by_user)
         submission_rate = safe_pct(len(submitted_users), eligible)
         difficulty_score = round(100 - pass_rate, 2) if pass_rate is not None else None
         outlier_reason_codes: list[str] = []
@@ -421,6 +536,14 @@ def _build_exam_rows(
                 grading_latency_hours_p50=None,
                 grading_latency_hours_p90=None,
                 difficulty_score=difficulty_score,
+                score_variance=variance,
+                reliability_score=_reliability_score(scores),
+                discrimination_index=discrimination,
+                suspicious_flag=_suspicious_flag(
+                    pass_rate=pass_rate,
+                    score_variance=variance,
+                    discrimination=discrimination,
+                ),
                 outlier_reason_codes=outlier_reason_codes,
             )
         )
@@ -457,8 +580,15 @@ def _build_quiz_rows(
             for attempt, _ in attempts
             if attempt.end_ts and attempt.max_score
         ]
+        scores_by_user = {
+            attempt.user_id: (float(attempt.score) / float(attempt.max_score)) * 100
+            for attempt, _ in attempts
+            if attempt.end_ts and attempt.max_score
+        }
         attempts_by_user = Counter(attempt.user_id for attempt, _ in attempts)
         pass_rate = safe_pct(sum(1 for score in scores if score >= 60), len(scores))
+        variance = _score_variance(scores)
+        discrimination = _discrimination_index(scores_by_user)
         submission_rate = safe_pct(len(submitted_users), eligible)
         difficulty_score = round(100 - pass_rate, 2) if pass_rate is not None else None
         outlier_reason_codes: list[str] = []
@@ -487,6 +617,14 @@ def _build_quiz_rows(
                 grading_latency_hours_p50=None,
                 grading_latency_hours_p90=None,
                 difficulty_score=difficulty_score,
+                score_variance=variance,
+                reliability_score=_reliability_score(scores),
+                discrimination_index=discrimination,
+                suspicious_flag=_suspicious_flag(
+                    pass_rate=pass_rate,
+                    score_variance=variance,
+                    discrimination=discrimination,
+                ),
                 outlier_reason_codes=outlier_reason_codes,
             )
         )
@@ -536,8 +674,15 @@ def _build_code_rows(
             for submission, _ in submissions
             if submission.status.value == "COMPLETED"
         ]
+        scores_by_user = {
+            submission.user_id: float(submission.score)
+            for submission, _ in submissions
+            if submission.status.value == "COMPLETED"
+        }
         attempts_by_user = Counter(submission.user_id for submission, _ in submissions)
         pass_rate = safe_pct(sum(1 for score in scores if score >= 60), len(scores))
+        variance = _score_variance(scores)
+        discrimination = _discrimination_index(scores_by_user)
         submission_rate = safe_pct(len(submitted_users), eligible)
         difficulty_score = round(100 - pass_rate, 2) if pass_rate is not None else None
         outlier_reason_codes: list[str] = []
@@ -566,6 +711,14 @@ def _build_code_rows(
                 grading_latency_hours_p50=None,
                 grading_latency_hours_p90=None,
                 difficulty_score=difficulty_score,
+                score_variance=variance,
+                reliability_score=_reliability_score(scores),
+                discrimination_index=discrimination,
+                suspicious_flag=_suspicious_flag(
+                    pass_rate=pass_rate,
+                    score_variance=variance,
+                    discrimination=discrimination,
+                ),
                 outlier_reason_codes=outlier_reason_codes,
             )
         )
@@ -919,12 +1072,16 @@ def get_teacher_assessment_detail(
         submitted_users = {
             attempt.user_id for attempt, _activity in records if attempt.end_ts
         }
+        quality_by_question = _quality_by_question_from_quiz_attempts(
+            [attempt for attempt, _activity in records]
+        )
         question_breakdown = []
         for stat in [
             item
             for item in context.quiz_question_stats
             if item.activity_id == assessment_id
         ]:
+            quality = quality_by_question.get(stat.question_id, {})
             question_breakdown.append(
                 QuestionDifficultyRow(
                     question_id=stat.question_id,
@@ -933,6 +1090,12 @@ def get_teacher_assessment_detail(
                     avg_time_seconds=round(float(stat.avg_time_seconds), 2)
                     if stat.avg_time_seconds is not None
                     else None,
+                    discrimination_index=quality.get("discrimination_index"),
+                    strong_miss_pct=quality.get("strong_miss_pct"),
+                    weak_correct_pct=quality.get("weak_correct_pct"),
+                    distractor_issue_count=int(
+                        quality.get("distractor_issue_count") or 0
+                    ),
                 )
             )
         common_failures = [

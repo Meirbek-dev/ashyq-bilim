@@ -190,3 +190,38 @@ class LearnerRiskSnapshot(SQLModel, table=True):
             DateTime(timezone=True), server_default=func.now(), nullable=False
         ),
     )
+
+
+class TeacherIntervention(SQLModel, table=True):
+    __tablename__ = "teacher_intervention"
+
+    id: int | None = Field(default=None, primary_key=True)
+    teacher_user_id: int = Field(index=True)
+    user_id: int = Field(index=True)
+    course_id: int = Field(index=True)
+    intervention_type: str
+    status: str = "planned"
+    outcome: str | None = None
+    notes: str | None = None
+    risk_score_before: float | None = Field(
+        default=None, sa_column=Column(Numeric(6, 2))
+    )
+    risk_score_after: float | None = Field(
+        default=None, sa_column=Column(Numeric(6, 2))
+    )
+    payload: dict = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(tz=UTC),
+        sa_column=Column(
+            DateTime(timezone=True), server_default=func.now(), nullable=False
+        ),
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(tz=UTC),
+        sa_column=Column(
+            DateTime(timezone=True), server_default=func.now(), nullable=False
+        ),
+    )
+    resolved_at: datetime | None = Field(
+        default=None, sa_column=Column(DateTime(timezone=True), nullable=True)
+    )

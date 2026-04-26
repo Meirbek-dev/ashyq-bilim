@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from datetime import UTC
+from datetime import UTC, date
 
+from sqlalchemy import select
 from sqlmodel import Session
 
+from src.db.analytics import LearnerRiskSnapshot, TeacherIntervention
 from src.services.analytics.filters import AnalyticsFilters
 from src.services.analytics.queries import (
     AnalyticsContext,
@@ -20,6 +22,151 @@ from src.services.analytics.queries import (
 )
 from src.services.analytics.schemas import AtRiskLearnerRow, AtRiskLearnersResponse
 from src.services.analytics.scope import TeacherAnalyticsScope
+
+_RISK_LEVEL_WEIGHT = {"low": 0, "medium": 1, "high": 2}
+
+
+def _risk_trend(
+    current_level: str, current_score: float, previous: LearnerRiskSnapshot | None
+) -> tuple[str, float | None, float | None]:
+    if previous is None:
+        return ("newly_at_risk" if current_level in {"medium", "high"} else "stable", None, None)
+    previous_score = float(previous.risk_score)
+    delta = round(current_score - previous_score, 1)
+    previous_weight = _RISK_LEVEL_WEIGHT.get(previous.risk_level, 0)
+    current_weight = _RISK_LEVEL_WEIGHT.get(current_level, 0)
+    if current_weight == 0 and previous_weight > 0:
+        trend = "recovered"
+    elif current_weight > previous_weight or delta >= 10:
+        trend = "worsening"
+    elif current_weight < previous_weight or delta <= -10:
+        trend = "improving"
+    else:
+        trend = "stable"
+    return trend, previous_score, delta
+
+
+def _top_factor(components: dict[str, float]) -> str | None:
+    positive = {key: value for key, value in components.items() if value > 0}
+    if not positive:
+        return None
+    return max(positive.items(), key=lambda item: item[1])[0]
+
+
+def _confidence_level(
+    *,
+    risk_score: float,
+    reason_codes: list[str],
+    days_since_last_activity: int | None,
+) -> str:
+    if risk_score >= 70 and len(reason_codes) >= 2:
+        return "high"
+    if days_since_last_activity is None and len(reason_codes) <= 1:
+        return "low"
+    return "medium"
+
+
+def _why_now(reason_codes: list[str], top_factor: str | None) -> str:
+    if "grading_block" in reason_codes:
+        return "Open teacher grading is currently blocking progress."
+    if "inactive_7d" in reason_codes:
+        return "Recent inactivity crossed the seven-day intervention threshold."
+    if "repeated_failures" in reason_codes:
+        return "Recent assessment outcomes show repeated failures."
+    if "missing_required_assessments" in reason_codes:
+        return "Required assessments are now missing for this learner."
+    if top_factor == "progress":
+        return "Progress is materially behind the course baseline."
+    return "Multiple risk signals are active in the current analytics window."
+
+
+def _previous_snapshots(
+    db_session: Session,
+    pairs: set[tuple[int, int]],
+    before_date: date,
+) -> dict[tuple[int, int], LearnerRiskSnapshot]:
+    if not pairs:
+        return {}
+    course_ids = sorted({course_id for course_id, _user_id in pairs})
+    user_ids = sorted({user_id for _course_id, user_id in pairs})
+    rows = list(
+        db_session.exec(
+            select(LearnerRiskSnapshot)
+            .where(
+                LearnerRiskSnapshot.snapshot_date < before_date,
+                LearnerRiskSnapshot.course_id.in_(course_ids),
+                LearnerRiskSnapshot.user_id.in_(user_ids),
+            )
+            .order_by(LearnerRiskSnapshot.snapshot_date.desc())
+        ).all()
+    )
+    latest: dict[tuple[int, int], LearnerRiskSnapshot] = {}
+    for row in rows:
+        key = (row.course_id, row.user_id)
+        if key in pairs and key not in latest:
+            latest[key] = row
+    return latest
+
+
+def _interventions_by_pair(
+    db_session: Session, scope: TeacherAnalyticsScope
+) -> dict[tuple[int, int], list[TeacherIntervention]]:
+    if not scope.course_ids:
+        return {}
+    rows = list(
+        db_session.exec(
+            select(TeacherIntervention)
+            .where(
+                TeacherIntervention.teacher_user_id == scope.teacher_user_id,
+                TeacherIntervention.course_id.in_(scope.course_ids),
+            )
+            .order_by(TeacherIntervention.created_at.desc())
+        ).all()
+    )
+    grouped: dict[tuple[int, int], list[TeacherIntervention]] = defaultdict(list)
+    for row in rows:
+        grouped[(row.course_id, row.user_id)].append(row)
+    return dict(grouped)
+
+
+def enrich_risk_rows(
+    db_session: Session,
+    scope: TeacherAnalyticsScope,
+    rows: list[AtRiskLearnerRow],
+    *,
+    generated_date: date,
+) -> list[AtRiskLearnerRow]:
+    pairs = {(row.course_id, row.user_id) for row in rows}
+    previous_by_pair = _previous_snapshots(db_session, pairs, generated_date)
+    interventions = _interventions_by_pair(db_session, scope)
+    enriched: list[AtRiskLearnerRow] = []
+    for row in rows:
+        key = (row.course_id, row.user_id)
+        trend, previous_score, delta = _risk_trend(
+            row.risk_level, row.risk_score, previous_by_pair.get(key)
+        )
+        learner_interventions = interventions.get(key, [])
+        latest_intervention = learner_interventions[0] if learner_interventions else None
+        enriched.append(
+            row.model_copy(
+                update={
+                    "risk_trend": trend,
+                    "previous_risk_score": previous_score,
+                    "risk_score_delta": delta,
+                    "intervention_count": len(learner_interventions),
+                    "last_intervention_type": latest_intervention.intervention_type
+                    if latest_intervention is not None
+                    else None,
+                    "last_intervention_at": to_iso(latest_intervention.created_at)
+                    if latest_intervention is not None
+                    else None,
+                    "last_intervention_outcome": latest_intervention.outcome
+                    if latest_intervention is not None
+                    else None,
+                }
+            )
+        )
+    return enriched
 
 
 def build_risk_rows(
@@ -177,6 +324,20 @@ def build_risk_rows(
         elif "low_progress" in reason_codes:
             recommended_action = "Назначьте встречу, чтобы обсудить темп прохождения и вовлеченность по главам."
 
+        risk_components = {
+            "inactivity": float(inactivity_component),
+            "progress": float(progress_component),
+            "failures": float(failure_component),
+            "missing": float(missing_component),
+            "grading": float(grading_component),
+        }
+        top_factor = _top_factor(risk_components)
+        confidence_level = _confidence_level(
+            risk_score=risk_score,
+            reason_codes=reason_codes,
+            days_since_last_activity=days_since_last_activity,
+        )
+
         rows.append(
             AtRiskLearnerRow(
                 user_id=user_id,
@@ -195,14 +356,11 @@ def build_risk_rows(
                 missing_required_assessments=missing,
                 risk_score=risk_score,
                 risk_level=risk_level,
-                risk_components={
-                    "inactivity": float(inactivity_component),
-                    "progress": float(progress_component),
-                    "failures": float(failure_component),
-                    "missing": float(missing_component),
-                    "grading": float(grading_component),
-                },
+                risk_components=risk_components,
                 reason_codes=reason_codes,
+                top_contributing_factor=top_factor,
+                confidence_level=confidence_level,
+                why_now=_why_now(reason_codes, top_factor),
                 recommended_action=recommended_action,
             )
         )
@@ -217,7 +375,12 @@ def get_at_risk_learners(
     filters: AnalyticsFilters,
 ) -> AtRiskLearnersResponse:
     context = load_analytics_context(db_session, scope.course_ids)
-    rows = build_risk_rows(context, filters)
+    rows = enrich_risk_rows(
+        db_session,
+        scope,
+        build_risk_rows(context, filters),
+        generated_date=context.generated_at.date(),
+    )
     paged_rows = rows[filters.offset : filters.offset + filters.page_size]
     return AtRiskLearnersResponse(
         generated_at=to_iso(context.generated_at) or "",

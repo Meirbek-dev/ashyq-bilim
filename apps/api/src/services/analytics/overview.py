@@ -13,6 +13,7 @@ from src.db.analytics import (
 from src.services.analytics.assessments import build_assessment_rows
 from src.services.analytics.courses import build_course_rows
 from src.services.analytics.filters import AnalyticsFilters
+from src.services.analytics.interventions import summarize_interventions
 from src.services.analytics.queries import (
     ActivityEvent,
     build_activity_events,
@@ -26,7 +27,7 @@ from src.services.analytics.queries import (
     to_iso,
     to_tz_iso,
 )
-from src.services.analytics.risk import build_risk_rows
+from src.services.analytics.risk import build_risk_rows, enrich_risk_rows
 from src.services.analytics.rollups import (
     freshness_seconds_from_rollup,
     get_latest_teacher_rollup,
@@ -208,7 +209,12 @@ def get_teacher_overview(
     allowed_user_ids = cohort_user_ids(context, filters.cohort_ids)
     events = build_activity_events(context, allowed_user_ids)
     snapshots = progress_snapshots(context, allowed_user_ids)
-    risk_rows = build_risk_rows(context, filters)
+    risk_rows = enrich_risk_rows(
+        db_session,
+        scope,
+        build_risk_rows(context, filters),
+        generated_date=context.generated_at.date(),
+    )
     generated_at = context.generated_at
     current_start, current_end = filters.window_bounds(now=generated_at)
     previous_start, previous_end = filters.previous_window_bounds(now=generated_at)
@@ -530,6 +536,7 @@ def get_teacher_overview(
         trends=trends,
         alerts=alerts,
         risk_distribution=risk_distribution,
+        intervention_summary=summarize_interventions(db_session, scope),
         at_risk_preview=risk_rows[:8],
         course_preview=course_rows[:8],
         assessment_preview=assessment_rows[:8],
