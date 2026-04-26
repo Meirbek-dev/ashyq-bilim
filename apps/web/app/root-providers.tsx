@@ -6,11 +6,13 @@ import { SessionProvider } from '@/components/providers/session-provider';
 import { ThemeProvider, useTheme } from '@/components/providers/theme-provider';
 import { ReactQueryProvider } from '@/lib/react-query/providers';
 import type { Session } from '@/lib/auth/types';
+import type { ThemeMode } from '@/lib/themes';
 import type { ReactNode } from 'react';
 
 interface RootProvidersProps {
   children: ReactNode;
   initialSession?: Session | null;
+  initialThemeMode?: ThemeMode;
 }
 
 function ThemedRootChrome({ children }: { children: ReactNode }) {
@@ -37,11 +39,14 @@ function ThemedRootChrome({ children }: { children: ReactNode }) {
   );
 }
 
-export default function RootProviders({ children, initialSession }: RootProvidersProps) {
+export default function RootProviders({ children, initialSession, initialThemeMode }: RootProvidersProps) {
   return (
     <ReactQueryProvider>
       <SessionProvider initialSession={initialSession}>
-        <ThemeProvider defaultThemeName={initialSession?.user.theme ?? 'default'}>
+        <ThemeProvider
+          defaultThemeName={initialSession?.user.theme ?? 'default'}
+          initialMode={initialThemeMode}
+        >
           <ThemedRootChrome>{children}</ThemedRootChrome>
         </ThemeProvider>
       </SessionProvider>

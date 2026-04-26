@@ -33,41 +33,38 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 interface ThemeProviderProps {
   children: ReactNode;
   defaultThemeName?: string;
+  initialMode?: ThemeMode;
 }
 
-export function ThemeProvider({ children, defaultThemeName = DEFAULT_THEME_NAME }: ThemeProviderProps) {
+export function ThemeProvider({
+  children,
+  defaultThemeName = DEFAULT_THEME_NAME,
+  initialMode,
+}: ThemeProviderProps) {
   const { user } = useSession();
   const userTheme = user?.theme ?? null;
-  const initialThemeName = getTheme(userTheme || defaultThemeName, DEFAULT_THEME_MODE).name;
-  const [themeName, setThemeName] = useState(initialThemeName);
-  const [mode, setModeState] = useState<ThemeMode>(DEFAULT_THEME_MODE);
-  const theme = useMemo(() => getTheme(themeName, mode), [mode, themeName]);
+  const [theme, setThemeState] = useState(() => getTheme(userTheme || defaultThemeName, initialMode ?? DEFAULT_THEME_MODE));
+  const themeName = theme.name;
+  const mode = theme.resolvedTheme;
 
   useEffect(() => {
     const effectiveThemeName = getStoredTheme() || userTheme || defaultThemeName || DEFAULT_THEME_NAME;
-    const effectiveThemeMode = getStoredThemeMode() || getSystemThemeMode();
+    const effectiveThemeMode = getStoredThemeMode() || initialMode || getSystemThemeMode();
     const effectiveTheme = getTheme(effectiveThemeName, effectiveThemeMode);
 
-    if (effectiveTheme.name !== themeName) {
-      setThemeName(effectiveTheme.name);
-    }
-
-    if (effectiveTheme.resolvedTheme !== mode) {
-      setModeState(effectiveTheme.resolvedTheme);
-    }
-
+    setThemeState(effectiveTheme);
     applyTheme(effectiveTheme);
-  }, [defaultThemeName, mode, themeName, userTheme]);
+  }, [defaultThemeName, initialMode, userTheme]);
 
   const setTheme = useCallback((nextThemeName: string) => {
     const nextTheme = getTheme(nextThemeName, mode);
-    setThemeName(nextTheme.name);
+    setThemeState(nextTheme);
     applyTheme(nextTheme);
   }, [mode]);
 
   const setMode = useCallback((nextMode: ThemeMode) => {
     const nextTheme = getTheme(themeName, nextMode);
-    setModeState(nextMode);
+    setThemeState(nextTheme);
     applyTheme(nextTheme);
   }, [themeName]);
 

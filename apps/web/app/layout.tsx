@@ -1,8 +1,8 @@
 import { getLocale, getMessages, setRequestLocale } from 'next-intl/server';
 import { IntlProvider } from '@/components/providers/IntlProvider';
 import DevScriptLoader from '@/components/DevScriptLoader';
+import { ThemeScript } from '@/components/providers/theme-script';
 import { getSession } from '@/lib/auth/session';
-import { inter, jetBrainsMono } from '@/lib/fonts';
 import { DEFAULT_THEME_MODE, DEFAULT_THEME_NAME, getTheme } from '@/lib/themes';
 import type { CSSProperties } from 'react';
 import { Suspense } from 'react';
@@ -29,7 +29,9 @@ async function LocalizedApp({ children }: { children: React.ReactNode }) {
       messages={messages}
       locale={locale}
     >
-      <RootProviders initialSession={initialSession}>
+      <RootProviders
+        initialSession={initialSession}
+      >
         <main>{children}</main>
       </RootProviders>
     </IntlProvider>
@@ -41,7 +43,6 @@ const initialTheme = getTheme(DEFAULT_THEME_NAME, DEFAULT_THEME_MODE);
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
-      className={`${inter.variable} ${jetBrainsMono.variable}`}
       data-mode={initialTheme.resolvedTheme}
       data-theme={initialTheme.name}
       lang="ru-RU"
@@ -53,6 +54,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           name="viewport"
           content="width=device-width, initial-scale=1"
         />
+        <link
+          rel="preconnect"
+          href="https://fonts.googleapis.com"
+        />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
+        />
+        <ThemeScript initialTheme={initialTheme} />
       </head>
 
       <body suppressHydrationWarning>

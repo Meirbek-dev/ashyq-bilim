@@ -1,4 +1,5 @@
 import rawThemeRegistry from './theme-registry.generated.json';
+import { loadThemeFonts } from './theme-fonts';
 
 export type ThemeMode = 'light' | 'dark';
 export type ThemeTokenMap = Record<string, string>;
@@ -25,6 +26,8 @@ export interface ThemeDefinition {
   readonly name: string;
   readonly label: string;
   readonly styles: Readonly<ThemeStyles>;
+  readonly commonTokens: Readonly<ThemeTokenMap>;
+  readonly modeTokens: Readonly<ThemeTokenMap>;
   readonly tokens: Readonly<ThemeTokenMap>;
   readonly colors: Readonly<ThemeColors>;
   readonly resolvedTheme: ThemeMode;
@@ -32,11 +35,31 @@ export interface ThemeDefinition {
 
 export const THEME_STORAGE_KEY = 'theme';
 export const THEME_MODE_STORAGE_KEY = 'theme-mode';
+export const THEME_CACHE_STORAGE_KEY = 'theme-cache';
 export const DEFAULT_THEME_NAME = 'default';
 export const DEFAULT_THEME_MODE: ThemeMode = 'light';
 const THEME_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
 const registry = rawThemeRegistry as Record<string, ThemePreset>;
+
+export const COMMON_THEME_KEYS = [
+  'font-sans',
+  'font-serif',
+  'font-mono',
+  'radius',
+  'shadow-opacity',
+  'shadow-blur',
+  'shadow-spread',
+  'shadow-offset-x',
+  'shadow-offset-y',
+  'shadow-x',
+  'shadow-y',
+  'letter-spacing',
+  'tracking-normal',
+  'spacing',
+] as const;
+
+const commonThemeKeySet = new Set<string>(COMMON_THEME_KEYS);
 
 const tokenAliases: Record<string, string[]> = {
   'letter-spacing': ['tracking-normal'],
@@ -50,6 +73,10 @@ const tokenAliases: Record<string, string[]> = {
 function normalizeThemeTokens(tokens: ThemeTokenMap): ThemeTokenMap {
   const normalized: ThemeTokenMap = { ...tokens };
 
+  if (normalized['letter-spacing'] === 'normal') {
+    normalized['letter-spacing'] = '0em';
+  }
+
   for (const [token, aliases] of Object.entries(tokenAliases)) {
     const tokenValue = normalized[token] ?? aliases.map((alias) => normalized[alias]).find(Boolean);
     if (!tokenValue) continue;
@@ -58,6 +85,11 @@ function normalizeThemeTokens(tokens: ThemeTokenMap): ThemeTokenMap {
     for (const alias of aliases) {
       normalized[alias] = tokenValue;
     }
+  }
+
+  if (normalized['letter-spacing'] === 'normal') {
+    normalized['letter-spacing'] = '0em';
+    normalized['tracking-normal'] = '0em';
   }
 
   const shadowTokens = buildShadowTokens(normalized);
@@ -125,6 +157,30 @@ function buildModeTokens(mode: ThemeMode, partialTokens: ThemeTokenMap): ThemeTo
   });
 }
 
+function splitCommonTokens(tokens: ThemeTokenMap): ThemeTokenMap {
+  const commonTokens: ThemeTokenMap = {};
+
+  for (const [key, value] of Object.entries(tokens)) {
+    if (commonThemeKeySet.has(key)) {
+      commonTokens[key] = value;
+    }
+  }
+
+  return normalizeThemeTokens(commonTokens);
+}
+
+function splitModeTokens(tokens: ThemeTokenMap): ThemeTokenMap {
+  const modeTokens: ThemeTokenMap = {};
+
+  for (const [key, value] of Object.entries(tokens)) {
+    if (!commonThemeKeySet.has(key) && !key.startsWith('shadow-')) {
+      modeTokens[key] = value;
+    }
+  }
+
+  return modeTokens;
+}
+
 function buildColors(tokens: ThemeTokenMap): ThemeColors {
   const background = tokens.background ?? 'oklch(1 0 0)';
   const foreground = tokens.foreground ?? 'oklch(0.145 0 0)';
@@ -141,12 +197,19 @@ function buildColors(tokens: ThemeTokenMap): ThemeColors {
 function buildThemeDefinition(name: string, preset: ThemePreset | undefined, mode: ThemeMode): ThemeDefinition {
   const light = buildModeTokens('light', preset?.styles.light ?? {});
   const dark = buildModeTokens('dark', preset?.styles.dark ?? {});
-  const tokens = mode === 'dark' ? dark : light;
+  const commonTokens = splitCommonTokens(light);
+  const modeTokens = splitModeTokens(mode === 'dark' ? dark : light);
+  const tokens = normalizeThemeTokens({
+    ...commonTokens,
+    ...modeTokens,
+  });
 
   return {
     name,
     label: preset?.label ?? name,
     styles: { light, dark },
+    commonTokens,
+    modeTokens,
     tokens,
     colors: buildColors(tokens),
     resolvedTheme: mode,
@@ -185,10 +248,7 @@ export function getSystemThemeMode(): ThemeMode {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
-export function applyTheme(theme: ThemeDefinition): void {
-  if (typeof document === 'undefined') return;
-
-  const root = document.documentElement;
+export function applyThemeToElement(theme: ThemeDefinition, root: HTMLElement): void {
   for (const [key, value] of Object.entries(theme.tokens)) {
     root.style.setProperty(`--${key}`, value);
   }
@@ -197,11 +257,35 @@ export function applyTheme(theme: ThemeDefinition): void {
   root.setAttribute('data-mode', theme.resolvedTheme);
   root.classList.toggle('dark', theme.resolvedTheme === 'dark');
   root.style.colorScheme = theme.resolvedTheme;
+}
+
+export function persistTheme(theme: ThemeDefinition): void {
+  if (typeof window === 'undefined') return;
+
+  const cachedTheme = {
+    name: theme.name,
+    tokensByMode: {
+      light: getTheme(theme.name, 'light').tokens,
+      dark: getTheme(theme.name, 'dark').tokens,
+    },
+  };
 
   window.localStorage.setItem(THEME_STORAGE_KEY, theme.name);
   window.localStorage.setItem(THEME_MODE_STORAGE_KEY, theme.resolvedTheme);
+  window.localStorage.setItem(THEME_CACHE_STORAGE_KEY, JSON.stringify(cachedTheme));
   document.cookie = `${THEME_STORAGE_KEY}=${encodeURIComponent(theme.name)}; path=/; max-age=${THEME_COOKIE_MAX_AGE}; samesite=lax`;
   document.cookie = `${THEME_MODE_STORAGE_KEY}=${theme.resolvedTheme}; path=/; max-age=${THEME_COOKIE_MAX_AGE}; samesite=lax`;
+}
+
+export function applyTheme(theme: ThemeDefinition, options: { persist?: boolean } = {}): void {
+  if (typeof document === 'undefined') return;
+
+  applyThemeToElement(theme, document.documentElement);
+  loadThemeFonts(theme.commonTokens);
+
+  if (options.persist ?? true) {
+    persistTheme(theme);
+  }
 }
 
 export function isDarkThemeName(_themeName: string): boolean {
