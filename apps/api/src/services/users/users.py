@@ -444,12 +444,11 @@ async def _create_and_validate_user(
     _validate_unique_email(db_session, user_object.email)
 
     # Password strength validation
-    if user_object.password:
-        if len(user_object.password) < MIN_PASSWORD_LENGTH:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Password must be at least {MIN_PASSWORD_LENGTH} characters",
-            )
+    if user_object.password and len(user_object.password) < MIN_PASSWORD_LENGTH:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Password must be at least {MIN_PASSWORD_LENGTH} characters",
+        )
 
     # Create user with completed fields
     user = User.model_validate(user_object)

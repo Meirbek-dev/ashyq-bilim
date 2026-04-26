@@ -1,18 +1,8 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import {
-  applyTheme,
-  DEFAULT_THEME_MODE,
-  DEFAULT_THEME_NAME,
-  getStoredTheme,
-  getStoredThemeMode,
-  getSystemThemeMode,
-  getTheme,
-  themes,
-  type Theme,
-  type ThemeMode,
-} from '@/lib/themes';
+import { applyTheme, DEFAULT_THEME_MODE, DEFAULT_THEME_NAME, getStoredTheme, getStoredThemeMode, getSystemThemeMode, getTheme, themes } from '@/lib/themes';
+import type { Theme, ThemeMode } from '@/lib/themes';
 import { useSession } from '@/hooks/useSession';
 import { useThemeSync } from '@/hooks/useThemeSync';
 import type { ReactNode } from 'react';
@@ -76,7 +66,7 @@ export function ThemeProvider({ children, defaultThemeName = DEFAULT_THEME_NAME,
     (coords?: { x: number; y: number }) => {
       const nextMode = mode === 'dark' ? 'light' : 'dark';
       const root = document.documentElement;
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const prefersReducedMotion = globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       if (!document.startViewTransition || prefersReducedMotion) {
         setMode(nextMode);

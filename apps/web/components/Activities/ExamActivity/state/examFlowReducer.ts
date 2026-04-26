@@ -32,7 +32,7 @@ export interface AttemptData {
   max_score: number;
   started_at: string;
   finished_at?: string | null;
-  question_order: Array<number | string>;
+  question_order: (number | string)[];
   violations: { type: string; timestamp: string }[];
   answers?: Record<number, any>;
   [key: string]: any;

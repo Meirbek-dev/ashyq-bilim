@@ -1,4 +1,5 @@
-import { getTheme, THEME_CACHE_STORAGE_KEY, THEME_MODE_STORAGE_KEY, type Theme } from '@/lib/themes';
+import { getTheme, THEME_CACHE_STORAGE_KEY, THEME_MODE_STORAGE_KEY } from '@/lib/themes';
+import type { Theme } from '@/lib/themes';
 
 function safeJson(value: unknown): string {
   const json = JSON.stringify(value);

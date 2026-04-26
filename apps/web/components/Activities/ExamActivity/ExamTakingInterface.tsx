@@ -6,7 +6,7 @@ import { createInitialTakingState, examTakingReducer } from './state/examTakingR
 import ExamQuestionNavigation, { ExamQuestionNavigationMobile } from './ExamQuestionNavigation';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useExamPersistence } from '@/hooks/useExamPersistence';
-import { AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Maximize2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import ExamTimer from './ExamTimer';
 import { toast } from 'sonner';
@@ -35,6 +35,15 @@ import { Button } from '@components/ui/button';
 import { Label } from '@components/ui/label';
 
 type TakingState = ReturnType<typeof createInitialTakingState>;
+type FullscreenElement = HTMLElement & {
+  webkitRequestFullscreen?: () => Promise<void> | void;
+};
+
+type FullscreenDocument = Document & {
+  webkitFullscreenElement?: Element | null;
+  webkitFullscreenEnabled?: boolean;
+  webkitExitFullscreen?: () => Promise<void> | void;
+};
 
 interface ExamTakingInterfaceProps {
   exam: ExamData;
@@ -57,12 +66,17 @@ export default function ExamTakingInterface({ exam, questions, attempt, onComple
   // Centralized state management with reducer,
   const [state, dispatch] = useReducer(
     examTakingReducer,
-    createInitialTakingState(0, (attempt.answers ?? {}) as Record<number, any>, attempt.violations?.length || 0),
+    createInitialTakingState(0, (attempt.answers ?? {}), attempt.violations?.length || 0),
   );
 
   // Fullscreen state (separate from main state machine)
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [fullscreenRequestFailed, setFullscreenRequestFailed] = useState(false);
+  const [fullscreenError, setFullscreenError] = useState<string | null>(null);
   const examContainerRef = useRef<HTMLDivElement>(null);
+  const fullscreenEnteredRef = useRef(false);
+  const handleViolationRef = useRef<(type: string, count: number) => Promise<void>>(async () => {});
+  const violationCountRef = useRef(0);
 
   // Answer persistence with auto-save and recovery,
   const persistence = useExamPersistence({
@@ -91,7 +105,7 @@ export default function ExamTakingInterface({ exam, questions, attempt, onComple
   );
 
   // Extract current state,
-  const currentIndex = state.currentIndex;
+  const {currentIndex} = state;
   const answers = getStateAnswers(state);
   const isSubmitting = state.mode === 'submitting';
   const showConfirmation = state.mode === 'confirming-submit';
@@ -102,6 +116,55 @@ export default function ExamTakingInterface({ exam, questions, attempt, onComple
 
   const currentQuestion = orderedQuestions[currentIndex];
   const progress = orderedQuestions.length > 0 ? ((currentIndex + 1) / orderedQuestions.length) * 100 : 0;
+  const requiresFullscreen = settings.fullscreen_enforcement;
+  const fullscreenGateOpen = requiresFullscreen && !isFullscreen && !fullscreenRequestFailed;
+
+  const getFullscreenElement = useCallback(() => {
+    const fullscreenDocument = document as FullscreenDocument;
+    return document.fullscreenElement ?? fullscreenDocument.webkitFullscreenElement ?? null;
+  }, []);
+
+  const requestExamFullscreen = useCallback(async () => {
+    if (!requiresFullscreen || typeof document === 'undefined') return;
+
+    const fullscreenDocument = document as FullscreenDocument;
+    const canUseStandardFullscreen = Boolean(document.fullscreenEnabled && document.documentElement.requestFullscreen);
+    const canUseWebkitFullscreen = Boolean(
+      fullscreenDocument.webkitFullscreenEnabled && (document.documentElement as FullscreenElement).webkitRequestFullscreen,
+    );
+
+    if (!canUseStandardFullscreen && !canUseWebkitFullscreen) {
+      setFullscreenRequestFailed(true);
+      setFullscreenError(t('fullscreenNotSupported'));
+      toast.warning(t('fullscreenNotSupported'));
+      return;
+    }
+
+    try {
+      setFullscreenError(null);
+      setFullscreenRequestFailed(false);
+
+      const target = document.documentElement as FullscreenElement;
+      if (target.requestFullscreen) {
+        await target.requestFullscreen({ navigationUI: 'hide' });
+      } else {
+        await target.webkitRequestFullscreen?.();
+      }
+
+      const activeFullscreenElement = getFullscreenElement();
+      if (!activeFullscreenElement) {
+        throw new Error('Fullscreen request resolved, but no fullscreen element is active');
+      }
+
+      fullscreenEnteredRef.current = true;
+      setIsFullscreen(true);
+    } catch (error) {
+      console.warn('Fullscreen request failed:', error);
+      setFullscreenRequestFailed(false);
+      setFullscreenError(error instanceof Error ? error.message : t('fullscreenRecommended'));
+      toast.info(t('fullscreenRecommended'));
+    }
+  }, [getFullscreenElement, requiresFullscreen, t]);
 
   const handleSubmit = useCallback(
     async (isAutoSubmit = false) => {
@@ -171,6 +234,11 @@ export default function ExamTakingInterface({ exam, questions, attempt, onComple
     [state, exam.exam_uuid, attempt.attempt_uuid, settings.violation_threshold, handleSubmit, t, persistence, onComplete],
   );
 
+  useEffect(() => {
+    handleViolationRef.current = handleViolation;
+    violationCountRef.current = state.violationCount;
+  }, [handleViolation, state.violationCount]);
+
   useTestGuard({
     enabled: true,
     preventCopy: settings.copy_paste_protection,
@@ -190,38 +258,20 @@ export default function ExamTakingInterface({ exam, questions, attempt, onComple
 
   // Fullscreen enforcement with grace period and better UX,
   useEffect(() => {
-    if (!settings.fullscreen_enforcement) return;
+    if (!requiresFullscreen) return;
 
     let fullscreenExitTimeout: NodeJS.Timeout | null = null;
-    let fullscreenSupported = true;
-    let userInitiatedExit = false;
-
-    const requestFullscreen = async () => {
-      try {
-        if (examContainerRef.current && !document.fullscreenElement) {
-          await examContainerRef.current.requestFullscreen();
-          setIsFullscreen(true);
-          fullscreenSupported = true;
-        }
-      } catch (error: any) {
-        console.warn('Fullscreen request failed:', error);
-        fullscreenSupported = false;
-
-        // Show warning but don't penalize if browser doesn't support fullscreen,
-        if (error.name === 'TypeError' || error.message?.includes('not supported')) {
-          toast.warning(t('fullscreenNotSupported'));
-        } else {
-          // User denied or other error - show message but allow exam to continue,
-          toast.info(t('fullscreenRecommended'));
-        }
-      }
-    };
 
     const handleFullscreenChange = () => {
-      const inFullscreen = Boolean(document.fullscreenElement);
+      const inFullscreen = Boolean(getFullscreenElement());
       setIsFullscreen(inFullscreen);
 
-      if (!inFullscreen && settings.fullscreen_enforcement && fullscreenSupported) {
+      if (inFullscreen) {
+        fullscreenEnteredRef.current = true;
+        setFullscreenError(null);
+      }
+
+      if (!inFullscreen && fullscreenEnteredRef.current) {
         // Clear any existing timeout,
         if (fullscreenExitTimeout) {
           clearTimeout(fullscreenExitTimeout);
@@ -230,14 +280,9 @@ export default function ExamTakingInterface({ exam, questions, attempt, onComple
         // Grace period: give user 3 seconds to return to fullscreen before reporting violation,
         fullscreenExitTimeout = setTimeout(() => {
           // Only report if still not in fullscreen after grace period,
-          if (!document.fullscreenElement && !userInitiatedExit) {
+          if (!getFullscreenElement()) {
             toast.warning(t('fullscreenExited'));
-            void handleViolation('FULLSCREEN_EXIT', state.violationCount + 1);
-
-            // Optionally try to re-enter fullscreen,
-            if (settings.fullscreen_enforcement) {
-              void requestFullscreen();
-            }
+            void handleViolationRef.current('FULLSCREEN_EXIT', violationCountRef.current + 1);
           }
         }, 3000); // 3 second grace period
       } else if (inFullscreen && fullscreenExitTimeout) {
@@ -247,24 +292,33 @@ export default function ExamTakingInterface({ exam, questions, attempt, onComple
       }
     };
 
-    // Request fullscreen on mount,
-    void requestFullscreen();
+    handleFullscreenChange();
     document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
 
     return () => {
       if (fullscreenExitTimeout) {
         clearTimeout(fullscreenExitTimeout);
       }
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
-      // Mark exit as user-initiated when component unmounts (exam ended)
-      userInitiatedExit = true;
-      if (document.fullscreenElement) {
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
+  }, [requiresFullscreen, getFullscreenElement, t]);
+
+  useEffect(() => {
+    return () => {
+      if (!getFullscreenElement()) return;
+
+      const fullscreenDocument = document as FullscreenDocument;
+      if (document.exitFullscreen) {
         void document.exitFullscreen().catch(() => {
           /* ignore errors on cleanup */
         });
+      } else {
+        void fullscreenDocument.webkitExitFullscreen?.();
       }
     };
-  }, [settings.fullscreen_enforcement, handleViolation, t, state.violationCount]);
+  }, [getFullscreenElement]);
 
   const handleAnswerChange = (questionId: number, answer: any) => {
     dispatch({ type: 'ANSWER_QUESTION', questionId, answer });
@@ -458,6 +512,31 @@ export default function ExamTakingInterface({ exam, questions, attempt, onComple
       ref={examContainerRef}
       className="mx-auto max-w-full space-y-6 p-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:p-6 md:pb-6"
     >
+      {fullscreenGateOpen && (
+        <div className="bg-background/95 fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Maximize2 className="h-5 w-5" />
+                {t('fullscreenRequiredTitle')}
+              </CardTitle>
+              <CardDescription>{t('fullscreenRequiredDescription')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {fullscreenError && <p className="text-muted-foreground text-sm">{fullscreenError}</p>}
+              <Button
+                type="button"
+                onClick={requestExamFullscreen}
+                className="w-full"
+              >
+                <Maximize2 className="mr-2 h-4 w-4" />
+                {t('enterFullscreen')}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Header with Timer, Progress, and primary actions */}
       <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
         <div>

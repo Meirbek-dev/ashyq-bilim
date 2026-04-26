@@ -71,5 +71,5 @@ export function getOrderedExamQuestions<T extends OrderableQuestion>(
     return orderedQuestions;
   }
 
-  return [...availableQuestions].sort(compareByOrderIndex);
+  return [...availableQuestions].toSorted(compareByOrderIndex);
 }

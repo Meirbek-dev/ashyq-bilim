@@ -2,9 +2,9 @@ from datetime import UTC, datetime
 
 from fastapi_users import schemas
 from pydantic import ConfigDict, EmailStr
-from ulid import ULID
 from sqlalchemy import JSON, Column, DateTime, UniqueConstraint, func
 from sqlmodel import Field
+from ulid import ULID
 
 from src.db.permissions import RoleRead
 from src.db.strict_base_model import PydanticStrictBaseModel, SQLModelStrictBaseModel

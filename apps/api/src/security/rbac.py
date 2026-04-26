@@ -490,7 +490,6 @@ async def mark_user_roles_updated(user_uuid: str) -> None:
     the DB transaction has been committed.
     """
     from src.security.auth_lifetimes import ACCESS_TOKEN_EXPIRE
-
     from src.services.cache.redis_client import get_async_redis_client
 
     r = get_async_redis_client()

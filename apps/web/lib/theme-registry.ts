@@ -56,8 +56,8 @@ const registry: Record<string, ThemePreset> = Object.fromEntries(
     {
       label: item.title,
       styles: {
-        light: { ...(item.cssVars.theme ?? {}), ...item.cssVars.light },
-        dark: { ...(item.cssVars.theme ?? {}), ...item.cssVars.dark },
+        light: { ...item.cssVars.theme, ...item.cssVars.light },
+        dark: { ...item.cssVars.theme, ...item.cssVars.dark },
       },
     },
   ]),
@@ -100,20 +100,20 @@ export function getTheme(name: string, mode: ThemeMode = DEFAULT_THEME_MODE): Th
 }
 
 export function getStoredTheme(): string | null {
-  if (typeof window === 'undefined') return null;
-  const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+  if (typeof globalThis.window === 'undefined') return null;
+  const stored = globalThis.localStorage.getItem(THEME_STORAGE_KEY);
   return stored && stored in registry ? stored : null;
 }
 
 export function getStoredThemeMode(): ThemeMode | null {
-  if (typeof window === 'undefined') return null;
-  const stored = window.localStorage.getItem(THEME_MODE_STORAGE_KEY);
+  if (typeof globalThis.window === 'undefined') return null;
+  const stored = globalThis.localStorage.getItem(THEME_MODE_STORAGE_KEY);
   return isThemeMode(stored) ? stored : null;
 }
 
 export function getSystemThemeMode(): ThemeMode {
-  if (typeof window === 'undefined') return DEFAULT_THEME_MODE;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  if (typeof globalThis.window === 'undefined') return DEFAULT_THEME_MODE;
+  return globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 export function applyThemeToElement(theme: ThemeDefinition, root: HTMLElement): void {
@@ -127,7 +127,7 @@ export function applyThemeToElement(theme: ThemeDefinition, root: HTMLElement): 
 }
 
 export function persistTheme(theme: ThemeDefinition): void {
-  if (typeof window === 'undefined') return;
+  if (typeof globalThis.window === 'undefined') return;
 
   const cachedTheme = {
     name: theme.name,
@@ -137,9 +137,9 @@ export function persistTheme(theme: ThemeDefinition): void {
     },
   };
 
-  window.localStorage.setItem(THEME_STORAGE_KEY, theme.name);
-  window.localStorage.setItem(THEME_MODE_STORAGE_KEY, theme.resolvedTheme);
-  window.localStorage.setItem(THEME_CACHE_STORAGE_KEY, JSON.stringify(cachedTheme));
+  globalThis.localStorage.setItem(THEME_STORAGE_KEY, theme.name);
+  globalThis.localStorage.setItem(THEME_MODE_STORAGE_KEY, theme.resolvedTheme);
+  globalThis.localStorage.setItem(THEME_CACHE_STORAGE_KEY, JSON.stringify(cachedTheme));
   document.cookie = `${THEME_STORAGE_KEY}=${encodeURIComponent(theme.name)}; path=/; max-age=${THEME_COOKIE_MAX_AGE}; samesite=lax`;
   document.cookie = `${THEME_MODE_STORAGE_KEY}=${theme.resolvedTheme}; path=/; max-age=${THEME_COOKIE_MAX_AGE}; samesite=lax`;
 }

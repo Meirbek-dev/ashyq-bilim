@@ -1,7 +1,7 @@
 from fastapi import Response
-from src.security.auth_lifetimes import ACCESS_TOKEN_EXPIRE, REFRESH_TOKEN_EXPIRE
 
 from config.config import get_settings
+from src.security.auth_lifetimes import ACCESS_TOKEN_EXPIRE, REFRESH_TOKEN_EXPIRE
 
 ACCESS_COOKIE_KEY = "access_token_cookie"
 REFRESH_COOKIE_KEY = "refresh_token_cookie"
