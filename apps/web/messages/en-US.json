@@ -5485,7 +5485,11 @@
           "primaryColor": "Primary color",
           "secondary": "Secondary",
           "secondaryColor": "Secondary color",
-          "title": "Color Theme"
+          "title": "Color Theme",
+          "searchPlaceholder": "Search themes...",
+          "randomButtonTitle": "Random theme",
+          "noThemesFound": "No themes found.",
+          "themeCount": "{count, plural, one {# theme} other {# themes}}"
         },
         "title": "Account Settings",
         "uploadingAvatar": "Uploading",

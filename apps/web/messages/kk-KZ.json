@@ -5511,7 +5511,11 @@
           "primaryColor": "Негізгі түс",
           "secondary": "Екінші",
           "secondaryColor": "Қосымша түс",
-          "title": "Түстік тақырып"
+          "title": "Түстік тақырып",
+          "searchPlaceholder": "Тақырыптарды іздеу...",
+          "randomButtonTitle": "Кездейсоқ тақырып",
+          "noThemesFound": "Тақырыптар табылмады.",
+          "themeCount": "{count, plural, one {# тақырып} few {# тақырып} many {# тақырып} other {# тақырып}}"
         },
         "title": "Аккаунт параметрлері",
         "uploadingAvatar": "Жүктелуде",

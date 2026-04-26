@@ -5511,7 +5511,11 @@
           "primaryColor": "Основной цвет",
           "secondary": "вторичный",
           "secondaryColor": "Вторичный цвет",
-          "title": "Цветовые темы"
+          "title": "Цветовые темы",
+          "searchPlaceholder": "Поиск тем...",
+          "randomButtonTitle": "Случайная тема",
+          "noThemesFound": "Темы не найдены.",
+          "themeCount": "{count, plural, one {# тема} few {# темы} many {# тем} other {# темы}}"
         },
         "title": "Настройки аккаунта",
         "uploadingAvatar": "Загрузка",
