@@ -1,10 +1,10 @@
-# Ashyq Bilim
+# Ashyk Bilim
 
-## Ashyq Bilim is a platform that makes it easy for anyone to provide world-class educational content and it offers a variety of content types : Dynamic Pages, Videos, Documents & more.
+## Ashyk Bilim is a platform that makes it easy for anyone to provide world-class educational content and it offers a variety of content types : Dynamic Pages, Videos, Documents & more.
 
 ## Progress
 
-🚧 Ashyq Bilim is still in development (beta), as we reach stability we will release a stable
+🚧 Ashyk Bilim is still in development (beta), as we reach stability we will release a stable
 version and add more features.
 
 ## Overview
@@ -19,5 +19,5 @@ version and add more features.
 - 👟 Course Progress
 - 🛜 Course Updates
 - 💬 Discussions
-- ✨ Ashyq Ai : The Teachers and Students copilot
+- ✨ Ashyk Ai : The Teachers and Students copilot
 - More to come

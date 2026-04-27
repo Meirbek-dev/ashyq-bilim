@@ -15,7 +15,7 @@ export async function generateMetadata(props: MetadataProps): Promise<Metadata> 
   const t = await getTranslations('TrailPage');
 
   return {
-    title: `${t('title')} - Ashyq Bilim`,
+    title: `${t('title')} - Ashyk Bilim`,
     description: t('metaDescription'),
   };
 }

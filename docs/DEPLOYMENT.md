@@ -1,6 +1,6 @@
 # Deployment Guide
 
-Authoritative operations reference for the Ashyq Bilim platform.
+Authoritative operations reference for the Ashyk Bilim platform.
 
 ## Architecture
 
@@ -35,8 +35,8 @@ Networks
 ### 1. Clone the repository
 
 ```bash
-git clone <repo-url> ashyq-bilim
-cd ashyq-bilim
+git clone <repo-url> ashyk-bilim
+cd ashyk-bilim
 ```
 
 ### 2. Configure environment
@@ -145,7 +145,7 @@ curl -fsS https://cs-mooc.tou.edu.kz/api/v1/health
 ## Migrations
 
 Migrations are **always manual** — never applied automatically on start.
-The `migrate` service reuses the `ashyq-bilim-api` image.
+The `migrate` service reuses the `ashyk-bilim-api` image.
 
 **Apply:**
 
@@ -246,41 +246,41 @@ mkdir -p temp-restore
 tar --zstd -xf ./backups/backup-YYYY-MM-DDTHH-MM-SS.tar.zst -C temp-restore
 # Layout: temp-restore/backup/{postgres,redis,app_content,judge0_box}
 
-# 3. Restore volumes (prefix is your Compose project name, default: ashyq-bilim)
+# 3. Restore volumes (prefix is your Compose project name, default: ashyk-bilim)
 BACKUP_PATH="$(pwd)/temp-restore/backup"
 
 docker run --rm \
-  -v ashyq-bilim_postgres_data:/data \
+  -v ashyk-bilim_postgres_data:/data \
   -v "${BACKUP_PATH}/postgres:/backup" \
   alpine sh -c "cd /data && cp -a /backup/. ."
 
 docker run --rm \
-  -v ashyq-bilim_redis_data:/data \
+  -v ashyk-bilim_redis_data:/data \
   -v "${BACKUP_PATH}/redis:/backup" \
   alpine sh -c "cd /data && cp -a /backup/. ."
 
 docker run --rm \
-  -v ashyq-bilim_app_content:/data \
+  -v ashyk-bilim_app_content:/data \
   -v "${BACKUP_PATH}/app_content:/backup" \
   alpine sh -c "cd /data && cp -a /backup/. ."
 
 
-# 3 (Powershell). Restore volumes (prefix is your Compose project name, default: ashyq-bilim)
+# 3 (Powershell). Restore volumes (prefix is your Compose project name, default: ashyk-bilim)
 
 $BACKUP_PATH = ($PWD.ProviderPath -replace '\\','/')
 
 podman run --rm `
-  -v ashyq-bilim_postgres_data:/data `
+  -v ashyk-bilim_postgres_data:/data `
   -v "${BACKUP_PATH}/temp-restore/backup/postgres:/backup" `
   alpine sh -c "cp -a /backup/. /data/"
 
 podman run --rm `
-  -v ashyq-bilim_redis_data:/data `
+  -v ashyk-bilim_redis_data:/data `
   -v "${BACKUP_PATH}/temp-restore/backup/redis:/backup" `
   alpine sh -c "cp -a /backup/. /data/"
 
 podman run --rm `
-  -v ashyq-bilim_app_content:/data `
+  -v ashyk-bilim_app_content:/data `
   -v "${BACKUP_PATH}/temp-restore/backup/app_content:/backup" `
   alpine sh -c "cp -a /backup/. /data/"
 

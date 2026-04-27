@@ -123,7 +123,7 @@ export function EditorToolbar({ editor, onAIToggle }: EditorToolbarProps) {
             width={18}
             height={18}
             src={logoSrc}
-            alt="Ashyq Bilim logo"
+            alt="Ashyk Bilim logo"
             style={{ height: 'auto' }}
           />
           <span>{t('aiEditor')}</span>

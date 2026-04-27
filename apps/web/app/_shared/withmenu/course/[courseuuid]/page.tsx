@@ -21,7 +21,7 @@ export async function generateMetadata(props: MetadataProps): Promise<Metadata> 
 
   // SEO
   return {
-    title: `${course_meta.name} - Ashyq Bilim`,
+    title: `${course_meta.name} - Ashyk Bilim`,
     description: course_meta.description,
     keywords: course_meta.learnings,
     robots: {
@@ -35,7 +35,7 @@ export async function generateMetadata(props: MetadataProps): Promise<Metadata> 
       },
     },
     openGraph: {
-      title: `${course_meta.name} - Ashyq Bilim`,
+      title: `${course_meta.name} - Ashyk Bilim`,
       description: course_meta.description || '',
       images: [
         {

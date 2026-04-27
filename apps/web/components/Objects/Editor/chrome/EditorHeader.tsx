@@ -42,7 +42,7 @@ export function EditorHeader({
             width={22}
             height={22}
             src={logoSrc}
-            alt="Ashyq Bilim logo"
+            alt="Ashyk Bilim logo"
             style={{ height: 'auto' }}
           />
         </Link>

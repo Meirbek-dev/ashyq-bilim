@@ -1,18 +1,18 @@
 {
   "Activities": {
     "AIActivityAsk": {
-      "AI": "Ashyq Ai",
-      "aiSender": "Ashyq Ai",
-      "askAI": "Ask Ashyq Ai",
-      "closePanel": "Close Ashyq Ai panel",
+      "AI": "Ashyk Ai",
+      "aiSender": "Ashyk Ai",
+      "askAI": "Ask Ashyk Ai",
+      "closePanel": "Close Ashyk Ai panel",
       "copy": "Copy",
       "copied": "Copied!",
       "errorTitle": "Something wrong happened",
       "examplesAbbr": "ex. ",
       "hello": "Hello",
       "howCanWeHelp": "how can I help?",
-      "logoAlt": "Ashyq Ai Logo",
-      "placeholder": "Ask Ashyq Ai About this Lecture",
+      "logoAlt": "Ashyk Ai Logo",
+      "placeholder": "Ask Ashyk Ai About this Lecture",
       "defaultUser": "User",
       "dismiss": "Dismiss",
       "questionAbout": "What is this Activity about?",
@@ -30,8 +30,8 @@
       "working": "Working on your request."
     },
     "AICanvaToolkit": {
-      "aiIconAlt": "Ashyq Ai Icon",
-      "aiTitle": "Ashyq Ai",
+      "aiIconAlt": "Ashyk Ai Icon",
+      "aiTitle": "Ashyk Ai",
       "examplesAbbr": "Ex",
       "examplesLabel": "Examples",
       "examplesPrompt": "Give examples to understand \\\"{selection}\\\" better, if possible give context in the course.",
@@ -53,12 +53,12 @@
       "MakeLongerLabel": "Make Longer",
       "TranslateLabel": "Translate",
       "WriterLabel": "Writer",
-      "aiEditorTitle": "Ashyq Ai Editor",
-      "aiIconAlt": "Ashyq Ai Icon",
+      "aiEditorTitle": "Ashyk Ai Editor",
+      "aiIconAlt": "Ashyk Ai Icon",
       "applicationPending": "Contributor application pending",
       "applyToContribute": "Apply to contribute",
-      "askAI": "Ask Ashyq Ai",
-      "closeToolkit": "Close Ashyq Ai toolkit",
+      "askAI": "Ask Ashyk Ai",
+      "closeToolkit": "Close Ashyk Ai toolkit",
       "continuePlaceholder": "Place your cursor at the end of a sentence to continue writing",
       "critisizeLectureMissing": "Lecture is empty, add some content first",
       "critisizePlaceholder": "Select a passage or critique the entire lecture",
@@ -69,7 +69,7 @@
       "dismissError": "Dismiss error",
       "errorTitle": "Something wrong happened",
       "longerPlaceholder": "Select text to make longer",
-      "platformLogoAlt": "Ashyq Bilim logo",
+      "platformLogoAlt": "Ashyk Bilim logo",
       "processingRequest": "Processing your request",
       "prompt_continueWriting": "Continue writing about {selection}",
       "prompt_critisize": "Critique this lecture section and suggest improvements: {selection}",
@@ -83,7 +83,7 @@
       "translatePlaceholder": "Translate selected text to",
       "translateToLanguageMissing": "Please enter a language to translate to",
       "typePromptBelow": "Type your prompt below",
-      "userInputPlaceholder": "Ask Ashyq Ai",
+      "userInputPlaceholder": "Ask Ashyk Ai",
       "stop": "Stop",
       "writerPlaceholder": "Write about..."
     },
@@ -724,7 +724,7 @@
       "hasSuccessfullyCompleted": "has successfully completed",
       "instructor": "Instructor",
       "instructorName": "Dr. Jane Smith",
-      "organizationLogoAlt": "Ashyq Bilim Logo",
+      "organizationLogoAlt": "Ashyk Bilim Logo",
       "previewNote": "The preview uses theme tokens only. Pattern choice now changes layout density and framing instead of custom color packs.",
       "qrLabel": "QR",
       "scanToVerify": "Scan to verify",
@@ -780,7 +780,7 @@
       "keywords": "{certificationName}, {courseName}, certificate, verification",
       "openGraph": {
         "description": "Check and verify the authenticity of the {certificationName} certificate for {courseName}.",
-        "siteName": "Ashyq Bilim",
+        "siteName": "Ashyk Bilim",
         "title": "Verify {certificationName} Certificate - {courseName}"
       },
       "title": "Certificate Verification - {certificationName} ({courseName})",
@@ -942,7 +942,7 @@
     },
     "googleLogo": "Google logo",
     "loading": "Loading...",
-    "logoAlt": "Ashyq Bilim logo",
+    "logoAlt": "Ashyk Bilim logo",
     "owner": "Owner",
     "save": "Save",
     "saved": "Saved",
@@ -1517,12 +1517,12 @@
       "nextButtonLabel": "Next",
       "onboarding": "Onboarding",
       "step10Button": "Toraighyrov University",
-      "step10Desc": "To learn more about Ashyq Bilim, you can take our original courses at Toraighyrov University",
+      "step10Desc": "To learn more about Ashyk Bilim, you can take our original courses at Toraighyrov University",
       "step10Title": "To infinity and beyond",
-      "step1Desc": "Welcome to Ashyq Bilim, the LMS built for simplicity, usability and performance. Meet the new way to create, share and interact with educational content.",
+      "step1Desc": "Welcome to Ashyk Bilim, the LMS built for simplicity, usability and performance. Meet the new way to create, share and interact with educational content.",
       "step1Title": "Teach the world!",
       "step2Button": "Create a new Course",
-      "step2Desc": "Courses are the main building blocks of Ashyq Bilim, they always contain Chapters and Chapters contain Activities.",
+      "step2Desc": "Courses are the main building blocks of Ashyk Bilim, they always contain Chapters and Chapters contain Activities.",
       "step2Title": "Create Courses",
       "step3Button": "Learn more about Activities",
       "step3Desc": "Activities are the elements you can add to your Courses via Chapters: Dynamic Pages, Videos, Documents, Assignments and more coming soon.",
@@ -1530,8 +1530,8 @@
       "step4Button": "Learn more about Dynamic Pages and the Editor",
       "step4Desc": "Dynamic pages are pages with dynamic content like Notion pages, they can include different components like Quizzes, Images, Videos, Documents, etc.",
       "step4Title": "Dynamic Pages and the Editor",
-      "step5Button": "Learn more about Ashyq Ai",
-      "step5Desc": "Thought tools made for both teachers and students, context aware, they can answer based on your courses and the unique content you create within Ashyq Bilim",
+      "step5Button": "Learn more about Ashyk Ai",
+      "step5Desc": "Thought tools made for both teachers and students, context aware, they can answer based on your courses and the unique content you create within Ashyk Bilim",
       "step5Title": "Artificial Intelligence",
       "step6Button": "Create User Groups",
       "step6Desc": "With User Groups, you can divide students into Groups and provide access to Courses depending on their needs",
@@ -1547,7 +1547,7 @@
       "account": "Account",
       "closeMenu": "Close menu",
       "language": "Language",
-      "logoAlt": "Ashyq Bilim logo",
+      "logoAlt": "Ashyk Bilim logo",
       "navigation": "Navigation",
       "openMenu": "Open menu",
       "overlayClose": "Close menu overlay",
@@ -2222,7 +2222,7 @@
       "adminTitle": "Administration",
       "adminDescription": "Manage platform settings and access control",
       "home": "Home",
-      "notMemberInfo": "You are not part of Ashyq Bilim yet",
+      "notMemberInfo": "You are not part of Ashyk Bilim yet",
       "signOut": "Sign Out"
     }
   },
@@ -3402,7 +3402,7 @@
         "badge": "System"
       },
       "noAccess": "You don’t have access to dashboard features yet.",
-      "platformLogo": "Ashyq Bilim Logo",
+      "platformLogo": "Ashyk Bilim Logo",
       "touUniversity": "Toraighyrov University"
     },
     "CourseOverview": {
@@ -3871,7 +3871,7 @@
           }
         },
         "courseOwnershipTypes": "Course Ownership Types",
-        "description": "Understanding Ashyq Bilim permissions, roles, and access controls based on RBAC system",
+        "description": "Understanding Ashyk Bilim permissions, roles, and access controls based on RBAC system",
         "roleHierarchy": "Role Hierarchy",
         "roles": {
           "admin": {
@@ -3923,7 +3923,7 @@
       "purchasedCourses": "Courses you have purchased or subscribed to",
       "title": "Courses"
     },
-    "DashboardTitle": "Ashyq Bilim Dashboard",
+    "DashboardTitle": "Ashyk Bilim Dashboard",
     "EditCourseContributors": {
       "active": "Active",
       "activeBadge": "Active",
@@ -4025,7 +4025,7 @@
         "searchEmojis": "Search emojis..."
       },
       "Editor": {
-        "aiEditor": "Ashyq Ai Editor",
+        "aiEditor": "Ashyk Ai Editor",
         "mobileMessage1": "The editor is only accessible from a desktop device.",
         "mobileMessage2": "Please switch to a desktop to view.",
         "mobileTitle": "Desktop Only",
@@ -4266,7 +4266,7 @@
       "Toolbar": {
         "addColumnRight": "Add column right",
         "addRowBelow": "Add row below",
-        "aiEditor": "Ashyq Ai Editor",
+        "aiEditor": "Ashyk Ai Editor",
         "aria": {
           "insertInteractiveScenarios": "Insert interactive scenarios"
         },
@@ -4656,9 +4656,9 @@
           "descriptionMax": " ",
           "descriptionPlaceholder": "Brief description of your organization",
           "descriptionRequired": "Short description is required",
-          "exploreDescription": "Share your organization's courses and content with the Ashyq Bilim community.<br/>Enable this to help learners discover your valuable educational resources.",
+          "exploreDescription": "Share your organization's courses and content with the Ashyk Bilim community.<br/>Enable this to help learners discover your valuable educational resources.",
           "exploreLabel": "EXPLORE",
-          "exploreTitle": "Showcase in Ashyq Bilim Explore",
+          "exploreTitle": "Showcase in Ashyk Bilim Explore",
           "labelLabel": "Organization Label",
           "labelPlaceholder": "Select organization label",
           "labelRequired": "Label is required",
@@ -6481,7 +6481,7 @@
       "manageCourses": "Manage courses",
       "manageUsers": "Manage users",
       "platformSettings": "Platform settings",
-      "platformLogo": "Ashyq Bilim logo",
+      "platformLogo": "Ashyk Bilim logo",
       "userAccountSettings": "User account settings",
       "userSettings": "User settings"
     },
@@ -6506,7 +6506,7 @@
       "settings": "Settings",
       "users": "Users"
     },
-    "platformName": "Ashyq Bilim",
+    "platformName": "Ashyk Bilim",
     "tooltips": {
       "admin": "Admin Dashboard",
       "analytics": "Teacher Analytics",
@@ -6947,7 +6947,7 @@
       "name": "Darkmatter"
     },
     "default": {
-      "description": "The default Ashyq Bilim theme",
+      "description": "The default Ashyk Bilim theme",
       "name": "Default"
     },
     "doom64": {
@@ -7375,7 +7375,7 @@
   },
   "activity": "Activity",
   "additionalSettings": "Additional Settings",
-  "aiEditor": "Ashyq Ai Editor",
+  "aiEditor": "Ashyk Ai Editor",
   "calendar": {
     "monthDropdown": "Month",
     "next": "Next",
@@ -7401,7 +7401,7 @@
     "scope": "Scope",
     "description": "Description"
   },
-  "platformLogo": "Ashyq Bilim logo",
+  "platformLogo": "Ashyk Bilim logo",
   "previous": "Previous",
   "seconds": "Seconds",
   "selectDeadline": "Select a deadline for completing the task",

@@ -15,7 +15,7 @@ export async function generateMetadata(_props: MetadataProps): Promise<Metadata>
   const t = await getTranslations('Activities.CodeChallenges');
 
   return {
-    title: `${t('configureChallenge')} - Ashyq Bilim`,
+    title: `${t('configureChallenge')} - Ashyk Bilim`,
     description: t('configureDescription'),
   };
 }

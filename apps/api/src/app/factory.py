@@ -11,8 +11,8 @@ def create_app(settings: AppSettings | None = None) -> FastAPI:
     resolved_settings = settings or get_settings()
 
     app = FastAPI(
-        title="Ashyq Bilim",
-        description="Образовательная платформа Ashyq Bilim",
+        title="Ashyk Bilim",
+        description="Образовательная платформа Ashyk Bilim",
         docs_url="/docs" if resolved_settings.general_config.development_mode else None,
         redoc_url="/redoc"
         if resolved_settings.general_config.development_mode
@@ -29,6 +29,6 @@ def create_app(settings: AppSettings | None = None) -> FastAPI:
 
     @app.get("/")
     def root() -> dict[str, str]:
-        return {"Message": "Добро пожаловать в Ashyq Bilim"}
+        return {"Message": "Добро пожаловать в Ashyk Bilim"}
 
     return app

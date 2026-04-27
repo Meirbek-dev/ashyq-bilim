@@ -33,7 +33,7 @@ export function AiChatInput({
   onChange,
   onSend,
   disabled = false,
-  placeholder = 'Ask Ashyq Ai…',
+  placeholder = 'Ask Ashyk Ai…',
   showAvatar = true,
   onStop,
 }: AiChatInputProps) {

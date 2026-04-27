@@ -13,7 +13,7 @@ const AuthLogo = ({ width = 240 }: AuthLogoProps) => {
     <div className="m-4">
       <Image
         src={src}
-        alt="Ashyq Bilim"
+        alt="Ashyk Bilim"
         width={width}
         height={Math.round((width * 119.28) / 327.34)}
         priority
