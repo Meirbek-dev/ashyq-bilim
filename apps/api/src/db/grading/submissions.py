@@ -208,6 +208,24 @@ class Submission(SubmissionBase, table=True):
     __table_args__ = (
         Index("ix_submission_user_activity", "user_id", "activity_id"),
         Index("ix_submission_uuid", "submission_uuid", unique=True),
+        Index(
+            "idx_submission_activity_status_submitted",
+            "activity_id",
+            "status",
+            "submitted_at",
+        ),
+        Index(
+            "idx_submission_activity_status_late",
+            "activity_id",
+            "status",
+            "is_late",
+        ),
+        Index(
+            "idx_submission_activity_user_status",
+            "activity_id",
+            "user_id",
+            "status",
+        ),
     )
 
     id: int | None = SQLField(default=None, primary_key=True)

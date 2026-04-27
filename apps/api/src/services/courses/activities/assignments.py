@@ -14,6 +14,8 @@ from src.db.courses.assignments import (
     Assignment,
     AssignmentCreate,
     AssignmentCreateWithActivity,
+    AssignmentDraftPatch,
+    AssignmentDraftRead,
     AssignmentRead,
     AssignmentTask,
     AssignmentTaskCreate,
@@ -30,6 +32,13 @@ from src.db.courses.assignments import (
 )
 from src.db.courses.chapters import Chapter
 from src.db.courses.courses import Course
+from src.db.grading.submissions import (
+    AssessmentType,
+    GradingBreakdown,
+    Submission,
+    SubmissionRead,
+    SubmissionStatus,
+)
 from src.db.resource_authors import ResourceAuthor, ResourceAuthorshipStatusEnum
 from src.db.usergroup_resources import UserGroupResource
 from src.db.usergroup_user import UserGroupUser
@@ -39,6 +48,7 @@ from src.services.courses.activities.uploads.sub_file import upload_submission_f
 from src.services.courses.activities.uploads.tasks_ref_files import (
     upload_reference_file,
 )
+from src.services.grading.assignment_breakdown import build_assignment_breakdown
 
 logger = logging.getLogger(__name__)
 
@@ -92,6 +102,181 @@ def _coerce_datetime(
     if parsed.tzinfo is None:
         return parsed.replace(tzinfo=UTC)
     return parsed.astimezone(UTC)
+
+
+def _derive_due_at(
+    assignment: Assignment | AssignmentCreate | AssignmentCreateWithActivity,
+) -> datetime | None:
+    due_at = getattr(assignment, "due_at", None)
+    if due_at is not None:
+        return _coerce_datetime(due_at)
+    return _coerce_datetime(getattr(assignment, "due_date", None), end_of_day=True)
+
+
+def _assignment_due_deadline(assignment: Assignment) -> datetime | None:
+    if assignment.due_at is not None:
+        return _coerce_datetime(assignment.due_at)
+    return _coerce_datetime(assignment.due_date, end_of_day=True)
+
+
+def _normalize_assignment_answers(
+    existing_payload: object,
+    patch: AssignmentDraftPatch | None,
+) -> dict[str, object]:
+    existing = existing_payload if isinstance(existing_payload, dict) else {}
+    existing_tasks = existing.get("tasks", [])
+    tasks_by_uuid: dict[str, dict[str, object]] = {}
+
+    if isinstance(existing_tasks, list):
+        for raw_task in existing_tasks:
+            if not isinstance(raw_task, dict):
+                continue
+            task_uuid = raw_task.get("task_uuid")
+            if isinstance(task_uuid, str) and task_uuid:
+                tasks_by_uuid[task_uuid] = raw_task
+
+    if patch is not None:
+        for task_answer in patch.tasks:
+            tasks_by_uuid[task_answer.task_uuid] = task_answer.model_dump(
+                exclude_none=True
+            )
+
+    return {
+        **existing,
+        "tasks": list(tasks_by_uuid.values()),
+    }
+
+
+def _validate_assignment_answer_tasks(
+    patch: AssignmentDraftPatch | None,
+    assignment_tasks: list[AssignmentTask],
+) -> None:
+    if patch is None:
+        return
+
+    allowed_task_uuids = {task.assignment_task_uuid for task in assignment_tasks}
+    invalid_task_uuids = [
+        task.task_uuid
+        for task in patch.tasks
+        if task.task_uuid not in allowed_task_uuids
+    ]
+    if invalid_task_uuids:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "message": "One or more task answers do not belong to this assignment",
+                "task_uuids": invalid_task_uuids,
+            },
+        )
+
+
+def _get_assignment_context(
+    assignment_uuid: str,
+    db_session: Session,
+) -> tuple[Assignment, Activity, Course]:
+    assignment = db_session.exec(
+        select(Assignment).where(Assignment.assignment_uuid == assignment_uuid)
+    ).first()
+    if not assignment:
+        raise HTTPException(status_code=404, detail="Assignment not found")
+
+    activity = db_session.exec(
+        select(Activity).where(Activity.id == assignment.activity_id)
+    ).first()
+    if not activity:
+        raise HTTPException(status_code=404, detail="Activity not found")
+
+    course_id = activity.course_id or assignment.course_id
+    course = db_session.exec(select(Course).where(Course.id == course_id)).first()
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+
+    return assignment, activity, course
+
+
+def _require_assignment_submit_access(
+    current_user: PublicUser | AnonymousUser,
+    course: Course,
+    db_session: Session,
+) -> None:
+    if isinstance(current_user, AnonymousUser):
+        raise HTTPException(status_code=401, detail="Authentication required")
+
+    if not _user_has_course_access(current_user.id, course, db_session):
+        raise HTTPException(
+            status_code=403,
+            detail="You must be enrolled in this course to submit assignments",
+        )
+
+    checker = PermissionChecker(db_session)
+    checker.require(
+        current_user.id,
+        "assignment:submit",
+        is_assigned=True,
+        resource_owner_id=course.creator_id,
+    )
+
+
+def _count_previous_assignment_attempts(
+    activity_id: int,
+    user_id: int,
+    db_session: Session,
+) -> int:
+    return len(
+        db_session.exec(
+            select(Submission).where(
+                Submission.activity_id == activity_id,
+                Submission.user_id == user_id,
+                Submission.assessment_type == AssessmentType.ASSIGNMENT,
+                Submission.status != SubmissionStatus.DRAFT,
+            )
+        ).all()
+    )
+
+
+def _get_assignment_tasks(
+    assignment_id: int,
+    db_session: Session,
+) -> list[AssignmentTask]:
+    return db_session.exec(
+        select(AssignmentTask)
+        .where(AssignmentTask.assignment_id == assignment_id)
+        .order_by(AssignmentTask.order, AssignmentTask.id)
+    ).all()
+
+
+def _get_open_assignment_draft(
+    activity_id: int,
+    user_id: int,
+    db_session: Session,
+) -> Submission | None:
+    return db_session.exec(
+        select(Submission).where(
+            Submission.activity_id == activity_id,
+            Submission.user_id == user_id,
+            Submission.assessment_type == AssessmentType.ASSIGNMENT,
+            Submission.status == SubmissionStatus.DRAFT,
+        )
+    ).first()
+
+
+def _get_blocking_assignment_submission(
+    activity_id: int,
+    user_id: int,
+    db_session: Session,
+) -> Submission | None:
+    return db_session.exec(
+        select(Submission).where(
+            Submission.activity_id == activity_id,
+            Submission.user_id == user_id,
+            Submission.assessment_type == AssessmentType.ASSIGNMENT,
+            Submission.status.in_([
+                SubmissionStatus.PENDING,
+                SubmissionStatus.GRADED,
+                SubmissionStatus.PUBLISHED,
+            ]),
+        )
+    ).first()
 
 
 def _get_active_course_author_user_ids(course: Course, db_session: Session) -> set[int]:
@@ -400,6 +585,150 @@ async def get_all_assignment_user_submissions(
     return results
 
 
+async def get_assignment_draft_submission(
+    request: Request,
+    assignment_uuid: str,
+    current_user: PublicUser,
+    db_session: Session,
+) -> AssignmentDraftRead:
+    assignment, activity, course = _get_assignment_context(assignment_uuid, db_session)
+    _require_assignment_submit_access(current_user, course, db_session)
+
+    draft = _get_open_assignment_draft(activity.id, current_user.id, db_session)
+    return AssignmentDraftRead(
+        assignment_uuid=assignment.assignment_uuid,
+        submission=SubmissionRead.model_validate(draft) if draft else None,
+    )
+
+
+async def save_assignment_draft_submission(
+    request: Request,
+    assignment_uuid: str,
+    draft_patch: AssignmentDraftPatch,
+    current_user: PublicUser,
+    db_session: Session,
+) -> SubmissionRead:
+    assignment, activity, course = _get_assignment_context(assignment_uuid, db_session)
+    _require_assignment_submit_access(current_user, course, db_session)
+
+    blocking_submission = _get_blocking_assignment_submission(
+        activity.id,
+        current_user.id,
+        db_session,
+    )
+    if blocking_submission:
+        raise HTTPException(
+            status_code=409,
+            detail="Assignment has already been submitted",
+        )
+
+    assignment_tasks = _get_assignment_tasks(assignment.id, db_session)
+    _validate_assignment_answer_tasks(draft_patch, assignment_tasks)
+
+    draft = _get_open_assignment_draft(activity.id, current_user.id, db_session)
+    now = datetime.now(UTC)
+
+    if not draft:
+        draft = Submission(
+            submission_uuid=f"submission_{ULID()}",
+            assessment_type=AssessmentType.ASSIGNMENT,
+            activity_id=activity.id,
+            user_id=current_user.id,
+            status=SubmissionStatus.DRAFT,
+            attempt_number=_count_previous_assignment_attempts(
+                activity.id,
+                current_user.id,
+                db_session,
+            )
+            + 1,
+            answers_json={},
+            grading_json={},
+            started_at=now,
+            created_at=now,
+            updated_at=now,
+        )
+
+    draft.answers_json = _normalize_assignment_answers(
+        draft.answers_json,
+        draft_patch,
+    )
+    draft.updated_at = now
+
+    db_session.add(draft)
+    db_session.commit()
+    db_session.refresh(draft)
+
+    return SubmissionRead.model_validate(draft)
+
+
+async def submit_assignment_draft_submission(
+    request: Request,
+    assignment_uuid: str,
+    draft_patch: AssignmentDraftPatch | None,
+    current_user: PublicUser,
+    db_session: Session,
+) -> SubmissionRead:
+    assignment, activity, course = _get_assignment_context(assignment_uuid, db_session)
+    _require_assignment_submit_access(current_user, course, db_session)
+
+    existing_submitted = _get_blocking_assignment_submission(
+        activity.id,
+        current_user.id,
+        db_session,
+    )
+    if existing_submitted:
+        return SubmissionRead.model_validate(existing_submitted)
+
+    assignment_tasks = _get_assignment_tasks(assignment.id, db_session)
+    _validate_assignment_answer_tasks(draft_patch, assignment_tasks)
+
+    draft = _get_open_assignment_draft(activity.id, current_user.id, db_session)
+    now = datetime.now(UTC)
+
+    if not draft:
+        draft = Submission(
+            submission_uuid=f"submission_{ULID()}",
+            assessment_type=AssessmentType.ASSIGNMENT,
+            activity_id=activity.id,
+            user_id=current_user.id,
+            status=SubmissionStatus.DRAFT,
+            attempt_number=_count_previous_assignment_attempts(
+                activity.id,
+                current_user.id,
+                db_session,
+            )
+            + 1,
+            answers_json={},
+            grading_json={},
+            started_at=now,
+            created_at=now,
+            updated_at=now,
+        )
+
+    draft.answers_json = _normalize_assignment_answers(
+        draft.answers_json,
+        draft_patch,
+    )
+    draft.grading_json = build_assignment_breakdown(
+        GradingBreakdown(),
+        draft.answers_json,
+        assignment_tasks,
+    ).model_dump()
+    draft.status = SubmissionStatus.PENDING
+    draft.is_late = (
+        deadline := _assignment_due_deadline(assignment)
+    ) is not None and now > deadline
+    draft.submitted_at = now
+    draft.graded_at = None
+    draft.updated_at = now
+
+    db_session.add(draft)
+    db_session.commit()
+    db_session.refresh(draft)
+
+    return SubmissionRead.model_validate(draft)
+
+
 ## > Assignments CRUD
 
 
@@ -434,6 +763,7 @@ async def create_assignment(
     assignment.assignment_uuid = f"assignment_{ULID()}"
     assignment.creation_date = datetime.now().isoformat()
     assignment.update_date = datetime.now().isoformat()
+    assignment.due_at = _derive_due_at(assignment_object)
 
     # Insert Assignment in DB
     db_session.add(assignment)
@@ -590,6 +920,9 @@ async def update_assignment(
 
     for field, value in update_data.items():
         setattr(assignment, field, value)
+
+    if "due_date" in update_data and "due_at" not in update_data:
+        assignment.due_at = _derive_due_at(assignment)
 
     assignment.update_date = datetime.now().isoformat()
 
@@ -752,6 +1085,12 @@ async def create_assignment_task(
     assignment_task.activity_id = assignment.activity_id
     assignment_task.assignment_id = assignment.id
     assignment_task.course_id = assignment.course_id
+    last_task = db_session.exec(
+        select(AssignmentTask)
+        .where(AssignmentTask.assignment_id == assignment.id)
+        .order_by(AssignmentTask.order.desc(), AssignmentTask.id.desc())
+    ).first()
+    assignment_task.order = (last_task.order if last_task else -1) + 1
 
     # Insert Assignment Task in DB
     db_session.add(assignment_task)
@@ -789,8 +1128,13 @@ async def read_assignment_tasks(
         )
 
     # Find assignments tasks for an assignment
-    statement = select(AssignmentTask).where(
-        AssignmentTask.assignment_id == assignment.id
+    statement = (
+        select(AssignmentTask)
+        .where(AssignmentTask.assignment_id == assignment.id)
+        .order_by(
+            AssignmentTask.order,
+            AssignmentTask.id,
+        )
     )
 
     # RBAC check
@@ -1736,6 +2080,7 @@ async def create_assignment_with_activity(
     assignment.assignment_uuid = f"assignment_{ULID()}"
     assignment.creation_date = datetime.now().isoformat()
     assignment.update_date = datetime.now().isoformat()
+    assignment.due_at = _derive_due_at(assignment_object)
     assignment.activity_id = activity.id
     assignment.chapter_id = chapter_id
 

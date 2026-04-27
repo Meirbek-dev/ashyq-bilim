@@ -1,10 +1,20 @@
 from datetime import date, datetime
-from enum import Enum, StrEnum
+from enum import StrEnum
+from typing import Literal
 
 from pydantic import ConfigDict, field_validator
-from sqlalchemy import JSON, Column, DateTime, ForeignKey
+from sqlalchemy import (
+    JSON,
+    Column,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    UniqueConstraint,
+)
 from sqlmodel import Field
 
+from src.db.grading.submissions import SubmissionRead
 from src.db.strict_base_model import SQLModelStrictBaseModel
 from src.db.users import UserRead
 
@@ -51,6 +61,7 @@ class AssignmentBase(SQLModelStrictBaseModel):
     title: str
     description: str
     due_date: str
+    due_at: datetime | None = None
     published: bool | None = False
     grading_type: GradingTypeEnum
 
@@ -96,6 +107,7 @@ class AssignmentUpdate(SQLModelStrictBaseModel):
     title: str | None = None
     description: str | None = None
     due_date: str | None = None
+    due_at: datetime | None = None
     published: bool | None = None
     grading_type: GradingTypeEnum | None = None
     course_id: int | None = None
@@ -119,10 +131,19 @@ class AssignmentUpdate(SQLModelStrictBaseModel):
 class Assignment(AssignmentBase, table=True):
     """Represents an assignment with relevant details and foreign keys."""
 
+    __table_args__ = (
+        UniqueConstraint("activity_id", name="uq_assignment_activity_id"),
+        Index("idx_assignment_activity_id", "activity_id"),
+    )
+
     id: int | None = Field(default=None, primary_key=True)
     creation_date: str | None = None
     update_date: str | None = None
     assignment_uuid: str
+    due_at: datetime | None = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), nullable=True),
+    )
 
     course_id: int = Field(
         sa_column=Column("course_id", ForeignKey("course.id", ondelete="CASCADE"))
@@ -145,6 +166,76 @@ class AssignmentTaskTypeEnum(StrEnum):
     QUIZ = "QUIZ"
     FORM = "FORM"  # soon to be implemented
     OTHER = "OTHER"
+
+
+class AssignmentFileTaskConfig(SQLModelStrictBaseModel):
+    kind: Literal["FILE_SUBMISSION"] = "FILE_SUBMISSION"
+    allowed_mime_types: list[str] = Field(default_factory=list)
+    max_file_size_mb: int | None = None
+    max_files: int = 1
+
+
+class AssignmentQuizOptionConfig(SQLModelStrictBaseModel):
+    optionUUID: str
+    text: str = ""
+    fileID: str = ""
+    type: Literal["text", "image", "audio", "video"] = "text"
+    assigned_right_answer: bool = False
+
+
+class AssignmentQuizQuestionConfig(SQLModelStrictBaseModel):
+    questionUUID: str
+    questionText: str = ""
+    options: list[AssignmentQuizOptionConfig] = Field(default_factory=list)
+
+
+class AssignmentQuizTaskSettings(SQLModelStrictBaseModel):
+    max_attempts: int | None = None
+    time_limit_seconds: int | None = None
+    max_score_penalty_per_attempt: float | None = None
+    prevent_copy: bool = True
+    track_violations: bool = True
+    max_violations: int = 2
+    block_on_violations: bool = True
+
+
+class AssignmentQuizTaskConfig(SQLModelStrictBaseModel):
+    kind: Literal["QUIZ"] = "QUIZ"
+    questions: list[AssignmentQuizQuestionConfig] = Field(default_factory=list)
+    settings: AssignmentQuizTaskSettings = Field(
+        default_factory=AssignmentQuizTaskSettings
+    )
+
+
+class AssignmentFormBlankConfig(SQLModelStrictBaseModel):
+    blankUUID: str
+    placeholder: str = ""
+    correctAnswer: str = ""
+    hint: str = ""
+
+
+class AssignmentFormQuestionConfig(SQLModelStrictBaseModel):
+    questionUUID: str
+    questionText: str = ""
+    blanks: list[AssignmentFormBlankConfig] = Field(default_factory=list)
+
+
+class AssignmentFormTaskConfig(SQLModelStrictBaseModel):
+    kind: Literal["FORM"] = "FORM"
+    questions: list[AssignmentFormQuestionConfig] = Field(default_factory=list)
+
+
+class AssignmentOtherTaskConfig(SQLModelStrictBaseModel):
+    kind: Literal["OTHER"] = "OTHER"
+    body: dict[str, object] = Field(default_factory=dict)
+
+
+AssignmentTaskConfig = (
+    AssignmentFileTaskConfig
+    | AssignmentQuizTaskConfig
+    | AssignmentFormTaskConfig
+    | AssignmentOtherTaskConfig
+)
 
 
 class AssignmentTaskBase(SQLModelStrictBaseModel):
@@ -185,6 +276,7 @@ class AssignmentTaskRead(AssignmentTaskBase):
 
     id: int
     assignment_task_uuid: str
+    order: int = 0
 
 
 class AssignmentTaskUpdate(SQLModelStrictBaseModel):
@@ -199,6 +291,7 @@ class AssignmentTaskUpdate(SQLModelStrictBaseModel):
     assignment_type: AssignmentTaskTypeEnum | None = None
     contents: dict[str, object] | None = Field(default=None, sa_column=Column(JSON))
     max_grade_value: int | None = None
+    order: int | None = None
 
     @field_validator("assignment_type", mode="before")
     @classmethod
@@ -216,11 +309,26 @@ class AssignmentTaskUpdate(SQLModelStrictBaseModel):
 class AssignmentTask(AssignmentTaskBase, table=True):
     """Represents a task within an assignment with various attributes and foreign keys."""
 
+    __table_args__ = (
+        UniqueConstraint("assignment_id", "order", name="uq_assignmenttask_order"),
+        UniqueConstraint(
+            "assignment_id",
+            "assignment_task_uuid",
+            name="uq_assignmenttask_assignment_uuid",
+        ),
+        Index("idx_assignmenttask_assignment_order", "assignment_id", "order"),
+        Index("idx_assignmenttask_activity_id", "activity_id"),
+    )
+
     id: int | None = Field(default=None, primary_key=True)
 
     assignment_task_uuid: str
     creation_date: str
     update_date: str
+    order: int = Field(
+        default=0,
+        sa_column=Column(Integer, nullable=False, server_default="0"),
+    )
 
     assignment_id: int = Field(
         sa_column=Column(
@@ -456,6 +564,7 @@ class AssignmentCreateWithActivity(SQLModelStrictBaseModel):
     title: str
     description: str
     due_date: str
+    due_at: datetime | None = None
     published: bool = False
     grading_type: GradingTypeEnum
     course_id: int
@@ -472,3 +581,26 @@ class AssignmentCreateWithActivity(SQLModelStrictBaseModel):
     @classmethod
     def validate_due_date(cls, v):
         return _normalize_due_date_value(v)
+
+
+class AssignmentTaskAnswer(SQLModelStrictBaseModel):
+    """Canonical assignment answer shape stored in Submission.answers_json."""
+
+    task_uuid: str
+    content_type: Literal["file", "text", "form", "quiz", "other"]
+    file_key: str | None = None
+    text_content: str | None = None
+    form_data: dict[str, object] | None = None
+    quiz_answers: dict[str, object] | None = None
+    answer_metadata: dict[str, object] = Field(default_factory=dict)
+
+
+class AssignmentDraftPatch(SQLModelStrictBaseModel):
+    """Patch/upsert payload for the current user's assignment draft."""
+
+    tasks: list[AssignmentTaskAnswer] = Field(default_factory=list)
+
+
+class AssignmentDraftRead(SQLModelStrictBaseModel):
+    assignment_uuid: str
+    submission: SubmissionRead | None = None

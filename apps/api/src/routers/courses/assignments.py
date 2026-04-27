@@ -6,6 +6,8 @@ from src.auth.users import get_optional_public_user, get_public_user
 from src.db.courses.assignments import (
     AssignmentCreate,
     AssignmentCreateWithActivity,
+    AssignmentDraftPatch,
+    AssignmentDraftRead,
     AssignmentRead,
     AssignmentTaskCreate,
     AssignmentTaskSubmissionRead,
@@ -15,6 +17,7 @@ from src.db.courses.assignments import (
     AssignmentUserSubmissionRead,
     AssignmentUserSubmissionWithUserRead,
 )
+from src.db.grading.submissions import SubmissionRead
 from src.db.users import AnonymousUser, PublicUser
 from src.infra.db.session import get_db_session
 from src.services.courses.activities.assignments import (
@@ -26,6 +29,7 @@ from src.services.courses.activities.assignments import (
     delete_assignment_task,
     delete_assignment_task_submission,
     get_all_assignment_user_submissions,
+    get_assignment_draft_submission,
     get_assignment_user_submission,
     get_assignments_from_course,
     get_assignments_from_courses,
@@ -40,6 +44,8 @@ from src.services.courses.activities.assignments import (
     read_assignment_tasks,
     read_user_assignment_task_submissions,
     read_user_assignment_task_submissions_me,
+    save_assignment_draft_submission,
+    submit_assignment_draft_submission,
     update_assignment,
     update_assignment_task,
     update_assignment_task_submission,
@@ -347,6 +353,58 @@ async def api_delete_assignment_tasks(
     """
     return await delete_assignment_task(
         request, assignment_task_uuid, current_user, db_session
+    )
+
+
+@router.get("/{assignment_uuid}/submissions/me/draft")
+async def api_get_assignment_draft_submission(
+    request: Request,
+    assignment_uuid: str,
+    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
+    db_session=Depends(get_db_session),
+) -> AssignmentDraftRead:
+    """Get the current user's Submission-backed assignment draft, if any."""
+    return await get_assignment_draft_submission(
+        request,
+        assignment_uuid,
+        current_user,
+        db_session,
+    )
+
+
+@router.patch("/{assignment_uuid}/submissions/me/draft")
+async def api_save_assignment_draft_submission(
+    request: Request,
+    assignment_uuid: str,
+    draft_patch: AssignmentDraftPatch,
+    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
+    db_session=Depends(get_db_session),
+) -> SubmissionRead:
+    """Create or update the current user's assignment draft in Submission."""
+    return await save_assignment_draft_submission(
+        request,
+        assignment_uuid,
+        draft_patch,
+        current_user,
+        db_session,
+    )
+
+
+@router.post("/{assignment_uuid}/submit")
+async def api_submit_assignment_draft_submission(
+    request: Request,
+    assignment_uuid: str,
+    draft_patch: AssignmentDraftPatch | None = None,
+    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
+    db_session=Depends(get_db_session),
+) -> SubmissionRead:
+    """Submit the current user's assignment draft through the unified Submission model."""
+    return await submit_assignment_draft_submission(
+        request,
+        assignment_uuid,
+        draft_patch,
+        current_user,
+        db_session,
     )
 
 

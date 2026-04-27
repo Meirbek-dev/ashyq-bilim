@@ -3,6 +3,26 @@
 import { getResponseMetadata } from '@/lib/api-client';
 import { apiFetch } from '@/lib/api-client';
 import { tags } from '@/lib/cacheTags';
+import type { Submission } from '@/types/grading';
+
+export interface AssignmentTaskAnswer {
+  task_uuid: string;
+  content_type: 'file' | 'text' | 'form' | 'quiz' | 'other';
+  file_key?: string | null;
+  text_content?: string | null;
+  form_data?: Record<string, unknown> | null;
+  quiz_answers?: Record<string, unknown> | null;
+  answer_metadata?: Record<string, unknown>;
+}
+
+export interface AssignmentDraftPatch {
+  tasks: AssignmentTaskAnswer[];
+}
+
+export interface AssignmentDraftRead {
+  assignment_uuid: string;
+  submission: Submission | null;
+}
 
 export async function createAssignment(body: any) {
   const result = await apiFetch('assignments/', {
@@ -63,6 +83,43 @@ export async function deleteAssignmentUsingActivityUUID(activityUUID: string) {
     const { revalidateTag } = await import('next/cache');
     revalidateTag(tags.activities, 'max');
     revalidateTag(tags.courses, 'max');
+  }
+
+  return metadata;
+}
+
+export async function getAssignmentDraftSubmission(assignmentUUID: string) {
+  const result = await apiFetch(`assignments/${assignmentUUID}/submissions/me/draft`);
+  return await getResponseMetadata(result);
+}
+
+export async function saveAssignmentDraftSubmission(assignmentUUID: string, body: AssignmentDraftPatch) {
+  const result = await apiFetch(`assignments/${assignmentUUID}/submissions/me/draft`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const metadata = await getResponseMetadata(result);
+
+  if (metadata.success) {
+    const { revalidateTag } = await import('next/cache');
+    revalidateTag(tags.activities, 'max');
+  }
+
+  return metadata;
+}
+
+export async function submitAssignmentDraftSubmission(assignmentUUID: string, body?: AssignmentDraftPatch) {
+  const result = await apiFetch(`assignments/${assignmentUUID}/submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body ?? { tasks: [] }),
+  });
+  const metadata = await getResponseMetadata(result);
+
+  if (metadata.success) {
+    const { revalidateTag } = await import('next/cache');
+    revalidateTag(tags.activities, 'max');
   }
 
   return metadata;
