@@ -9,7 +9,9 @@ import { useAssignmentsTaskStore } from '@components/Contexts/Assignments/Assign
 import AssignmentBoxUI from '@components/Objects/Activities/Assignment/AssignmentBoxUI';
 import { useAssignments } from '@components/Contexts/Assignments/AssignmentContext';
 import { updateAssignmentTask } from '@services/courses/assignments';
+import { FormContentsSchema } from '@/schemas/assignmentTaskContents';
 import { cn, generateUUID } from '@/lib/utils';
+import * as v from 'valibot';
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -392,10 +394,20 @@ function TaskFormObject({ assignmentTaskUUID }: TaskFormObjectProps) {
       toast.error(t('saveError'));
       return;
     }
+
+    const contentsResult = v.safeParse(FormContentsSchema, {
+      kind: 'FORM' as const,
+      questions,
+    });
+    if (!contentsResult.success) {
+      toast.error(t('saveError'), { description: contentsResult.issues[0]?.message });
+      return;
+    }
+
     setIsSaving(true);
     try {
       const res = await updateAssignmentTask({
-        body: { contents: { questions } },
+        body: { contents: contentsResult.output },
         assignmentTaskUUID: assignmentTask.assignment_task_uuid,
         assignmentUUID,
       });

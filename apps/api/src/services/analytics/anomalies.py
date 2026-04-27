@@ -26,26 +26,34 @@ def build_anomalies(
 ) -> list[AnomalyItem]:
     events = build_activity_events(context)
     current_start, current_end = filters.window_bounds(now=context.generated_at)
-    previous_start, previous_end = filters.previous_window_bounds(now=context.generated_at)
+    previous_start, previous_end = filters.previous_window_bounds(
+        now=context.generated_at
+    )
     anomalies: list[AnomalyItem] = []
 
     for row in course_rows:
         current_active = {
             event.user_id
             for event in events
-            if event.course_id == row.course_id and current_start <= event.ts <= current_end
+            if event.course_id == row.course_id
+            and current_start <= event.ts <= current_end
         }
         previous_active = {
             event.user_id
             for event in events
-            if event.course_id == row.course_id and previous_start <= event.ts < previous_end
+            if event.course_id == row.course_id
+            and previous_start <= event.ts < previous_end
         }
-        if previous_active and len(current_active) <= max(1, len(previous_active) * 0.55):
+        if previous_active and len(current_active) <= max(
+            1, len(previous_active) * 0.55
+        ):
             anomalies.append(
                 AnomalyItem(
                     id=f"engagement-drop-{row.course_id}",
                     type="engagement_drop",
-                    severity="critical" if len(current_active) <= len(previous_active) * 0.35 else "warning",
+                    severity="critical"
+                    if len(current_active) <= len(previous_active) * 0.35
+                    else "warning",
                     title=f"{row.course_name}: sudden engagement drop",
                     detail="Active learners fell sharply against the previous period.",
                     observed_value=float(len(current_active)),
@@ -90,7 +98,9 @@ def build_anomalies(
         if len(durations) < 5:
             continue
         fast_cutoff = percentile(durations, 0.1) or 0
-        fast_count = sum(1 for duration in durations if duration <= max(20, fast_cutoff))
+        fast_count = sum(
+            1 for duration in durations if duration <= max(20, fast_cutoff)
+        )
         if fast_count >= max(3, len(durations) * 0.25):
             activity = context.activities_by_id.get(activity_id)
             anomalies.append(
@@ -104,7 +114,8 @@ def build_anomalies(
                     baseline_value=float(len(durations)),
                     course_id=activity.course_id if activity is not None else None,
                     course_name=context.courses_by_id.get(activity.course_id).name
-                    if activity is not None and activity.course_id in context.courses_by_id
+                    if activity is not None
+                    and activity.course_id in context.courses_by_id
                     else None,
                     assessment_type="quiz",
                     assessment_id=activity_id,
@@ -121,10 +132,16 @@ def build_anomalies(
         for attempt, activity in context.quiz_attempts:
             if activity.id != assessment.activity_id:
                 continue
-            completed_at = parse_timestamp(attempt.end_ts) or parse_timestamp(attempt.start_ts)
+            completed_at = parse_timestamp(attempt.end_ts) or parse_timestamp(
+                attempt.start_ts
+            )
             if completed_at is None:
                 continue
-            score = (attempt.score / attempt.max_score) * 100 if attempt.max_score else attempt.score
+            score = (
+                (attempt.score / attempt.max_score) * 100
+                if attempt.max_score
+                else attempt.score
+            )
             if completed_at < last_update:
                 before_scores.append(float(score))
             else:

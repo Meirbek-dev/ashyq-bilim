@@ -129,14 +129,11 @@ export async function apiFetch(path: string, init: ApiFetchInit = {}): Promise<R
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
   if (timeoutController && effectiveTimeoutMs !== null && effectiveTimeoutMs > 0) {
-    timeoutId = setTimeout(
-      () => timeoutController.abort(createTimeoutReason(effectiveTimeoutMs)),
-      effectiveTimeoutMs,
-    );
+    timeoutId = setTimeout(() => timeoutController.abort(createTimeoutReason(effectiveTimeoutMs)), effectiveTimeoutMs);
   }
 
-  const abortSignals = [callerSignal, timeoutController?.signal].filter(
-    (signal): signal is AbortSignal => Boolean(signal),
+  const abortSignals = [callerSignal, timeoutController?.signal].filter((signal): signal is AbortSignal =>
+    Boolean(signal),
   );
   const combinedSignal = abortSignals.length > 0 ? combineAbortSignals(abortSignals) : null;
 

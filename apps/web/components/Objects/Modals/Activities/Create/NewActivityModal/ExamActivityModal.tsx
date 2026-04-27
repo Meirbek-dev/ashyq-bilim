@@ -47,7 +47,11 @@ const getCourseUuid = (course: any): string | null =>
   course?.courseStructure?.course_uuid ?? course?.course_uuid ?? course?.course?.course_uuid ?? null;
 
 const getCreatedActivityUuid = (data: any): string | null =>
-  data?.activity_uuid ?? data?.activity?.activity_uuid ?? data?.data?.activity_uuid ?? data?.data?.activity?.activity_uuid ?? null;
+  data?.activity_uuid ??
+  data?.activity?.activity_uuid ??
+  data?.data?.activity_uuid ??
+  data?.data?.activity?.activity_uuid ??
+  null;
 
 const NewExam = ({ chapterId, course, closeModal }: any) => {
   const validationT = useTranslations('Validation');

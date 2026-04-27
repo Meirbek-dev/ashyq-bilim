@@ -1,9 +1,12 @@
 /**
- * Grading system type definitions — v3.
+ * Grading system type definitions — v4.
  *
- * Status model (simplified from 7 → 5 states):
+ * Interface definitions are re-exported from the auto-generated OpenAPI schema
+ * (`lib/api/generated/schema.ts`). Only utility constants and helpers live here.
+ *
+ * Status model (5 states):
  *   DRAFT      — student is working, not yet submitted
- *   PENDING    — submitted, awaiting teacher grading (replaces SUBMITTED / LATE / UNDER_REVIEW)
+ *   PENDING    — submitted, awaiting teacher grading
  *   GRADED     — teacher has set a final score (not yet visible to student)
  *   PUBLISHED  — grade is visible to the student
  *   RETURNED   — teacher sent it back for revision
@@ -11,34 +14,30 @@
  * Late submissions use is_late: boolean on the Submission object itself.
  */
 
-// ── Enums ────────────────────────────────────────────────────────────────────
+import type { components } from '@/lib/api/generated/schema';
 
-export type SubmissionStatus = 'DRAFT' | 'PENDING' | 'GRADED' | 'PUBLISHED' | 'RETURNED';
+// ── Re-exported generated types ───────────────────────────────────────────────
 
-export type AssessmentType = 'QUIZ' | 'ASSIGNMENT' | 'EXAM' | 'CODE_CHALLENGE';
+export type SubmissionStatus = components['schemas']['src__db__grading__submissions__SubmissionStatus'];
+export type AssessmentType = components['schemas']['AssessmentType'];
 
-// ── Grading breakdown ────────────────────────────────────────────────────────
+export type GradedItem = components['schemas']['GradedItem'];
+export type GradingBreakdown = components['schemas']['GradingBreakdown'];
+export type Submission = components['schemas']['SubmissionRead'];
+export type SubmissionUser = components['schemas']['SubmissionUser'];
 
-export interface GradedItem {
-  item_id: string;
-  item_text: string;
-  score: number;
-  max_score: number;
-  correct: boolean | null; // null for non-auto-gradeable items
-  feedback: string;
-  needs_manual_review: boolean;
-  user_answer: unknown;
-  correct_answer: unknown;
-}
+/** Typed paginated response for the teacher submissions list. */
+export type SubmissionsPage = components['schemas']['SubmissionListResponse'];
+export type SubmissionStats = components['schemas']['SubmissionStats'];
 
-export interface GradingBreakdown {
-  items: GradedItem[];
-  needs_manual_review: boolean;
-  auto_graded: boolean;
-  feedback?: string;
-}
+export type ItemFeedback = components['schemas']['ItemFeedback'];
+export type TeacherGradeInput = components['schemas']['TeacherGradeInput'];
+export type BatchGradeItem = components['schemas']['BatchGradeItem'];
+export type BatchGradeRequest = components['schemas']['BatchGradeRequest'];
+export type BatchGradeResultItem = components['schemas']['BatchGradeResultItem'];
+export type BatchGradeResponse = components['schemas']['BatchGradeResponse'];
 
-// ── Submission ───────────────────────────────────────────────────────────────
+// ── Answer payload shapes (frontend-only, not in OpenAPI schema) ──────────────
 
 export interface QuizAnswer {
   question_id: string;
@@ -90,106 +89,6 @@ export interface CodeChallengeAnswers {
   test_results: TestCaseResult[];
   code_strategy?: string;
   source_code?: string;
-}
-
-export interface Submission {
-  id: number;
-  submission_uuid: string;
-  assessment_type: AssessmentType;
-  activity_id: number;
-  user_id: number;
-
-  auto_score: number | null;
-  final_score: number | null;
-
-  status: SubmissionStatus;
-  attempt_number: number;
-  is_late: boolean;
-
-  answers_json: QuizAnswers | AssignmentAnswers | ExamAnswers | CodeChallengeAnswers | Record<string, unknown>;
-  grading_json: GradingBreakdown;
-
-  started_at: string | null;
-  submitted_at: string | null;
-  graded_at: string | null;
-  created_at: string;
-  updated_at: string;
-  grading_version: number;
-
-  // Enriched by teacher endpoint
-  user?: SubmissionUser;
-}
-
-export interface SubmissionUser {
-  id: number;
-  username: string;
-  first_name?: string | null;
-  last_name?: string | null;
-  middle_name?: string | null;
-  email: string;
-  avatar_image?: string | null;
-  user_uuid?: string | null;
-}
-
-// ── Paginated response ────────────────────────────────────────────────────────
-
-export interface SubmissionsPage {
-  items: Submission[];
-  total: number;
-  page: number;
-  page_size: number;
-  pages: number;
-}
-
-// ── Aggregate stats ───────────────────────────────────────────────────────────
-
-export interface SubmissionStats {
-  total: number;
-  graded_count: number;
-  needs_grading_count: number; // count of PENDING submissions
-  late_count: number; // count of PENDING submissions where is_late=true
-  avg_score: number | null;
-  pass_rate: number | null;
-}
-
-// ── Teacher grade input ───────────────────────────────────────────────────────
-
-export interface ItemFeedback {
-  item_id: string;
-  score?: number | null;
-  feedback: string;
-}
-
-export interface TeacherGradeInput {
-  final_score: number;
-  item_feedback?: ItemFeedback[];
-  /** GRADED = save (teacher-visible only), PUBLISHED = publish to student, RETURNED = request revision */
-  status: 'GRADED' | 'PUBLISHED' | 'RETURNED';
-  feedback?: string;
-}
-
-export interface BatchGradeItem {
-  submission_uuid: string;
-  final_score: number;
-  status: 'GRADED' | 'PUBLISHED' | 'RETURNED';
-  feedback?: string | null;
-  item_feedback?: ItemFeedback[] | null;
-}
-
-export interface BatchGradeRequest {
-  grades: BatchGradeItem[];
-}
-
-export interface BatchGradeResultItem {
-  submission_uuid: string;
-  success: boolean;
-  error?: string | null;
-}
-
-export interface BatchGradeResponse {
-  results: BatchGradeResultItem[];
-  succeeded: number;
-  failed: number;
 }
 
 // ── Status display helpers ────────────────────────────────────────────────────

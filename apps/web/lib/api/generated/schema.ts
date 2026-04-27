@@ -4,988 +4,6 @@
  */
 
 export interface paths {
-    "/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Root */
-        get: operations["root__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/activities": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Api Create Activity */
-        post: operations["api_create_activity_api_v1_activities_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/activities/documentpdf": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Api Create Documentpdf Activity */
-        post: operations["api_create_documentpdf_activity_api_v1_activities_documentpdf_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/activities/external_video": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Api Create External Video Activity */
-        post: operations["api_create_external_video_activity_api_v1_activities_external_video_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/activities/video": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Api Create Video Activity */
-        post: operations["api_create_video_activity_api_v1_activities_video_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/activities/{activity_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Api Get Activity */
-        get: operations["api_get_activity_api_v1_activities__activity_uuid__get"];
-        put?: never;
-        post?: never;
-        /** Api Delete Activity */
-        delete: operations["api_delete_activity_api_v1_activities__activity_uuid__delete"];
-        options?: never;
-        head?: never;
-        /** Api Update Activity */
-        patch: operations["api_update_activity_api_v1_activities__activity_uuid__patch"];
-        trace?: never;
-    };
-    "/api/v1/ai/send/activity_chat_message": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Api Ai Send Activity Chat Message
-         * @description Send a message to an AI Chat session with a Course Activity.
-         *
-         *     Rate limit: 20 requests per minute per IP address.
-         *
-         *     Raises:
-         *         HTTPException 429: Rate limit exceeded
-         *         HTTPException 404: Activity not found
-         *         HTTPException 403: AI feature disabled
-         *         HTTPException 504: AI processing timeout
-         *         HTTPException 500: AI processing error
-         */
-        post: operations["api_ai_send_activity_chat_message_api_v1_ai_send_activity_chat_message_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/ai/send/activity_chat_message_stream": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Api Ai Send Activity Chat Message Stream
-         * @description Send a message to AI Chat session with streaming responses (SSE).
-         *
-         *     Rate limit: 20 requests per minute per IP address.
-         *
-         *     Returns:
-         *         Server-Sent Events (SSE) stream with AI response chunks
-         *
-         *     Raises:
-         *         HTTPException 429: Rate limit exceeded
-         *         HTTPException 404: Activity not found
-         *         HTTPException 403: AI feature disabled or streaming not enabled
-         *         HTTPException 504: AI processing timeout
-         *         HTTPException 500: AI processing error
-         */
-        post: operations["api_ai_send_activity_chat_message_stream_api_v1_ai_send_activity_chat_message_stream_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/ai/start/activity_chat_session": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Api Ai Start Activity Chat Session
-         * @description Start a new AI Chat session with a Course Activity.
-         *
-         *     Rate limit: 10 requests per minute per IP address.
-         *
-         *     Raises:
-         *         HTTPException 429: Rate limit exceeded
-         *         HTTPException 404: Activity not found
-         *         HTTPException 403: AI feature disabled
-         *         HTTPException 504: AI processing timeout
-         *         HTTPException 500: AI processing error
-         */
-        post: operations["api_ai_start_activity_chat_session_api_v1_ai_start_activity_chat_session_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/ai/start/activity_chat_session_stream": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Api Ai Start Activity Chat Session Stream
-         * @description Start a new AI Chat session with streaming responses (SSE).
-         *
-         *     This endpoint provides real-time streaming of AI responses for better
-         *     perceived performance. Clients receive response chunks as they're generated.
-         *
-         *     Rate limit: 10 requests per minute per IP address.
-         *
-         *     Returns:
-         *         Server-Sent Events (SSE) stream with AI response chunks
-         *
-         *     Event types:
-         *         - status: Processing status updates
-         *         - chunk: Individual response chunks
-         *         - final: Complete response
-         *         - error: Error information
-         *
-         *     Raises:
-         *         HTTPException 429: Rate limit exceeded
-         *         HTTPException 404: Activity not found
-         *         HTTPException 403: AI feature disabled or streaming not enabled
-         *         HTTPException 504: AI processing timeout
-         *         HTTPException 500: AI processing error
-         */
-        post: operations["api_ai_start_activity_chat_session_stream_api_v1_ai_start_activity_chat_session_stream_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/analytics/admin/overview": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Admin Analytics Overview Platform */
-        get: operations["admin_analytics_overview_platform_api_v1_analytics_admin_overview_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/analytics/teacher/assessments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Teacher Assessments Platform */
-        get: operations["teacher_assessments_platform_api_v1_analytics_teacher_assessments_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/analytics/teacher/assessments/{assessment_type}/{assessment_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Teacher Assessment Detail Platform */
-        get: operations["teacher_assessment_detail_platform_api_v1_analytics_teacher_assessments__assessment_type___assessment_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/analytics/teacher/courses": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Teacher Courses Platform */
-        get: operations["teacher_courses_platform_api_v1_analytics_teacher_courses_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/analytics/teacher/courses/by-uuid/{course_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Teacher Course Detail By Uuid Platform */
-        get: operations["teacher_course_detail_by_uuid_platform_api_v1_analytics_teacher_courses_by_uuid__course_uuid__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/analytics/teacher/courses/{course_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Teacher Course Detail Platform */
-        get: operations["teacher_course_detail_platform_api_v1_analytics_teacher_courses__course_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/analytics/teacher/drill-through/{metric}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Teacher Drillthrough Platform */
-        get: operations["teacher_drillthrough_platform_api_v1_analytics_teacher_drill_through__metric__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/analytics/teacher/exports/assessment-outcomes.csv": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Teacher Assessment Outcomes Export Platform */
-        get: operations["teacher_assessment_outcomes_export_platform_api_v1_analytics_teacher_exports_assessment_outcomes_csv_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/analytics/teacher/exports/at-risk.csv": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Teacher At Risk Export Platform */
-        get: operations["teacher_at_risk_export_platform_api_v1_analytics_teacher_exports_at_risk_csv_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/analytics/teacher/exports/course-progress.csv": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Teacher Course Progress Export Platform */
-        get: operations["teacher_course_progress_export_platform_api_v1_analytics_teacher_exports_course_progress_csv_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/analytics/teacher/exports/grading-backlog.csv": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Teacher Grading Backlog Export Platform */
-        get: operations["teacher_grading_backlog_export_platform_api_v1_analytics_teacher_exports_grading_backlog_csv_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/analytics/teacher/interventions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Teacher Interventions Platform */
-        get: operations["teacher_interventions_platform_api_v1_analytics_teacher_interventions_get"];
-        put?: never;
-        /** Create Teacher Intervention Platform */
-        post: operations["create_teacher_intervention_platform_api_v1_analytics_teacher_interventions_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/analytics/teacher/learners/at-risk": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Teacher At Risk Learners Platform */
-        get: operations["teacher_at_risk_learners_platform_api_v1_analytics_teacher_learners_at_risk_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/analytics/teacher/overview": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Teacher Overview Platform */
-        get: operations["teacher_overview_platform_api_v1_analytics_teacher_overview_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/analytics/teacher/saved-views": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Teacher Saved Views Platform */
-        get: operations["teacher_saved_views_platform_api_v1_analytics_teacher_saved_views_get"];
-        put?: never;
-        /** Save Teacher Saved View Platform */
-        post: operations["save_teacher_saved_view_platform_api_v1_analytics_teacher_saved_views_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/analytics/teacher/saved-views/{view_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete Teacher Saved View Platform */
-        delete: operations["delete_teacher_saved_view_platform_api_v1_analytics_teacher_saved_views__view_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Api Create Assignments
-         * @description Create new activity
-         */
-        post: operations["api_create_assignments_api_v1_assignments_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/activity/{activity_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Read Assignment From Activity
-         * @description Read an assignment
-         */
-        get: operations["api_read_assignment_from_activity_api_v1_assignments_activity__activity_uuid__get"];
-        put?: never;
-        post?: never;
-        /**
-         * Api Delete Assignment From Activity
-         * @description Delete an assignment
-         */
-        delete: operations["api_delete_assignment_from_activity_api_v1_assignments_activity__activity_uuid__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/course/{course_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Assignments
-         * @description Get assignments for a course
-         */
-        get: operations["api_get_assignments_api_v1_assignments_course__course_uuid__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/courses": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Api Get Assignments For Courses
-         * @description Get assignments for multiple courses in a single request.
-         *     Body: { "course_uuids": ["course_xxx", ...] }
-         *     Returns a mapping course_uuid -> list of assignments.
-         */
-        post: operations["api_get_assignments_for_courses_api_v1_assignments_courses_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/courses/editable": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Api Get Editable Assignments For Courses
-         * @description Get assignments the current user can edit for multiple courses.
-         *     Body: { "course_uuids": ["course_xxx", ...] }
-         *     Returns a mapping course_uuid -> list of assignments.
-         *     Only includes courses/assignments where the user has assignment:update permission.
-         */
-        post: operations["api_get_editable_assignments_for_courses_api_v1_assignments_courses_editable_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/submissions/{assignment_task_submission_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Api Update Assignment Task Submission
-         * @description Update an assignment task submission.
-         */
-        put: operations["api_update_assignment_task_submission_api_v1_assignments_submissions__assignment_task_submission_uuid__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/task/{assignment_task_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Read Assignment Task
-         * @description Read task for an assignment
-         */
-        get: operations["api_read_assignment_task_api_v1_assignments_task__assignment_task_uuid__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/with-activity": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Api Create Assignment With Activity
-         * @description Create assignment with activity in a single transaction for better performance
-         */
-        post: operations["api_create_assignment_with_activity_api_v1_assignments_with_activity_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/{assignment_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Read Assignment
-         * @description Read an assignment
-         */
-        get: operations["api_read_assignment_api_v1_assignments__assignment_uuid__get"];
-        /**
-         * Api Update Assignment
-         * @description Update an assignment
-         */
-        put: operations["api_update_assignment_api_v1_assignments__assignment_uuid__put"];
-        post?: never;
-        /**
-         * Api Delete Assignment
-         * @description Delete an assignment
-         */
-        delete: operations["api_delete_assignment_api_v1_assignments__assignment_uuid__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/{assignment_uuid}/submissions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Assignment Submissions
-         * @description Get assignment-level submission statuses for all course learners.
-         */
-        get: operations["api_get_assignment_submissions_api_v1_assignments__assignment_uuid__submissions_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/{assignment_uuid}/submissions/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Assignment Submission Me
-         * @description Get the current user's assignment-level submission status.
-         */
-        get: operations["api_get_assignment_submission_me_api_v1_assignments__assignment_uuid__submissions_me_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/{assignment_uuid}/submissions/me/draft": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Assignment Draft Submission
-         * @description Get the current user's Submission-backed assignment draft, if any.
-         */
-        get: operations["api_get_assignment_draft_submission_api_v1_assignments__assignment_uuid__submissions_me_draft_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Api Save Assignment Draft Submission
-         * @description Create or update the current user's assignment draft in Submission.
-         */
-        patch: operations["api_save_assignment_draft_submission_api_v1_assignments__assignment_uuid__submissions_me_draft_patch"];
-        trace?: never;
-    };
-    "/api/v1/assignments/{assignment_uuid}/submissions/{user_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Assignment Submission User
-         * @description Get a specific user's assignment-level submission status.
-         */
-        get: operations["api_get_assignment_submission_user_api_v1_assignments__assignment_uuid__submissions__user_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/{assignment_uuid}/submit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Api Submit Assignment Draft Submission
-         * @description Submit the current user's assignment draft through the unified Submission model.
-         */
-        post: operations["api_submit_assignment_draft_submission_api_v1_assignments__assignment_uuid__submit_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/{assignment_uuid}/tasks": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Read Assignment Tasks
-         * @description Read tasks for an assignment
-         */
-        get: operations["api_read_assignment_tasks_api_v1_assignments__assignment_uuid__tasks_get"];
-        put?: never;
-        /**
-         * Api Create Assignment Tasks
-         * @description Create new tasks for an assignment
-         */
-        post: operations["api_create_assignment_tasks_api_v1_assignments__assignment_uuid__tasks_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/{assignment_uuid}/tasks/{assignment_task_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Api Update Assignment Tasks
-         * @description Update tasks for an assignment
-         */
-        put: operations["api_update_assignment_tasks_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__put"];
-        post?: never;
-        /**
-         * Api Delete Assignment Tasks
-         * @description Delete tasks for an assignment
-         */
-        delete: operations["api_delete_assignment_tasks_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/{assignment_uuid}/tasks/{assignment_task_uuid}/ref_file": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Api Put Assignment Task Ref File
-         * @description Upload a reference file for an assignment task.
-         */
-        post: operations["api_put_assignment_task_ref_file_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__ref_file_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/{assignment_uuid}/tasks/{assignment_task_uuid}/sub_file": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Api Put Assignment Task Sub File
-         * @description Upload a submission file for an assignment task.
-         */
-        post: operations["api_put_assignment_task_sub_file_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__sub_file_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/{assignment_uuid}/tasks/{assignment_task_uuid}/submissions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Assignment Task Submissions
-         * @description List all submissions for an assignment task.
-         */
-        get: operations["api_get_assignment_task_submissions_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__submissions_get"];
-        /**
-         * Api Handle Assignment Task Submission
-         * @description Create or update a submission for an assignment task.
-         */
-        put: operations["api_handle_assignment_task_submission_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__submissions_put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/{assignment_uuid}/tasks/{assignment_task_uuid}/submissions/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Assignment Task Submission Me
-         * @description Get the current user's submission for an assignment task.
-         */
-        get: operations["api_get_assignment_task_submission_me_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__submissions_me_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/{assignment_uuid}/tasks/{assignment_task_uuid}/submissions/user/{user_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Assignment Task Submission User
-         * @description Get a specific user's submission for an assignment task.
-         */
-        get: operations["api_get_assignment_task_submission_user_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__submissions_user__user_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assignments/{assignment_uuid}/tasks/{assignment_task_uuid}/submissions/{assignment_task_submission_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Api Delete Assignment Task Submission
-         * @description Delete an assignment task submission.
-         */
-        delete: operations["api_delete_assignment_task_submission_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__submissions__assignment_task_submission_uuid__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/auth/forgot-password": {
         parameters: {
             query?: never;
@@ -1003,7 +21,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/auth/google/authorize": {
+    "/api/v1/auth/reset-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reset:Reset Password */
+        post: operations["reset_reset_password_api_v1_auth_reset_password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Register:Register */
+        post: operations["register_register_api_v1_auth_register_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/profile": {
         parameters: {
             query?: never;
             header?: never;
@@ -1011,10 +63,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Google Authorize
-         * @description Redirect to Google OAuth consent screen.
+         * Api Get Public User
+         * @description Get current user
          */
-        get: operations["google_authorize_api_v1_auth_google_authorize_get"];
+        get: operations["api_get_public_user_api_v1_users_profile_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1023,7 +75,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/auth/google/callback": {
+    "/api/v1/users/session": {
         parameters: {
             query?: never;
             header?: never;
@@ -1031,13 +83,421 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Google Callback
-         * @description Handle Google OAuth callback.
+         * Api Get Public User Session
+         * @description Get current user session.
          */
-        get: operations["google_callback_api_v1_auth_google_callback_get"];
+        get: operations["api_get_public_user_session_api_v1_users_session_get"];
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Api Create User Without Platform
+         * @description Create User
+         */
+        post: operations["api_create_user_without_platform_api_v1_users_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/id/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get User By Id
+         * @description Get User by ID
+         */
+        get: operations["api_get_user_by_id_api_v1_users_id__user_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/uuid/{user_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get User By Uuid
+         * @description Get User by UUID
+         */
+        get: operations["api_get_user_by_uuid_api_v1_users_uuid__user_uuid__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/username/{username}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get User By Username
+         * @description Get User by Username
+         */
+        get: operations["api_get_user_by_username_api_v1_users_username__username__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Api Update User
+         * @description Update User
+         *
+         *     **Required Permission**: `user:update:own` (for own profile) or `user:update:platform` (for others)
+         */
+        put: operations["api_update_user_api_v1_users__user_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/update_avatar/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Api Update Avatar User
+         * @description Update User Avatar
+         *
+         *     **Required Permission**: `user:update:own` (for own avatar) or `user:update:platform` (for others)
+         */
+        put: operations["api_update_avatar_user_api_v1_users_update_avatar__user_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/change_password/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Api Update User Password
+         * @description Update User Password
+         *
+         *     **Required Permission**: Own account only (for security)
+         */
+        put: operations["api_update_user_password_api_v1_users_change_password__user_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/preferences/theme/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Api Update User Theme
+         * @description Update User Theme Preference
+         */
+        put: operations["api_update_user_theme_api_v1_users_preferences_theme__user_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/preferences/locale/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Api Update User Locale
+         * @description Update User Locale Preference
+         */
+        put: operations["api_update_user_locale_api_v1_users_preferences_locale__user_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/user_id/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Api Delete User
+         * @description Delete User
+         *
+         *     **Required Permission**: `user:delete:platform`
+         */
+        delete: operations["api_delete_user_api_v1_users_user_id__user_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/{user_id}/courses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get User Courses
+         * @description Get courses made or contributed by a user.
+         */
+        get: operations["api_get_user_courses_api_v1_users__user_id__courses_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/usergroups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get Usergroups
+         * @description Get platform user groups
+         */
+        get: operations["api_get_usergroups_api_v1_usergroups_get"];
+        put?: never;
+        /**
+         * Api Create Usergroup
+         * @description Create UserGroup
+         *
+         *     **Required Permission**: `usergroup:create:platform`
+         */
+        post: operations["api_create_usergroup_api_v1_usergroups_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/usergroups/{usergroup_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get Usergroup
+         * @description Get UserGroup
+         */
+        get: operations["api_get_usergroup_api_v1_usergroups__usergroup_id__get"];
+        /**
+         * Api Update Usergroup
+         * @description Update UserGroup
+         *
+         *     **Required Permission**: `usergroup:update:platform` or `usergroup:update:own`
+         */
+        put: operations["api_update_usergroup_api_v1_usergroups__usergroup_id__put"];
+        post?: never;
+        /**
+         * Api Delete Usergroup
+         * @description Delete UserGroup
+         *
+         *     **Required Permission**: `usergroup:delete:platform` or `usergroup:delete:own`
+         */
+        delete: operations["api_delete_usergroup_api_v1_usergroups__usergroup_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/usergroups/{usergroup_id}/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get Users Linked To Usergroup
+         * @description Get Users linked to UserGroup
+         */
+        get: operations["api_get_users_linked_to_usergroup_api_v1_usergroups__usergroup_id__users_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/usergroups/resource/{resource_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get Usergroupsby Resource
+         * @description Get platform user groups by resource
+         */
+        get: operations["api_get_usergroupsby_resource_api_v1_usergroups_resource__resource_uuid__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/usergroups/{usergroup_id}/add_users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Api Add Users To Usergroup
+         * @description Add Users to UserGroup
+         *
+         *     **Required Permission**: `usergroup:manage:platform` or `usergroup:manage:own`
+         */
+        post: operations["api_add_users_to_usergroup_api_v1_usergroups__usergroup_id__add_users_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/usergroups/{usergroup_id}/remove_users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Api Delete Users From Usergroup
+         * @description Delete Users from UserGroup
+         */
+        delete: operations["api_delete_users_from_usergroup_api_v1_usergroups__usergroup_id__remove_users_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/usergroups/{usergroup_id}/add_resources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Api Add Resources To Usergroup
+         * @description Add Resources to UserGroup
+         */
+        post: operations["api_add_resources_to_usergroup_api_v1_usergroups__usergroup_id__add_resources_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/usergroups/{usergroup_id}/remove_resources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Api Delete Resources From Usergroup
+         * @description Delete Resources from UserGroup
+         */
+        delete: operations["api_delete_resources_from_usergroup_api_v1_usergroups__usergroup_id__remove_resources_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1094,6 +554,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Sessions */
+        get: operations["list_sessions_api_v1_auth_sessions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/refresh": {
         parameters: {
             query?: never;
@@ -1114,52 +591,729 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/auth/register": {
+    "/api/v1/auth/google/authorize": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
-        /** Register:Register */
-        post: operations["register_register_api_v1_auth_register_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/reset-password": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Reset:Reset Password */
-        post: operations["reset_reset_password_api_v1_auth_reset_password_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/sessions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Sessions */
-        get: operations["list_sessions_api_v1_auth_sessions_get"];
+        /**
+         * Google Authorize
+         * @description Redirect to Google OAuth consent screen.
+         */
+        get: operations["google_authorize_api_v1_auth_google_authorize_get"];
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/google/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Google Callback
+         * @description Handle Google OAuth callback.
+         */
+        get: operations["google_callback_api_v1_auth_google_callback_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get Platform
+         * @description Get the single platform.
+         *
+         *     This endpoint is intentionally public in single-platform mode because the
+         *     frontend bootstraps navigation, auth pages, and public landing content from
+         *     the platform before user-specific RBAC is established.
+         */
+        get: operations["api_get_platform_api_v1_platform_get"];
+        /**
+         * Api Update Platform
+         * @description Update the platform.
+         *
+         *     **Required Permission**: `platform:update`
+         */
+        put: operations["api_update_platform_api_v1_platform_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Api Get Platform Users */
+        get: operations["api_get_platform_users_api_v1_members_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{user_id}/role/{role_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Api Update Platform User Role
+         * @description Update a user's role in the platform.
+         *
+         *     **Path Parameter**: `role_id` - numeric role ID
+         *
+         *     **Required Permission**: `platform:update`
+         */
+        put: operations["api_update_platform_user_role_api_v1_members__user_id__role__role_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Api Remove User From Platform
+         * @description Remove a user from the platform.
+         */
+        delete: operations["api_remove_user_from_platform_api_v1_members__user_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/logo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Api Update Platform Logo
+         * @description Update the platform logo.
+         *
+         *     **Required Permission**: `platform:update`
+         */
+        put: operations["api_update_platform_logo_api_v1_logo_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/thumbnail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Api Update Platform Thumbnail
+         * @description Update the platform thumbnail.
+         *
+         *     **Required Permission**: `platform:update`
+         */
+        put: operations["api_update_platform_thumbnail_api_v1_thumbnail_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Api Update Platform Preview
+         * @description Update the platform preview.
+         *
+         *     **Required Permission**: `platform:update`
+         */
+        put: operations["api_update_platform_preview_api_v1_preview_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/landing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Api Update Platform Landing
+         * @description Update the platform landing object.
+         *
+         *     **Required Permission**: `platform:update`
+         */
+        put: operations["api_update_platform_landing_api_v1_landing_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/landing/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Api Upload Platform Landing Content
+         * @description Upload content for the platform landing page.
+         *
+         *     **Required Permission**: `platform:update`
+         */
+        post: operations["api_upload_platform_landing_content_api_v1_landing_content_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roles/permissions/all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List All Permissions
+         * @description List all permission definitions. Used by the RBAC admin panel.
+         */
+        get: operations["list_all_permissions_api_v1_roles_permissions_all_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Roles
+         * @description List all roles available in the platform.
+         */
+        get: operations["list_roles_api_v1_roles_get"];
+        put?: never;
+        /**
+         * Create Role
+         * @description Create a new custom role.
+         */
+        post: operations["create_role_api_v1_roles_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roles/audit-log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Role Audit Log */
+        get: operations["get_role_audit_log_api_v1_roles_audit_log_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roles/{role_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Role
+         * @description Get a single role by ID.
+         */
+        get: operations["get_role_api_v1_roles__role_id__get"];
+        /**
+         * Update Role
+         * @description Update a role's name, description, or priority.
+         */
+        put: operations["update_role_api_v1_roles__role_id__put"];
+        post?: never;
+        /**
+         * Delete Role
+         * @description Delete a custom role.
+         */
+        delete: operations["delete_role_api_v1_roles__role_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roles/{role_id}/users/count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Role Users Count */
+        get: operations["get_role_users_count_api_v1_roles__role_id__users_count_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roles/{role_id}/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Role Permissions
+         * @description Get all permissions assigned to a role.
+         */
+        get: operations["get_role_permissions_api_v1_roles__role_id__permissions_get"];
+        put?: never;
+        /**
+         * Add Permission To Role
+         * @description Add a permission to a role.
+         */
+        post: operations["add_permission_to_role_api_v1_roles__role_id__permissions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roles/{role_id}/permissions/{permission_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove Permission From Role
+         * @description Remove a permission from a role.
+         */
+        delete: operations["remove_permission_from_role_api_v1_roles__role_id__permissions__permission_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rbac/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Check Permission */
+        post: operations["check_permission_api_v1_rbac_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rbac/check/batch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Check Permissions Batch */
+        post: operations["check_permissions_batch_api_v1_rbac_check_batch_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rbac/me/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get My Permissions */
+        get: operations["get_my_permissions_api_v1_rbac_me_permissions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rbac/user-roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List User Roles
+         * @description List user↔role assignments.
+         */
+        get: operations["list_user_roles_api_v1_rbac_user_roles_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rbac/roles/assign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Assign Role
+         * @description Assign a role to a user.
+         *
+         *     **Required Permission**: `role:create`
+         */
+        post: operations["assign_role_api_v1_rbac_roles_assign_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rbac/roles/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke Role
+         * @description Revoke a role from a user.
+         *
+         *     **Required Permission**: `role:delete`
+         */
+        post: operations["revoke_role_api_v1_rbac_roles_revoke_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Api Search Platform Content */
+        get: operations["api_search_platform_content_api_v1_search_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Health */
+        get: operations["health_api_v1_health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/health/live": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Health Live */
+        get: operations["health_live_api_v1_health_live_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/health/ready": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Health Ready */
+        get: operations["health_ready_api_v1_health_ready_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/utils/link-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Link Preview */
+        get: operations["link_preview_api_v1_utils_link_preview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/uploads/initiate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Initiate Chunked Upload
+         * @description Initiate a chunked upload session.
+         *
+         *     Args:
+         *         directory: Target directory (e.g., "courses/xxx/activities/yyy/video")
+         *         type_of_dir: "platform" or "users"
+         *         uuid: Platform or user UUID
+         *         filename: Final filename for the assembled file
+         *         total_chunks: Total number of chunks that will be uploaded
+         *         file_size: Total file size in bytes
+         *
+         *     Returns:
+         *         upload_id: Unique identifier for this upload session
+         */
+        post: operations["initiate_chunked_upload_api_v1_uploads_initiate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/uploads/chunk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload Chunk
+         * @description Upload a single chunk.
+         *
+         *     Args:
+         *         upload_id: Upload session ID from initiate endpoint
+         *         chunk_index: Zero-based index of this chunk
+         *         chunk: The chunk file data
+         *
+         *     Returns:
+         *         Status of the upload including progress
+         */
+        post: operations["upload_chunk_api_v1_uploads_chunk_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/uploads/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Complete Chunked Upload
+         * @description Complete the chunked upload by assembling all chunks.
+         *
+         *     Args:
+         *         upload_id: Upload session ID
+         *
+         *     Returns:
+         *         Final filename and upload details
+         */
+        post: operations["complete_chunked_upload_api_v1_uploads_complete_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/uploads/status/{upload_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Upload Status
+         * @description Get the status of an upload session.
+         *
+         *     Args:
+         *         upload_id: Upload session ID
+         *
+         *     Returns:
+         *         Upload progress and details
+         */
+        get: operations["get_upload_status_api_v1_uploads_status__upload_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/uploads/{upload_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Cancel Upload
+         * @description Cancel an upload and clean up temporary files.
+         *
+         *     Args:
+         *         upload_id: Upload session ID
+         *
+         *     Returns:
+         *         Confirmation message
+         */
+        delete: operations["cancel_upload_api_v1_uploads__upload_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1183,6 +1337,30 @@ export interface paths {
          * @description Create new image file
          */
         post: operations["api_create_image_file_block_api_v1_blocks_image_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/blocks/video": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get Video File Block
+         * @description Get video file
+         */
+        get: operations["api_get_video_file_block_api_v1_blocks_video_get"];
+        put?: never;
+        /**
+         * Api Create Video File Block
+         * @description Create new video file
+         */
+        post: operations["api_create_video_file_block_api_v1_blocks_video_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1273,566 +1451,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/blocks/video": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Video File Block
-         * @description Get video file
-         */
-        get: operations["api_get_video_file_block_api_v1_blocks_video_get"];
-        put?: never;
-        /**
-         * Api Create Video File Block
-         * @description Create new video file
-         */
-        post: operations["api_create_video_file_block_api_v1_blocks_video_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/certifications": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Api Create Certification
-         * @description Create new certification for a course
-         */
-        post: operations["api_create_certification_api_v1_certifications_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/certifications/certificate/{user_certification_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Certificate By User Certification Uuid
-         * @description Get a certificate by user_certification_uuid with certification and course details
-         */
-        get: operations["api_get_certificate_by_user_certification_uuid_api_v1_certifications_certificate__user_certification_uuid__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/certifications/course/{course_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Certifications By Course
-         * @description Get all certifications for a specific course
-         */
-        get: operations["api_get_certifications_by_course_api_v1_certifications_course__course_uuid__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/certifications/user/all": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get All User Certificates
-         * @description Get all certificates obtained by the current user with complete linked information
-         */
-        get: operations["api_get_all_user_certificates_api_v1_certifications_user_all_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/certifications/user/course/{course_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get User Certificates For Course
-         * @description Get all certificates for the current user in a specific course with certification details
-         */
-        get: operations["api_get_user_certificates_for_course_api_v1_certifications_user_course__course_uuid__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/certifications/{certification_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Certification
-         * @description Get single certification by certification_id
-         */
-        get: operations["api_get_certification_api_v1_certifications__certification_uuid__get"];
-        /**
-         * Api Update Certification
-         * @description Update certification by certification_id
-         */
-        put: operations["api_update_certification_api_v1_certifications__certification_uuid__put"];
-        post?: never;
-        /**
-         * Api Delete Certification
-         * @description Delete certification by certification_id
-         */
-        delete: operations["api_delete_certification_api_v1_certifications__certification_uuid__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/chapters": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Api Create Coursechapter */
-        post: operations["api_create_coursechapter_api_v1_chapters_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/chapters/course/{course_uuid}/order": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Api Reorder Chapters And Activities
-         * @description Bulk reorder all chapters and activities (legacy — prefer atomic endpoints).
-         */
-        patch: operations["api_reorder_chapters_and_activities_api_v1_chapters_course__course_uuid__order_patch"];
-        trace?: never;
-    };
-    "/api/v1/chapters/{chapter_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Api Get Coursechapter */
-        get: operations["api_get_coursechapter_api_v1_chapters__chapter_uuid__get"];
-        put?: never;
-        post?: never;
-        /** Api Delete Coursechapter */
-        delete: operations["api_delete_coursechapter_api_v1_chapters__chapter_uuid__delete"];
-        options?: never;
-        head?: never;
-        /** Api Update Coursechapter */
-        patch: operations["api_update_coursechapter_api_v1_chapters__chapter_uuid__patch"];
-        trace?: never;
-    };
-    "/api/v1/chapters/{chapter_uuid}/activities/{activity_uuid}/order": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Api Move Activity To Order
-         * @description Move an activity to a specific position, optionally into a different chapter (atomic).
-         */
-        patch: operations["api_move_activity_to_order_api_v1_chapters__chapter_uuid__activities__activity_uuid__order_patch"];
-        trace?: never;
-    };
-    "/api/v1/chapters/{chapter_uuid}/order": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Api Move Chapter To Order
-         * @description Move a chapter to a specific position within its course (atomic).
-         */
-        patch: operations["api_move_chapter_to_order_api_v1_chapters__chapter_uuid__order_patch"];
-        trace?: never;
-    };
-    "/api/v1/code-challenges/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Check Judge0 Health
-         * @description Check if Judge0 service is available
-         */
-        get: operations["check_judge0_health_api_v1_code_challenges_health_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/code-challenges/languages": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Available Languages
-         * @description Get list of available programming languages from Judge0
-         */
-        get: operations["get_available_languages_api_v1_code_challenges_languages_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/code-challenges/submissions/{submission_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Submission Detail
-         * @description Get detailed submission including source code
-         */
-        get: operations["get_submission_detail_api_v1_code_challenges_submissions__submission_uuid__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/code-challenges/{activity_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Code Challenge
-         * @description Get code challenge activity details
-         */
-        get: operations["get_code_challenge_api_v1_code_challenges__activity_uuid__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/code-challenges/{activity_uuid}/analytics": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Challenge Analytics
-         * @description Get analytics for a code challenge (instructor only)
-         */
-        get: operations["get_challenge_analytics_api_v1_code_challenges__activity_uuid__analytics_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/code-challenges/{activity_uuid}/analytics/{user_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Student Analytics
-         * @description Get analytics for a student on a code challenge
-         */
-        get: operations["get_student_analytics_api_v1_code_challenges__activity_uuid__analytics__user_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/code-challenges/{activity_uuid}/custom-test": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Run Custom Test
-         * @description Run code with custom input (no expected output comparison)
-         */
-        post: operations["run_custom_test_api_v1_code_challenges__activity_uuid__custom_test_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/code-challenges/{activity_uuid}/leaderboard": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Leaderboard
-         * @description Get leaderboard for a code challenge
-         */
-        get: operations["get_leaderboard_api_v1_code_challenges__activity_uuid__leaderboard_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/code-challenges/{activity_uuid}/settings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Challenge Settings Endpoint
-         * @description Get code challenge settings (visible tests only for students)
-         */
-        get: operations["get_challenge_settings_endpoint_api_v1_code_challenges__activity_uuid__settings_get"];
-        /**
-         * Update Challenge Settings
-         * @description Update code challenge settings (instructor only)
-         */
-        put: operations["update_challenge_settings_api_v1_code_challenges__activity_uuid__settings_put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/code-challenges/{activity_uuid}/submissions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Submission History
-         * @description Get user's submission history for a challenge
-         */
-        get: operations["get_submission_history_api_v1_code_challenges__activity_uuid__submissions_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/code-challenges/{activity_uuid}/submit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Submit Code Challenge
-         * @description Submit a solution to the code challenge
-         */
-        post: operations["submit_code_challenge_api_v1_code_challenges__activity_uuid__submit_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/code-challenges/{activity_uuid}/test": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Run Visible Tests
-         * @description Run visible test cases only (pre-submission testing)
-         */
-        post: operations["run_visible_tests_api_v1_code_challenges__activity_uuid__test_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/collections": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Api Create Collection
-         * @description Create new Collection
-         */
-        post: operations["api_create_collection_api_v1_collections_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/collections/page/{page}/limit/{limit}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Platform Collections
-         * @description Get collections by page and limit with permission metadata
-         */
-        get: operations["api_get_platform_collections_api_v1_collections_page__page__limit__limit__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/collections/{collection_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Collection
-         * @description Get single collection by ID with permission metadata
-         */
-        get: operations["api_get_collection_api_v1_collections__collection_uuid__get"];
-        /**
-         * Api Update Collection
-         * @description Update collection by ID
-         */
-        put: operations["api_update_collection_api_v1_collections__collection_uuid__put"];
-        post?: never;
-        /**
-         * Api Delete Collection
-         * @description Delete collection by ID
-         */
-        delete: operations["api_delete_collection_api_v1_collections__collection_uuid__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/courses": {
         parameters: {
             query?: never;
@@ -1857,50 +1475,19 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/courses/editable/page/{page}/limit/{limit}": {
+    "/api/v1/courses/{course_uuid}/thumbnail": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Api Get Platform Editable Courses */
-        get: operations["api_get_platform_editable_courses_api_v1_courses_editable_page__page__limit__limit__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/courses/page/{page}/limit/{limit}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Api Get Platform Courses */
-        get: operations["api_get_platform_courses_api_v1_courses_page__page__limit__limit__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/courses/search": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Api Search Platform Courses */
-        get: operations["api_search_platform_courses_api_v1_courses_search_get"];
-        put?: never;
+        get?: never;
+        /**
+         * Api Create Course Thumbnail
+         * @description Update Course Thumbnail (Image or Video)
+         */
+        put: operations["api_create_course_thumbnail_api_v1_courses__course_uuid__thumbnail_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -1929,6 +1516,98 @@ export interface paths {
          *     **Required Permission**: `course:delete:own` or `course:delete:platform`
          */
         delete: operations["api_delete_course_api_v1_courses__course_uuid__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/courses/{course_uuid}/meta": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get Course Meta
+         * @description Get single Course Metadata (chapters, activities) by course_uuid.
+         *
+         *     Returns ``X-Structure-Version`` header (latest chapter update_date ISO string).
+         *     Clients should send this back as ``If-Match`` on reorder requests to detect
+         *     concurrent edits.
+         */
+        get: operations["api_get_course_meta_api_v1_courses__course_uuid__meta_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/courses/page/{page}/limit/{limit}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Api Get Platform Courses */
+        get: operations["api_get_platform_courses_api_v1_courses_page__page__limit__limit__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/courses/editable/page/{page}/limit/{limit}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Api Get Platform Editable Courses */
+        get: operations["api_get_platform_editable_courses_api_v1_courses_editable_page__page__limit__limit__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/courses/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Api Search Platform Courses */
+        get: operations["api_search_platform_courses_api_v1_courses_search_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/courses/{course_uuid}/metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Api Update Course Metadata */
+        put: operations["api_update_course_metadata_api_v1_courses__course_uuid__metadata_put"];
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1971,29 +1650,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/courses/{course_uuid}/bulk-add-contributors": {
+    "/api/v1/courses/{course_uuid}/updates": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Api Get Course Updates
+         * @description Get Course Updates by course_uuid
+         */
+        get: operations["api_get_course_updates_api_v1_courses__course_uuid__updates_get"];
         put?: never;
         /**
-         * Api Add Bulk Course Contributors
-         * @description Add multiple contributors to a course by their usernames
-         *
-         *     **Required Permission**: `course:manage:own` or `course:manage:platform`
+         * Api Create Course Update
+         * @description Create new Course Update
          */
-        post: operations["api_add_bulk_course_contributors_api_v1_courses__course_uuid__bulk_add_contributors_post"];
+        post: operations["api_create_course_update_api_v1_courses__course_uuid__updates_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/courses/{course_uuid}/bulk-remove-contributors": {
+    "/api/v1/courses/{course_uuid}/update/{courseupdate_uuid}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2001,13 +1682,17 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put?: never;
+        /**
+         * Api Update Course Update
+         * @description Update Course Update by courseupdate_uuid
+         */
+        put: operations["api_update_course_update_api_v1_courses__course_uuid__update__courseupdate_uuid__put"];
         post?: never;
         /**
-         * Api Remove Bulk Course Contributors
-         * @description Remove multiple contributors from a course by their usernames
+         * Api Delete Course Update
+         * @description Delete Course Update by courseupdate_uuid
          */
-        delete: operations["api_remove_bulk_course_contributors_api_v1_courses__course_uuid__bulk_remove_contributors_delete"];
+        delete: operations["api_delete_course_update_api_v1_courses__course_uuid__update__courseupdate_uuid__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2055,147 +1740,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/courses/{course_uuid}/discussions": {
+    "/api/v1/courses/{course_uuid}/bulk-add-contributors": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /**
-         * Api Get Course Discussions
-         * @description Get Course Discussions by course_uuid
-         */
-        get: operations["api_get_course_discussions_api_v1_courses__course_uuid__discussions_get"];
+        get?: never;
         put?: never;
         /**
-         * Api Create Course Discussion
-         * @description Create new Course Discussion
-         */
-        post: operations["api_create_course_discussion_api_v1_courses__course_uuid__discussions_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/courses/{course_uuid}/discussions/{discussion_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Api Update Course Discussion
-         * @description Update Course Discussion by discussion_uuid
-         */
-        put: operations["api_update_course_discussion_api_v1_courses__course_uuid__discussions__discussion_uuid__put"];
-        post?: never;
-        /**
-         * Api Delete Course Discussion
-         * @description Delete Course Discussion by discussion_uuid
-         */
-        delete: operations["api_delete_course_discussion_api_v1_courses__course_uuid__discussions__discussion_uuid__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/courses/{course_uuid}/discussions/{discussion_uuid}/dislike": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Api Toggle Course Discussion Dislike
-         * @description Toggle dislike status for a Course Discussion (dislike if not disliked, undislike if disliked)
-         */
-        put: operations["api_toggle_course_discussion_dislike_api_v1_courses__course_uuid__discussions__discussion_uuid__dislike_put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/courses/{course_uuid}/discussions/{discussion_uuid}/like": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Api Toggle Course Discussion Like
-         * @description Toggle like status for a Course Discussion (like if not liked, unlike if liked)
-         */
-        put: operations["api_toggle_course_discussion_like_api_v1_courses__course_uuid__discussions__discussion_uuid__like_put"];
-        /**
-         * Api Like Course Discussion
-         * @description Like a Course Discussion
-         */
-        post: operations["api_like_course_discussion_api_v1_courses__course_uuid__discussions__discussion_uuid__like_post"];
-        /**
-         * Api Unlike Course Discussion
-         * @description Unlike a Course Discussion
-         */
-        delete: operations["api_unlike_course_discussion_api_v1_courses__course_uuid__discussions__discussion_uuid__like_delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/courses/{course_uuid}/discussions/{discussion_uuid}/replies": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Discussion Replies
-         * @description Get replies for a specific discussion
-         */
-        get: operations["api_get_discussion_replies_api_v1_courses__course_uuid__discussions__discussion_uuid__replies_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/courses/{course_uuid}/meta": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Course Meta
-         * @description Get single Course Metadata (chapters, activities) by course_uuid.
+         * Api Add Bulk Course Contributors
+         * @description Add multiple contributors to a course by their usernames
          *
-         *     Returns ``X-Structure-Version`` header (latest chapter update_date ISO string).
-         *     Clients should send this back as ``If-Match`` on reorder requests to detect
-         *     concurrent edits.
+         *     **Required Permission**: `course:manage:own` or `course:manage:platform`
          */
-        get: operations["api_get_course_meta_api_v1_courses__course_uuid__meta_get"];
-        put?: never;
-        post?: never;
+        post: operations["api_add_bulk_course_contributors_api_v1_courses__course_uuid__bulk_add_contributors_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/courses/{course_uuid}/metadata": {
+    "/api/v1/courses/{course_uuid}/bulk-remove-contributors": {
         parameters: {
             query?: never;
             header?: never;
@@ -2203,10 +1770,13 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** Api Update Course Metadata */
-        put: operations["api_update_course_metadata_api_v1_courses__course_uuid__metadata_put"];
+        put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Api Remove Bulk Course Contributors
+         * @description Remove multiple contributors from a course by their usernames
+         */
+        delete: operations["api_remove_bulk_course_contributors_api_v1_courses__course_uuid__bulk_remove_contributors_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2306,7 +1876,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/courses/{course_uuid}/thumbnail": {
+    "/api/v1/courses/{course_uuid}/discussions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get Course Discussions
+         * @description Get Course Discussions by course_uuid
+         */
+        get: operations["api_get_course_discussions_api_v1_courses__course_uuid__discussions_get"];
+        put?: never;
+        /**
+         * Api Create Course Discussion
+         * @description Create new Course Discussion
+         */
+        post: operations["api_create_course_discussion_api_v1_courses__course_uuid__discussions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/courses/{course_uuid}/discussions/{discussion_uuid}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2315,18 +1909,22 @@ export interface paths {
         };
         get?: never;
         /**
-         * Api Create Course Thumbnail
-         * @description Update Course Thumbnail (Image or Video)
+         * Api Update Course Discussion
+         * @description Update Course Discussion by discussion_uuid
          */
-        put: operations["api_create_course_thumbnail_api_v1_courses__course_uuid__thumbnail_put"];
+        put: operations["api_update_course_discussion_api_v1_courses__course_uuid__discussions__discussion_uuid__put"];
         post?: never;
-        delete?: never;
+        /**
+         * Api Delete Course Discussion
+         * @description Delete Course Discussion by discussion_uuid
+         */
+        delete: operations["api_delete_course_discussion_api_v1_courses__course_uuid__discussions__discussion_uuid__delete"];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/courses/{course_uuid}/update/{courseupdate_uuid}": {
+    "/api/v1/courses/{course_uuid}/discussions/{discussion_uuid}/like": {
         parameters: {
             query?: never;
             header?: never;
@@ -2335,55 +1933,38 @@ export interface paths {
         };
         get?: never;
         /**
-         * Api Update Course Update
-         * @description Update Course Update by courseupdate_uuid
+         * Api Toggle Course Discussion Like
+         * @description Toggle like status for a Course Discussion (like if not liked, unlike if liked)
          */
-        put: operations["api_update_course_update_api_v1_courses__course_uuid__update__courseupdate_uuid__put"];
-        post?: never;
+        put: operations["api_toggle_course_discussion_like_api_v1_courses__course_uuid__discussions__discussion_uuid__like_put"];
         /**
-         * Api Delete Course Update
-         * @description Delete Course Update by courseupdate_uuid
+         * Api Like Course Discussion
+         * @description Like a Course Discussion
          */
-        delete: operations["api_delete_course_update_api_v1_courses__course_uuid__update__courseupdate_uuid__delete"];
+        post: operations["api_like_course_discussion_api_v1_courses__course_uuid__discussions__discussion_uuid__like_post"];
+        /**
+         * Api Unlike Course Discussion
+         * @description Unlike a Course Discussion
+         */
+        delete: operations["api_unlike_course_discussion_api_v1_courses__course_uuid__discussions__discussion_uuid__like_delete"];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/courses/{course_uuid}/updates": {
+    "/api/v1/courses/{course_uuid}/discussions/{discussion_uuid}/dislike": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        get?: never;
         /**
-         * Api Get Course Updates
-         * @description Get Course Updates by course_uuid
+         * Api Toggle Course Discussion Dislike
+         * @description Toggle dislike status for a Course Discussion (dislike if not disliked, undislike if disliked)
          */
-        get: operations["api_get_course_updates_api_v1_courses__course_uuid__updates_get"];
-        put?: never;
-        /**
-         * Api Create Course Update
-         * @description Create new Course Update
-         */
-        post: operations["api_create_course_update_api_v1_courses__course_uuid__updates_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/dev/config": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Config */
-        get: operations["config_api_v1_dev_config_get"];
-        put?: never;
+        put: operations["api_toggle_course_discussion_dislike_api_v1_courses__course_uuid__discussions__discussion_uuid__dislike_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -2391,7 +1972,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/exams": {
+    "/api/v1/courses/{course_uuid}/discussions/{discussion_uuid}/replies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get Discussion Replies
+         * @description Get replies for a specific discussion
+         */
+        get: operations["api_get_discussion_replies_api_v1_courses__course_uuid__discussions__discussion_uuid__replies_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chapters": {
         parameters: {
             query?: never;
             header?: never;
@@ -2400,24 +2001,191 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Api Create Exam */
-        post: operations["api_create_exam_api_v1_exams_post"];
+        /** Api Create Coursechapter */
+        post: operations["api_create_coursechapter_api_v1_chapters_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/exams/activity/{activity_uuid}": {
+    "/api/v1/chapters/{chapter_uuid}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Api Get Exam From Activity */
-        get: operations["api_get_exam_from_activity_api_v1_exams_activity__activity_uuid__get"];
+        /** Api Get Coursechapter */
+        get: operations["api_get_coursechapter_api_v1_chapters__chapter_uuid__get"];
         put?: never;
+        post?: never;
+        /** Api Delete Coursechapter */
+        delete: operations["api_delete_coursechapter_api_v1_chapters__chapter_uuid__delete"];
+        options?: never;
+        head?: never;
+        /** Api Update Coursechapter */
+        patch: operations["api_update_coursechapter_api_v1_chapters__chapter_uuid__patch"];
+        trace?: never;
+    };
+    "/api/v1/chapters/{chapter_uuid}/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Api Move Chapter To Order
+         * @description Move a chapter to a specific position within its course (atomic).
+         */
+        patch: operations["api_move_chapter_to_order_api_v1_chapters__chapter_uuid__order_patch"];
+        trace?: never;
+    };
+    "/api/v1/chapters/{chapter_uuid}/activities/{activity_uuid}/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Api Move Activity To Order
+         * @description Move an activity to a specific position, optionally into a different chapter (atomic).
+         */
+        patch: operations["api_move_activity_to_order_api_v1_chapters__chapter_uuid__activities__activity_uuid__order_patch"];
+        trace?: never;
+    };
+    "/api/v1/chapters/course/{course_uuid}/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Api Reorder Chapters And Activities
+         * @description Bulk reorder all chapters and activities (legacy — prefer atomic endpoints).
+         */
+        patch: operations["api_reorder_chapters_and_activities_api_v1_chapters_course__course_uuid__order_patch"];
+        trace?: never;
+    };
+    "/api/v1/activities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Api Create Activity */
+        post: operations["api_create_activity_api_v1_activities_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/activities/{activity_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Api Get Activity */
+        get: operations["api_get_activity_api_v1_activities__activity_uuid__get"];
+        put?: never;
+        post?: never;
+        /** Api Delete Activity */
+        delete: operations["api_delete_activity_api_v1_activities__activity_uuid__delete"];
+        options?: never;
+        head?: never;
+        /** Api Update Activity */
+        patch: operations["api_update_activity_api_v1_activities__activity_uuid__patch"];
+        trace?: never;
+    };
+    "/api/v1/activities/video": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Api Create Video Activity */
+        post: operations["api_create_video_activity_api_v1_activities_video_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/activities/external_video": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Api Create External Video Activity */
+        post: operations["api_create_external_video_activity_api_v1_activities_external_video_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/activities/documentpdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Api Create Documentpdf Activity */
+        post: operations["api_create_documentpdf_activity_api_v1_activities_documentpdf_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assignments/{assignment_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Api Read Assignment */
+        get: operations["api_read_assignment_api_v1_assignments__assignment_uuid__get"];
+        /** Api Update Assignment */
+        put: operations["api_update_assignment_api_v1_assignments__assignment_uuid__put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -2425,7 +2193,102 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/exams/attempts/{attempt_uuid}": {
+    "/api/v1/assignments/activity/{activity_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Api Read Assignment From Activity */
+        get: operations["api_read_assignment_from_activity_api_v1_assignments_activity__activity_uuid__get"];
+        put?: never;
+        post?: never;
+        /** Api Delete Assignment From Activity */
+        delete: operations["api_delete_assignment_from_activity_api_v1_assignments_activity__activity_uuid__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assignments/{assignment_uuid}/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Api Read Assignment Tasks */
+        get: operations["api_read_assignment_tasks_api_v1_assignments__assignment_uuid__tasks_get"];
+        put?: never;
+        /** Api Create Assignment Tasks */
+        post: operations["api_create_assignment_tasks_api_v1_assignments__assignment_uuid__tasks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assignments/{assignment_uuid}/tasks/{assignment_task_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Api Read Assignment Task */
+        get: operations["api_read_assignment_task_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__get"];
+        /** Api Update Assignment Tasks */
+        put: operations["api_update_assignment_tasks_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__put"];
+        post?: never;
+        /** Api Delete Assignment Tasks */
+        delete: operations["api_delete_assignment_tasks_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assignments/{assignment_uuid}/tasks/{assignment_task_uuid}/ref_file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Api Put Assignment Task Ref File
+         * @description Upload a reference file for an assignment task.
+         */
+        post: operations["api_put_assignment_task_ref_file_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__ref_file_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assignments/{assignment_uuid}/tasks/{assignment_task_uuid}/sub_file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Api Put Assignment Task Sub File
+         * @description Upload a submission file for an assignment task.
+         */
+        post: operations["api_put_assignment_task_sub_file_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__sub_file_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assignments/{assignment_uuid}/submissions/me/draft": {
         parameters: {
             query?: never;
             header?: never;
@@ -2433,13 +2296,51 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Api Get Attempt By Uuid
-         * @description Get a specific exam attempt by UUID.
-         *
-         *     - Students can only access their own attempts
-         *     - Teachers/admins can access any attempt for exams they manage
+         * Api Get Assignment Draft Submission
+         * @description Get the current user's Submission-backed assignment draft, if any.
          */
-        get: operations["api_get_attempt_by_uuid_api_v1_exams_attempts__attempt_uuid__get"];
+        get: operations["api_get_assignment_draft_submission_api_v1_assignments__assignment_uuid__submissions_me_draft_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Api Save Assignment Draft Submission
+         * @description Create or update the current user's assignment draft in Submission.
+         */
+        patch: operations["api_save_assignment_draft_submission_api_v1_assignments__assignment_uuid__submissions_me_draft_patch"];
+        trace?: never;
+    };
+    "/api/v1/assignments/{assignment_uuid}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Api Submit Assignment Draft Submission
+         * @description Submit the current user's assignment draft through the unified Submission model.
+         */
+        post: operations["api_submit_assignment_draft_submission_api_v1_assignments__assignment_uuid__submit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assignments/course/{course_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Api Get Assignments */
+        get: operations["api_get_assignments_api_v1_assignments_course__course_uuid__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2448,17 +2349,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/exams/attempts/{attempt_uuid}/questions": {
+    "/api/v1/assignments/courses": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Api Get Attempt Review Questions */
-        get: operations["api_get_attempt_review_questions_api_v1_exams_attempts__attempt_uuid__questions_get"];
+        /** Api Get Assignments For Courses */
+        get: operations["api_get_assignments_for_courses_api_v1_assignments_courses_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assignments/courses/editable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Api Get Editable Assignments For Courses */
+        get: operations["api_get_editable_assignments_for_courses_api_v1_assignments_courses_editable_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assignments/with-activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Api Create Assignment With Activity
+         * @description Create assignment with activity in a single transaction.
+         */
+        post: operations["api_create_assignment_with_activity_api_v1_assignments_with_activity_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2482,7 +2420,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/exams/questions/{question_uuid}": {
+    "/api/v1/exams": {
         parameters: {
             query?: never;
             header?: never;
@@ -2490,11 +2428,10 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** Api Update Question */
-        put: operations["api_update_question_api_v1_exams_questions__question_uuid__put"];
-        post?: never;
-        /** Api Delete Question */
-        delete: operations["api_delete_question_api_v1_exams_questions__question_uuid__delete"];
+        put?: never;
+        /** Api Create Exam */
+        post: operations["api_create_exam_api_v1_exams_post"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -2536,18 +2473,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/exams/{exam_uuid}/attempts/all": {
+    "/api/v1/exams/activity/{activity_uuid}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /**
-         * Api Get All Attempts
-         * @description Get all exam attempts for teacher results dashboard
-         */
-        get: operations["api_get_all_attempts_api_v1_exams__exam_uuid__attempts_all_get"];
+        /** Api Get Exam From Activity */
+        get: operations["api_get_exam_from_activity_api_v1_exams_activity__activity_uuid__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2556,18 +2490,37 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/exams/{exam_uuid}/attempts/me": {
+    "/api/v1/exams/{exam_uuid}/questions": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Api Get My Attempts */
-        get: operations["api_get_my_attempts_api_v1_exams__exam_uuid__attempts_me_get"];
+        /** Api Get Questions */
+        get: operations["api_get_questions_api_v1_exams__exam_uuid__questions_get"];
         put?: never;
-        post?: never;
+        /** Api Create Question */
+        post: operations["api_create_question_api_v1_exams__exam_uuid__questions_post"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/exams/questions/{question_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Api Update Question */
+        put: operations["api_update_question_api_v1_exams_questions__question_uuid__put"];
+        post?: never;
+        /** Api Delete Question */
+        delete: operations["api_delete_question_api_v1_exams_questions__question_uuid__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2624,18 +2577,77 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/exams/{exam_uuid}/questions": {
+    "/api/v1/exams/{exam_uuid}/attempts/me": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Api Get Questions */
-        get: operations["api_get_questions_api_v1_exams__exam_uuid__questions_get"];
+        /** Api Get My Attempts */
+        get: operations["api_get_my_attempts_api_v1_exams__exam_uuid__attempts_me_get"];
         put?: never;
-        /** Api Create Question */
-        post: operations["api_create_question_api_v1_exams__exam_uuid__questions_post"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/exams/attempts/{attempt_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get Attempt By Uuid
+         * @description Get a specific exam attempt by UUID.
+         *
+         *     - Students can only access their own attempts
+         *     - Teachers/admins can access any attempt for exams they manage
+         */
+        get: operations["api_get_attempt_by_uuid_api_v1_exams_attempts__attempt_uuid__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/exams/attempts/{attempt_uuid}/questions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Api Get Attempt Review Questions */
+        get: operations["api_get_attempt_review_questions_api_v1_exams_attempts__attempt_uuid__questions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/exams/{exam_uuid}/attempts/all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get All Attempts
+         * @description Get all exam attempts for teacher results dashboard
+         */
+        get: operations["api_get_all_attempts_api_v1_exams__exam_uuid__attempts_all_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2702,6 +2714,566 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/code-challenges/languages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Available Languages
+         * @description Get list of available programming languages from Judge0
+         */
+        get: operations["get_available_languages_api_v1_code_challenges_languages_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/code-challenges/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Check Judge0 Health
+         * @description Check if Judge0 service is available
+         */
+        get: operations["check_judge0_health_api_v1_code_challenges_health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/code-challenges/{activity_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Code Challenge
+         * @description Get code challenge activity details
+         */
+        get: operations["get_code_challenge_api_v1_code_challenges__activity_uuid__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/code-challenges/{activity_uuid}/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Challenge Settings Endpoint
+         * @description Get code challenge settings (visible tests only for students)
+         */
+        get: operations["get_challenge_settings_endpoint_api_v1_code_challenges__activity_uuid__settings_get"];
+        /**
+         * Update Challenge Settings
+         * @description Update code challenge settings (instructor only)
+         */
+        put: operations["update_challenge_settings_api_v1_code_challenges__activity_uuid__settings_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/code-challenges/{activity_uuid}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit Code Challenge
+         * @description Submit a solution to the code challenge
+         */
+        post: operations["submit_code_challenge_api_v1_code_challenges__activity_uuid__submit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/code-challenges/{activity_uuid}/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Visible Tests
+         * @description Run visible test cases only (pre-submission testing)
+         */
+        post: operations["run_visible_tests_api_v1_code_challenges__activity_uuid__test_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/code-challenges/{activity_uuid}/custom-test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Custom Test
+         * @description Run code with custom input (no expected output comparison)
+         */
+        post: operations["run_custom_test_api_v1_code_challenges__activity_uuid__custom_test_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/code-challenges/{activity_uuid}/submissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Submission History
+         * @description Get user's submission history for a challenge
+         */
+        get: operations["get_submission_history_api_v1_code_challenges__activity_uuid__submissions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/code-challenges/submissions/{submission_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Submission Detail
+         * @description Get detailed submission including source code
+         */
+        get: operations["get_submission_detail_api_v1_code_challenges_submissions__submission_uuid__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/code-challenges/{activity_uuid}/analytics/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Student Analytics
+         * @description Get analytics for a student on a code challenge
+         */
+        get: operations["get_student_analytics_api_v1_code_challenges__activity_uuid__analytics__user_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/code-challenges/{activity_uuid}/analytics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Challenge Analytics
+         * @description Get analytics for a code challenge (instructor only)
+         */
+        get: operations["get_challenge_analytics_api_v1_code_challenges__activity_uuid__analytics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/code-challenges/{activity_uuid}/leaderboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Leaderboard
+         * @description Get leaderboard for a code challenge
+         */
+        get: operations["get_leaderboard_api_v1_code_challenges__activity_uuid__leaderboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/certifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Api Create Certification
+         * @description Create new certification for a course
+         */
+        post: operations["api_create_certification_api_v1_certifications_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/certifications/{certification_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get Certification
+         * @description Get single certification by certification_id
+         */
+        get: operations["api_get_certification_api_v1_certifications__certification_uuid__get"];
+        /**
+         * Api Update Certification
+         * @description Update certification by certification_id
+         */
+        put: operations["api_update_certification_api_v1_certifications__certification_uuid__put"];
+        post?: never;
+        /**
+         * Api Delete Certification
+         * @description Delete certification by certification_id
+         */
+        delete: operations["api_delete_certification_api_v1_certifications__certification_uuid__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/certifications/course/{course_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get Certifications By Course
+         * @description Get all certifications for a specific course
+         */
+        get: operations["api_get_certifications_by_course_api_v1_certifications_course__course_uuid__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/certifications/user/course/{course_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get User Certificates For Course
+         * @description Get all certificates for the current user in a specific course with certification details
+         */
+        get: operations["api_get_user_certificates_for_course_api_v1_certifications_user_course__course_uuid__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/certifications/certificate/{user_certification_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get Certificate By User Certification Uuid
+         * @description Get a certificate by user_certification_uuid with certification and course details
+         */
+        get: operations["api_get_certificate_by_user_certification_uuid_api_v1_certifications_certificate__user_certification_uuid__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/certifications/user/all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get All User Certificates
+         * @description Get all certificates obtained by the current user with complete linked information
+         */
+        get: operations["api_get_all_user_certificates_api_v1_certifications_user_all_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/collections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Api Create Collection
+         * @description Create new Collection
+         */
+        post: operations["api_create_collection_api_v1_collections_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/collections/{collection_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get Collection
+         * @description Get single collection by ID with permission metadata
+         */
+        get: operations["api_get_collection_api_v1_collections__collection_uuid__get"];
+        /**
+         * Api Update Collection
+         * @description Update collection by ID
+         */
+        put: operations["api_update_collection_api_v1_collections__collection_uuid__put"];
+        post?: never;
+        /**
+         * Api Delete Collection
+         * @description Delete collection by ID
+         */
+        delete: operations["api_delete_collection_api_v1_collections__collection_uuid__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/collections/page/{page}/limit/{limit}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get Platform Collections
+         * @description Get collections by page and limit with permission metadata
+         */
+        get: operations["api_get_platform_collections_api_v1_collections_page__page__limit__limit__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/trail/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Api Start Trail
+         * @description Start trail
+         */
+        post: operations["api_start_trail_api_v1_trail_start_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/trail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Get User Trail
+         * @description Get a user trails
+         */
+        get: operations["api_get_user_trail_api_v1_trail_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/trail/add_course/{course_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Api Add Course To Trail
+         * @description Add Course to trail
+         */
+        post: operations["api_add_course_to_trail_api_v1_trail_add_course__course_uuid__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/trail/remove_course/{course_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Api Remove Course To Trail
+         * @description Remove Course from trail
+         */
+        delete: operations["api_remove_course_to_trail_api_v1_trail_remove_course__course_uuid__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/trail/add_activity/{activity_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Api Add Activity To Trail
+         * @description Add Course to trail
+         */
+        post: operations["api_add_activity_to_trail_api_v1_trail_add_activity__activity_uuid__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/trail/remove_activity/{activity_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Api Remove Activity From Trail
+         * @description Remove Activity from trail
+         */
+        delete: operations["api_remove_activity_from_trail_api_v1_trail_remove_activity__activity_uuid__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/gamification/": {
         parameters: {
             query?: never;
@@ -2722,24 +3294,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/gamification/leaderboard": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Leaderboard */
-        get: operations["get_leaderboard_api_v1_gamification_leaderboard_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/gamification/preferences": {
+    "/api/v1/gamification/xp": {
         parameters: {
             query?: never;
             header?: never;
@@ -2748,28 +3303,11 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update Preferences */
-        patch: operations["update_preferences_api_v1_gamification_preferences_patch"];
-        trace?: never;
-    };
-    "/api/v1/gamification/rank": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
         /**
-         * Get User Rank
-         * @description Return the current user's rank within the platform.
+         * Award Xp
+         * @description Award XP with strong typing and idempotency.
          */
-        get: operations["get_user_rank_api_v1_gamification_rank_get"];
-        put?: never;
-        post?: never;
+        post: operations["award_xp_api_v1_gamification_xp_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2793,7 +3331,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/gamification/xp": {
+    "/api/v1/gamification/preferences": {
         parameters: {
             query?: never;
             header?: never;
@@ -2802,11 +3340,319 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Preferences */
+        patch: operations["update_preferences_api_v1_gamification_preferences_patch"];
+        trace?: never;
+    };
+    "/api/v1/gamification/leaderboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Leaderboard */
+        get: operations["get_leaderboard_api_v1_gamification_leaderboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/gamification/rank": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         /**
-         * Award Xp
-         * @description Award XP with strong typing and idempotency.
+         * Get User Rank
+         * @description Return the current user's rank within the platform.
          */
-        post: operations["award_xp_api_v1_gamification_xp_post"];
+        get: operations["get_user_rank_api_v1_gamification_rank_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/teacher/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Teacher Overview Platform */
+        get: operations["teacher_overview_platform_api_v1_analytics_teacher_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/admin/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin Analytics Overview Platform */
+        get: operations["admin_analytics_overview_platform_api_v1_analytics_admin_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/teacher/courses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Teacher Courses Platform */
+        get: operations["teacher_courses_platform_api_v1_analytics_teacher_courses_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/teacher/courses/by-uuid/{course_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Teacher Course Detail By Uuid Platform */
+        get: operations["teacher_course_detail_by_uuid_platform_api_v1_analytics_teacher_courses_by_uuid__course_uuid__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/teacher/courses/{course_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Teacher Course Detail Platform */
+        get: operations["teacher_course_detail_platform_api_v1_analytics_teacher_courses__course_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/teacher/assessments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Teacher Assessments Platform */
+        get: operations["teacher_assessments_platform_api_v1_analytics_teacher_assessments_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/teacher/assessments/{assessment_type}/{assessment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Teacher Assessment Detail Platform */
+        get: operations["teacher_assessment_detail_platform_api_v1_analytics_teacher_assessments__assessment_type___assessment_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/teacher/learners/at-risk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Teacher At Risk Learners Platform */
+        get: operations["teacher_at_risk_learners_platform_api_v1_analytics_teacher_learners_at_risk_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/teacher/interventions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Teacher Interventions Platform */
+        get: operations["teacher_interventions_platform_api_v1_analytics_teacher_interventions_get"];
+        put?: never;
+        /** Create Teacher Intervention Platform */
+        post: operations["create_teacher_intervention_platform_api_v1_analytics_teacher_interventions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/teacher/saved-views": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Teacher Saved Views Platform */
+        get: operations["teacher_saved_views_platform_api_v1_analytics_teacher_saved_views_get"];
+        put?: never;
+        /** Save Teacher Saved View Platform */
+        post: operations["save_teacher_saved_view_platform_api_v1_analytics_teacher_saved_views_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/teacher/saved-views/{view_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Teacher Saved View Platform */
+        delete: operations["delete_teacher_saved_view_platform_api_v1_analytics_teacher_saved_views__view_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/teacher/drill-through/{metric}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Teacher Drillthrough Platform */
+        get: operations["teacher_drillthrough_platform_api_v1_analytics_teacher_drill_through__metric__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/teacher/exports/at-risk.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Teacher At Risk Export Platform */
+        get: operations["teacher_at_risk_export_platform_api_v1_analytics_teacher_exports_at_risk_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/teacher/exports/grading-backlog.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Teacher Grading Backlog Export Platform */
+        get: operations["teacher_grading_backlog_export_platform_api_v1_analytics_teacher_exports_grading_backlog_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/teacher/exports/course-progress.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Teacher Course Progress Export Platform */
+        get: operations["teacher_course_progress_export_platform_api_v1_analytics_teacher_exports_course_progress_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/teacher/exports/assessment-outcomes.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Teacher Assessment Outcomes Export Platform */
+        get: operations["teacher_assessment_outcomes_export_platform_api_v1_analytics_teacher_exports_assessment_outcomes_csv_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2836,36 +3682,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/grading/submissions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api List Submissions
-         * @description Paginated, filterable, searchable submissions list for a teacher.
-         *
-         *     Query params:
-         *     - activity_id: required
-         *     - status: DRAFT | PENDING | GRADED | PUBLISHED | RETURNED | NEEDS_GRADING (virtual)
-         *     - late_only: filter PENDING submissions to only those submitted after the deadline
-         *     - search: student name or email filter
-         *     - sort_by: submitted_at | final_score | created_at | attempt_number
-         *     - sort_dir: asc | desc
-         *     - page, page_size: pagination
-         */
-        get: operations["api_list_submissions_api_v1_grading_submissions_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/grading/submissions/batch": {
+    "/api/v1/grading/submit/{activity_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2874,34 +3691,14 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
         /**
-         * Api Batch Grade Submissions
-         * @description Save teacher grades for multiple submissions in a single request.
-         */
-        patch: operations["api_batch_grade_submissions_api_v1_grading_submissions_batch_patch"];
-        trace?: never;
-    };
-    "/api/v1/grading/submissions/export": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Export Submissions Csv
-         * @description Export all non-draft submissions for an activity as CSV.
+         * Api Submit Assessment
+         * @description Submit an assessment attempt and receive auto-grading results.
          *
-         *     Streams the full dataset — no row cap.
-         *     Content-Disposition header triggers a browser download.
+         *     Settings (questions, time limits, due date) are loaded server-side
+         *     from the Block content — not supplied by the client.
          */
-        get: operations["api_export_submissions_csv_api_v1_grading_submissions_export_get"];
-        put?: never;
-        post?: never;
+        post: operations["api_submit_assessment_api_v1_grading_submit__activity_id__post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2950,6 +3747,35 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/grading/submissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api List Submissions
+         * @description Paginated, filterable, searchable submissions list for a teacher.
+         *
+         *     Query params:
+         *     - activity_id: required
+         *     - status: DRAFT | PENDING | GRADED | PUBLISHED | RETURNED | NEEDS_GRADING (virtual)
+         *     - late_only: filter PENDING submissions to only those submitted after the deadline
+         *     - search: student name or email filter
+         *     - sort_by: submitted_at | final_score | created_at | attempt_number
+         *     - sort_dir: asc | desc
+         *     - page, page_size: pagination
+         */
+        get: operations["api_list_submissions_api_v1_grading_submissions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/grading/submissions/stats": {
         parameters: {
             query?: never;
@@ -2968,6 +3794,49 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/grading/submissions/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Api Export Submissions Csv
+         * @description Export all non-draft submissions for an activity as CSV.
+         *
+         *     Streams the full dataset — no row cap.
+         *     Content-Disposition header triggers a browser download.
+         */
+        get: operations["api_export_submissions_csv_api_v1_grading_submissions_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/grading/submissions/batch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Api Batch Grade Submissions
+         * @description Save teacher grades for multiple submissions in a single request.
+         */
+        patch: operations["api_batch_grade_submissions_api_v1_grading_submissions_batch_patch"];
         trace?: never;
     };
     "/api/v1/grading/submissions/{submission_uuid}": {
@@ -2996,7 +3865,7 @@ export interface paths {
         patch: operations["api_save_grade_api_v1_grading_submissions__submission_uuid__patch"];
         trace?: never;
     };
-    "/api/v1/grading/submit/{activity_id}": {
+    "/api/v1/ai/start/activity_chat_session": {
         parameters: {
             query?: never;
             header?: never;
@@ -3006,93 +3875,26 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Api Submit Assessment
-         * @description Submit an assessment attempt and receive auto-grading results.
+         * Api Ai Start Activity Chat Session
+         * @description Start a new AI Chat session with a Course Activity.
          *
-         *     Settings (questions, time limits, due date) are loaded server-side
-         *     from the Block content — not supplied by the client.
-         */
-        post: operations["api_submit_assessment_api_v1_grading_submit__activity_id__post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Health */
-        get: operations["health_api_v1_health_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/health/live": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Health Live */
-        get: operations["health_live_api_v1_health_live_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/health/ready": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Health Ready */
-        get: operations["health_ready_api_v1_health_ready_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/landing": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Api Update Platform Landing
-         * @description Update the platform landing object.
+         *     Rate limit: 10 requests per minute per IP address.
          *
-         *     **Required Permission**: `platform:update`
+         *     Raises:
+         *         HTTPException 429: Rate limit exceeded
+         *         HTTPException 404: Activity not found
+         *         HTTPException 403: AI feature disabled
+         *         HTTPException 504: AI processing timeout
+         *         HTTPException 500: AI processing error
          */
-        put: operations["api_update_platform_landing_api_v1_landing_put"];
-        post?: never;
+        post: operations["api_ai_start_activity_chat_session_api_v1_ai_start_activity_chat_session_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/landing/content": {
+    "/api/v1/ai/send/activity_chat_message": {
         parameters: {
             query?: never;
             header?: never;
@@ -3102,58 +3904,26 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Api Upload Platform Landing Content
-         * @description Upload content for the platform landing page.
+         * Api Ai Send Activity Chat Message
+         * @description Send a message to an AI Chat session with a Course Activity.
          *
-         *     **Required Permission**: `platform:update`
-         */
-        post: operations["api_upload_platform_landing_content_api_v1_landing_content_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/logo": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Api Update Platform Logo
-         * @description Update the platform logo.
+         *     Rate limit: 20 requests per minute per IP address.
          *
-         *     **Required Permission**: `platform:update`
+         *     Raises:
+         *         HTTPException 429: Rate limit exceeded
+         *         HTTPException 404: Activity not found
+         *         HTTPException 403: AI feature disabled
+         *         HTTPException 504: AI processing timeout
+         *         HTTPException 500: AI processing error
          */
-        put: operations["api_update_platform_logo_api_v1_logo_put"];
-        post?: never;
+        post: operations["api_ai_send_activity_chat_message_api_v1_ai_send_activity_chat_message_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/members": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Api Get Platform Users */
-        get: operations["api_get_platform_users_api_v1_members_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/members/{user_id}": {
+    "/api/v1/ai/start/activity_chat_session_stream": {
         parameters: {
             query?: never;
             header?: never;
@@ -3162,546 +3932,39 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post?: never;
         /**
-         * Api Remove User From Platform
-         * @description Remove a user from the platform.
-         */
-        delete: operations["api_remove_user_from_platform_api_v1_members__user_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/members/{user_id}/role/{role_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Api Update Platform User Role
-         * @description Update a user's role in the platform.
+         * Api Ai Start Activity Chat Session Stream
+         * @description Start a new AI Chat session with streaming responses (SSE).
          *
-         *     **Path Parameter**: `role_id` - numeric role ID
+         *     This endpoint provides real-time streaming of AI responses for better
+         *     perceived performance. Clients receive response chunks as they're generated.
          *
-         *     **Required Permission**: `platform:update`
-         */
-        put: operations["api_update_platform_user_role_api_v1_members__user_id__role__role_id__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/platform": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Platform
-         * @description Get the single platform.
-         *
-         *     This endpoint is intentionally public in single-platform mode because the
-         *     frontend bootstraps navigation, auth pages, and public landing content from
-         *     the platform before user-specific RBAC is established.
-         */
-        get: operations["api_get_platform_api_v1_platform_get"];
-        /**
-         * Api Update Platform
-         * @description Update the platform.
-         *
-         *     **Required Permission**: `platform:update`
-         */
-        put: operations["api_update_platform_api_v1_platform_put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/preview": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Api Update Platform Preview
-         * @description Update the platform preview.
-         *
-         *     **Required Permission**: `platform:update`
-         */
-        put: operations["api_update_platform_preview_api_v1_preview_put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/rbac/check": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Check Permission */
-        post: operations["check_permission_api_v1_rbac_check_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/rbac/check/batch": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Check Permissions Batch */
-        post: operations["check_permissions_batch_api_v1_rbac_check_batch_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/rbac/me/permissions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get My Permissions */
-        get: operations["get_my_permissions_api_v1_rbac_me_permissions_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/rbac/roles/assign": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Assign Role
-         * @description Assign a role to a user.
-         *
-         *     **Required Permission**: `role:create`
-         */
-        post: operations["assign_role_api_v1_rbac_roles_assign_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/rbac/roles/revoke": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Revoke Role
-         * @description Revoke a role from a user.
-         *
-         *     **Required Permission**: `role:delete`
-         */
-        post: operations["revoke_role_api_v1_rbac_roles_revoke_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/rbac/user-roles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List User Roles
-         * @description List user↔role assignments.
-         */
-        get: operations["list_user_roles_api_v1_rbac_user_roles_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/roles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Roles
-         * @description List all roles available in the platform.
-         */
-        get: operations["list_roles_api_v1_roles_get"];
-        put?: never;
-        /**
-         * Create Role
-         * @description Create a new custom role.
-         */
-        post: operations["create_role_api_v1_roles_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/roles/audit-log": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Role Audit Log */
-        get: operations["get_role_audit_log_api_v1_roles_audit_log_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/roles/permissions/all": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List All Permissions
-         * @description List all permission definitions. Used by the RBAC admin panel.
-         */
-        get: operations["list_all_permissions_api_v1_roles_permissions_all_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/roles/{role_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Role
-         * @description Get a single role by ID.
-         */
-        get: operations["get_role_api_v1_roles__role_id__get"];
-        /**
-         * Update Role
-         * @description Update a role's name, description, or priority.
-         */
-        put: operations["update_role_api_v1_roles__role_id__put"];
-        post?: never;
-        /**
-         * Delete Role
-         * @description Delete a custom role.
-         */
-        delete: operations["delete_role_api_v1_roles__role_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/roles/{role_id}/permissions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Role Permissions
-         * @description Get all permissions assigned to a role.
-         */
-        get: operations["get_role_permissions_api_v1_roles__role_id__permissions_get"];
-        put?: never;
-        /**
-         * Add Permission To Role
-         * @description Add a permission to a role.
-         */
-        post: operations["add_permission_to_role_api_v1_roles__role_id__permissions_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/roles/{role_id}/permissions/{permission_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Remove Permission From Role
-         * @description Remove a permission from a role.
-         */
-        delete: operations["remove_permission_from_role_api_v1_roles__role_id__permissions__permission_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/roles/{role_id}/users/count": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Role Users Count */
-        get: operations["get_role_users_count_api_v1_roles__role_id__users_count_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/search": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Api Search Platform Content */
-        get: operations["api_search_platform_content_api_v1_search_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/thumbnail": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Api Update Platform Thumbnail
-         * @description Update the platform thumbnail.
-         *
-         *     **Required Permission**: `platform:update`
-         */
-        put: operations["api_update_platform_thumbnail_api_v1_thumbnail_put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/trail": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get User Trail
-         * @description Get a user trails
-         */
-        get: operations["api_get_user_trail_api_v1_trail_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/trail/add_activity/{activity_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Api Add Activity To Trail
-         * @description Add Course to trail
-         */
-        post: operations["api_add_activity_to_trail_api_v1_trail_add_activity__activity_uuid__post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/trail/add_course/{course_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Api Add Course To Trail
-         * @description Add Course to trail
-         */
-        post: operations["api_add_course_to_trail_api_v1_trail_add_course__course_uuid__post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/trail/remove_activity/{activity_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Api Remove Activity From Trail
-         * @description Remove Activity from trail
-         */
-        delete: operations["api_remove_activity_from_trail_api_v1_trail_remove_activity__activity_uuid__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/trail/remove_course/{course_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Api Remove Course To Trail
-         * @description Remove Course from trail
-         */
-        delete: operations["api_remove_course_to_trail_api_v1_trail_remove_course__course_uuid__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/trail/start": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Api Start Trail
-         * @description Start trail
-         */
-        post: operations["api_start_trail_api_v1_trail_start_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/uploads/chunk": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Upload Chunk
-         * @description Upload a single chunk.
-         *
-         *     Args:
-         *         upload_id: Upload session ID from initiate endpoint
-         *         chunk_index: Zero-based index of this chunk
-         *         chunk: The chunk file data
+         *     Rate limit: 10 requests per minute per IP address.
          *
          *     Returns:
-         *         Status of the upload including progress
+         *         Server-Sent Events (SSE) stream with AI response chunks
+         *
+         *     Event types:
+         *         - status: Processing status updates
+         *         - chunk: Individual response chunks
+         *         - final: Complete response
+         *         - error: Error information
+         *
+         *     Raises:
+         *         HTTPException 429: Rate limit exceeded
+         *         HTTPException 404: Activity not found
+         *         HTTPException 403: AI feature disabled or streaming not enabled
+         *         HTTPException 504: AI processing timeout
+         *         HTTPException 500: AI processing error
          */
-        post: operations["upload_chunk_api_v1_uploads_chunk_post"];
+        post: operations["api_ai_start_activity_chat_session_stream_api_v1_ai_start_activity_chat_session_stream_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/uploads/complete": {
+    "/api/v1/ai/send/activity_chat_message_stream": {
         parameters: {
             query?: never;
             header?: never;
@@ -3711,71 +3974,37 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Complete Chunked Upload
-         * @description Complete the chunked upload by assembling all chunks.
+         * Api Ai Send Activity Chat Message Stream
+         * @description Send a message to AI Chat session with streaming responses (SSE).
          *
-         *     Args:
-         *         upload_id: Upload session ID
+         *     Rate limit: 20 requests per minute per IP address.
          *
          *     Returns:
-         *         Final filename and upload details
-         */
-        post: operations["complete_chunked_upload_api_v1_uploads_complete_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/uploads/initiate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Initiate Chunked Upload
-         * @description Initiate a chunked upload session.
+         *         Server-Sent Events (SSE) stream with AI response chunks
          *
-         *     Args:
-         *         directory: Target directory (e.g., "courses/xxx/activities/yyy/video")
-         *         type_of_dir: "platform" or "users"
-         *         uuid: Platform or user UUID
-         *         filename: Final filename for the assembled file
-         *         total_chunks: Total number of chunks that will be uploaded
-         *         file_size: Total file size in bytes
-         *
-         *     Returns:
-         *         upload_id: Unique identifier for this upload session
+         *     Raises:
+         *         HTTPException 429: Rate limit exceeded
+         *         HTTPException 404: Activity not found
+         *         HTTPException 403: AI feature disabled or streaming not enabled
+         *         HTTPException 504: AI processing timeout
+         *         HTTPException 500: AI processing error
          */
-        post: operations["initiate_chunked_upload_api_v1_uploads_initiate_post"];
+        post: operations["api_ai_send_activity_chat_message_stream_api_v1_ai_send_activity_chat_message_stream_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/uploads/status/{upload_id}": {
+    "/api/v1/dev/config": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /**
-         * Get Upload Status
-         * @description Get the status of an upload session.
-         *
-         *     Args:
-         *         upload_id: Upload session ID
-         *
-         *     Returns:
-         *         Upload progress and details
-         */
-        get: operations["get_upload_status_api_v1_uploads_status__upload_id__get"];
+        /** Config */
+        get: operations["config_api_v1_dev_config_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3784,489 +4013,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/uploads/{upload_id}": {
+    "/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Cancel Upload
-         * @description Cancel an upload and clean up temporary files.
-         *
-         *     Args:
-         *         upload_id: Upload session ID
-         *
-         *     Returns:
-         *         Confirmation message
-         */
-        delete: operations["cancel_upload_api_v1_uploads__upload_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/usergroups": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Usergroups
-         * @description Get platform user groups
-         */
-        get: operations["api_get_usergroups_api_v1_usergroups_get"];
-        put?: never;
-        /**
-         * Api Create Usergroup
-         * @description Create UserGroup
-         *
-         *     **Required Permission**: `usergroup:create:platform`
-         */
-        post: operations["api_create_usergroup_api_v1_usergroups_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/usergroups/resource/{resource_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Usergroupsby Resource
-         * @description Get platform user groups by resource
-         */
-        get: operations["api_get_usergroupsby_resource_api_v1_usergroups_resource__resource_uuid__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/usergroups/{usergroup_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Usergroup
-         * @description Get UserGroup
-         */
-        get: operations["api_get_usergroup_api_v1_usergroups__usergroup_id__get"];
-        /**
-         * Api Update Usergroup
-         * @description Update UserGroup
-         *
-         *     **Required Permission**: `usergroup:update:platform` or `usergroup:update:own`
-         */
-        put: operations["api_update_usergroup_api_v1_usergroups__usergroup_id__put"];
-        post?: never;
-        /**
-         * Api Delete Usergroup
-         * @description Delete UserGroup
-         *
-         *     **Required Permission**: `usergroup:delete:platform` or `usergroup:delete:own`
-         */
-        delete: operations["api_delete_usergroup_api_v1_usergroups__usergroup_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/usergroups/{usergroup_id}/add_resources": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Api Add Resources To Usergroup
-         * @description Add Resources to UserGroup
-         */
-        post: operations["api_add_resources_to_usergroup_api_v1_usergroups__usergroup_id__add_resources_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/usergroups/{usergroup_id}/add_users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Api Add Users To Usergroup
-         * @description Add Users to UserGroup
-         *
-         *     **Required Permission**: `usergroup:manage:platform` or `usergroup:manage:own`
-         */
-        post: operations["api_add_users_to_usergroup_api_v1_usergroups__usergroup_id__add_users_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/usergroups/{usergroup_id}/remove_resources": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Api Delete Resources From Usergroup
-         * @description Delete Resources from UserGroup
-         */
-        delete: operations["api_delete_resources_from_usergroup_api_v1_usergroups__usergroup_id__remove_resources_delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/usergroups/{usergroup_id}/remove_users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Api Delete Users From Usergroup
-         * @description Delete Users from UserGroup
-         */
-        delete: operations["api_delete_users_from_usergroup_api_v1_usergroups__usergroup_id__remove_users_delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/usergroups/{usergroup_id}/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Users Linked To Usergroup
-         * @description Get Users linked to UserGroup
-         */
-        get: operations["api_get_users_linked_to_usergroup_api_v1_usergroups__usergroup_id__users_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Api Create User Without Platform
-         * @description Create User
-         */
-        post: operations["api_create_user_without_platform_api_v1_users_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/users/change_password/{user_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Api Update User Password
-         * @description Update User Password
-         *
-         *     **Required Permission**: Own account only (for security)
-         */
-        put: operations["api_update_user_password_api_v1_users_change_password__user_id__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/users/id/{user_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get User By Id
-         * @description Get User by ID
-         */
-        get: operations["api_get_user_by_id_api_v1_users_id__user_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/users/preferences/locale/{user_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Api Update User Locale
-         * @description Update User Locale Preference
-         */
-        put: operations["api_update_user_locale_api_v1_users_preferences_locale__user_id__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/users/preferences/theme/{user_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Api Update User Theme
-         * @description Update User Theme Preference
-         */
-        put: operations["api_update_user_theme_api_v1_users_preferences_theme__user_id__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/users/profile": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Public User
-         * @description Get current user
-         */
-        get: operations["api_get_public_user_api_v1_users_profile_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/users/session": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Public User Session
-         * @description Get current user session.
-         */
-        get: operations["api_get_public_user_session_api_v1_users_session_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/users/update_avatar/{user_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Api Update Avatar User
-         * @description Update User Avatar
-         *
-         *     **Required Permission**: `user:update:own` (for own avatar) or `user:update:platform` (for others)
-         */
-        put: operations["api_update_avatar_user_api_v1_users_update_avatar__user_id__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/users/user_id/{user_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Api Delete User
-         * @description Delete User
-         *
-         *     **Required Permission**: `user:delete:platform`
-         */
-        delete: operations["api_delete_user_api_v1_users_user_id__user_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/users/username/{username}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get User By Username
-         * @description Get User by Username
-         */
-        get: operations["api_get_user_by_username_api_v1_users_username__username__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/users/uuid/{user_uuid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get User By Uuid
-         * @description Get User by UUID
-         */
-        get: operations["api_get_user_by_uuid_api_v1_users_uuid__user_uuid__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/users/{user_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Api Update User
-         * @description Update User
-         *
-         *     **Required Permission**: `user:update:own` (for own profile) or `user:update:platform` (for others)
-         */
-        put: operations["api_update_user_api_v1_users__user_id__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/users/{user_id}/courses": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get User Courses
-         * @description Get courses made or contributed by a user.
-         */
-        get: operations["api_get_user_courses_api_v1_users__user_id__courses_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/utils/link-preview": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Link Preview */
-        get: operations["link_preview_api_v1_utils_link_preview_get"];
+        /** Root */
+        get: operations["root__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4281,21 +4036,21 @@ export interface components {
     schemas: {
         /** ActivityAIChatSessionResponse */
         ActivityAIChatSessionResponse: {
-            /** Activity Uuid */
-            activity_uuid: string;
             /** Aichat Uuid */
             aichat_uuid: string;
+            /** Activity Uuid */
+            activity_uuid: string;
             /** Message */
             message: string;
         };
         /** ActivityCreate */
         ActivityCreate: {
-            /** @default SUBTYPE_CUSTOM */
-            activity_sub_type: components["schemas"]["ActivitySubTypeEnum"];
+            /** Name */
+            name: string;
             /** @default TYPE_CUSTOM */
             activity_type: components["schemas"]["ActivityTypeEnum"];
-            /** Chapter Id */
-            chapter_id: number;
+            /** @default SUBTYPE_CUSTOM */
+            activity_sub_type: components["schemas"]["ActivitySubTypeEnum"];
             /** Content */
             content?: {
                 [key: string]: unknown;
@@ -4304,13 +4059,13 @@ export interface components {
             details?: {
                 [key: string]: unknown;
             };
-            /** Name */
-            name: string;
             /**
              * Published
              * @default false
              */
             published: boolean;
+            /** Chapter Id */
+            chapter_id: number;
         };
         /** ActivityDetailResponse */
         ActivityDetailResponse: {
@@ -4319,68 +4074,68 @@ export interface components {
         };
         /** ActivityDropoffRow */
         ActivityDropoffRow: {
+            /** Chapter Id */
+            chapter_id: number;
             /** Activity Id */
             activity_id: number;
             /** Activity Name */
             activity_name: string;
             /** Activity Type */
             activity_type: string;
-            /** Chapter Id */
-            chapter_id: number;
+            /** Previous Step Completions */
+            previous_step_completions: number;
             /** Current Step Completions */
             current_step_completions: number;
             /** Dropoff Pct */
             dropoff_pct: number;
-            /** Previous Step Completions */
-            previous_step_completions: number;
         };
         /**
          * ActivityOrderPayload
          * @description Move an activity to position N, optionally into a different chapter.
          */
         ActivityOrderPayload: {
-            /** Chapter Uuid */
-            chapter_uuid?: string | null;
             /** Position */
             position: number;
+            /** Chapter Uuid */
+            chapter_uuid?: string | null;
         };
         /** ActivityRead */
         ActivityRead: {
-            activity_sub_type: components["schemas"]["ActivitySubTypeEnum"];
+            /** Name */
+            name: string;
             activity_type: components["schemas"]["ActivityTypeEnum"];
-            /** Activity Uuid */
-            activity_uuid: string;
-            /** Chapter Id */
-            chapter_id: number;
+            activity_sub_type: components["schemas"]["ActivitySubTypeEnum"];
             /** Content */
             content?: {
                 [key: string]: unknown;
             };
-            /** Course Id */
-            course_id?: number | null;
-            /**
-             * Creation Date
-             * Format: date-time
-             */
-            creation_date: string;
             /** Details */
             details?: {
                 [key: string]: unknown;
             } | null;
-            /** Id */
-            id: number;
-            /** Name */
-            name: string;
-            /**
-             * Order
-             * @default 0
-             */
-            order: number;
             /**
              * Published
              * @default false
              */
             published: boolean;
+            /** Id */
+            id: number;
+            /** Chapter Id */
+            chapter_id: number;
+            /** Course Id */
+            course_id?: number | null;
+            /**
+             * Order
+             * @default 0
+             */
+            order: number;
+            /** Activity Uuid */
+            activity_uuid: string;
+            /**
+             * Creation Date
+             * Format: date-time
+             */
+            creation_date: string;
             /**
              * Update Date
              * Format: date-time
@@ -4392,54 +4147,54 @@ export interface components {
          * @description Activity response with permission metadata.
          */
         ActivityReadWithPermissions: {
-            activity_sub_type: components["schemas"]["ActivitySubTypeEnum"];
+            /** Name */
+            name: string;
             activity_type: components["schemas"]["ActivityTypeEnum"];
-            /** Activity Uuid */
-            activity_uuid: string;
-            /** Can Delete */
-            can_delete: boolean;
-            /** Can Update */
-            can_update: boolean;
-            /** Chapter Id */
-            chapter_id: number;
+            activity_sub_type: components["schemas"]["ActivitySubTypeEnum"];
             /** Content */
             content?: {
                 [key: string]: unknown;
             };
-            /** Course Id */
-            course_id?: number | null;
-            /**
-             * Creation Date
-             * Format: date-time
-             */
-            creation_date: string;
             /** Details */
             details?: {
                 [key: string]: unknown;
             } | null;
-            /** Id */
-            id: number;
-            /** Is Creator */
-            is_creator: boolean;
-            /** Is Owner */
-            is_owner: boolean;
-            /** Name */
-            name: string;
-            /**
-             * Order
-             * @default 0
-             */
-            order: number;
             /**
              * Published
              * @default false
              */
             published: boolean;
+            /** Id */
+            id: number;
+            /** Chapter Id */
+            chapter_id: number;
+            /** Course Id */
+            course_id?: number | null;
+            /**
+             * Order
+             * @default 0
+             */
+            order: number;
+            /** Activity Uuid */
+            activity_uuid: string;
+            /**
+             * Creation Date
+             * Format: date-time
+             */
+            creation_date: string;
             /**
              * Update Date
              * Format: date-time
              */
             update_date: string;
+            /** Can Update */
+            can_update: boolean;
+            /** Can Delete */
+            can_delete: boolean;
+            /** Is Owner */
+            is_owner: boolean;
+            /** Is Creator */
+            is_creator: boolean;
         };
         /**
          * ActivitySubTypeEnum
@@ -4453,8 +4208,10 @@ export interface components {
         ActivityTypeEnum: "TYPE_VIDEO" | "TYPE_DOCUMENT" | "TYPE_DYNAMIC" | "TYPE_ASSIGNMENT" | "TYPE_EXAM" | "TYPE_CODE_CHALLENGE" | "TYPE_CUSTOM";
         /** ActivityUpdate */
         ActivityUpdate: {
-            activity_sub_type?: components["schemas"]["ActivitySubTypeEnum"] | null;
+            /** Name */
+            name?: string | null;
             activity_type?: components["schemas"]["ActivityTypeEnum"] | null;
+            activity_sub_type?: components["schemas"]["ActivitySubTypeEnum"] | null;
             /** Content */
             content?: {
                 [key: string]: unknown;
@@ -4463,8 +4220,6 @@ export interface components {
             details?: {
                 [key: string]: unknown;
             } | null;
-            /** Name */
-            name?: string | null;
             /** Published */
             published?: boolean | null;
         };
@@ -4475,8 +4230,6 @@ export interface components {
         };
         /** AdminAnalyticsCohortRow */
         AdminAnalyticsCohortRow: {
-            /** Avg Progress Pct */
-            avg_progress_pct?: number | null;
             /** Cohort Id */
             cohort_id: number;
             /** Cohort Name */
@@ -4487,87 +4240,84 @@ export interface components {
             retained_learners: number;
             /** Retention Rate */
             retention_rate?: number | null;
+            /** Avg Progress Pct */
+            avg_progress_pct?: number | null;
         };
         /** AdminAnalyticsCourseRow */
         AdminAnalyticsCourseRow: {
+            /** Course Id */
+            course_id: number;
+            /** Course Uuid */
+            course_uuid: string;
+            /** Course Name */
+            course_name: string;
+            /** Health Score */
+            health_score: number;
+            /** Completion Rate */
+            completion_rate: number;
             /** Active Learners 7D */
             active_learners_7d: number;
             /** At Risk Learners */
             at_risk_learners: number;
-            /** Completion Rate */
-            completion_rate: number;
             /** Content Roi Score */
             content_roi_score?: number | null;
-            /** Course Id */
-            course_id: number;
-            /** Course Name */
-            course_name: string;
-            /** Course Uuid */
-            course_uuid: string;
-            /** Health Score */
-            health_score: number;
         };
         /** AdminAnalyticsProgramRow */
         AdminAnalyticsProgramRow: {
-            /** Completion Rate */
-            completion_rate?: number | null;
-            /** Course Count */
-            course_count: number;
-            /** Health Score */
-            health_score?: number | null;
-            /** Learner Count */
-            learner_count: number;
             /** Program Id */
             program_id?: number | null;
             /** Program Name */
             program_name: string;
+            /** Course Count */
+            course_count: number;
+            /** Learner Count */
+            learner_count: number;
+            /** Completion Rate */
+            completion_rate?: number | null;
+            /** Health Score */
+            health_score?: number | null;
         };
         /** AdminAnalyticsResponse */
         AdminAnalyticsResponse: {
-            /** Cohort Retention */
-            cohort_retention: components["schemas"]["AdminAnalyticsCohortRow"][];
-            /** Content Roi */
-            content_roi: components["schemas"]["AdminAnalyticsCourseRow"][];
-            /** Course Health Ranking */
-            course_health_ranking: components["schemas"]["AdminAnalyticsCourseRow"][];
-            /** Department Program Performance */
-            department_program_performance: components["schemas"]["AdminAnalyticsProgramRow"][];
             /** Generated At */
             generated_at: string;
             /** Teacher Workload Comparison */
             teacher_workload_comparison: components["schemas"]["AdminAnalyticsTeacherRow"][];
+            /** Course Health Ranking */
+            course_health_ranking: components["schemas"]["AdminAnalyticsCourseRow"][];
+            /** Cohort Retention */
+            cohort_retention: components["schemas"]["AdminAnalyticsCohortRow"][];
+            /** Department Program Performance */
+            department_program_performance: components["schemas"]["AdminAnalyticsProgramRow"][];
+            /** Content Roi */
+            content_roi: components["schemas"]["AdminAnalyticsCourseRow"][];
         };
         /** AdminAnalyticsTeacherRow */
         AdminAnalyticsTeacherRow: {
-            /** At Risk Learners */
-            at_risk_learners: number;
-            /** Managed Course Count */
-            managed_course_count: number;
-            /** Median Feedback Latency Hours */
-            median_feedback_latency_hours?: number | null;
-            /** Sla Breaches */
-            sla_breaches: number;
-            /** Teacher Display Name */
-            teacher_display_name: string;
             /** Teacher User Id */
             teacher_user_id: number;
+            /** Teacher Display Name */
+            teacher_display_name: string;
+            /** Managed Course Count */
+            managed_course_count: number;
             /** Workload Backlog */
             workload_backlog: number;
+            /** Sla Breaches */
+            sla_breaches: number;
+            /** Median Feedback Latency Hours */
+            median_feedback_latency_hours?: number | null;
+            /** At Risk Learners */
+            at_risk_learners: number;
         };
         /** AlertItem */
         AlertItem: {
-            /** Activity Id */
-            activity_id?: number | null;
-            /** Assessment Id */
-            assessment_id?: number | null;
-            /** Body */
-            body: string;
-            /** Course Id */
-            course_id?: number | null;
             /** Id */
             id: string;
-            /** Learner Count */
-            learner_count?: number | null;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "risk_spike" | "engagement_drop" | "grading_backlog" | "assessment_outlier" | "content_stale";
             /**
              * Severity
              * @enum {string}
@@ -4575,19 +4325,38 @@ export interface components {
             severity: "info" | "warning" | "critical";
             /** Title */
             title: string;
-            /**
-             * Type
-             * @enum {string}
-             */
-            type: "risk_spike" | "engagement_drop" | "grading_backlog" | "assessment_outlier" | "content_stale";
+            /** Body */
+            body: string;
+            /** Course Id */
+            course_id?: number | null;
+            /** Activity Id */
+            activity_id?: number | null;
+            /** Assessment Id */
+            assessment_id?: number | null;
+            /** Learner Count */
+            learner_count?: number | null;
         };
         /** AnalyticsDataQuality */
         AnalyticsDataQuality: {
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "live" | "rollup";
+            /** Last Rollup Time */
+            last_rollup_time?: string | null;
+            /**
+             * Freshness Seconds
+             * @default 0
+             */
+            freshness_seconds: number;
             /**
              * Confidence Level
              * @enum {string}
              */
             confidence_level: "low" | "medium" | "high";
+            /** Missing Event Sources */
+            missing_event_sources: string[];
             /** Courses Without Enough Data */
             courses_without_enough_data: {
                 [key: string]: unknown;
@@ -4602,22 +4371,8 @@ export interface components {
              * @default 0
              */
             excluded_teacher_attempts: number;
-            /**
-             * Freshness Seconds
-             * @default 0
-             */
-            freshness_seconds: number;
             /** Issues */
             issues: components["schemas"]["DataQualityIssue"][];
-            /** Last Rollup Time */
-            last_rollup_time?: string | null;
-            /** Missing Event Sources */
-            missing_event_sources: string[];
-            /**
-             * Mode
-             * @enum {string}
-             */
-            mode: "live" | "rollup";
         };
         /** AnalyticsFilterOption */
         AnalyticsFilterOption: {
@@ -4628,24 +4383,13 @@ export interface components {
         };
         /** AnomalyItem */
         AnomalyItem: {
-            /** Activity Id */
-            activity_id?: number | null;
-            /** Assessment Id */
-            assessment_id?: number | null;
-            /** Assessment Type */
-            assessment_type?: string | null;
-            /** Baseline Value */
-            baseline_value?: number | null;
-            /** Course Id */
-            course_id?: number | null;
-            /** Course Name */
-            course_name?: string | null;
-            /** Detail */
-            detail: string;
             /** Id */
             id: string;
-            /** Observed Value */
-            observed_value?: number | null;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "engagement_drop" | "submission_spike" | "fast_quiz_completion" | "score_distribution_shift";
             /**
              * Severity
              * @enum {string}
@@ -4653,74 +4397,85 @@ export interface components {
             severity: "info" | "warning" | "critical";
             /** Title */
             title: string;
-            /**
-             * Type
-             * @enum {string}
-             */
-            type: "engagement_drop" | "submission_spike" | "fast_quiz_completion" | "score_distribution_shift";
+            /** Detail */
+            detail: string;
+            /** Observed Value */
+            observed_value?: number | null;
+            /** Baseline Value */
+            baseline_value?: number | null;
+            /** Course Id */
+            course_id?: number | null;
+            /** Course Name */
+            course_name?: string | null;
+            /** Assessment Type */
+            assessment_type?: string | null;
+            /** Assessment Id */
+            assessment_id?: number | null;
+            /** Activity Id */
+            activity_id?: number | null;
         };
         /** AssessmentLearnerRow */
         AssessmentLearnerRow: {
+            /** User Id */
+            user_id: number;
+            /** User Display Name */
+            user_display_name: string;
             /** Attempts */
             attempts: number;
             /** Best Score */
             best_score?: number | null;
-            /** Graded At */
-            graded_at?: string | null;
             /** Last Score */
             last_score?: number | null;
-            /** Status */
-            status?: string | null;
             /** Submitted At */
             submitted_at?: string | null;
-            /** User Display Name */
-            user_display_name: string;
-            /** User Id */
-            user_id: number;
+            /** Graded At */
+            graded_at?: string | null;
+            /** Status */
+            status?: string | null;
         };
         /** AssessmentOutlierRow */
         AssessmentOutlierRow: {
-            /** Activity Id */
-            activity_id?: number | null;
-            /** Assessment Id */
-            assessment_id: number;
             /**
              * Assessment Type
              * @enum {string}
              */
             assessment_type: "assignment" | "quiz" | "exam" | "code_challenge";
-            /** Avg Attempts */
-            avg_attempts?: number | null;
-            /** Completion Rate */
-            completion_rate?: number | null;
+            /** Assessment Id */
+            assessment_id: number;
+            /** Activity Id */
+            activity_id?: number | null;
             /** Course Id */
             course_id: number;
             /** Course Name */
             course_name: string;
-            /** Difficulty Score */
-            difficulty_score?: number | null;
-            /** Discrimination Index */
-            discrimination_index?: number | null;
+            /** Title */
+            title: string;
+            /** Submission Rate */
+            submission_rate?: number | null;
+            /** Completion Rate */
+            completion_rate?: number | null;
+            /** Pass Rate */
+            pass_rate?: number | null;
+            /** Median Score */
+            median_score?: number | null;
+            /** Avg Attempts */
+            avg_attempts?: number | null;
             /** Grading Latency Hours P50 */
             grading_latency_hours_p50?: number | null;
             /** Grading Latency Hours P90 */
             grading_latency_hours_p90?: number | null;
-            /** Median Score */
-            median_score?: number | null;
-            /** Outlier Reason Codes */
-            outlier_reason_codes: string[];
-            /** Pass Rate */
-            pass_rate?: number | null;
-            /** Reliability Score */
-            reliability_score?: number | null;
+            /** Difficulty Score */
+            difficulty_score?: number | null;
             /** Score Variance */
             score_variance?: number | null;
-            /** Submission Rate */
-            submission_rate?: number | null;
+            /** Reliability Score */
+            reliability_score?: number | null;
+            /** Discrimination Index */
+            discrimination_index?: number | null;
             /** Suspicious Flag */
             suspicious_flag?: string | null;
-            /** Title */
-            title: string;
+            /** Outlier Reason Codes */
+            outlier_reason_codes: string[];
         };
         /**
          * AssessmentType
@@ -4728,54 +4483,26 @@ export interface components {
          */
         AssessmentType: "QUIZ" | "ASSIGNMENT" | "EXAM" | "CODE_CHALLENGE";
         /**
-         * AssignmentCreate
-         * @description Model for creating a new assignment.
-         */
-        AssignmentCreate: {
-            /** Activity Id */
-            activity_id: number;
-            /** Chapter Id */
-            chapter_id: number;
-            /** Course Id */
-            course_id: number;
-            /** Description */
-            description: string;
-            /** Due At */
-            due_at?: string | null;
-            /** Due Date */
-            due_date: string;
-            grading_type: components["schemas"]["GradingTypeEnum"];
-            /**
-             * Published
-             * @default false
-             */
-            published: boolean | null;
-            /** Title */
-            title: string;
-        };
-        /**
          * AssignmentCreateWithActivity
-         * @description Model for creating an assignment along with its activity.
+         * @description Input for POST /assignments/with-activity.
          */
         AssignmentCreateWithActivity: {
-            /** Chapter Id */
-            chapter_id: number;
-            /** Course Id */
-            course_id: number;
+            /** Title */
+            title: string;
             /** Description */
             description: string;
             /** Due At */
             due_at?: string | null;
-            /** Due Date */
-            due_date: string;
-            grading_type: components["schemas"]["GradingTypeEnum"];
             /**
              * Published
              * @default false
              */
             published: boolean;
-            /** Title */
-            title: string;
+            grading_type: components["schemas"]["GradingTypeEnum"];
+            /** Course Id */
+            course_id: number;
+            /** Chapter Id */
+            chapter_id: number;
         };
         /**
          * AssignmentDraftPatch
@@ -4793,51 +4520,36 @@ export interface components {
         };
         /**
          * AssignmentRead
-         * @description Model for reading an assignment.
+         * @description Projection returned by the API — never exposes internal FK integer IDs.
          */
         AssignmentRead: {
-            /** Activity Id */
-            activity_id: number;
-            /** Activity Uuid */
-            activity_uuid?: string | null;
             /** Assignment Uuid */
             assignment_uuid: string;
-            /** Chapter Id */
-            chapter_id: number;
-            /** Course Id */
-            course_id: number;
-            /** Course Uuid */
-            course_uuid?: string | null;
-            /** Creation Date */
-            creation_date?: string | null;
+            /** Title */
+            title: string;
             /** Description */
             description: string;
             /** Due At */
             due_at?: string | null;
-            /** Due Date */
-            due_date: string;
+            /** Published */
+            published: boolean;
             grading_type: components["schemas"]["GradingTypeEnum"];
-            /** Id */
-            id: number;
-            /**
-             * Published
-             * @default false
-             */
-            published: boolean | null;
-            /** Title */
-            title: string;
-            /** Update Date */
-            update_date?: string | null;
+            /** Course Uuid */
+            course_uuid?: string | null;
+            /** Activity Uuid */
+            activity_uuid?: string | null;
+            /** Created At */
+            created_at?: string | null;
+            /** Updated At */
+            updated_at?: string | null;
         };
         /**
          * AssignmentTaskAnswer
          * @description Canonical assignment answer shape stored in Submission.answers_json.
          */
         AssignmentTaskAnswer: {
-            /** Answer Metadata */
-            answer_metadata?: {
-                [key: string]: unknown;
-            };
+            /** Task Uuid */
+            task_uuid: string;
             /**
              * Content Type
              * @enum {string}
@@ -4845,6 +4557,8 @@ export interface components {
             content_type: "file" | "text" | "form" | "quiz" | "other";
             /** File Key */
             file_key?: string | null;
+            /** Text Content */
+            text_content?: string | null;
             /** Form Data */
             form_data?: {
                 [key: string]: unknown;
@@ -4853,34 +4567,34 @@ export interface components {
             quiz_answers?: {
                 [key: string]: unknown;
             } | null;
-            /** Task Uuid */
-            task_uuid: string;
-            /** Text Content */
-            text_content?: string | null;
+            /** Answer Metadata */
+            answer_metadata?: {
+                [key: string]: unknown;
+            };
         };
         /**
          * AssignmentTaskCreate
-         * @description Model for creating a new assignment task.
+         * @description Input for creating a new task — contents validated against task type.
          */
         AssignmentTaskCreate: {
-            assignment_type: components["schemas"]["AssignmentTaskTypeEnum"];
-            /** Contents */
-            contents?: {
-                [key: string]: unknown;
-            };
+            /** Title */
+            title: string;
             /** Description */
             description: string;
             /** Hint */
             hint: string;
+            /** Reference File */
+            reference_file?: string | null;
+            assignment_type: components["schemas"]["AssignmentTaskTypeEnum"];
             /**
              * Max Grade Value
              * @default 0
              */
             max_grade_value: number;
-            /** Reference File */
-            reference_file?: string | null;
-            /** Title */
-            title: string;
+            /** Contents */
+            contents?: {
+                [key: string]: unknown;
+            };
         };
         /**
          * AssignmentTaskTypeEnum
@@ -4889,95 +4603,72 @@ export interface components {
         AssignmentTaskTypeEnum: "FILE_SUBMISSION" | "QUIZ" | "FORM" | "OTHER";
         /**
          * AssignmentTaskUpdate
-         * @description Model for updating an assignment task.
+         * @description Partial update for an existing task.
+         *
+         *     ``order`` is intentionally absent — use the dedicated reorder endpoint.
+         *     ``contents`` is validated against ``assignment_type`` when both are present.
          */
         AssignmentTaskUpdate: {
+            /** Title */
+            title?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Hint */
+            hint?: string | null;
+            /** Reference File */
+            reference_file?: string | null;
             assignment_type?: components["schemas"]["AssignmentTaskTypeEnum"] | null;
             /** Contents */
             contents?: {
                 [key: string]: unknown;
             } | null;
-            /** Description */
-            description?: string | null;
-            /** Hint */
-            hint?: string | null;
             /** Max Grade Value */
             max_grade_value?: number | null;
-            /** Order */
-            order?: number | null;
-            /** Reference File */
-            reference_file?: string | null;
-            /** Title */
-            title?: string | null;
         };
         /**
          * AssignmentUpdate
-         * @description Model for updating an assignment.
+         * @description Partial update — only the fields a teacher can change after creation.
          */
         AssignmentUpdate: {
-            /** Activity Id */
-            activity_id?: number | null;
-            /** Chapter Id */
-            chapter_id?: number | null;
-            /** Course Id */
-            course_id?: number | null;
+            /** Title */
+            title?: string | null;
             /** Description */
             description?: string | null;
             /** Due At */
             due_at?: string | null;
-            /** Due Date */
-            due_date?: string | null;
             grading_type?: components["schemas"]["GradingTypeEnum"] | null;
-            /** Published */
-            published?: boolean | null;
-            /** Title */
-            title?: string | null;
-            /** Update Date */
-            update_date?: string | null;
         };
         /** AtRiskLearnerRow */
         AtRiskLearnerRow: {
-            /** Cohort Name */
-            cohort_name?: string | null;
-            /**
-             * Confidence Level
-             * @default medium
-             * @enum {string}
-             */
-            confidence_level: "low" | "medium" | "high";
+            /** User Id */
+            user_id: number;
             /** Course Id */
             course_id: number;
-            /** Course Name */
-            course_name: string;
             /** Course Uuid */
             course_uuid?: string | null;
-            /** Days Since Last Activity */
-            days_since_last_activity?: number | null;
-            /** Failed Assessments */
-            failed_assessments: number;
-            /**
-             * Intervention Count
-             * @default 0
-             */
-            intervention_count: number;
-            /** Last Intervention At */
-            last_intervention_at?: string | null;
-            /** Last Intervention Outcome */
-            last_intervention_outcome?: string | null;
-            /** Last Intervention Type */
-            last_intervention_type?: string | null;
-            /** Missing Required Assessments */
-            missing_required_assessments: number;
-            /** Open Grading Blocks */
-            open_grading_blocks: number;
-            /** Previous Risk Score */
-            previous_risk_score?: number | null;
+            /** Course Name */
+            course_name: string;
+            /** User Display Name */
+            user_display_name: string;
+            /** Cohort Name */
+            cohort_name?: string | null;
             /** Progress Pct */
             progress_pct: number;
-            /** Reason Codes */
-            reason_codes: string[];
-            /** Recommended Action */
-            recommended_action: string;
+            /** Days Since Last Activity */
+            days_since_last_activity?: number | null;
+            /** Open Grading Blocks */
+            open_grading_blocks: number;
+            /** Failed Assessments */
+            failed_assessments: number;
+            /** Missing Required Assessments */
+            missing_required_assessments: number;
+            /** Risk Score */
+            risk_score: number;
+            /**
+             * Risk Level
+             * @enum {string}
+             */
+            risk_level: "low" | "medium" | "high";
             /**
              * Risk Components
              * @default {}
@@ -4985,46 +4676,48 @@ export interface components {
             risk_components: {
                 [key: string]: number;
             };
-            /**
-             * Risk Level
-             * @enum {string}
-             */
-            risk_level: "low" | "medium" | "high";
-            /** Risk Score */
-            risk_score: number;
-            /** Risk Score Delta */
-            risk_score_delta?: number | null;
+            /** Reason Codes */
+            reason_codes: string[];
             /**
              * Risk Trend
              * @default stable
              * @enum {string}
              */
             risk_trend: "newly_at_risk" | "worsening" | "improving" | "recovered" | "stable";
+            /** Previous Risk Score */
+            previous_risk_score?: number | null;
+            /** Risk Score Delta */
+            risk_score_delta?: number | null;
             /** Top Contributing Factor */
             top_contributing_factor?: string | null;
-            /** User Display Name */
-            user_display_name: string;
-            /** User Id */
-            user_id: number;
+            /**
+             * Confidence Level
+             * @default medium
+             * @enum {string}
+             */
+            confidence_level: "low" | "medium" | "high";
             /** Why Now */
             why_now?: string | null;
+            /**
+             * Intervention Count
+             * @default 0
+             */
+            intervention_count: number;
+            /** Last Intervention Type */
+            last_intervention_type?: string | null;
+            /** Last Intervention At */
+            last_intervention_at?: string | null;
+            /** Last Intervention Outcome */
+            last_intervention_outcome?: string | null;
+            /** Recommended Action */
+            recommended_action: string;
         };
         /** AtRiskLearnersResponse */
         AtRiskLearnersResponse: {
-            /**
-             * Cohort Options
-             * @default []
-             */
-            cohort_options: components["schemas"]["AnalyticsFilterOption"][];
-            /**
-             * Course Options
-             * @default []
-             */
-            course_options: components["schemas"]["AnalyticsFilterOption"][];
             /** Generated At */
             generated_at: string;
-            /** Items */
-            items: components["schemas"]["AtRiskLearnerRow"][];
+            /** Total */
+            total: number;
             /**
              * Page
              * @default 1
@@ -5035,8 +4728,18 @@ export interface components {
              * @default 25
              */
             page_size: number;
-            /** Total */
-            total: number;
+            /** Items */
+            items: components["schemas"]["AtRiskLearnerRow"][];
+            /**
+             * Course Options
+             * @default []
+             */
+            course_options: components["schemas"]["AnalyticsFilterOption"][];
+            /**
+             * Cohort Options
+             * @default []
+             */
+            cohort_options: components["schemas"]["AnalyticsFilterOption"][];
         };
         /**
          * AttemptStatusEnum
@@ -5045,32 +4748,32 @@ export interface components {
         AttemptStatusEnum: "IN_PROGRESS" | "SUBMITTED" | "AUTO_SUBMITTED";
         /** AuthorWithRole */
         AuthorWithRole: {
+            user: components["schemas"]["UserRead"];
             authorship: components["schemas"]["ResourceAuthorshipEnum"];
             authorship_status: components["schemas"]["ResourceAuthorshipStatusEnum"];
             /** Creation Date */
             creation_date: string;
             /** Update Date */
             update_date: string;
-            user: components["schemas"]["UserRead"];
         };
         /**
          * BatchGradeItem
          * @description Single submission grade payload for batch teacher grading.
          */
         BatchGradeItem: {
-            /** Feedback */
-            feedback?: string | null;
+            /** Submission Uuid */
+            submission_uuid: string;
             /** Final Score */
             final_score: number;
-            /** Item Feedback */
-            item_feedback?: components["schemas"]["ItemFeedback"][] | null;
             /**
              * Status
              * @enum {string}
              */
             status: "GRADED" | "PUBLISHED" | "RETURNED";
-            /** Submission Uuid */
-            submission_uuid: string;
+            /** Feedback */
+            feedback?: string | null;
+            /** Item Feedback */
+            item_feedback?: components["schemas"]["ItemFeedback"][] | null;
         };
         /**
          * BatchGradeRequest
@@ -5085,11 +4788,6 @@ export interface components {
          * @description Batch teacher grading response.
          */
         BatchGradeResponse: {
-            /**
-             * Failed
-             * @default 0
-             */
-            failed: number;
             /** Results */
             results?: components["schemas"]["BatchGradeResultItem"][];
             /**
@@ -5097,18 +4795,23 @@ export interface components {
              * @default 0
              */
             succeeded: number;
+            /**
+             * Failed
+             * @default 0
+             */
+            failed: number;
         };
         /**
          * BatchGradeResultItem
          * @description Per-submission batch grading result.
          */
         BatchGradeResultItem: {
-            /** Error */
-            error?: string | null;
             /** Submission Uuid */
             submission_uuid: string;
             /** Success */
             success: boolean;
+            /** Error */
+            error?: string | null;
         };
         /** BatchPermissionCheckRequest */
         BatchPermissionCheckRequest: {
@@ -5127,24 +4830,24 @@ export interface components {
          * @description Model for reading a block with all related data.
          */
         BlockRead: {
-            /** Activity Id */
-            activity_id: number;
             /** @default BLOCK_CUSTOM */
             block_type: components["schemas"]["BlockTypeEnum"];
-            /** Block Uuid */
-            block_uuid: string;
-            /** Chapter Id */
-            chapter_id: number | null;
             /** Content */
             content?: {
                 [key: string]: unknown;
             };
-            /** Course Id */
-            course_id: number;
-            /** Creation Date */
-            creation_date: string;
             /** Id */
             id: number;
+            /** Course Id */
+            course_id: number;
+            /** Chapter Id */
+            chapter_id: number | null;
+            /** Activity Id */
+            activity_id: number;
+            /** Block Uuid */
+            block_uuid: string;
+            /** Creation Date */
+            creation_date: string;
             /** Update Date */
             update_date: string;
         };
@@ -5155,40 +4858,40 @@ export interface components {
         BlockTypeEnum: "BLOCK_QUIZ" | "BLOCK_VIDEO" | "BLOCK_DOCUMENT_PDF" | "BLOCK_IMAGE" | "BLOCK_CUSTOM";
         /** Body_api_create_course_api_v1_courses_post */
         Body_api_create_course_api_v1_courses_post: {
-            /** About */
-            about?: string | null;
-            /** Description */
-            description: string;
-            /** Learnings */
-            learnings?: string | null;
             /** Name */
             name: string;
+            /** Description */
+            description: string;
             /** Public */
             public: boolean;
+            /** Learnings */
+            learnings?: string | null;
             /** Tags */
             tags?: string | null;
-            /** Template */
-            template?: string | null;
-            /** Thumbnail */
-            thumbnail?: string | null;
+            /** About */
+            about?: string | null;
             /** @default image */
             thumbnail_type: components["schemas"]["ThumbnailType"];
+            /** Thumbnail */
+            thumbnail?: string | null;
+            /** Template */
+            template?: string | null;
         };
         /** Body_api_create_course_thumbnail_api_v1_courses__course_uuid__thumbnail_put */
         Body_api_create_course_thumbnail_api_v1_courses__course_uuid__thumbnail_put: {
+            /** @default image */
+            thumbnail_type: components["schemas"]["ThumbnailType"];
             /** Last Known Update Date */
             last_known_update_date?: string | null;
             /** Thumbnail */
             thumbnail?: string | null;
-            /** @default image */
-            thumbnail_type: components["schemas"]["ThumbnailType"];
         };
         /** Body_api_create_documentpdf_activity_api_v1_activities_documentpdf_post */
         Body_api_create_documentpdf_activity_api_v1_activities_documentpdf_post: {
-            /** Chapter Id */
-            chapter_id: number;
             /** Name */
             name: string;
+            /** Chapter Id */
+            chapter_id: number;
             /** Pdf File */
             pdf_file?: string | null;
             /** Pdf Uploaded Path */
@@ -5196,20 +4899,22 @@ export interface components {
         };
         /** Body_api_create_image_file_block_api_v1_blocks_image_post */
         Body_api_create_image_file_block_api_v1_blocks_image_post: {
-            /** Activity Uuid */
-            activity_uuid: string;
             /** File Object */
             file_object: string;
+            /** Activity Uuid */
+            activity_uuid: string;
         };
         /** Body_api_create_pdf_file_block_api_v1_blocks_pdf_post */
         Body_api_create_pdf_file_block_api_v1_blocks_pdf_post: {
-            /** Activity Uuid */
-            activity_uuid: string;
             /** File Object */
             file_object: string;
+            /** Activity Uuid */
+            activity_uuid: string;
         };
         /** Body_api_create_video_activity_api_v1_activities_video_post */
         Body_api_create_video_activity_api_v1_activities_video_post: {
+            /** Name */
+            name: string;
             /** Chapter Id */
             chapter_id: number;
             /**
@@ -5217,21 +4922,19 @@ export interface components {
              * @default {}
              */
             details: string;
-            /** Name */
-            name: string;
-            /** Subtitle Files */
-            subtitle_files?: string[] | null;
             /** Video File */
             video_file?: string | null;
             /** Video Uploaded Path */
             video_uploaded_path?: string | null;
+            /** Subtitle Files */
+            subtitle_files?: string[] | null;
         };
         /** Body_api_create_video_file_block_api_v1_blocks_video_post */
         Body_api_create_video_file_block_api_v1_blocks_video_post: {
-            /** Activity Uuid */
-            activity_uuid: string;
             /** File Object */
             file_object: string;
+            /** Activity Uuid */
+            activity_uuid: string;
         };
         /** Body_api_import_questions_csv_api_v1_exams__exam_uuid__questions_import_csv_post */
         Body_api_import_questions_csv_api_v1_exams__exam_uuid__questions_import_csv_post: {
@@ -5282,28 +4985,23 @@ export interface components {
         Body_initiate_chunked_upload_api_v1_uploads_initiate_post: {
             /** Directory */
             directory: string;
-            /** File Size */
-            file_size: number;
-            /** Filename */
-            filename: string;
-            /** Total Chunks */
-            total_chunks: number;
             /** Type Of Dir */
             type_of_dir: string;
             /** Uuid */
             uuid: string;
+            /** Filename */
+            filename: string;
+            /** Total Chunks */
+            total_chunks: number;
+            /** File Size */
+            file_size: number;
         };
         /** Body_login_api_v1_auth_login_post */
         Body_login_api_v1_auth_login_post: {
-            /** Client Id */
-            client_id?: string | null;
-            /**
-             * Client Secret
-             * Format: password
-             */
-            client_secret?: string | null;
             /** Grant Type */
             grant_type?: string | null;
+            /** Username */
+            username: string;
             /**
              * Password
              * Format: password
@@ -5314,8 +5012,13 @@ export interface components {
              * @default
              */
             scope: string;
-            /** Username */
-            username: string;
+            /** Client Id */
+            client_id?: string | null;
+            /**
+             * Client Secret
+             * Format: password
+             */
+            client_secret?: string | null;
         };
         /** Body_reset_forgot_password_api_v1_auth_forgot_password_post */
         Body_reset_forgot_password_api_v1_auth_forgot_password_post: {
@@ -5327,45 +5030,45 @@ export interface components {
         };
         /** Body_reset_reset_password_api_v1_auth_reset_password_post */
         Body_reset_reset_password_api_v1_auth_reset_password_post: {
-            /** Password */
-            password: string;
             /** Token */
             token: string;
+            /** Password */
+            password: string;
         };
         /** Body_upload_chunk_api_v1_uploads_chunk_post */
         Body_upload_chunk_api_v1_uploads_chunk_post: {
-            /** Chunk */
-            chunk: string;
-            /** Chunk Index */
-            chunk_index: number;
             /** Upload Id */
             upload_id: string;
+            /** Chunk Index */
+            chunk_index: number;
+            /** Chunk */
+            chunk: string;
         };
         /** CertificationCreate */
         CertificationCreate: {
+            /** Course Id */
+            course_id: number;
             /** Config */
             config?: {
                 [key: string]: unknown;
             };
-            /** Course Id */
-            course_id: number;
             /** Last Known Update Date */
             last_known_update_date?: string | null;
         };
         /** CertificationRead */
         CertificationRead: {
+            /** Id */
+            id: number;
             /** Certification Uuid */
             certification_uuid: string;
+            /** Course Id */
+            course_id: number;
             /** Config */
             config: {
                 [key: string]: unknown;
             };
-            /** Course Id */
-            course_id: number;
             /** Creation Date */
             creation_date: string;
-            /** Id */
-            id: number;
             /** Update Date */
             update_date: string;
         };
@@ -5383,27 +5086,27 @@ export interface components {
          * @description API-facing create schema. Accepts a UUID so internal integer IDs are never exposed.
          */
         ChapterCreateRequest: {
-            /** Course Uuid */
-            course_uuid: string;
+            /** Name */
+            name: string;
             /**
              * Description
              * @default
              */
             description: string | null;
-            /** Name */
-            name: string;
             /**
              * Thumbnail Image
              * @default
              */
             thumbnail_image: string | null;
+            /** Course Uuid */
+            course_uuid: string;
         };
         /** ChapterOrderByUuid */
         ChapterOrderByUuid: {
-            /** Activities Order By Uuids */
-            activities_order_by_uuids: string[];
             /** Chapter Uuid */
             chapter_uuid: string;
+            /** Activities Order By Uuids */
+            activities_order_by_uuids: string[];
         };
         /**
          * ChapterOrderPayload
@@ -5415,89 +5118,89 @@ export interface components {
         };
         /** ChapterRead */
         ChapterRead: {
+            /** Name */
+            name: string;
+            /**
+             * Description
+             * @default
+             */
+            description: string | null;
+            /**
+             * Thumbnail Image
+             * @default
+             */
+            thumbnail_image: string | null;
+            /** Course Id */
+            course_id: number;
+            /** Id */
+            id: number;
             /** Activities */
             activities: components["schemas"]["ActivityRead"][];
             /** Chapter Uuid */
             chapter_uuid: string;
-            /** Course Id */
-            course_id: number;
             /**
              * Creation Date
              * Format: date-time
              */
             creation_date: string;
             /**
-             * Description
-             * @default
+             * Update Date
+             * Format: date-time
              */
-            description: string | null;
-            /** Id */
-            id: number;
-            /** Name */
-            name: string;
+            update_date: string;
             /**
              * Order
              * @default 0
              */
             order: number;
-            /**
-             * Thumbnail Image
-             * @default
-             */
-            thumbnail_image: string | null;
-            /**
-             * Update Date
-             * Format: date-time
-             */
-            update_date: string;
         };
         /**
          * ChapterReadWithPermissions
          * @description ChapterRead that includes per-activity permission metadata.
          */
         ChapterReadWithPermissions: {
+            /** Name */
+            name: string;
+            /**
+             * Description
+             * @default
+             */
+            description: string | null;
+            /**
+             * Thumbnail Image
+             * @default
+             */
+            thumbnail_image: string | null;
+            /** Course Id */
+            course_id: number;
+            /** Id */
+            id: number;
             /** Activities */
             activities: components["schemas"]["ActivityReadWithPermissions"][];
             /** Chapter Uuid */
             chapter_uuid: string;
-            /** Course Id */
-            course_id: number;
             /**
              * Creation Date
              * Format: date-time
              */
             creation_date: string;
             /**
-             * Description
-             * @default
+             * Update Date
+             * Format: date-time
              */
-            description: string | null;
-            /** Id */
-            id: number;
-            /** Name */
-            name: string;
+            update_date: string;
             /**
              * Order
              * @default 0
              */
             order: number;
-            /**
-             * Thumbnail Image
-             * @default
-             */
-            thumbnail_image: string | null;
-            /**
-             * Update Date
-             * Format: date-time
-             */
-            update_date: string;
         };
         /** ChapterUpdate */
         ChapterUpdate: {
-            /** Description */
-            description?: string | null;
             /** Name */
             name?: string | null;
+            /** Description */
+            description?: string | null;
             /** Thumbnail Image */
             thumbnail_image?: string | null;
         };
@@ -5510,58 +5213,58 @@ export interface components {
         };
         /** ChunkedUploadCancelResponse */
         ChunkedUploadCancelResponse: {
-            /** Message */
-            message: string;
             /** Success */
             success: boolean;
+            /** Message */
+            message: string;
         };
         /** ChunkedUploadChunkResponse */
         ChunkedUploadChunkResponse: {
+            /** Success */
+            success: boolean;
+            /** Upload Id */
+            upload_id: string;
             /** Chunk Index */
             chunk_index: number;
             /** Chunks Received */
             chunks_received: number;
-            /** Is Complete */
-            is_complete: boolean;
-            /** Success */
-            success: boolean;
             /** Total Chunks */
             total_chunks: number;
-            /** Upload Id */
-            upload_id: string;
+            /** Is Complete */
+            is_complete: boolean;
         };
         /** ChunkedUploadCompleteResponse */
         ChunkedUploadCompleteResponse: {
-            /** File Size */
-            file_size: number;
-            /** Filename */
-            filename: string;
-            /** Message */
-            message: string;
             /** Success */
             success: boolean;
+            /** Filename */
+            filename: string;
+            /** File Size */
+            file_size: number;
+            /** Message */
+            message: string;
         };
         /** ChunkedUploadInitiateResponse */
         ChunkedUploadInitiateResponse: {
-            /** Message */
-            message: string;
             /** Upload Id */
             upload_id: string;
+            /** Message */
+            message: string;
         };
         /** ChunkedUploadStatusResponse */
         ChunkedUploadStatusResponse: {
-            /** Chunks Received */
-            chunks_received: number;
-            /** File Size */
-            file_size: number;
-            /** Filename */
-            filename: string;
-            /** Is Complete */
-            is_complete: boolean;
-            /** Total Chunks */
-            total_chunks: number;
             /** Upload Id */
             upload_id: string;
+            /** Filename */
+            filename: string;
+            /** Chunks Received */
+            chunks_received: number;
+            /** Total Chunks */
+            total_chunks: number;
+            /** Is Complete */
+            is_complete: boolean;
+            /** File Size */
+            file_size: number;
         };
         /**
          * CodeChallengeLeaderboard
@@ -5570,10 +5273,10 @@ export interface components {
         CodeChallengeLeaderboard: {
             /** Activity Uuid */
             activity_uuid: string;
-            /** Current User Rank */
-            current_user_rank?: number | null;
             /** Entries */
             entries: components["schemas"]["LeaderboardEntry"][];
+            /** Current User Rank */
+            current_user_rank?: number | null;
             /** Total Participants */
             total_participants: number;
         };
@@ -5592,14 +5295,6 @@ export interface components {
          * @description Detailed submission with source code (for review)
          */
         CodeSubmissionDetail: {
-            /** Activity Id */
-            activity_id: number;
-            /** Created At */
-            created_at: string;
-            /** Execution Time Ms */
-            execution_time_ms?: number | null;
-            /** Id */
-            id: number;
             /** Language Id */
             language_id: number;
             /**
@@ -5607,53 +5302,53 @@ export interface components {
              * @default
              */
             language_name: string;
-            /** Memory Kb */
-            memory_kb?: number | null;
-            /**
-             * Passed Tests
-             * @default 0
-             */
-            passed_tests: number;
-            /** Plagiarism Score */
-            plagiarism_score?: number | null;
+            /** Source Code */
+            source_code: string;
+            /** @default PENDING */
+            status: components["schemas"]["src__db__courses__code_challenges__SubmissionStatus"];
             /**
              * Score
              * @default 0
              */
             score: number;
-            /** Source Code */
-            source_code: string;
-            /** @default PENDING */
-            status: components["schemas"]["src__db__courses__code_challenges__SubmissionStatus"];
-            /** Submission Uuid */
-            submission_uuid: string;
-            /** Test Results */
-            test_results: {
-                [key: string]: unknown;
-            };
+            /**
+             * Passed Tests
+             * @default 0
+             */
+            passed_tests: number;
             /**
              * Total Tests
              * @default 0
              */
             total_tests: number;
-            /** Updated At */
-            updated_at: string;
+            /** Execution Time Ms */
+            execution_time_ms?: number | null;
+            /** Memory Kb */
+            memory_kb?: number | null;
+            /** Id */
+            id: number;
+            /** Submission Uuid */
+            submission_uuid: string;
+            /** Activity Id */
+            activity_id: number;
             /** User Id */
             user_id: number;
+            /** Test Results */
+            test_results: {
+                [key: string]: unknown;
+            };
+            /** Created At */
+            created_at: string;
+            /** Updated At */
+            updated_at: string;
+            /** Plagiarism Score */
+            plagiarism_score?: number | null;
         };
         /**
          * CodeSubmissionRead
          * @description Model for reading a code submission
          */
         CodeSubmissionRead: {
-            /** Activity Id */
-            activity_id: number;
-            /** Created At */
-            created_at: string;
-            /** Execution Time Ms */
-            execution_time_ms?: number | null;
-            /** Id */
-            id: number;
             /** Language Id */
             language_id: number;
             /**
@@ -5661,62 +5356,68 @@ export interface components {
              * @default
              */
             language_name: string;
-            /** Memory Kb */
-            memory_kb?: number | null;
-            /**
-             * Passed Tests
-             * @default 0
-             */
-            passed_tests: number;
-            /** Plagiarism Score */
-            plagiarism_score?: number | null;
+            /** Source Code */
+            source_code: string;
+            /** @default PENDING */
+            status: components["schemas"]["src__db__courses__code_challenges__SubmissionStatus"];
             /**
              * Score
              * @default 0
              */
             score: number;
-            /** Source Code */
-            source_code: string;
-            /** @default PENDING */
-            status: components["schemas"]["src__db__courses__code_challenges__SubmissionStatus"];
-            /** Submission Uuid */
-            submission_uuid: string;
-            /** Test Results */
-            test_results: {
-                [key: string]: unknown;
-            };
+            /**
+             * Passed Tests
+             * @default 0
+             */
+            passed_tests: number;
             /**
              * Total Tests
              * @default 0
              */
             total_tests: number;
-            /** Updated At */
-            updated_at: string;
+            /** Execution Time Ms */
+            execution_time_ms?: number | null;
+            /** Memory Kb */
+            memory_kb?: number | null;
+            /** Id */
+            id: number;
+            /** Submission Uuid */
+            submission_uuid: string;
+            /** Activity Id */
+            activity_id: number;
             /** User Id */
             user_id: number;
+            /** Test Results */
+            test_results: {
+                [key: string]: unknown;
+            };
+            /** Created At */
+            created_at: string;
+            /** Updated At */
+            updated_at: string;
+            /** Plagiarism Score */
+            plagiarism_score?: number | null;
         };
         /** CollectionCreate */
         CollectionCreate: {
-            /** Courses */
-            courses: number[];
+            /** Name */
+            name: string;
+            /** Public */
+            public: boolean;
             /**
              * Description
              * @default
              */
             description: string | null;
+            /** Courses */
+            courses: number[];
+        };
+        /** CollectionRead */
+        CollectionRead: {
             /** Name */
             name: string;
             /** Public */
             public: boolean;
-        };
-        /** CollectionRead */
-        CollectionRead: {
-            /** Collection Uuid */
-            collection_uuid: string;
-            /** Courses */
-            courses: unknown[];
-            /** Creation Date */
-            creation_date: string;
             /**
              * Description
              * @default
@@ -5724,10 +5425,12 @@ export interface components {
             description: string | null;
             /** Id */
             id: number;
-            /** Name */
-            name: string;
-            /** Public */
-            public: boolean;
+            /** Courses */
+            courses: unknown[];
+            /** Collection Uuid */
+            collection_uuid: string;
+            /** Creation Date */
+            creation_date: string;
             /** Update Date */
             update_date: string;
         };
@@ -5736,16 +5439,10 @@ export interface components {
          * @description Collection response with permission metadata for frontend.
          */
         CollectionReadWithPermissions: {
-            /** Can Delete */
-            can_delete: boolean;
-            /** Can Update */
-            can_update: boolean;
-            /** Collection Uuid */
-            collection_uuid: string;
-            /** Courses */
-            courses: unknown[];
-            /** Creation Date */
-            creation_date: string;
+            /** Name */
+            name: string;
+            /** Public */
+            public: boolean;
             /**
              * Description
              * @default
@@ -5753,59 +5450,80 @@ export interface components {
             description: string | null;
             /** Id */
             id: number;
-            /** Is Owner */
-            is_owner: boolean;
-            /** Name */
-            name: string;
-            /** Public */
-            public: boolean;
+            /** Courses */
+            courses: unknown[];
+            /** Collection Uuid */
+            collection_uuid: string;
+            /** Creation Date */
+            creation_date: string;
             /** Update Date */
             update_date: string;
+            /** Can Update */
+            can_update: boolean;
+            /** Can Delete */
+            can_delete: boolean;
+            /** Is Owner */
+            is_owner: boolean;
         };
         /** CollectionUpdate */
         CollectionUpdate: {
             /** Courses */
             courses?: unknown[] | null;
+            /** Name */
+            name?: string | null;
+            /** Public */
+            public?: boolean | null;
             /**
              * Description
              * @default
              */
             description: string | null;
-            /** Name */
-            name?: string | null;
-            /** Public */
-            public?: boolean | null;
         };
         /** CommonFailureRow */
         CommonFailureRow: {
-            /** Count */
-            count: number;
             /** Key */
             key: string;
             /** Label */
             label: string;
+            /** Count */
+            count: number;
         };
         /** ContentBottleneckRow */
         ContentBottleneckRow: {
+            /** Course Id */
+            course_id: number;
+            /** Course Name */
+            course_name: string;
             /** Activity Id */
             activity_id: number;
             /** Activity Name */
             activity_name: string;
             /** Activity Type */
             activity_type: string;
-            /** Avg Time Seconds */
-            avg_time_seconds?: number | null;
+            /**
+             * Signal
+             * @enum {string}
+             */
+            signal: "high_time_low_completion" | "exit_after_open" | "repeated_assessment_failures" | "stale_low_performance";
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "info" | "warning" | "critical";
+            /** Completion Rate */
+            completion_rate?: number | null;
+            /**
+             * Started Learners
+             * @default 0
+             */
+            started_learners: number;
             /**
              * Completed Learners
              * @default 0
              */
             completed_learners: number;
-            /** Completion Rate */
-            completion_rate?: number | null;
-            /** Course Id */
-            course_id: number;
-            /** Course Name */
-            course_name: string;
+            /** Avg Time Seconds */
+            avg_time_seconds?: number | null;
             /**
              * Exit Count
              * @default 0
@@ -5816,50 +5534,35 @@ export interface components {
              * @default 0
              */
             failed_assessments: number;
-            /** Note */
-            note: string;
-            /**
-             * Severity
-             * @enum {string}
-             */
-            severity: "info" | "warning" | "critical";
-            /**
-             * Signal
-             * @enum {string}
-             */
-            signal: "high_time_low_completion" | "exit_after_open" | "repeated_assessment_failures" | "stale_low_performance";
             /** Stale Days */
             stale_days?: number | null;
-            /**
-             * Started Learners
-             * @default 0
-             */
-            started_learners: number;
+            /** Note */
+            note: string;
         };
         /** ContentHealthRow */
         ContentHealthRow: {
             /** Course Id */
             course_id: number;
-            /** Note */
-            note: string;
+            /** Signal */
+            signal: string;
             /**
              * Severity
              * @enum {string}
              */
             severity: "info" | "warning" | "critical";
-            /** Signal */
-            signal: string;
             /** Value */
             value?: number | null;
+            /** Note */
+            note: string;
         };
         /** CourseAccessUpdate */
         CourseAccessUpdate: {
-            /** Last Known Update Date */
-            last_known_update_date?: string | null;
-            /** Open To Contributors */
-            open_to_contributors?: boolean | null;
             /** Public */
             public?: boolean | null;
+            /** Open To Contributors */
+            open_to_contributors?: boolean | null;
+            /** Last Known Update Date */
+            last_known_update_date?: string | null;
         };
         /** CourseDetailResponse */
         CourseDetailResponse: {
@@ -5870,105 +5573,105 @@ export interface components {
         CourseDiscussionCreate: {
             /** Content */
             content: string;
-            /** Parent Discussion Id */
-            parent_discussion_id?: number | null;
             /** @default post */
             type: components["schemas"]["DiscussionType"];
+            /** Parent Discussion Id */
+            parent_discussion_id?: number | null;
         };
         /** CourseDiscussionRead */
         CourseDiscussionRead: {
-            /** Content */
-            content: string;
-            /** Course Id */
-            course_id: number;
-            /** Creation Date */
-            creation_date: string;
-            /** Discussion Uuid */
-            discussion_uuid: string;
-            /** Dislikes Count */
-            dislikes_count: number;
             /** Id */
             id: number;
-            /**
-             * Is Disliked
-             * @default false
-             */
-            is_disliked: boolean;
+            /** Discussion Uuid */
+            discussion_uuid: string;
+            /** Content */
+            content: string;
+            type: components["schemas"]["DiscussionType"];
+            status: components["schemas"]["DiscussionStatusEnum"];
+            /** Course Id */
+            course_id: number;
+            /** User Id */
+            user_id: number;
+            /** Parent Discussion Id */
+            parent_discussion_id: number | null;
+            /** Likes Count */
+            likes_count: number;
+            /** Dislikes Count */
+            dislikes_count: number;
+            /** Replies Count */
+            replies_count: number;
+            /** Creation Date */
+            creation_date: string;
+            /** Update Date */
+            update_date: string;
+            user?: components["schemas"]["UserRead"] | null;
+            /** Replies */
+            replies?: components["schemas"]["CourseDiscussionRead"][] | null;
             /**
              * Is Liked
              * @default false
              */
             is_liked: boolean;
-            /** Likes Count */
-            likes_count: number;
-            /** Parent Discussion Id */
-            parent_discussion_id: number | null;
-            /** Replies */
-            replies?: components["schemas"]["CourseDiscussionRead"][] | null;
-            /** Replies Count */
-            replies_count: number;
-            status: components["schemas"]["DiscussionStatusEnum"];
-            type: components["schemas"]["DiscussionType"];
-            /** Update Date */
-            update_date: string;
-            user?: components["schemas"]["UserRead"] | null;
-            /** User Id */
-            user_id: number;
+            /**
+             * Is Disliked
+             * @default false
+             */
+            is_disliked: boolean;
         };
         /**
          * CourseDiscussionReadWithPermissions
          * @description Discussion response with permission metadata.
          */
         CourseDiscussionReadWithPermissions: {
-            /** Available Actions */
-            available_actions: string[];
-            /** Can Delete */
-            can_delete: boolean;
-            /** Can Moderate */
-            can_moderate: boolean;
-            /** Can Update */
-            can_update: boolean;
-            /** Content */
-            content: string;
-            /** Course Id */
-            course_id: number;
-            /** Creation Date */
-            creation_date: string;
-            /** Discussion Uuid */
-            discussion_uuid: string;
-            /** Dislikes Count */
-            dislikes_count: number;
             /** Id */
             id: number;
-            /** Is Creator */
-            is_creator: boolean;
-            /**
-             * Is Disliked
-             * @default false
-             */
-            is_disliked: boolean;
+            /** Discussion Uuid */
+            discussion_uuid: string;
+            /** Content */
+            content: string;
+            type: components["schemas"]["DiscussionType"];
+            status: components["schemas"]["DiscussionStatusEnum"];
+            /** Course Id */
+            course_id: number;
+            /** User Id */
+            user_id: number;
+            /** Parent Discussion Id */
+            parent_discussion_id: number | null;
+            /** Likes Count */
+            likes_count: number;
+            /** Dislikes Count */
+            dislikes_count: number;
+            /** Replies Count */
+            replies_count: number;
+            /** Creation Date */
+            creation_date: string;
+            /** Update Date */
+            update_date: string;
+            user?: components["schemas"]["UserRead"] | null;
+            /** Replies */
+            replies?: components["schemas"]["CourseDiscussionRead"][] | null;
             /**
              * Is Liked
              * @default false
              */
             is_liked: boolean;
+            /**
+             * Is Disliked
+             * @default false
+             */
+            is_disliked: boolean;
+            /** Can Update */
+            can_update: boolean;
+            /** Can Delete */
+            can_delete: boolean;
+            /** Can Moderate */
+            can_moderate: boolean;
             /** Is Owner */
             is_owner: boolean;
-            /** Likes Count */
-            likes_count: number;
-            /** Parent Discussion Id */
-            parent_discussion_id: number | null;
-            /** Replies */
-            replies?: components["schemas"]["CourseDiscussionRead"][] | null;
-            /** Replies Count */
-            replies_count: number;
-            status: components["schemas"]["DiscussionStatusEnum"];
-            type: components["schemas"]["DiscussionType"];
-            /** Update Date */
-            update_date: string;
-            user?: components["schemas"]["UserRead"] | null;
-            /** User Id */
-            user_id: number;
+            /** Is Creator */
+            is_creator: boolean;
+            /** Available Actions */
+            available_actions: string[];
         };
         /** CourseDiscussionUpdate */
         CourseDiscussionUpdate: {
@@ -5978,24 +5681,24 @@ export interface components {
         };
         /** CourseMetadataUpdate */
         CourseMetadataUpdate: {
-            /** About */
-            about?: string | null;
-            /** Description */
-            description?: string | null;
-            /** Last Known Update Date */
-            last_known_update_date?: string | null;
-            /** Learnings */
-            learnings?: string | null;
             /** Name */
             name?: string | null;
+            /** Description */
+            description?: string | null;
+            /** About */
+            about?: string | null;
+            /** Learnings */
+            learnings?: string | null;
             /** Tags */
             tags?: string | null;
             thumbnail_type?: components["schemas"]["ThumbnailType"] | null;
+            /** Last Known Update Date */
+            last_known_update_date?: string | null;
         };
         /** CourseRead */
         CourseRead: {
-            /** About */
-            about?: string | null;
+            /** Id */
+            id: number;
             /** Authors */
             authors?: components["schemas"]["AuthorWithRole"][];
             /** Course Uuid */
@@ -6005,37 +5708,37 @@ export interface components {
              * Format: date-time
              */
             creation_date: string;
-            /** Description */
-            description?: string | null;
-            /** Id */
-            id: number;
-            /** Learnings */
-            learnings?: string | null;
-            /** Name */
-            name: string;
-            /** Open To Contributors */
-            open_to_contributors: boolean;
-            /** Public */
-            public: boolean;
-            /** Tags */
-            tags?: string | null;
-            /**
-             * Thumbnail Image
-             * @default
-             */
-            thumbnail_image: string | null;
-            /** @default image */
-            thumbnail_type: components["schemas"]["ThumbnailType"] | null;
-            /**
-             * Thumbnail Video
-             * @default
-             */
-            thumbnail_video: string | null;
             /**
              * Update Date
              * Format: date-time
              */
             update_date: string;
+            /** @default image */
+            thumbnail_type: components["schemas"]["ThumbnailType"] | null;
+            /**
+             * Thumbnail Image
+             * @default
+             */
+            thumbnail_image: string | null;
+            /**
+             * Thumbnail Video
+             * @default
+             */
+            thumbnail_video: string | null;
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /** About */
+            about?: string | null;
+            /** Learnings */
+            learnings?: string | null;
+            /** Tags */
+            tags?: string | null;
+            /** Public */
+            public: boolean;
+            /** Open To Contributors */
+            open_to_contributors: boolean;
         };
         /**
          * CourseReadWithPermissions
@@ -6045,10 +5748,54 @@ export interface components {
          *     the current user can perform on this course.
          */
         CourseReadWithPermissions: {
-            /** About */
-            about?: string | null;
+            /** Id */
+            id: number;
             /** Authors */
             authors?: components["schemas"]["AuthorWithRole"][];
+            /** Course Uuid */
+            course_uuid: string;
+            /**
+             * Creation Date
+             * Format: date-time
+             */
+            creation_date: string;
+            /**
+             * Update Date
+             * Format: date-time
+             */
+            update_date: string;
+            /** @default image */
+            thumbnail_type: components["schemas"]["ThumbnailType"] | null;
+            /**
+             * Thumbnail Image
+             * @default
+             */
+            thumbnail_image: string | null;
+            /**
+             * Thumbnail Video
+             * @default
+             */
+            thumbnail_video: string | null;
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /** About */
+            about?: string | null;
+            /** Learnings */
+            learnings?: string | null;
+            /** Tags */
+            tags?: string | null;
+            /** Public */
+            public: boolean;
+            /** Open To Contributors */
+            open_to_contributors: boolean;
+            /**
+             * Can Update
+             * @description Whether the user can update this course
+             * @default false
+             */
+            can_update: boolean;
             /**
              * Can Delete
              * @description Whether the user can delete this course
@@ -6062,152 +5809,108 @@ export interface components {
              */
             can_manage_contributors: boolean;
             /**
-             * Can Update
-             * @description Whether the user can update this course
-             * @default false
-             */
-            can_update: boolean;
-            /** Course Uuid */
-            course_uuid: string;
-            /**
-             * Creation Date
-             * Format: date-time
-             */
-            creation_date: string;
-            /** Description */
-            description?: string | null;
-            /** Id */
-            id: number;
-            /**
              * Is Owner
              * @description Whether the current user is the course owner/author
              * @default false
              */
             is_owner: boolean;
-            /** Learnings */
-            learnings?: string | null;
-            /** Name */
-            name: string;
-            /** Open To Contributors */
-            open_to_contributors: boolean;
-            /** Public */
-            public: boolean;
-            /** Tags */
-            tags?: string | null;
-            /**
-             * Thumbnail Image
-             * @default
-             */
-            thumbnail_image: string | null;
-            /** @default image */
-            thumbnail_type: components["schemas"]["ThumbnailType"] | null;
-            /**
-             * Thumbnail Video
-             * @default
-             */
-            thumbnail_video: string | null;
-            /**
-             * Update Date
-             * Format: date-time
-             */
-            update_date: string;
         };
         /** CourseUpdateCreate */
         CourseUpdateCreate: {
+            /** Title */
+            title: string;
             /** Content */
             content: string;
             /** Linked Activity Uuids */
             linked_activity_uuids?: string | null;
-            /** Title */
-            title: string;
         };
         /** CourseUpdateRead */
         CourseUpdateRead: {
+            /** Id */
+            id: number;
+            /** Title */
+            title: string;
             /** Content */
             content: string;
             /** Course Id */
             course_id: number;
             /** Courseupdate Uuid */
             courseupdate_uuid: string;
-            /** Creation Date */
-            creation_date: string;
-            /** Id */
-            id: number;
             /** Linked Activity Uuids */
             linked_activity_uuids?: string | null;
-            /** Title */
-            title: string;
+            /** Creation Date */
+            creation_date: string;
             /** Update Date */
             update_date: string;
         };
         /** CourseUpdateUpdate */
         CourseUpdateUpdate: {
+            /** Title */
+            title?: string | null;
             /** Content */
             content?: string | null;
             /** Linked Activity Uuids */
             linked_activity_uuids?: string | null;
-            /** Title */
-            title?: string | null;
         };
         /** CourseUserRightsOwnership */
         CourseUserRightsOwnership: {
-            authorship_status?: components["schemas"]["ResourceAuthorshipStatusEnum"] | null;
-            /** Is Contributor */
-            is_contributor: boolean;
+            /** Is Owner */
+            is_owner: boolean;
             /** Is Creator */
             is_creator: boolean;
             /** Is Maintainer */
             is_maintainer: boolean;
-            /** Is Owner */
-            is_owner: boolean;
+            /** Is Contributor */
+            is_contributor: boolean;
+            authorship_status?: components["schemas"]["ResourceAuthorshipStatusEnum"] | null;
         };
         /** CourseUserRightsPermissions */
         CourseUserRightsPermissions: {
-            /** Create */
-            create: boolean;
-            /** Create Certifications */
-            create_certifications: boolean;
-            /** Create Content */
-            create_content: boolean;
-            /** Delete */
-            delete: boolean;
-            /** Delete Content */
-            delete_content: boolean;
-            /** Grade Assignments */
-            grade_assignments: boolean;
-            /** Manage Access */
-            manage_access: boolean;
-            /** Manage Contributors */
-            manage_contributors: boolean;
-            /** Mark Activities Done */
-            mark_activities_done: boolean;
             /** Read */
             read: boolean;
+            /** Create */
+            create: boolean;
             /** Update */
             update: boolean;
+            /** Delete */
+            delete: boolean;
+            /** Create Content */
+            create_content: boolean;
             /** Update Content */
             update_content: boolean;
+            /** Delete Content */
+            delete_content: boolean;
+            /** Manage Contributors */
+            manage_contributors: boolean;
+            /** Manage Access */
+            manage_access: boolean;
+            /** Grade Assignments */
+            grade_assignments: boolean;
+            /** Mark Activities Done */
+            mark_activities_done: boolean;
+            /** Create Certifications */
+            create_certifications: boolean;
         };
         /** CourseUserRightsResponse */
         CourseUserRightsResponse: {
             /** Course Uuid */
             course_uuid: string;
-            /** Is Anonymous */
-            is_anonymous: boolean;
-            ownership: components["schemas"]["CourseUserRightsOwnership"];
-            permissions: components["schemas"]["CourseUserRightsPermissions"];
-            roles: components["schemas"]["CourseUserRightsRoles"];
             /** User Id */
             user_id: number;
+            /** Is Anonymous */
+            is_anonymous: boolean;
+            permissions: components["schemas"]["CourseUserRightsPermissions"];
+            ownership: components["schemas"]["CourseUserRightsOwnership"];
+            roles: components["schemas"]["CourseUserRightsRoles"];
         };
         /** CourseUserRightsRoles */
         CourseUserRightsRoles: {
             /** Is Admin */
             is_admin: boolean;
-            /** Is Instructor */
-            is_instructor: boolean;
             /** Is Maintainer Role */
             is_maintainer_role: boolean;
+            /** Is Instructor */
+            is_instructor: boolean;
             /** Is User */
             is_user: boolean;
         };
@@ -6231,39 +5934,35 @@ export interface components {
          * @description Response for custom test input
          */
         CustomTestResponse: {
-            /** Compile Output */
-            compile_output?: string | null;
-            /** Memory Kb */
-            memory_kb?: number | null;
             /** Status */
             status: number;
             /** Status Description */
             status_description: string;
-            /** Stderr */
-            stderr?: string | null;
             /** Stdout */
             stdout?: string | null;
+            /** Stderr */
+            stderr?: string | null;
+            /** Compile Output */
+            compile_output?: string | null;
             /** Time Ms */
             time_ms?: number | null;
+            /** Memory Kb */
+            memory_kb?: number | null;
         };
         /**
          * DashboardRead
          * @description Dashboard data combining profile, transactions, and leaderboard snapshot.
          */
         DashboardRead: {
-            leaderboard?: components["schemas"]["LeaderboardRead"] | null;
             profile: components["schemas"]["ProfileRead"];
             /** Recent Transactions */
             recent_transactions: components["schemas"]["TransactionRead"][];
             /** User Rank */
             user_rank?: number | null;
+            leaderboard?: components["schemas"]["LeaderboardRead"] | null;
         };
         /** DataQualityIssue */
         DataQualityIssue: {
-            /** Course Id */
-            course_id?: number | null;
-            /** Detail */
-            detail: string;
             /** Id */
             id: string;
             /**
@@ -6271,21 +5970,25 @@ export interface components {
              * @enum {string}
              */
             severity: "info" | "warning" | "critical";
-            /** Source */
-            source?: string | null;
             /** Title */
             title: string;
+            /** Detail */
+            detail: string;
+            /** Course Id */
+            course_id?: number | null;
+            /** Source */
+            source?: string | null;
         };
         /** DiscussionLikeRead */
         DiscussionLikeRead: {
-            /** Creation Date */
-            creation_date: string;
-            /** Discussion Id */
-            discussion_id: number;
             /** Id */
             id: number;
+            /** Discussion Id */
+            discussion_id: number;
             /** User Id */
             user_id: number;
+            /** Creation Date */
+            creation_date: string;
         };
         /**
          * DiscussionStatusEnum
@@ -6302,13 +6005,6 @@ export interface components {
             /** Generated At */
             generated_at: string;
             /**
-             * Items
-             * @default []
-             */
-            items: {
-                [key: string]: unknown;
-            }[];
-            /**
              * Metric
              * @enum {string}
              */
@@ -6318,6 +6014,13 @@ export interface components {
              * @default 0
              */
             total: number;
+            /**
+             * Items
+             * @default []
+             */
+            items: {
+                [key: string]: unknown;
+            }[];
         };
         /** ErrorModel */
         ErrorModel: {
@@ -6331,55 +6034,51 @@ export interface components {
          * @description Model for reading an exam attempt
          */
         ExamAttemptRead: {
+            /** Exam Id */
+            exam_id: number;
+            /** User Id */
+            user_id: number;
+            /** @default IN_PROGRESS */
+            status: components["schemas"]["AttemptStatusEnum"];
+            /** Score */
+            score?: number | null;
+            /** Max Score */
+            max_score?: number | null;
             /** Answers */
             answers?: {
                 [key: string]: unknown;
             };
-            /** Attempt Uuid */
-            attempt_uuid: string;
-            /** Creation Date */
-            creation_date?: string | null;
-            /** Exam Id */
-            exam_id: number;
-            /** Id */
-            id: number;
+            /** Question Order */
+            question_order?: number[];
+            /** Violations */
+            violations?: {
+                [key: string]: unknown;
+            }[];
             /**
              * Is Preview
              * @default false
              */
             is_preview: boolean;
-            /** Max Score */
-            max_score?: number | null;
-            /** Question Order */
-            question_order?: number[];
-            /** Score */
-            score?: number | null;
             /** Started At */
             started_at?: string | null;
-            /** @default IN_PROGRESS */
-            status: components["schemas"]["AttemptStatusEnum"];
             /** Submitted At */
             submitted_at?: string | null;
+            /** Id */
+            id: number;
+            /** Attempt Uuid */
+            attempt_uuid: string;
+            /** Creation Date */
+            creation_date?: string | null;
             /** Update Date */
             update_date?: string | null;
-            /** User Id */
-            user_id: number;
-            /** Violations */
-            violations?: {
-                [key: string]: unknown;
-            }[];
         };
         /**
          * ExamCreate
          * @description Model for creating a new exam
          */
         ExamCreate: {
-            /** Activity Id */
-            activity_id: number;
-            /** Chapter Id */
-            chapter_id: number;
-            /** Course Id */
-            course_id: number;
+            /** Title */
+            title: string;
             /** Description */
             description: string;
             /**
@@ -6387,12 +6086,16 @@ export interface components {
              * @default false
              */
             published: boolean;
+            /** Course Id */
+            course_id: number;
+            /** Chapter Id */
+            chapter_id: number;
+            /** Activity Id */
+            activity_id: number;
             /** Settings */
             settings?: {
                 [key: string]: unknown;
             };
-            /** Title */
-            title: string;
         };
         /**
          * ExamCreateWithActivity
@@ -6403,10 +6106,10 @@ export interface components {
             activity_name: string;
             /** Chapter Id */
             chapter_id: number;
-            /** Exam Description */
-            exam_description: string;
             /** Exam Title */
             exam_title: string;
+            /** Exam Description */
+            exam_description: string;
             /** Settings */
             settings?: {
                 [key: string]: unknown;
@@ -6417,31 +6120,31 @@ export interface components {
          * @description Model for reading an exam
          */
         ExamRead: {
-            /** Activity Id */
-            activity_id: number;
-            /** Chapter Id */
-            chapter_id: number;
-            /** Course Id */
-            course_id: number;
-            /** Creation Date */
-            creation_date?: string | null;
+            /** Title */
+            title: string;
             /** Description */
             description: string;
-            /** Exam Uuid */
-            exam_uuid: string;
-            /** Id */
-            id: number;
             /**
              * Published
              * @default false
              */
             published: boolean;
+            /** Course Id */
+            course_id: number;
+            /** Chapter Id */
+            chapter_id: number;
+            /** Activity Id */
+            activity_id: number;
             /** Settings */
             settings?: {
                 [key: string]: unknown;
             };
-            /** Title */
-            title: string;
+            /** Id */
+            id: number;
+            /** Exam Uuid */
+            exam_uuid: string;
+            /** Creation Date */
+            creation_date?: string | null;
             /** Update Date */
             update_date?: string | null;
         };
@@ -6450,6 +6153,8 @@ export interface components {
          * @description Model for updating an exam
          */
         ExamUpdate: {
+            /** Title */
+            title?: string | null;
             /** Description */
             description?: string | null;
             /** Published */
@@ -6458,8 +6163,6 @@ export interface components {
             settings?: {
                 [key: string]: unknown;
             } | null;
-            /** Title */
-            title?: string | null;
             /** Update Date */
             update_date?: string | null;
         };
@@ -6471,6 +6174,15 @@ export interface components {
         ExecutionMode: "FAST_FEEDBACK" | "COMPLETE_FEEDBACK";
         /** ExternalVideo */
         ExternalVideo: {
+            /** Name */
+            name: string;
+            /** Uri */
+            uri: string;
+            /**
+             * Type
+             * @constant
+             */
+            type: "youtube";
             /** Chapter Id */
             chapter_id: number;
             /**
@@ -6478,22 +6190,25 @@ export interface components {
              * @default {}
              */
             details: string;
-            /** Name */
-            name: string;
-            /**
-             * Type
-             * @constant
-             */
-            type: "youtube";
-            /** Uri */
-            uri: string;
         };
         /** ForecastItem */
         ForecastItem: {
-            /** Assessment Id */
-            assessment_id?: number | null;
-            /** Assessment Type */
-            assessment_type?: string | null;
+            /** Id */
+            id: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "completion_target_miss" | "grading_backlog_7d" | "course_completion_deadline" | "assessment_failure_risk";
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "info" | "warning" | "critical";
+            /** Title */
+            title: string;
+            /** Prediction */
+            prediction: string;
             /**
              * Confidence Level
              * @enum {string}
@@ -6503,78 +6218,66 @@ export interface components {
             course_id?: number | null;
             /** Course Name */
             course_name?: string | null;
-            /** Deadline At */
-            deadline_at?: string | null;
-            /** Expected Value */
-            expected_value?: number | null;
-            /** Id */
-            id: string;
+            /** Assessment Type */
+            assessment_type?: string | null;
+            /** Assessment Id */
+            assessment_id?: number | null;
             /** Learner Count */
             learner_count?: number | null;
-            /** Prediction */
-            prediction: string;
-            /**
-             * Severity
-             * @enum {string}
-             */
-            severity: "info" | "warning" | "critical";
+            /** Expected Value */
+            expected_value?: number | null;
             /** Target Value */
             target_value?: number | null;
-            /** Title */
-            title: string;
-            /**
-             * Type
-             * @enum {string}
-             */
-            type: "completion_target_miss" | "grading_backlog_7d" | "course_completion_deadline" | "assessment_failure_risk";
+            /** Deadline At */
+            deadline_at?: string | null;
         };
         /** FullCourseRead */
         FullCourseRead: {
-            /** About */
-            about?: string | null;
-            /** Authors */
-            authors: components["schemas"]["AuthorWithRole"][];
-            /** Chapters */
-            chapters: components["schemas"]["ChapterReadWithPermissions"][];
+            /** Id */
+            id: number;
             /** Course Uuid */
             course_uuid?: string | null;
             /** Creation Date */
             creation_date?: string | null;
-            /** Description */
-            description?: string | null;
-            /** Id */
-            id: number;
-            /** Learnings */
-            learnings?: string | null;
-            /** Name */
-            name: string;
-            /** Open To Contributors */
-            open_to_contributors: boolean;
-            /** Public */
-            public: boolean;
-            /** Tags */
-            tags?: string | null;
+            /** Update Date */
+            update_date?: string | null;
+            /** @default image */
+            thumbnail_type: components["schemas"]["ThumbnailType"] | null;
             /**
              * Thumbnail Image
              * @default
              */
             thumbnail_image: string | null;
-            /** @default image */
-            thumbnail_type: components["schemas"]["ThumbnailType"] | null;
             /**
              * Thumbnail Video
              * @default
              */
             thumbnail_video: string | null;
-            /** Update Date */
-            update_date?: string | null;
+            /** Chapters */
+            chapters: components["schemas"]["ChapterReadWithPermissions"][];
+            /** Authors */
+            authors: components["schemas"]["AuthorWithRole"][];
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /** About */
+            about?: string | null;
+            /** Learnings */
+            learnings?: string | null;
+            /** Tags */
+            tags?: string | null;
+            /** Public */
+            public: boolean;
+            /** Open To Contributors */
+            open_to_contributors: boolean;
         };
         /** FunnelStep */
         FunnelStep: {
-            /** Count */
-            count: number;
             /** Label */
             label: string;
+            /** Count */
+            count: number;
             /** Pct Of Previous */
             pct_of_previous?: number | null;
         };
@@ -6583,15 +6286,6 @@ export interface components {
          * @description Per-question or per-task grading detail.
          */
         GradedItem: {
-            /** Correct */
-            correct?: boolean | null;
-            /** Correct Answer */
-            correct_answer?: unknown;
-            /**
-             * Feedback
-             * @default
-             */
-            feedback: string;
             /** Item Id */
             item_id: string;
             /**
@@ -6600,27 +6294,38 @@ export interface components {
              */
             item_text: string;
             /**
+             * Score
+             * @default 0
+             */
+            score: number;
+            /**
              * Max Score
              * @default 0
              */
             max_score: number;
+            /** Correct */
+            correct?: boolean | null;
+            /**
+             * Feedback
+             * @default
+             */
+            feedback: string;
             /**
              * Needs Manual Review
              * @default false
              */
             needs_manual_review: boolean;
-            /**
-             * Score
-             * @default 0
-             */
-            score: number;
             /** User Answer */
             user_answer?: unknown;
+            /** Correct Answer */
+            correct_answer?: unknown;
         };
         /** GradingBacklogItem */
         GradingBacklogItem: {
-            /** Age Hours */
-            age_hours?: number | null;
+            /** Course Id */
+            course_id: number;
+            /** Course Name */
+            course_name: string;
             /** Assessment Id */
             assessment_id: number;
             /**
@@ -6628,27 +6333,32 @@ export interface components {
              * @constant
              */
             assessment_type: "assignment";
+            /** Title */
+            title: string;
             /** Awaiting Review */
             awaiting_review: number;
-            /** Course Id */
-            course_id: number;
-            /** Course Name */
-            course_name: string;
             /** Oldest Submitted At */
             oldest_submitted_at?: string | null;
+            /** Age Hours */
+            age_hours?: number | null;
             /**
              * Sla Breaches
              * @default 0
              */
             sla_breaches: number;
-            /** Title */
-            title: string;
         };
         /**
          * GradingBreakdown
          * @description Complete grading result for a submission.
          */
         GradingBreakdown: {
+            /** Items */
+            items?: components["schemas"]["GradedItem"][];
+            /**
+             * Needs Manual Review
+             * @default false
+             */
+            needs_manual_review: boolean;
             /**
              * Auto Graded
              * @default false
@@ -6659,13 +6369,6 @@ export interface components {
              * @default
              */
             feedback: string;
-            /** Items */
-            items?: components["schemas"]["GradedItem"][];
-            /**
-             * Needs Manual Review
-             * @default false
-             */
-            needs_manual_review: boolean;
         };
         /**
          * GradingStrategy
@@ -6685,113 +6388,113 @@ export interface components {
         };
         /** HistogramBucket */
         HistogramBucket: {
-            /** Count */
-            count: number;
             /** Label */
             label: string;
+            /** Count */
+            count: number;
         };
         /** InsightFeedItem */
         InsightFeedItem: {
-            /** Activity Id */
-            activity_id?: number | null;
-            /** Assessment Id */
-            assessment_id?: number | null;
-            /** Assessment Type */
-            assessment_type?: string | null;
-            /** Body */
-            body: string;
+            /** Id */
+            id: string;
             /**
              * Category
              * @enum {string}
              */
             category: "risk" | "assessment" | "content" | "workload" | "completion" | "intervention";
-            /** Course Id */
-            course_id?: number | null;
-            /** Href */
-            href?: string | null;
-            /** Id */
-            id: string;
-            /** Learner Count */
-            learner_count?: number | null;
-            /** Priority */
-            priority: number;
             /**
              * Severity
              * @enum {string}
              */
             severity: "info" | "warning" | "critical";
+            /** Priority */
+            priority: number;
             /** Title */
             title: string;
+            /** Body */
+            body: string;
+            /** Course Id */
+            course_id?: number | null;
+            /** Activity Id */
+            activity_id?: number | null;
+            /** Assessment Type */
+            assessment_type?: string | null;
+            /** Assessment Id */
+            assessment_id?: number | null;
+            /** Learner Count */
+            learner_count?: number | null;
+            /** Href */
+            href?: string | null;
         };
         /**
          * InstructorAnalytics
          * @description Analytics for instructors on a code challenge
          */
         InstructorAnalytics: {
-            /** Average Score */
-            average_score: number;
-            /** Common Errors */
-            common_errors: {
-                [key: string]: unknown;
-            }[];
+            /** Total Submissions */
+            total_submissions: number;
+            /** Unique Students */
+            unique_students: number;
             /** Completion Rate */
             completion_rate: number;
-            /** Failing Tests */
-            failing_tests: {
+            /** Average Score */
+            average_score: number;
+            /** Score Distribution */
+            score_distribution: {
                 [key: string]: number;
             };
             /** Language Distribution */
             language_distribution: {
                 [key: string]: number;
             };
-            /** Score Distribution */
-            score_distribution: {
+            /** Common Errors */
+            common_errors: {
+                [key: string]: unknown;
+            }[];
+            /** Failing Tests */
+            failing_tests: {
                 [key: string]: number;
             };
-            /** Total Submissions */
-            total_submissions: number;
-            /** Unique Students */
-            unique_students: number;
         };
         /** InterventionSummary */
         InterventionSummary: {
-            /** Avg Risk Delta After Intervention */
-            avg_risk_delta_after_intervention?: number | null;
+            /**
+             * Total
+             * @default 0
+             */
+            total: number;
             /**
              * Open
              * @default 0
              */
             open: number;
             /**
-             * Recovered Learners
-             * @default 0
-             */
-            recovered_learners: number;
-            /**
              * Resolved
              * @default 0
              */
             resolved: number;
             /**
-             * Total
+             * Recovered Learners
              * @default 0
              */
-            total: number;
+            recovered_learners: number;
+            /** Avg Risk Delta After Intervention */
+            avg_risk_delta_after_intervention?: number | null;
         };
         /**
          * ItemFeedback
          * @description Optional per-item feedback from the teacher.
          */
         ItemFeedback: {
+            /** Item Id */
+            item_id: string;
+            /** Score */
+            score?: number | null;
             /**
              * Feedback
              * @default
              */
             feedback: string;
-            /** Item Id */
-            item_id: string;
-            /** Score */
-            score?: number | null;
         };
         /**
          * Judge0Language
@@ -6808,22 +6511,22 @@ export interface components {
          * @description Single entry in the leaderboard
          */
         LeaderboardEntry: {
-            /** Attempts */
-            attempts: number;
-            /** Avatar Url */
-            avatar_url?: string | null;
-            /** Composite Score */
-            composite_score: number;
             /** Rank */
             rank: number;
-            /** Score */
-            score: number;
-            /** Time To First Ac Ms */
-            time_to_first_ac_ms?: number | null;
             /** User Id */
             user_id: number;
             /** Username */
             username: string;
+            /** Avatar Url */
+            avatar_url?: string | null;
+            /** Score */
+            score: number;
+            /** Time To First Ac Ms */
+            time_to_first_ac_ms?: number | null;
+            /** Attempts */
+            attempts: number;
+            /** Composite Score */
+            composite_score: number;
         };
         /**
          * LeaderboardEntryRead
@@ -6832,24 +6535,24 @@ export interface components {
          *     Includes user profile data for rich leaderboard displays.
          */
         LeaderboardEntryRead: {
-            /** Avatar Url */
-            avatar_url?: string | null;
+            /** Rank */
+            rank: number;
+            /** User Id */
+            user_id: number;
+            /** Total Xp */
+            total_xp: number;
+            /** Level */
+            level: number;
+            /** Username */
+            username?: string | null;
             /** First Name */
             first_name?: string | null;
             /** Last Name */
             last_name?: string | null;
-            /** Level */
-            level: number;
-            /** Rank */
-            rank: number;
+            /** Avatar Url */
+            avatar_url?: string | null;
             /** Rank Change */
             rank_change?: number | null;
-            /** Total Xp */
-            total_xp: number;
-            /** User Id */
-            user_id: number;
-            /** Username */
-            username?: string | null;
         };
         /**
          * LeaderboardRead
@@ -6863,46 +6566,46 @@ export interface components {
         };
         /** MetricCard */
         MetricCard: {
-            /** Benchmark */
-            benchmark?: number | null;
-            /** Benchmark Label */
-            benchmark_label?: string | null;
-            /** Delta Pct */
-            delta_pct: number | null;
+            /** Value */
+            value: number;
             /** Delta Value */
             delta_value: number | null;
+            /** Delta Pct */
+            delta_pct: number | null;
             /**
              * Direction
              * @enum {string}
              */
             direction: "up" | "down" | "flat";
+            /** Label */
+            label: string;
+            /** Unit */
+            unit?: string | null;
             /**
              * Is Higher Better
              * @default true
              */
             is_higher_better: boolean;
-            /** Label */
-            label: string;
-            /** Unit */
-            unit?: string | null;
-            /** Value */
-            value: number;
+            /** Benchmark */
+            benchmark?: number | null;
+            /** Benchmark Label */
+            benchmark_label?: string | null;
         };
         /**
          * PaginatedPlatformUsers
          * @description Paginated response for platform users.
          */
         PaginatedPlatformUsers: {
+            /** Users */
+            users: components["schemas"]["PlatformUser"][];
+            /** Total */
+            total: number;
             /** Page */
             page: number;
             /** Per Page */
             per_page: number;
-            /** Total */
-            total: number;
             /** Total Pages */
             total_pages: number;
-            /** Users */
-            users: components["schemas"]["PlatformUser"][];
         };
         /** PermissionCheckRequest */
         PermissionCheckRequest: {
@@ -6924,18 +6627,18 @@ export interface components {
         };
         /** PermissionRead */
         PermissionRead: {
-            /** Action */
-            action: string;
-            /** Description */
-            description?: string | null;
             /** Id */
             id: number;
             /** Name */
             name: string;
             /** Resource Type */
             resource_type: string;
+            /** Action */
+            action: string;
             /** Scope */
             scope: string;
+            /** Description */
+            description?: string | null;
         };
         /** PlatformDetailResponse */
         PlatformDetailResponse: {
@@ -6959,18 +6662,14 @@ export interface components {
          * @description Model for reading the platform with all related data.
          */
         PlatformRead: {
-            /** About */
-            about?: string | null;
-            /** Creation Date */
-            creation_date: string;
+            /** Name */
+            name: string;
             /** Description */
             description?: string | null;
-            /** Email */
-            email: string;
-            /** Label */
-            label?: string | null;
-            /** Landing */
-            landing?: {
+            /** About */
+            about?: string | null;
+            /** Socials */
+            socials?: {
                 [key: string]: unknown;
             } | null;
             /** Links */
@@ -6979,18 +6678,22 @@ export interface components {
             } | null;
             /** Logo Image */
             logo_image?: string | null;
-            /** Name */
-            name: string;
+            /** Thumbnail Image */
+            thumbnail_image?: string | null;
             /** Previews */
             previews?: {
                 [key: string]: unknown;
             } | null;
-            /** Socials */
-            socials?: {
+            /** Label */
+            label?: string | null;
+            /** Email */
+            email: string;
+            /** Landing */
+            landing?: {
                 [key: string]: unknown;
             } | null;
-            /** Thumbnail Image */
-            thumbnail_image?: string | null;
+            /** Creation Date */
+            creation_date: string;
             /** Update Date */
             update_date: string;
         };
@@ -7001,24 +6704,24 @@ export interface components {
         PlatformUpdate: {
             /** About */
             about?: string | null;
-            /** Email */
-            email?: string | null;
+            /** Socials */
+            socials?: {
+                [key: string]: unknown;
+            } | null;
             /** Links */
             links?: {
                 [key: string]: unknown;
             } | null;
             /** Logo Image */
             logo_image?: string | null;
+            /** Thumbnail Image */
+            thumbnail_image?: string | null;
             /** Previews */
             previews?: {
                 [key: string]: unknown;
             } | null;
-            /** Socials */
-            socials?: {
-                [key: string]: unknown;
-            } | null;
-            /** Thumbnail Image */
-            thumbnail_image?: string | null;
+            /** Email */
+            email?: string | null;
             /** Update Date */
             update_date?: string | null;
         };
@@ -7027,72 +6730,74 @@ export interface components {
          * @description Model representing a user's role on the platform.
          */
         PlatformUser: {
-            role: components["schemas"]["RoleRead"];
             user: components["schemas"]["UserRead"];
+            role: components["schemas"]["RoleRead"];
         };
         /**
          * ProfileRead
          * @description User gamification profile for API responses.
          */
         ProfileRead: {
+            /** User Id */
+            user_id: number;
+            /** Total Xp */
+            total_xp: number;
+            /** Level */
+            level: number;
+            /** Xp In Current Level */
+            xp_in_current_level: number;
+            /** Xp To Next Level */
+            xp_to_next_level: number;
+            /** Level Progress Percent */
+            level_progress_percent: number;
+            /** Login Streak */
+            login_streak: number;
+            /** Longest Login Streak */
+            longest_login_streak: number;
+            /** Learning Streak */
+            learning_streak: number;
+            /** Longest Learning Streak */
+            longest_learning_streak: number;
+            /** Last Xp Award Date */
+            last_xp_award_date?: string | null;
+            /** Last Login Date */
+            last_login_date?: string | null;
+            /** Last Learning Date */
+            last_learning_date?: string | null;
+            /** Daily Xp Earned */
+            daily_xp_earned: number;
+            /** Total Activities Completed */
+            total_activities_completed: number;
+            /** Total Courses Completed */
+            total_courses_completed: number;
+            /** Preferences */
+            preferences: {
+                [key: string]: unknown;
+            };
             /**
              * Created At
              * Format: date-time
              */
             created_at: string;
-            /** Daily Xp Earned */
-            daily_xp_earned: number;
-            /** Last Learning Date */
-            last_learning_date?: string | null;
-            /** Last Login Date */
-            last_login_date?: string | null;
-            /** Last Xp Award Date */
-            last_xp_award_date?: string | null;
-            /** Learning Streak */
-            learning_streak: number;
-            /** Level */
-            level: number;
-            /** Level Progress Percent */
-            level_progress_percent: number;
-            /** Login Streak */
-            login_streak: number;
-            /** Longest Learning Streak */
-            longest_learning_streak: number;
-            /** Longest Login Streak */
-            longest_login_streak: number;
-            /** Preferences */
-            preferences: {
-                [key: string]: unknown;
-            };
-            /** Total Activities Completed */
-            total_activities_completed: number;
-            /** Total Courses Completed */
-            total_courses_completed: number;
-            /** Total Xp */
-            total_xp: number;
             /**
              * Updated At
              * Format: date-time
              */
             updated_at: string;
-            /** User Id */
-            user_id: number;
-            /** Xp In Current Level */
-            xp_in_current_level: number;
-            /** Xp To Next Level */
-            xp_to_next_level: number;
         };
         /**
          * QuestionCreate
          * @description Model for creating a question
          */
         QuestionCreate: {
-            /** Answer Options */
-            answer_options?: {
-                [key: string]: unknown;
-            }[];
-            /** Exam Id */
-            exam_id?: number | null;
+            /** Question Text */
+            question_text: string;
+            question_type: components["schemas"]["QuestionTypeEnum"];
+            /**
+             * Points
+             * @default 1
+             */
+            points: number;
             /** Explanation */
             explanation?: string | null;
             /**
@@ -7100,69 +6805,67 @@ export interface components {
              * @default 0
              */
             order_index: number;
-            /**
-             * Points
-             * @default 1
-             */
-            points: number;
-            /** Question Text */
-            question_text: string;
-            question_type: components["schemas"]["QuestionTypeEnum"];
+            /** Answer Options */
+            answer_options?: {
+                [key: string]: unknown;
+            }[];
+            /** Exam Id */
+            exam_id?: number | null;
         };
         /** QuestionDifficultyRow */
         QuestionDifficultyRow: {
+            /** Question Id */
+            question_id: string;
+            /** Question Label */
+            question_label: string;
             /** Accuracy Pct */
             accuracy_pct?: number | null;
             /** Avg Time Seconds */
             avg_time_seconds?: number | null;
             /** Discrimination Index */
             discrimination_index?: number | null;
+            /** Strong Miss Pct */
+            strong_miss_pct?: number | null;
+            /** Weak Correct Pct */
+            weak_correct_pct?: number | null;
             /**
              * Distractor Issue Count
              * @default 0
              */
             distractor_issue_count: number;
-            /** Question Id */
-            question_id: string;
-            /** Question Label */
-            question_label: string;
-            /** Strong Miss Pct */
-            strong_miss_pct?: number | null;
-            /** Weak Correct Pct */
-            weak_correct_pct?: number | null;
         };
         /**
          * QuestionRead
          * @description Model for reading a question (full data for teachers)
          */
         QuestionRead: {
-            /** Answer Options */
-            answer_options?: {
-                [key: string]: unknown;
-            }[];
-            /** Creation Date */
-            creation_date?: string | null;
-            /** Exam Id */
-            exam_id?: number | null;
-            /** Explanation */
-            explanation?: string | null;
-            /** Id */
-            id: number;
-            /**
-             * Order Index
-             * @default 0
-             */
-            order_index: number;
+            /** Question Text */
+            question_text: string;
+            question_type: components["schemas"]["QuestionTypeEnum"];
             /**
              * Points
              * @default 1
              */
             points: number;
-            /** Question Text */
-            question_text: string;
-            question_type: components["schemas"]["QuestionTypeEnum"];
+            /** Explanation */
+            explanation?: string | null;
+            /**
+             * Order Index
+             * @default 0
+             */
+            order_index: number;
+            /** Answer Options */
+            answer_options?: {
+                [key: string]: unknown;
+            }[];
+            /** Exam Id */
+            exam_id?: number | null;
+            /** Id */
+            id: number;
             /** Question Uuid */
             question_uuid: string;
+            /** Creation Date */
+            creation_date?: string | null;
             /** Update Date */
             update_date?: string | null;
         };
@@ -7176,86 +6879,86 @@ export interface components {
          * @description Model for updating a question
          */
         QuestionUpdate: {
-            /** Answer Options */
-            answer_options?: {
-                [key: string]: unknown;
-            }[] | null;
+            /** Question Text */
+            question_text?: string | null;
+            question_type?: components["schemas"]["QuestionTypeEnum"] | null;
+            /** Points */
+            points?: number | null;
             /** Explanation */
             explanation?: string | null;
             /** Order Index */
             order_index?: number | null;
-            /** Points */
-            points?: number | null;
-            /** Question Text */
-            question_text?: string | null;
-            question_type?: components["schemas"]["QuestionTypeEnum"] | null;
+            /** Answer Options */
+            answer_options?: {
+                [key: string]: unknown;
+            }[] | null;
         };
         /**
          * QuizAttemptRead
          * @description Schema for reading quiz attempt data.
          */
         QuizAttemptRead: {
-            /** Activity Id */
-            activity_id: number;
-            /** Attempt Number */
-            attempt_number: number;
-            /** Attempt Uuid */
-            attempt_uuid: string;
-            /** Creation Date */
-            creation_date: string;
-            /** Duration Seconds */
-            duration_seconds: number | null;
-            /** End Ts */
-            end_ts: string | null;
-            /** Grading Result */
-            grading_result: {
-                [key: string]: unknown;
-            };
             /** Id */
             id: number;
-            /** Max Attempts */
-            max_attempts: number | null;
-            /** Max Score */
-            max_score: number;
-            /** Max Score Penalty Per Attempt */
-            max_score_penalty_per_attempt: number | null;
-            /** Score */
-            score: number;
+            /** User Id */
+            user_id: number;
+            /** Activity Id */
+            activity_id: number;
+            /** Attempt Uuid */
+            attempt_uuid: string;
+            /** Attempt Number */
+            attempt_number: number;
             /**
              * Start Ts
              * Format: date-time
              */
             start_ts: string;
+            /** End Ts */
+            end_ts: string | null;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /** Score */
+            score: number;
+            /** Max Score */
+            max_score: number;
+            /** Max Attempts */
+            max_attempts: number | null;
             /** Time Limit Seconds */
             time_limit_seconds: number | null;
-            /** Update Date */
-            update_date: string;
-            /** User Id */
-            user_id: number;
+            /** Max Score Penalty Per Attempt */
+            max_score_penalty_per_attempt: number | null;
             /** Violation Count */
             violation_count: number;
             /** Violations */
             violations: {
                 [key: string]: unknown;
             };
+            /** Grading Result */
+            grading_result: {
+                [key: string]: unknown;
+            };
+            /** Creation Date */
+            creation_date: string;
+            /** Update Date */
+            update_date: string;
         };
         /**
          * QuizGradingResult
          * @description Grading result for a quiz submission.
          */
         QuizGradingResult: {
+            /** Total Score */
+            total_score: number;
             /** Max Score */
             max_score: number;
+            /** Percentage */
+            percentage: number;
             /** Passed */
             passed: boolean;
             /** Per Question */
             per_question: {
                 [key: string]: unknown;
             }[];
-            /** Percentage */
-            percentage: number;
-            /** Total Score */
-            total_score: number;
             /**
              * Triggered Level Up
              * @default false
@@ -7272,20 +6975,20 @@ export interface components {
          * @description Schema for reading quiz question statistics.
          */
         QuizQuestionStatRead: {
-            /** Activity Id */
-            activity_id: number;
-            /** Avg Time Seconds */
-            avg_time_seconds: number | null;
-            /** Correct Count */
-            correct_count: number;
-            /** Creation Date */
-            creation_date: string;
             /** Id */
             id: number;
+            /** Activity Id */
+            activity_id: number;
             /** Question Id */
             question_id: string;
             /** Total Attempts */
             total_attempts: number;
+            /** Correct Count */
+            correct_count: number;
+            /** Avg Time Seconds */
+            avg_time_seconds: number | null;
+            /** Creation Date */
+            creation_date: string;
             /** Update Date */
             update_date: string;
         };
@@ -7298,12 +7001,12 @@ export interface components {
             answers?: {
                 [key: string]: unknown;
             }[];
+            /** Start Ts */
+            start_ts?: string | null;
             /** End Ts */
             end_ts?: string | null;
             /** Idempotency Key */
             idempotency_key?: string | null;
-            /** Start Ts */
-            start_ts?: string | null;
             /**
              * Violation Count
              * @default 0
@@ -7319,10 +7022,10 @@ export interface components {
          * @description Response for quiz submission.
          */
         QuizSubmissionResponse: {
-            /** Attempt Number */
-            attempt_number: number;
             /** Attempt Uuid */
             attempt_uuid: string;
+            /** Attempt Number */
+            attempt_number: number;
             grading_result: components["schemas"]["QuizGradingResult"];
             /**
              * Max Attempts Reached
@@ -7353,126 +7056,126 @@ export interface components {
              */
             high: number;
             /**
-             * Low
-             * @default 0
-             */
-            low: number;
-            /**
              * Medium
              * @default 0
              */
             medium: number;
+            /**
+             * Low
+             * @default 0
+             */
+            low: number;
         };
         /**
          * RoleAssignmentRequest
          * @description Assign a role to a user.
          */
         RoleAssignmentRequest: {
-            /** Role Id */
-            role_id: number;
             /** User Id */
             user_id: number;
+            /** Role Id */
+            role_id: number;
         };
         /** RoleAuditEvent */
         RoleAuditEvent: {
-            /** Action */
-            action: string;
-            /** Actor Id */
-            actor_id?: number | null;
-            /** Diff Summary */
-            diff_summary?: string | null;
-            /** Target Role Id */
-            target_role_id?: number | null;
-            /** Target Role Slug */
-            target_role_slug?: string | null;
             /**
              * Timestamp
              * Format: date-time
              */
             timestamp: string;
+            /** Actor Id */
+            actor_id?: number | null;
+            /** Action */
+            action: string;
+            /** Target Role Id */
+            target_role_id?: number | null;
+            /** Target Role Slug */
+            target_role_slug?: string | null;
+            /** Diff Summary */
+            diff_summary?: string | null;
         };
         /** RoleAuditListResponse */
         RoleAuditListResponse: {
             /** Items */
             items: components["schemas"]["RoleAuditEvent"][];
+            /** Total */
+            total: number;
             /** Page */
             page: number;
             /** Page Size */
             page_size: number;
-            /** Total */
-            total: number;
         };
         /** RoleCreate */
         RoleCreate: {
-            /** Description */
-            description?: string | null;
+            /** Slug */
+            slug: string;
             /** Name */
             name: string;
+            /** Description */
+            description?: string | null;
             /**
              * Priority
              * @default 0
              */
             priority: number;
-            /** Slug */
-            slug: string;
         };
         /** RoleRead */
         RoleRead: {
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /** Description */
-            description?: string | null;
             /** Id */
             id: number;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
             /**
              * Is System
              * @default false
              */
             is_system: boolean;
-            /** Name */
-            name: string;
+            /**
+             * Priority
+             * @default 0
+             */
+            priority: number;
             /**
              * Permissions Count
              * @default 0
              */
             permissions_count: number;
             /**
-             * Priority
+             * Users Count
              * @default 0
              */
-            priority: number;
-            /** Slug */
-            slug: string;
+            users_count: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
             /**
              * Updated At
              * Format: date-time
              */
             updated_at: string;
-            /**
-             * Users Count
-             * @default 0
-             */
-            users_count: number;
         };
         /**
          * RoleRevocationRequest
          * @description Revoke a role from a user.
          */
         RoleRevocationRequest: {
-            /** Role Id */
-            role_id: number;
             /** User Id */
             user_id: number;
+            /** Role Id */
+            role_id: number;
         };
         /** RoleUpdate */
         RoleUpdate: {
-            /** Description */
-            description?: string | null;
             /** Name */
             name?: string | null;
+            /** Description */
+            description?: string | null;
             /** Priority */
             priority?: number | null;
         };
@@ -7481,64 +7184,64 @@ export interface components {
             /** Name */
             name: string;
             /**
+             * View Type
+             * @default overview
+             */
+            view_type: string;
+            /**
              * Query
              * @default {}
              */
             query: {
                 [key: string]: unknown;
             };
-            /**
-             * View Type
-             * @default overview
-             */
-            view_type: string;
         };
         /** SavedAnalyticsViewListResponse */
         SavedAnalyticsViewListResponse: {
             /** Generated At */
             generated_at: string;
-            /** Items */
-            items: components["schemas"]["SavedAnalyticsViewRow"][];
             /**
              * Total
              * @default 0
              */
             total: number;
+            /** Items */
+            items: components["schemas"]["SavedAnalyticsViewRow"][];
         };
         /** SavedAnalyticsViewRow */
         SavedAnalyticsViewRow: {
-            /** Created At */
-            created_at: string;
             /** Id */
             id: number;
+            /** Teacher User Id */
+            teacher_user_id: number;
             /** Name */
             name: string;
+            /** View Type */
+            view_type: string;
             /** Query */
             query: {
                 [key: string]: unknown;
             };
-            /** Teacher User Id */
-            teacher_user_id: number;
+            /** Created At */
+            created_at: string;
             /** Updated At */
             updated_at: string;
-            /** View Type */
-            view_type: string;
         };
         /** SearchResult */
         SearchResult: {
-            /** Collections */
-            collections: components["schemas"]["CollectionRead"][];
             /** Courses */
             courses: components["schemas"]["CourseRead"][];
+            /** Collections */
+            collections: components["schemas"]["CollectionRead"][];
             /** Users */
             users: components["schemas"]["UserRead"][];
         };
         /** SendActivityAIChatMessage */
         SendActivityAIChatMessage: {
-            /** Activity Uuid */
-            activity_uuid: string;
             /** Aichat Uuid */
             aichat_uuid: string;
+            /** Activity Uuid */
+            activity_uuid: string;
             /** Message */
             message: string;
         };
@@ -7547,30 +7250,30 @@ export interface components {
          * @description Request model for updating challenge settings
          */
         SettingsUpdateRequest: {
-            /** Allow Custom Input */
-            allow_custom_input?: boolean | null;
             /** Allowed Languages */
             allowed_languages?: number[] | null;
-            /** Due Date */
-            due_date?: string | null;
-            execution_mode?: components["schemas"]["ExecutionMode"] | null;
-            grading_strategy?: components["schemas"]["GradingStrategy"] | null;
-            /** Hidden Tests */
-            hidden_tests?: {
-                [key: string]: unknown;
-            }[] | null;
+            /** Time Limit */
+            time_limit?: number | null;
             /** Memory Limit */
             memory_limit?: number | null;
+            grading_strategy?: components["schemas"]["GradingStrategy"] | null;
+            execution_mode?: components["schemas"]["ExecutionMode"] | null;
+            /** Allow Custom Input */
+            allow_custom_input?: boolean | null;
             /** Points */
             points?: number | null;
+            /** Due Date */
+            due_date?: string | null;
             /** Starter Code */
             starter_code?: {
                 [key: string]: string;
             } | null;
-            /** Time Limit */
-            time_limit?: number | null;
             /** Visible Tests */
             visible_tests?: {
+                [key: string]: unknown;
+            }[] | null;
+            /** Hidden Tests */
+            hidden_tests?: {
                 [key: string]: unknown;
             }[] | null;
         };
@@ -7597,36 +7300,36 @@ export interface components {
          * @description Streak update response.
          */
         StreakUpdateRead: {
-            /** Current Count */
-            current_count: number;
-            /** Is New Record */
-            is_new_record: boolean;
-            /** Longest Count */
-            longest_count: number;
             /** Streak Type */
             streak_type: string;
+            /** Current Count */
+            current_count: number;
+            /** Longest Count */
+            longest_count: number;
+            /** Is New Record */
+            is_new_record: boolean;
         };
         /**
          * StudentAnalytics
          * @description Analytics for a student on a code challenge
          */
         StudentAnalytics: {
-            /** Average Score */
-            average_score: number;
+            /** Total Submissions */
+            total_submissions: number;
             /** Best Score */
             best_score: number;
             /** Best Submission Uuid */
             best_submission_uuid?: string | null;
+            /** Average Score */
+            average_score: number;
+            /** Languages Used */
+            languages_used: string[];
+            /** Total Time Spent Ms */
+            total_time_spent_ms: number;
             /** First Ac Time Ms */
             first_ac_time_ms?: number | null;
             /** Hints Used */
             hints_used: number;
-            /** Languages Used */
-            languages_used: string[];
-            /** Total Submissions */
-            total_submissions: number;
-            /** Total Time Spent Ms */
-            total_time_spent_ms: number;
             /** Xp Earned */
             xp_earned: number;
         };
@@ -7637,193 +7340,186 @@ export interface components {
         SubmissionListResponse: {
             /** Items */
             items: components["schemas"]["SubmissionRead"][];
+            /** Total */
+            total: number;
             /** Page */
             page: number;
             /** Page Size */
             page_size: number;
             /** Pages */
             pages: number;
-            /** Total */
-            total: number;
         };
         /**
          * SubmissionRead
          * @description Output model for reading a submission.
          */
         SubmissionRead: {
+            assessment_type: components["schemas"]["AssessmentType"];
             /** Activity Id */
             activity_id: number;
-            /** Answers Json */
-            answers_json?: {
-                [key: string]: unknown;
-            };
-            assessment_type: components["schemas"]["AssessmentType"];
+            /** User Id */
+            user_id: number;
+            /** Auto Score */
+            auto_score?: number | null;
+            /** Final Score */
+            final_score?: number | null;
+            /** @default DRAFT */
+            status: components["schemas"]["src__db__grading__submissions__SubmissionStatus"];
             /**
              * Attempt Number
              * @default 1
              */
             attempt_number: number;
-            /** Auto Score */
-            auto_score?: number | null;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /** Final Score */
-            final_score?: number | null;
-            /** Graded At */
-            graded_at?: string | null;
-            grading_json?: components["schemas"]["GradingBreakdown"];
-            /**
-             * Grading Version
-             * @default 1
-             */
-            grading_version: number;
-            /** Id */
-            id: number;
             /**
              * Is Late
              * @default false
              */
             is_late: boolean;
-            /** Started At */
-            started_at?: string | null;
-            /** @default DRAFT */
-            status: components["schemas"]["src__db__grading__submissions__SubmissionStatus"];
+            /** Id */
+            id: number;
             /** Submission Uuid */
             submission_uuid: string;
+            /** Answers Json */
+            answers_json?: {
+                [key: string]: unknown;
+            };
+            grading_json?: components["schemas"]["GradingBreakdown"];
+            /** Started At */
+            started_at?: string | null;
             /** Submitted At */
             submitted_at?: string | null;
+            /** Graded At */
+            graded_at?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
             /**
              * Updated At
              * Format: date-time
              */
             updated_at: string;
+            /**
+             * Grading Version
+             * @default 1
+             */
+            grading_version: number;
             user?: components["schemas"]["SubmissionUser"] | null;
-            /** User Id */
-            user_id: number;
         };
         /**
          * SubmissionResponse
          * @description Response after creating a submission
          */
         SubmissionResponse: {
+            /** Submission Uuid */
+            submission_uuid: string;
+            status: components["schemas"]["src__db__courses__code_challenges__SubmissionStatus"];
             /**
              * Message
              * @default Submission created successfully
              */
             message: string;
-            status: components["schemas"]["src__db__courses__code_challenges__SubmissionStatus"];
-            /** Submission Uuid */
-            submission_uuid: string;
         };
         /**
          * SubmissionStats
          * @description Aggregate statistics for the teacher dashboard header.
          */
         SubmissionStats: {
-            /** Avg Score */
-            avg_score: number | null;
-            /** Graded Count */
-            graded_count: number;
-            /** Late Count */
-            late_count: number;
-            /** Needs Grading Count */
-            needs_grading_count: number;
-            /** Pass Rate */
-            pass_rate: number | null;
             /** Total */
             total: number;
+            /** Graded Count */
+            graded_count: number;
+            /** Needs Grading Count */
+            needs_grading_count: number;
+            /** Late Count */
+            late_count: number;
+            /** Avg Score */
+            avg_score: number | null;
+            /** Pass Rate */
+            pass_rate: number | null;
         };
         /**
          * SubmissionUser
          * @description Public user info embedded in teacher-view submissions.
          */
         SubmissionUser: {
-            /** Avatar Image */
-            avatar_image?: string | null;
-            /** Email */
-            email: string;
-            /** First Name */
-            first_name?: string | null;
             /** Id */
             id: number;
+            /** Username */
+            username: string;
+            /** First Name */
+            first_name?: string | null;
             /** Last Name */
             last_name?: string | null;
             /** Middle Name */
             middle_name?: string | null;
+            /** Email */
+            email: string;
+            /** Avatar Image */
+            avatar_image?: string | null;
             /** User Uuid */
             user_uuid?: string | null;
-            /** Username */
-            username: string;
         };
         /** TeacherAssessmentDetailResponse */
         TeacherAssessmentDetailResponse: {
-            /** Assessment Id */
-            assessment_id: number;
+            /** Generated At */
+            generated_at: string;
             /**
              * Assessment Type
              * @enum {string}
              */
             assessment_type: "assignment" | "quiz" | "exam" | "code_challenge";
-            /** Attempt Distribution */
-            attempt_distribution: components["schemas"]["HistogramBucket"][];
-            /** Common Failures */
-            common_failures: components["schemas"]["CommonFailureRow"][];
+            /** Assessment Id */
+            assessment_id: number;
             /** Course Id */
             course_id: number;
-            /** Generated At */
-            generated_at: string;
-            /** Learner Rows */
-            learner_rows: components["schemas"]["AssessmentLearnerRow"][];
+            /** Title */
+            title: string;
             /** Pass Threshold */
             pass_threshold?: number | null;
             /** Pass Threshold Bucket Label */
             pass_threshold_bucket_label?: string | null;
-            /** Question Breakdown */
-            question_breakdown?: components["schemas"]["QuestionDifficultyRow"][] | null;
+            summary: components["schemas"]["TeacherAssessmentDetailSummary"];
             /** Score Distribution */
             score_distribution: components["schemas"]["HistogramBucket"][];
-            summary: components["schemas"]["TeacherAssessmentDetailSummary"];
-            /** Title */
-            title: string;
+            /** Attempt Distribution */
+            attempt_distribution: components["schemas"]["HistogramBucket"][];
+            /** Question Breakdown */
+            question_breakdown?: components["schemas"]["QuestionDifficultyRow"][] | null;
+            /** Common Failures */
+            common_failures: components["schemas"]["CommonFailureRow"][];
+            /** Learner Rows */
+            learner_rows: components["schemas"]["AssessmentLearnerRow"][];
         };
         /** TeacherAssessmentDetailSummary */
         TeacherAssessmentDetailSummary: {
-            /** Avg Attempts */
-            avg_attempts?: number | null;
             /** Eligible Learners */
             eligible_learners: number;
+            /** Submitted Learners */
+            submitted_learners: number;
+            /** Submission Rate */
+            submission_rate?: number | null;
+            /** Pass Rate */
+            pass_rate?: number | null;
+            /** Median Score */
+            median_score?: number | null;
+            /** Avg Attempts */
+            avg_attempts?: number | null;
             /** Grading Latency Hours P50 */
             grading_latency_hours_p50?: number | null;
             /** Grading Latency Hours P90 */
             grading_latency_hours_p90?: number | null;
-            /** Median Score */
-            median_score?: number | null;
-            /** Pass Rate */
-            pass_rate?: number | null;
-            /** Submission Rate */
-            submission_rate?: number | null;
-            /** Submitted Learners */
-            submitted_learners: number;
         };
         /** TeacherAssessmentListResponse */
         TeacherAssessmentListResponse: {
-            /**
-             * Cohort Options
-             * @default []
-             */
-            cohort_options: components["schemas"]["AnalyticsFilterOption"][];
-            /**
-             * Course Options
-             * @default []
-             */
-            course_options: components["schemas"]["AnalyticsFilterOption"][];
             /** Generated At */
             generated_at: string;
-            /** Items */
-            items: components["schemas"]["AssessmentOutlierRow"][];
+            /**
+             * Total
+             * @default 0
+             */
+            total: number;
             /**
              * Page
              * @default 1
@@ -7834,71 +7530,71 @@ export interface components {
              * @default 25
              */
             page_size: number;
+            /** Items */
+            items: components["schemas"]["AssessmentOutlierRow"][];
             /**
-             * Total
-             * @default 0
+             * Course Options
+             * @default []
              */
-            total: number;
+            course_options: components["schemas"]["AnalyticsFilterOption"][];
+            /**
+             * Cohort Options
+             * @default []
+             */
+            cohort_options: components["schemas"]["AnalyticsFilterOption"][];
         };
         /** TeacherCourseDetailResponse */
         TeacherCourseDetailResponse: {
-            /** Activity Dropoff */
-            activity_dropoff: components["schemas"]["ActivityDropoffRow"][];
-            /** Assessment Outliers */
-            assessment_outliers: components["schemas"]["AssessmentOutlierRow"][];
-            /** At Risk Learners */
-            at_risk_learners: components["schemas"]["AtRiskLearnerRow"][];
-            /** Content Bottlenecks */
-            content_bottlenecks: components["schemas"]["ContentBottleneckRow"][];
-            /** Content Health */
-            content_health: components["schemas"]["ContentHealthRow"][];
+            /** Generated At */
+            generated_at: string;
             /** Course */
             course: {
                 [key: string]: number | string;
             };
-            /** Engagement Trend */
-            engagement_trend: components["schemas"]["TimeSeriesPoint"][];
+            summary: components["schemas"]["TeacherCourseDetailSummary"];
             /** Funnels */
             funnels: {
                 [key: string]: components["schemas"]["FunnelStep"][];
             };
-            /** Generated At */
-            generated_at: string;
-            summary: components["schemas"]["TeacherCourseDetailSummary"];
+            /** Engagement Trend */
+            engagement_trend: components["schemas"]["TimeSeriesPoint"][];
+            /** Activity Dropoff */
+            activity_dropoff: components["schemas"]["ActivityDropoffRow"][];
+            /** At Risk Learners */
+            at_risk_learners: components["schemas"]["AtRiskLearnerRow"][];
+            /** Assessment Outliers */
+            assessment_outliers: components["schemas"]["AssessmentOutlierRow"][];
+            /** Content Health */
+            content_health: components["schemas"]["ContentHealthRow"][];
+            /** Content Bottlenecks */
+            content_bottlenecks: components["schemas"]["ContentBottleneckRow"][];
         };
         /** TeacherCourseDetailSummary */
         TeacherCourseDetailSummary: {
-            /** Active Learners 7D */
-            active_learners_7d: number;
-            /** At Risk Learners */
-            at_risk_learners: number;
-            /** Avg Progress Pct */
-            avg_progress_pct: number;
-            /** Certificates Issued */
-            certificates_issued: number;
-            /** Completion Rate */
-            completion_rate: number;
             /** Enrolled Learners */
             enrolled_learners: number;
+            /** Active Learners 7D */
+            active_learners_7d: number;
+            /** Completion Rate */
+            completion_rate: number;
+            /** Avg Progress Pct */
+            avg_progress_pct: number;
+            /** At Risk Learners */
+            at_risk_learners: number;
             /** Ungraded Submissions */
             ungraded_submissions: number;
+            /** Certificates Issued */
+            certificates_issued: number;
         };
         /** TeacherCourseListResponse */
         TeacherCourseListResponse: {
-            /**
-             * Cohort Options
-             * @default []
-             */
-            cohort_options: components["schemas"]["AnalyticsFilterOption"][];
-            /**
-             * Course Options
-             * @default []
-             */
-            course_options: components["schemas"]["AnalyticsFilterOption"][];
             /** Generated At */
             generated_at: string;
-            /** Items */
-            items: components["schemas"]["TeacherCourseRow"][];
+            /**
+             * Total
+             * @default 0
+             */
+            total: number;
             /**
              * Page
              * @default 1
@@ -7909,56 +7605,58 @@ export interface components {
              * @default 25
              */
             page_size: number;
+            /** Items */
+            items: components["schemas"]["TeacherCourseRow"][];
             /**
-             * Total
-             * @default 0
+             * Course Options
+             * @default []
              */
-            total: number;
+            course_options: components["schemas"]["AnalyticsFilterOption"][];
+            /**
+             * Cohort Options
+             * @default []
+             */
+            cohort_options: components["schemas"]["AnalyticsFilterOption"][];
         };
         /** TeacherCourseRow */
         TeacherCourseRow: {
-            /** Active Learners 7D */
-            active_learners_7d: number;
-            /** Assessment Difficulty Score */
-            assessment_difficulty_score?: number | null;
-            /** At Risk Learners */
-            at_risk_learners: number;
-            /** Cohort Completion Delta Pct */
-            cohort_completion_delta_pct?: number | null;
-            /** Completion Rate */
-            completion_rate: number;
-            /** Content Health Score */
-            content_health_score: number;
             /** Course Id */
             course_id: number;
-            /** Course Name */
-            course_name: string;
             /** Course Uuid */
             course_uuid: string;
+            /** Course Name */
+            course_name: string;
+            /** Active Learners 7D */
+            active_learners_7d: number;
+            /** Completion Rate */
+            completion_rate: number;
             /** Engagement Delta Pct */
             engagement_delta_pct?: number | null;
-            /** Historical Completion Delta Pct */
-            historical_completion_delta_pct?: number | null;
-            /** Last Content Update At */
-            last_content_update_at?: string | null;
-            /** Platform Completion Delta Pct */
-            platform_completion_delta_pct?: number | null;
-            /** Teacher Completion Delta Pct */
-            teacher_completion_delta_pct?: number | null;
-            top_alert?: components["schemas"]["AlertItem"] | null;
+            /** At Risk Learners */
+            at_risk_learners: number;
             /** Ungraded Submissions */
             ungraded_submissions: number;
+            /** Content Health Score */
+            content_health_score: number;
+            /** Assessment Difficulty Score */
+            assessment_difficulty_score?: number | null;
+            /** Teacher Completion Delta Pct */
+            teacher_completion_delta_pct?: number | null;
+            /** Platform Completion Delta Pct */
+            platform_completion_delta_pct?: number | null;
+            /** Historical Completion Delta Pct */
+            historical_completion_delta_pct?: number | null;
+            /** Cohort Completion Delta Pct */
+            cohort_completion_delta_pct?: number | null;
+            /** Last Content Update At */
+            last_content_update_at?: string | null;
+            top_alert?: components["schemas"]["AlertItem"] | null;
         };
         /**
          * TeacherGradeInput
          * @description Body for PATCH /grading/submissions/{submission_uuid}.
          */
         TeacherGradeInput: {
-            /**
-             * Feedback
-             * @default
-             */
-            feedback: string;
             /**
              * Final Score
              * @description Final score 0–100
@@ -7974,9 +7672,16 @@ export interface components {
              * @default GRADED
              */
             status: string;
+            /**
+             * Feedback
+             * @default
+             */
+            feedback: string;
         };
         /** TeacherInterventionCreate */
         TeacherInterventionCreate: {
+            /** User Id */
+            user_id: number;
             /** Course Id */
             course_id: number;
             /**
@@ -7984,10 +7689,16 @@ export interface components {
              * @enum {string}
              */
             intervention_type: "message_sent" | "submission_graded" | "extension_granted" | "meeting_scheduled" | "learner_recovered";
-            /** Notes */
-            notes?: string | null;
+            /**
+             * Status
+             * @default completed
+             * @enum {string}
+             */
+            status: "planned" | "completed" | "resolved";
             /** Outcome */
             outcome?: string | null;
+            /** Notes */
+            notes?: string | null;
             /**
              * Payload
              * @default {}
@@ -7995,138 +7706,130 @@ export interface components {
             payload: {
                 [key: string]: unknown;
             };
-            /**
-             * Status
-             * @default completed
-             * @enum {string}
-             */
-            status: "planned" | "completed" | "resolved";
-            /** User Id */
-            user_id: number;
         };
         /** TeacherInterventionListResponse */
         TeacherInterventionListResponse: {
             /** Generated At */
             generated_at: string;
-            /** Items */
-            items: components["schemas"]["TeacherInterventionRow"][];
             /**
              * Total
              * @default 0
              */
             total: number;
+            /** Items */
+            items: components["schemas"]["TeacherInterventionRow"][];
         };
         /** TeacherInterventionRow */
         TeacherInterventionRow: {
-            /** Course Id */
-            course_id: number;
-            /** Created At */
-            created_at: string;
             /** Id */
             id: number;
-            /** Intervention Type */
-            intervention_type: string;
-            /** Notes */
-            notes?: string | null;
-            /** Outcome */
-            outcome?: string | null;
-            /** Resolved At */
-            resolved_at?: string | null;
-            /** Risk Score After */
-            risk_score_after?: number | null;
-            /** Risk Score Before */
-            risk_score_before?: number | null;
-            /** Status */
-            status: string;
             /** Teacher User Id */
             teacher_user_id: number;
-            /** Updated At */
-            updated_at: string;
             /** User Id */
             user_id: number;
+            /** Course Id */
+            course_id: number;
+            /** Intervention Type */
+            intervention_type: string;
+            /** Status */
+            status: string;
+            /** Outcome */
+            outcome?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Risk Score Before */
+            risk_score_before?: number | null;
+            /** Risk Score After */
+            risk_score_after?: number | null;
+            /** Created At */
+            created_at: string;
+            /** Updated At */
+            updated_at: string;
+            /** Resolved At */
+            resolved_at?: string | null;
         };
         /** TeacherOverviewResponse */
         TeacherOverviewResponse: {
+            /** Generated At */
+            generated_at: string;
+            /** Freshness Seconds */
+            freshness_seconds: number;
+            /**
+             * Window
+             * @enum {string}
+             */
+            window: "7d" | "28d" | "90d";
+            /**
+             * Compare
+             * @enum {string}
+             */
+            compare: "previous_period" | "none";
+            scope: components["schemas"]["TeacherOverviewScope"];
+            summary: components["schemas"]["TeacherOverviewSummary"];
+            trends: components["schemas"]["TeacherOverviewTrends"];
             /** Alerts */
             alerts: components["schemas"]["AlertItem"][];
+            /** Insights */
+            insights: components["schemas"]["InsightFeedItem"][];
+            data_quality: components["schemas"]["AnalyticsDataQuality"];
+            /** Forecasts */
+            forecasts: components["schemas"]["ForecastItem"][];
             /** Anomalies */
             anomalies: components["schemas"]["AnomalyItem"][];
+            risk_distribution: components["schemas"]["RiskDistributionCounts"];
+            intervention_summary: components["schemas"]["InterventionSummary"];
+            workload: components["schemas"]["TeacherWorkloadSummary"];
+            /** Content Bottlenecks */
+            content_bottlenecks: components["schemas"]["ContentBottleneckRow"][];
+            /** At Risk Preview */
+            at_risk_preview: components["schemas"]["AtRiskLearnerRow"][];
+            /** Course Preview */
+            course_preview: components["schemas"]["TeacherCourseRow"][];
             /** Assessment Preview */
             assessment_preview: components["schemas"]["AssessmentOutlierRow"][];
+            /**
+             * Course Total
+             * @default 0
+             */
+            course_total: number;
             /**
              * Assessment Total
              * @default 0
              */
             assessment_total: number;
-            /** At Risk Preview */
-            at_risk_preview: components["schemas"]["AtRiskLearnerRow"][];
             /**
              * At Risk Total
              * @default 0
              */
             at_risk_total: number;
             /**
-             * Cohort Options
-             * @default []
-             */
-            cohort_options: components["schemas"]["AnalyticsFilterOption"][];
-            /**
-             * Compare
-             * @enum {string}
-             */
-            compare: "previous_period" | "none";
-            /** Content Bottlenecks */
-            content_bottlenecks: components["schemas"]["ContentBottleneckRow"][];
-            /**
              * Course Options
              * @default []
              */
             course_options: components["schemas"]["AnalyticsFilterOption"][];
-            /** Course Preview */
-            course_preview: components["schemas"]["TeacherCourseRow"][];
             /**
-             * Course Total
-             * @default 0
+             * Cohort Options
+             * @default []
              */
-            course_total: number;
-            data_quality: components["schemas"]["AnalyticsDataQuality"];
-            /** Forecasts */
-            forecasts: components["schemas"]["ForecastItem"][];
-            /** Freshness Seconds */
-            freshness_seconds: number;
-            /** Generated At */
-            generated_at: string;
-            /** Insights */
-            insights: components["schemas"]["InsightFeedItem"][];
-            intervention_summary: components["schemas"]["InterventionSummary"];
-            risk_distribution: components["schemas"]["RiskDistributionCounts"];
-            scope: components["schemas"]["TeacherOverviewScope"];
-            summary: components["schemas"]["TeacherOverviewSummary"];
-            trends: components["schemas"]["TeacherOverviewTrends"];
-            /**
-             * Window
-             * @enum {string}
-             */
-            window: "7d" | "28d" | "90d";
-            workload: components["schemas"]["TeacherWorkloadSummary"];
+            cohort_options: components["schemas"]["AnalyticsFilterOption"][];
         };
         /** TeacherOverviewScope */
         TeacherOverviewScope: {
-            /** Cohort Ids */
-            cohort_ids: number[];
-            /** Course Ids */
-            course_ids: number[];
             /** Teacher User Id */
             teacher_user_id: number;
+            /** Course Ids */
+            course_ids: number[];
+            /** Cohort Ids */
+            cohort_ids: number[];
         };
         /** TeacherOverviewSummary */
         TeacherOverviewSummary: {
             active_learners: components["schemas"]["MetricCard"];
-            at_risk_learners: components["schemas"]["MetricCard"];
-            completion_rate: components["schemas"]["MetricCard"];
-            negative_engagement_courses: components["schemas"]["MetricCard"];
             returning_learners: components["schemas"]["MetricCard"];
+            completion_rate: components["schemas"]["MetricCard"];
+            at_risk_learners: components["schemas"]["MetricCard"];
             ungraded_submissions: components["schemas"]["MetricCard"];
+            negative_engagement_courses: components["schemas"]["MetricCard"];
         };
         /** TeacherOverviewTrends */
         TeacherOverviewTrends: {
@@ -8134,73 +7837,73 @@ export interface components {
             active_learners: components["schemas"]["TimeSeriesPoint"][];
             /** Completions */
             completions: components["schemas"]["TimeSeriesPoint"][];
-            /** Grading Completed */
-            grading_completed: components["schemas"]["TimeSeriesPoint"][];
             /** Submissions */
             submissions: components["schemas"]["TimeSeriesPoint"][];
+            /** Grading Completed */
+            grading_completed: components["schemas"]["TimeSeriesPoint"][];
         };
         /** TeacherWorkloadSummary */
         TeacherWorkloadSummary: {
-            aging_buckets: components["schemas"]["WorkloadAgingBuckets"];
-            /** Backlog By Assignment */
-            backlog_by_assignment: components["schemas"]["GradingBacklogItem"][];
             /**
              * Backlog Total
              * @default 0
              */
             backlog_total: number;
             /**
-             * Forecast Backlog 7D
-             * @default 0
-             */
-            forecast_backlog_7d: number;
-            /** Median Feedback Latency Hours */
-            median_feedback_latency_hours?: number | null;
-            /**
              * Sla Breaches
              * @default 0
              */
             sla_breaches: number;
+            /** Median Feedback Latency Hours */
+            median_feedback_latency_hours?: number | null;
+            aging_buckets: components["schemas"]["WorkloadAgingBuckets"];
+            /**
+             * Forecast Backlog 7D
+             * @default 0
+             */
+            forecast_backlog_7d: number;
+            /** Backlog By Assignment */
+            backlog_by_assignment: components["schemas"]["GradingBacklogItem"][];
         };
         /**
          * TestCaseResult
          * @description Result of a single test case execution
          */
         TestCaseResult: {
-            /** Compile Output */
-            compile_output?: string | null;
-            /** Memory Kb */
-            memory_kb?: number | null;
-            /** Message */
-            message?: string | null;
-            /** Passed */
-            passed: boolean;
+            /** Test Case Id */
+            test_case_id: string;
             /** Status */
             status: number;
             /** Status Description */
             status_description: string;
-            /** Stderr */
-            stderr?: string | null;
-            /** Stdout */
-            stdout?: string | null;
-            /** Test Case Id */
-            test_case_id: string;
+            /** Passed */
+            passed: boolean;
             /** Time Ms */
             time_ms?: number | null;
+            /** Memory Kb */
+            memory_kb?: number | null;
+            /** Stdout */
+            stdout?: string | null;
+            /** Stderr */
+            stderr?: string | null;
+            /** Compile Output */
+            compile_output?: string | null;
+            /** Message */
+            message?: string | null;
         };
         /**
          * TestRunResponse
          * @description Response for running visible tests only
          */
         TestRunResponse: {
-            /** Execution Time Ms */
-            execution_time_ms?: number | null;
-            /** Passed */
-            passed: number;
             /** Results */
             results: components["schemas"]["TestCaseResult"][];
+            /** Passed */
+            passed: number;
             /** Total */
             total: number;
+            /** Execution Time Ms */
+            execution_time_ms?: number | null;
         };
         /**
          * ThumbnailType
@@ -8216,11 +7919,8 @@ export interface components {
         };
         /** Trail */
         Trail: {
-            /**
-             * Creation Date
-             * @default
-             */
-            creation_date: string;
+            /** User Id */
+            user_id: number;
             /** Id */
             id?: number | null;
             /**
@@ -8229,12 +7929,15 @@ export interface components {
              */
             trail_uuid: string;
             /**
+             * Creation Date
+             * @default
+             */
+            creation_date: string;
+            /**
              * Update Date
              * @default
              */
             update_date: string;
-            /** User Id */
-            user_id: number;
         };
         /** TrailCreate */
         TrailCreate: {
@@ -8243,110 +7946,132 @@ export interface components {
         };
         /** TrailRead */
         TrailRead: {
-            /** Creation Date */
-            creation_date?: string | null;
             /** Id */
             id?: number | null;
-            /** Runs */
-            runs: components["schemas"]["TrailRunRead"][];
             /** Trail Uuid */
             trail_uuid?: string | null;
-            /** Update Date */
-            update_date?: string | null;
             /** User Id */
             user_id: number;
+            /** Creation Date */
+            creation_date?: string | null;
+            /** Update Date */
+            update_date?: string | null;
+            /** Runs */
+            runs: components["schemas"]["TrailRunRead"][];
         };
         /** TrailRunRead */
         TrailRunRead: {
+            /** Id */
+            id?: number | null;
+            /** Data */
+            data?: {
+                [key: string]: unknown;
+            };
+            /** @default STATUS_IN_PROGRESS */
+            status: components["schemas"]["StatusEnum"];
+            /** Trail Id */
+            trail_id?: number;
+            /** Course Id */
+            course_id?: number;
+            /** User Id */
+            user_id?: number;
             /** Course */
             course?: {
                 [key: string]: unknown;
             } | null;
-            /** Course Id */
-            course_id?: number;
-            /** Course Total Steps */
-            course_total_steps: number;
             /** Creation Date */
             creation_date?: string | null;
-            /** Data */
-            data?: {
-                [key: string]: unknown;
-            };
-            /** Id */
-            id?: number | null;
-            /** @default STATUS_IN_PROGRESS */
-            status: components["schemas"]["StatusEnum"];
-            /** Steps */
-            steps: components["schemas"]["TrailStepRead"][];
-            /** Trail Id */
-            trail_id?: number;
             /** Update Date */
             update_date?: string | null;
-            /** User Id */
-            user_id?: number;
+            /** Course Total Steps */
+            course_total_steps: number;
+            /** Steps */
+            steps: components["schemas"]["TrailStepRead"][];
         };
         /** TrailStepRead */
         TrailStepRead: {
-            /** Activity */
-            activity?: {
-                [key: string]: unknown;
-            } | null;
-            /** Activity Id */
-            activity_id: number;
+            /** Id */
+            id?: number | null;
             /** Complete */
             complete: boolean;
-            /** Course Id */
-            course_id: number;
-            /** Creation Date */
-            creation_date?: string | null;
-            /** Data */
-            data?: {
-                [key: string]: unknown;
-            };
+            /** Teacher Verified */
+            teacher_verified: boolean;
             /**
              * Grade
              * @default 0
              */
             grade: number;
-            /** Id */
-            id?: number | null;
-            /** Teacher Verified */
-            teacher_verified: boolean;
-            /** Trail Id */
-            trail_id: number;
+            /** Data */
+            data?: {
+                [key: string]: unknown;
+            };
             /** Trailrun Id */
             trailrun_id: number;
-            /** Update Date */
-            update_date?: string | null;
+            /** Trail Id */
+            trail_id: number;
+            /** Activity Id */
+            activity_id: number;
+            /** Course Id */
+            course_id: number;
             /** User Id */
             user_id: number;
+            /** Creation Date */
+            creation_date?: string | null;
+            /** Update Date */
+            update_date?: string | null;
+            /** Activity */
+            activity?: {
+                [key: string]: unknown;
+            } | null;
         };
         /**
          * TransactionRead
          * @description XP transaction for API responses.
          */
         TransactionRead: {
-            /** Amount */
-            amount: number;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
             /** Id */
             id: number;
-            /** Previous Level */
-            previous_level: number;
+            /** User Id */
+            user_id: number;
+            /** Amount */
+            amount: number;
             source: components["schemas"]["XPSource"];
             /** Source Id */
             source_id?: string | null;
             /** Triggered Level Up */
             triggered_level_up: boolean;
-            /** User Id */
-            user_id: number;
+            /** Previous Level */
+            previous_level: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** UserCreate */
         UserCreate: {
+            /** Username */
+            username: string;
+            /**
+             * First Name
+             * @default
+             */
+            first_name: string;
+            /**
+             * Middle Name
+             * @default
+             */
+            middle_name: string | null;
+            /**
+             * Last Name
+             * @default
+             */
+            last_name: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
             /**
              * Avatar Image
              * @default
@@ -8361,33 +8086,6 @@ export interface components {
             details?: {
                 [key: string]: unknown;
             } | null;
-            /**
-             * Email
-             * Format: email
-             */
-            email: string;
-            /**
-             * First Name
-             * @default
-             */
-            first_name: string;
-            /**
-             * Last Name
-             * @default
-             */
-            last_name: string;
-            /**
-             * Locale
-             * @default ru-RU
-             */
-            locale: string | null;
-            /**
-             * Middle Name
-             * @default
-             */
-            middle_name: string | null;
-            /** Password */
-            password: string;
             /** Profile */
             profile?: {
                 [key: string]: unknown;
@@ -8397,61 +8095,77 @@ export interface components {
              * @default default
              */
             theme: string | null;
-            /** Username */
-            username: string;
+            /**
+             * Locale
+             * @default ru-RU
+             */
+            locale: string | null;
+            /** Password */
+            password: string;
         };
         /** UserGroupCreate */
         UserGroupCreate: {
-            /** Description */
-            description: string;
             /** Name */
             name: string;
+            /** Description */
+            description: string;
         };
         /** UserGroupRead */
         UserGroupRead: {
-            /** Creation Date */
-            creation_date: string;
+            /** Name */
+            name: string;
             /** Description */
             description: string;
             /** Id */
             id: number;
-            /** Name */
-            name: string;
-            /** Update Date */
-            update_date: string;
             /** Usergroup Uuid */
             usergroup_uuid: string;
+            /** Creation Date */
+            creation_date: string;
+            /** Update Date */
+            update_date: string;
         };
         /** UserGroupUpdate */
         UserGroupUpdate: {
-            /** Description */
-            description?: string | null;
             /** Name */
             name?: string | null;
+            /** Description */
+            description?: string | null;
         };
         /** UserPermissionsResponse */
         UserPermissionsResponse: {
-            /** Permissions */
-            permissions: string[];
             /** Roles */
             roles: {
                 [key: string]: unknown;
             }[];
+            /** Permissions */
+            permissions: string[];
         };
         /** UserRankRead */
         UserRankRead: {
-            /** Rank */
-            rank?: number | null;
             /** User Id */
             user_id: number;
+            /** Rank */
+            rank?: number | null;
         };
         /** UserRead */
         UserRead: {
+            /** Username */
+            username: string;
+            /** First Name */
+            first_name: string;
             /**
-             * Auth Provider
-             * @default local
+             * Middle Name
+             * @default
              */
-            auth_provider: string;
+            middle_name: string | null;
+            /** Last Name */
+            last_name: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
             /**
              * Avatar Image
              * @default
@@ -8466,15 +8180,29 @@ export interface components {
             details?: {
                 [key: string]: unknown;
             } | null;
+            /** Profile */
+            profile?: {
+                [key: string]: unknown;
+            } | null;
             /**
-             * Email
-             * Format: email
+             * Theme
+             * @default default
              */
-            email: string;
-            /** First Name */
-            first_name: string;
+            theme: string | null;
+            /**
+             * Locale
+             * @default ru-RU
+             */
+            locale: string | null;
             /** Id */
             id: number;
+            /** User Uuid */
+            user_uuid: string;
+            /**
+             * Auth Provider
+             * @default local
+             */
+            auth_provider: string;
             /**
              * Is Active
              * @default true
@@ -8490,64 +8218,40 @@ export interface components {
              * @default false
              */
             is_verified: boolean;
-            /** Last Name */
-            last_name: string;
-            /**
-             * Locale
-             * @default ru-RU
-             */
-            locale: string | null;
-            /**
-             * Middle Name
-             * @default
-             */
-            middle_name: string | null;
-            /** Profile */
-            profile?: {
-                [key: string]: unknown;
-            } | null;
-            /**
-             * Theme
-             * @default default
-             */
-            theme: string | null;
-            /** User Uuid */
-            user_uuid: string;
-            /** Username */
-            username: string;
         };
         /** UserRoleAssignmentResponse */
         UserRoleAssignmentResponse: {
+            /** User Id */
+            user_id: number;
+            /** Role Id */
+            role_id: number;
             /** Assigned At */
             assigned_at: string;
             /** Assigned By */
             assigned_by?: number | null;
-            role: components["schemas"]["UserRoleSummary"];
-            /** Role Id */
-            role_id: number;
             user: components["schemas"]["UserSummary"];
-            /** User Id */
-            user_id: number;
+            role: components["schemas"]["UserRoleSummary"];
         };
         /** UserRoleSummary */
         UserRoleSummary: {
-            /** Description */
-            description?: string | null;
             /** Id */
             id: number;
-            /** Is System */
-            is_system: boolean;
             /** Name */
             name: string;
-            /** Priority */
-            priority: number;
             /** Slug */
             slug: string;
+            /** Description */
+            description?: string | null;
+            /** Is System */
+            is_system: boolean;
+            /** Priority */
+            priority: number;
         };
         /** UserSession */
         UserSession: {
-            /** Expires At */
-            expires_at?: number | null;
+            user: components["schemas"]["UserRead"];
+            /** Roles */
+            roles: components["schemas"]["UserSessionRole"][];
             /**
              * Permissions
              * @default []
@@ -8555,11 +8259,10 @@ export interface components {
             permissions: string[];
             /** Permissions Timestamp */
             permissions_timestamp?: number | null;
-            /** Roles */
-            roles: components["schemas"]["UserSessionRole"][];
+            /** Expires At */
+            expires_at?: number | null;
             /** Session Version */
             session_version?: number | null;
-            user: components["schemas"]["UserRead"];
         };
         /** UserSessionRole */
         UserSessionRole: {
@@ -8567,23 +8270,33 @@ export interface components {
         };
         /** UserSummary */
         UserSummary: {
-            /** Avatar Image */
-            avatar_image?: string | null;
-            /** Email */
-            email: string;
-            /** First Name */
-            first_name?: string | null;
             /** Id */
             id: number;
-            /** Last Name */
-            last_name?: string | null;
-            /** User Uuid */
-            user_uuid?: string | null;
+            /** Email */
+            email: string;
             /** Username */
             username: string;
+            /** First Name */
+            first_name?: string | null;
+            /** Last Name */
+            last_name?: string | null;
+            /** Avatar Image */
+            avatar_image?: string | null;
+            /** User Uuid */
+            user_uuid?: string | null;
         };
         /** UserUpdate */
         UserUpdate: {
+            /** Username */
+            username?: string | null;
+            /** First Name */
+            first_name?: string | null;
+            /** Middle Name */
+            middle_name?: string | null;
+            /** Last Name */
+            last_name?: string | null;
+            /** Email */
+            email?: string | null;
             /** Avatar Image */
             avatar_image?: string | null;
             /** Bio */
@@ -8592,47 +8305,42 @@ export interface components {
             details?: {
                 [key: string]: unknown;
             } | null;
-            /** Email */
-            email?: string | null;
-            /** First Name */
-            first_name?: string | null;
-            /** Last Name */
-            last_name?: string | null;
-            /** Locale */
-            locale?: string | null;
-            /** Middle Name */
-            middle_name?: string | null;
             /** Profile */
             profile?: {
                 [key: string]: unknown;
             } | null;
             /** Theme */
             theme?: string | null;
-            /** Username */
-            username?: string | null;
+            /** Locale */
+            locale?: string | null;
         };
         /** UserUpdatePassword */
         UserUpdatePassword: {
-            /** New Password */
-            new_password: string;
             /** Old Password */
             old_password: string;
+            /** New Password */
+            new_password: string;
         };
         /** ValidationError */
         ValidationError: {
-            /** Context */
-            ctx?: Record<string, never>;
-            /** Input */
-            input?: unknown;
             /** Location */
             loc: (string | number)[];
             /** Message */
             msg: string;
             /** Error Type */
             type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
         };
         /** WorkloadAgingBuckets */
         WorkloadAgingBuckets: {
+            /**
+             * H0 24
+             * @default 0
+             */
+            h0_24: number;
             /**
              * D1 3
              * @default 0
@@ -8648,39 +8356,34 @@ export interface components {
              * @default 0
              */
             d7_plus: number;
-            /**
-             * H0 24
-             * @default 0
-             */
-            h0_24: number;
         };
         /**
          * XPAwardRequest
          * @description Request to award XP.
          */
         XPAwardRequest: {
-            /** Custom Amount */
-            custom_amount?: number | null;
-            /** Idempotency Key */
-            idempotency_key?: string | null;
             /** Source */
             source: components["schemas"]["XPSource"] | string;
             /** Source Id */
             source_id?: string | null;
+            /** Custom Amount */
+            custom_amount?: number | null;
+            /** Idempotency Key */
+            idempotency_key?: string | null;
         };
         /**
          * XPAwardResponse
          * @description Response from XP award operation.
          */
         XPAwardResponse: {
-            /** Is New Transaction */
-            is_new_transaction: boolean;
+            transaction: components["schemas"]["TransactionRead"];
+            profile: components["schemas"]["ProfileRead"];
             /** Level Up Occurred */
             level_up_occurred: boolean;
             /** Previous Level */
             previous_level: number;
-            profile: components["schemas"]["ProfileRead"];
-            transaction: components["schemas"]["TransactionRead"];
+            /** Is New Transaction */
+            is_new_transaction: boolean;
         };
         /**
          * XPSource
@@ -8708,2133 +8411,6 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    root__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: string;
-                    };
-                };
-            };
-        };
-    };
-    api_create_activity_api_v1_activities_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ActivityCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ActivityRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_create_documentpdf_activity_api_v1_activities_documentpdf_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": components["schemas"]["Body_api_create_documentpdf_activity_api_v1_activities_documentpdf_post"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ActivityRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_create_external_video_activity_api_v1_activities_external_video_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ExternalVideo"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ActivityRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_create_video_activity_api_v1_activities_video_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": components["schemas"]["Body_api_create_video_activity_api_v1_activities_video_post"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ActivityRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_activity_api_v1_activities__activity_uuid__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                activity_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ActivityReadWithPermissions"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_delete_activity_api_v1_activities__activity_uuid__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                activity_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ActivityDetailResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_update_activity_api_v1_activities__activity_uuid__patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                activity_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ActivityUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ActivityRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_ai_send_activity_chat_message_api_v1_ai_send_activity_chat_message_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SendActivityAIChatMessage"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ActivityAIChatSessionResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_ai_send_activity_chat_message_stream_api_v1_ai_send_activity_chat_message_stream_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SendActivityAIChatMessage"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_ai_start_activity_chat_session_api_v1_ai_start_activity_chat_session_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["StartActivityAIChatSession"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ActivityAIChatSessionResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_ai_start_activity_chat_session_stream_api_v1_ai_start_activity_chat_session_stream_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["StartActivityAIChatSession"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    admin_analytics_overview_platform_api_v1_analytics_admin_overview_get: {
-        parameters: {
-            query?: {
-                window?: "7d" | "28d" | "90d";
-                compare?: "previous_period" | "none";
-                bucket?: "day" | "week";
-                bucket_start?: string | null;
-                course_ids?: string | null;
-                cohort_ids?: string | null;
-                teacher_user_id?: number | null;
-                timezone?: string;
-                page?: number;
-                page_size?: number;
-                sort_by?: string | null;
-                sort_order?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminAnalyticsResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    teacher_assessments_platform_api_v1_analytics_teacher_assessments_get: {
-        parameters: {
-            query?: {
-                window?: "7d" | "28d" | "90d";
-                compare?: "previous_period" | "none";
-                bucket?: "day" | "week";
-                bucket_start?: string | null;
-                course_ids?: string | null;
-                cohort_ids?: string | null;
-                teacher_user_id?: number | null;
-                timezone?: string;
-                page?: number;
-                page_size?: number;
-                sort_by?: string | null;
-                sort_order?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TeacherAssessmentListResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    teacher_assessment_detail_platform_api_v1_analytics_teacher_assessments__assessment_type___assessment_id__get: {
-        parameters: {
-            query?: {
-                window?: "7d" | "28d" | "90d";
-                compare?: "previous_period" | "none";
-                bucket?: "day" | "week";
-                bucket_start?: string | null;
-                course_ids?: string | null;
-                cohort_ids?: string | null;
-                teacher_user_id?: number | null;
-                timezone?: string;
-                page?: number;
-                page_size?: number;
-                sort_by?: string | null;
-                sort_order?: "asc" | "desc";
-            };
-            header?: never;
-            path: {
-                assessment_type: string;
-                assessment_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TeacherAssessmentDetailResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    teacher_courses_platform_api_v1_analytics_teacher_courses_get: {
-        parameters: {
-            query?: {
-                window?: "7d" | "28d" | "90d";
-                compare?: "previous_period" | "none";
-                bucket?: "day" | "week";
-                bucket_start?: string | null;
-                course_ids?: string | null;
-                cohort_ids?: string | null;
-                teacher_user_id?: number | null;
-                timezone?: string;
-                page?: number;
-                page_size?: number;
-                sort_by?: string | null;
-                sort_order?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TeacherCourseListResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    teacher_course_detail_by_uuid_platform_api_v1_analytics_teacher_courses_by_uuid__course_uuid__get: {
-        parameters: {
-            query?: {
-                window?: "7d" | "28d" | "90d";
-                compare?: "previous_period" | "none";
-                bucket?: "day" | "week";
-                bucket_start?: string | null;
-                course_ids?: string | null;
-                cohort_ids?: string | null;
-                teacher_user_id?: number | null;
-                timezone?: string;
-                page?: number;
-                page_size?: number;
-                sort_by?: string | null;
-                sort_order?: "asc" | "desc";
-            };
-            header?: never;
-            path: {
-                course_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TeacherCourseDetailResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    teacher_course_detail_platform_api_v1_analytics_teacher_courses__course_id__get: {
-        parameters: {
-            query?: {
-                window?: "7d" | "28d" | "90d";
-                compare?: "previous_period" | "none";
-                bucket?: "day" | "week";
-                bucket_start?: string | null;
-                course_ids?: string | null;
-                cohort_ids?: string | null;
-                teacher_user_id?: number | null;
-                timezone?: string;
-                page?: number;
-                page_size?: number;
-                sort_by?: string | null;
-                sort_order?: "asc" | "desc";
-            };
-            header?: never;
-            path: {
-                course_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TeacherCourseDetailResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    teacher_drillthrough_platform_api_v1_analytics_teacher_drill_through__metric__get: {
-        parameters: {
-            query?: {
-                course_id?: number | null;
-                assessment_type?: string | null;
-                assessment_id?: number | null;
-                window?: "7d" | "28d" | "90d";
-                compare?: "previous_period" | "none";
-                bucket?: "day" | "week";
-                bucket_start?: string | null;
-                course_ids?: string | null;
-                cohort_ids?: string | null;
-                teacher_user_id?: number | null;
-                timezone?: string;
-                page?: number;
-                page_size?: number;
-                sort_by?: string | null;
-                sort_order?: "asc" | "desc";
-            };
-            header?: never;
-            path: {
-                metric: "active_learners" | "completion_rate" | "pass_rate" | "backlog";
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DrillThroughResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    teacher_assessment_outcomes_export_platform_api_v1_analytics_teacher_exports_assessment_outcomes_csv_get: {
-        parameters: {
-            query?: {
-                window?: "7d" | "28d" | "90d";
-                compare?: "previous_period" | "none";
-                bucket?: "day" | "week";
-                bucket_start?: string | null;
-                course_ids?: string | null;
-                cohort_ids?: string | null;
-                teacher_user_id?: number | null;
-                timezone?: string;
-                page?: number;
-                page_size?: number;
-                sort_by?: string | null;
-                sort_order?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    teacher_at_risk_export_platform_api_v1_analytics_teacher_exports_at_risk_csv_get: {
-        parameters: {
-            query?: {
-                window?: "7d" | "28d" | "90d";
-                compare?: "previous_period" | "none";
-                bucket?: "day" | "week";
-                bucket_start?: string | null;
-                course_ids?: string | null;
-                cohort_ids?: string | null;
-                teacher_user_id?: number | null;
-                timezone?: string;
-                page?: number;
-                page_size?: number;
-                sort_by?: string | null;
-                sort_order?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    teacher_course_progress_export_platform_api_v1_analytics_teacher_exports_course_progress_csv_get: {
-        parameters: {
-            query?: {
-                window?: "7d" | "28d" | "90d";
-                compare?: "previous_period" | "none";
-                bucket?: "day" | "week";
-                bucket_start?: string | null;
-                course_ids?: string | null;
-                cohort_ids?: string | null;
-                teacher_user_id?: number | null;
-                timezone?: string;
-                page?: number;
-                page_size?: number;
-                sort_by?: string | null;
-                sort_order?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    teacher_grading_backlog_export_platform_api_v1_analytics_teacher_exports_grading_backlog_csv_get: {
-        parameters: {
-            query?: {
-                window?: "7d" | "28d" | "90d";
-                compare?: "previous_period" | "none";
-                bucket?: "day" | "week";
-                bucket_start?: string | null;
-                course_ids?: string | null;
-                cohort_ids?: string | null;
-                teacher_user_id?: number | null;
-                timezone?: string;
-                page?: number;
-                page_size?: number;
-                sort_by?: string | null;
-                sort_order?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    teacher_interventions_platform_api_v1_analytics_teacher_interventions_get: {
-        parameters: {
-            query?: {
-                user_id?: number | null;
-                course_id?: number | null;
-                window?: "7d" | "28d" | "90d";
-                compare?: "previous_period" | "none";
-                bucket?: "day" | "week";
-                bucket_start?: string | null;
-                course_ids?: string | null;
-                cohort_ids?: string | null;
-                teacher_user_id?: number | null;
-                timezone?: string;
-                page?: number;
-                page_size?: number;
-                sort_by?: string | null;
-                sort_order?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TeacherInterventionListResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_teacher_intervention_platform_api_v1_analytics_teacher_interventions_post: {
-        parameters: {
-            query?: {
-                window?: "7d" | "28d" | "90d";
-                compare?: "previous_period" | "none";
-                bucket?: "day" | "week";
-                bucket_start?: string | null;
-                course_ids?: string | null;
-                cohort_ids?: string | null;
-                teacher_user_id?: number | null;
-                timezone?: string;
-                page?: number;
-                page_size?: number;
-                sort_by?: string | null;
-                sort_order?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["TeacherInterventionCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TeacherInterventionRow"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    teacher_at_risk_learners_platform_api_v1_analytics_teacher_learners_at_risk_get: {
-        parameters: {
-            query?: {
-                window?: "7d" | "28d" | "90d";
-                compare?: "previous_period" | "none";
-                bucket?: "day" | "week";
-                bucket_start?: string | null;
-                course_ids?: string | null;
-                cohort_ids?: string | null;
-                teacher_user_id?: number | null;
-                timezone?: string;
-                page?: number;
-                page_size?: number;
-                sort_by?: string | null;
-                sort_order?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AtRiskLearnersResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    teacher_overview_platform_api_v1_analytics_teacher_overview_get: {
-        parameters: {
-            query?: {
-                window?: "7d" | "28d" | "90d";
-                compare?: "previous_period" | "none";
-                bucket?: "day" | "week";
-                bucket_start?: string | null;
-                course_ids?: string | null;
-                cohort_ids?: string | null;
-                teacher_user_id?: number | null;
-                timezone?: string;
-                page?: number;
-                page_size?: number;
-                sort_by?: string | null;
-                sort_order?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TeacherOverviewResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    teacher_saved_views_platform_api_v1_analytics_teacher_saved_views_get: {
-        parameters: {
-            query?: {
-                window?: "7d" | "28d" | "90d";
-                compare?: "previous_period" | "none";
-                bucket?: "day" | "week";
-                bucket_start?: string | null;
-                course_ids?: string | null;
-                cohort_ids?: string | null;
-                teacher_user_id?: number | null;
-                timezone?: string;
-                page?: number;
-                page_size?: number;
-                sort_by?: string | null;
-                sort_order?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SavedAnalyticsViewListResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    save_teacher_saved_view_platform_api_v1_analytics_teacher_saved_views_post: {
-        parameters: {
-            query?: {
-                window?: "7d" | "28d" | "90d";
-                compare?: "previous_period" | "none";
-                bucket?: "day" | "week";
-                bucket_start?: string | null;
-                course_ids?: string | null;
-                cohort_ids?: string | null;
-                teacher_user_id?: number | null;
-                timezone?: string;
-                page?: number;
-                page_size?: number;
-                sort_by?: string | null;
-                sort_order?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SavedAnalyticsViewCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SavedAnalyticsViewRow"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_teacher_saved_view_platform_api_v1_analytics_teacher_saved_views__view_id__delete: {
-        parameters: {
-            query?: {
-                window?: "7d" | "28d" | "90d";
-                compare?: "previous_period" | "none";
-                bucket?: "day" | "week";
-                bucket_start?: string | null;
-                course_ids?: string | null;
-                cohort_ids?: string | null;
-                teacher_user_id?: number | null;
-                timezone?: string;
-                page?: number;
-                page_size?: number;
-                sort_by?: string | null;
-                sort_order?: "asc" | "desc";
-            };
-            header?: never;
-            path: {
-                view_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_create_assignments_api_v1_assignments_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AssignmentCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AssignmentRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_read_assignment_from_activity_api_v1_assignments_activity__activity_uuid__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                activity_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AssignmentRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_delete_assignment_from_activity_api_v1_assignments_activity__activity_uuid__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                activity_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_assignments_api_v1_assignments_course__course_uuid__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                course_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_assignments_for_courses_api_v1_assignments_courses_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_editable_assignments_for_courses_api_v1_assignments_courses_editable_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_update_assignment_task_submission_api_v1_assignments_submissions__assignment_task_submission_uuid__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_task_submission_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                } | null;
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_read_assignment_task_api_v1_assignments_task__assignment_task_uuid__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_task_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_create_assignment_with_activity_api_v1_assignments_with_activity_post: {
-        parameters: {
-            query: {
-                chapter_id: number;
-                activity_name: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AssignmentCreateWithActivity"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_read_assignment_api_v1_assignments__assignment_uuid__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AssignmentRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_update_assignment_api_v1_assignments__assignment_uuid__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AssignmentUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AssignmentRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_delete_assignment_api_v1_assignments__assignment_uuid__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_assignment_submissions_api_v1_assignments__assignment_uuid__submissions_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_assignment_submission_me_api_v1_assignments__assignment_uuid__submissions_me_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_assignment_draft_submission_api_v1_assignments__assignment_uuid__submissions_me_draft_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AssignmentDraftRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_save_assignment_draft_submission_api_v1_assignments__assignment_uuid__submissions_me_draft_patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AssignmentDraftPatch"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SubmissionRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_assignment_submission_user_api_v1_assignments__assignment_uuid__submissions__user_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-                user_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_submit_assignment_draft_submission_api_v1_assignments__assignment_uuid__submit_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["AssignmentDraftPatch"] | null;
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SubmissionRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_read_assignment_tasks_api_v1_assignments__assignment_uuid__tasks_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_create_assignment_tasks_api_v1_assignments__assignment_uuid__tasks_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AssignmentTaskCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_update_assignment_tasks_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-                assignment_task_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AssignmentTaskUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_delete_assignment_tasks_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-                assignment_task_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_put_assignment_task_ref_file_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__ref_file_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-                assignment_task_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "multipart/form-data": components["schemas"]["Body_api_put_assignment_task_ref_file_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__ref_file_post"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_put_assignment_task_sub_file_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__sub_file_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-                assignment_task_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "multipart/form-data": components["schemas"]["Body_api_put_assignment_task_sub_file_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__sub_file_post"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_assignment_task_submissions_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__submissions_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-                assignment_task_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_handle_assignment_task_submission_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__submissions_put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-                assignment_task_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                } | null;
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_assignment_task_submission_me_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__submissions_me_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-                assignment_task_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_assignment_task_submission_user_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__submissions_user__user_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-                assignment_task_uuid: string;
-                user_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_delete_assignment_task_submission_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__submissions__assignment_task_submission_uuid__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_uuid: string;
-                assignment_task_uuid: string;
-                assignment_task_submission_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     reset_forgot_password_api_v1_auth_forgot_password_post: {
         parameters: {
             query?: never;
@@ -10868,13 +8444,434 @@ export interface operations {
             };
         };
     };
-    google_authorize_api_v1_auth_google_authorize_get: {
+    reset_reset_password_api_v1_auth_reset_password_post: {
         parameters: {
-            query: {
-                callback: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Body_reset_reset_password_api_v1_auth_reset_password_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    register_register_api_v1_auth_register_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRead"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_public_user_api_v1_users_profile_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRead"];
+                };
+            };
+        };
+    };
+    api_get_public_user_session_api_v1_users_session_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserSession"];
+                };
+            };
+        };
+    };
+    api_create_user_without_platform_api_v1_users_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_user_by_id_api_v1_users_id__user_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_user_by_uuid_api_v1_users_uuid__user_uuid__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_user_by_username_api_v1_users_username__username__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                username: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_user_api_v1_users__user_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_avatar_user_api_v1_users_update_avatar__user_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_api_update_avatar_user_api_v1_users_update_avatar__user_id__put"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_user_password_api_v1_users_change_password__user_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserUpdatePassword"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_user_theme_api_v1_users_preferences_theme__user_id__put: {
+        parameters: {
+            query: {
+                theme: string;
+            };
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_user_locale_api_v1_users_preferences_locale__user_id__put: {
+        parameters: {
+            query: {
+                locale: string;
+            };
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_delete_user_api_v1_users_user_id__user_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -10899,13 +8896,43 @@ export interface operations {
             };
         };
     };
-    google_callback_api_v1_auth_google_callback_get: {
+    api_get_user_courses_api_v1_users__user_id__courses_get: {
         parameters: {
             query?: {
-                code?: string | null;
-                state?: string | null;
-                error?: string | null;
+                page?: number;
+                limit?: number;
             };
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_usergroups_api_v1_usergroups_get: {
+        parameters: {
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -10918,7 +8945,322 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["UserGroupRead"][];
+                };
+            };
+        };
+    };
+    api_create_usergroup_api_v1_usergroups_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserGroupCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserGroupRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_usergroup_api_v1_usergroups__usergroup_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                usergroup_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserGroupRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_usergroup_api_v1_usergroups__usergroup_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                usergroup_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserGroupUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserGroupRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_delete_usergroup_api_v1_usergroups__usergroup_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                usergroup_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_users_linked_to_usergroup_api_v1_usergroups__usergroup_id__users_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                usergroup_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_usergroupsby_resource_api_v1_usergroups_resource__resource_uuid__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resource_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserGroupRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_add_users_to_usergroup_api_v1_usergroups__usergroup_id__add_users_post: {
+        parameters: {
+            query: {
+                user_ids: string;
+            };
+            header?: never;
+            path: {
+                usergroup_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_delete_users_from_usergroup_api_v1_usergroups__usergroup_id__remove_users_delete: {
+        parameters: {
+            query: {
+                user_ids: string;
+            };
+            header?: never;
+            path: {
+                usergroup_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_add_resources_to_usergroup_api_v1_usergroups__usergroup_id__add_resources_post: {
+        parameters: {
+            query: {
+                resource_uuids: string;
+            };
+            header?: never;
+            path: {
+                usergroup_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_delete_resources_from_usergroup_api_v1_usergroups__usergroup_id__remove_resources_delete: {
+        parameters: {
+            query: {
+                resource_uuids: string;
+            };
+            header?: never;
+            path: {
+                usergroup_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
                 };
             };
             /** @description Validation Error */
@@ -11005,6 +9347,26 @@ export interface operations {
             };
         };
     };
+    list_sessions_api_v1_auth_sessions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
     refresh_token_api_v1_auth_refresh_post: {
         parameters: {
             query?: never;
@@ -11025,35 +9387,24 @@ export interface operations {
             };
         };
     };
-    register_register_api_v1_auth_register_post: {
+    google_authorize_api_v1_auth_google_authorize_get: {
         parameters: {
-            query?: never;
+            query: {
+                callback: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserCreate"];
-            };
-        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
-            201: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UserRead"];
-                };
-            };
-            /** @description Bad Request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorModel"];
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -11067,7 +9418,60 @@ export interface operations {
             };
         };
     };
-    reset_reset_password_api_v1_auth_reset_password_post: {
+    google_callback_api_v1_auth_google_callback_get: {
+        parameters: {
+            query?: {
+                code?: string | null;
+                state?: string | null;
+                error?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_platform_api_v1_platform_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformRead"];
+                };
+            };
+        };
+    };
+    api_update_platform_api_v1_platform_put: {
         parameters: {
             query?: never;
             header?: never;
@@ -11076,7 +9480,568 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["Body_reset_reset_password_api_v1_auth_reset_password_post"];
+                "application/json": components["schemas"]["PlatformUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_platform_users_api_v1_members_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPlatformUsers"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_platform_user_role_api_v1_members__user_id__role__role_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+                role_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_remove_user_from_platform_api_v1_members__user_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_platform_logo_api_v1_logo_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_api_update_platform_logo_api_v1_logo_put"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_platform_thumbnail_api_v1_thumbnail_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_api_update_platform_thumbnail_api_v1_thumbnail_put"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_platform_preview_api_v1_preview_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_api_update_platform_preview_api_v1_preview_put"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformPreviewUploadResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_platform_landing_api_v1_landing_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    [key: string]: unknown;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_upload_platform_landing_content_api_v1_landing_content_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_api_upload_platform_landing_content_api_v1_landing_content_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformLandingUploadResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_all_permissions_api_v1_roles_permissions_all_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PermissionRead"][];
+                };
+            };
+        };
+    };
+    list_roles_api_v1_roles_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleRead"][];
+                };
+            };
+        };
+    };
+    create_role_api_v1_roles_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoleCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_role_audit_log_api_v1_roles_audit_log_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleAuditListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_role_api_v1_roles__role_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                role_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_role_api_v1_roles__role_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                role_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoleUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_role_api_v1_roles__role_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                role_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_role_users_count_api_v1_roles__role_id__users_count_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                role_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_role_permissions_api_v1_roles__role_id__permissions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                role_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PermissionRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_permission_to_role_api_v1_roles__role_id__permissions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                role_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddPermissionBody"];
             };
         };
         responses: {
@@ -11089,13 +10054,36 @@ export interface operations {
                     "application/json": unknown;
                 };
             };
-            /** @description Bad Request */
-            400: {
+            /** @description Validation Error */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorModel"];
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_permission_from_role_api_v1_roles__role_id__permissions__permission_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                role_id: number;
+                permission_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -11109,7 +10097,212 @@ export interface operations {
             };
         };
     };
-    list_sessions_api_v1_auth_sessions_get: {
+    check_permission_api_v1_rbac_check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PermissionCheckRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PermissionCheckResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    check_permissions_batch_api_v1_rbac_check_batch_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BatchPermissionCheckRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchPermissionCheckResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_my_permissions_api_v1_rbac_me_permissions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserPermissionsResponse"];
+                };
+            };
+        };
+    };
+    list_user_roles_api_v1_rbac_user_roles_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRoleAssignmentResponse"][];
+                };
+            };
+        };
+    };
+    assign_role_api_v1_rbac_roles_assign_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoleAssignmentRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revoke_role_api_v1_rbac_roles_revoke_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoleRevocationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_search_platform_content_api_v1_search_get: {
+        parameters: {
+            query: {
+                query: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    health_api_v1_health_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -11125,6 +10318,241 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    health_live_api_v1_health_live_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    health_ready_api_v1_health_ready_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    link_preview_api_v1_utils_link_preview_get: {
+        parameters: {
+            query?: {
+                /** @description URL to preview */
+                url?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    initiate_chunked_upload_api_v1_uploads_initiate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/x-www-form-urlencoded": components["schemas"]["Body_initiate_chunked_upload_api_v1_uploads_initiate_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChunkedUploadInitiateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_chunk_api_v1_uploads_chunk_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_chunk_api_v1_uploads_chunk_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChunkedUploadChunkResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    complete_chunked_upload_api_v1_uploads_complete_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/x-www-form-urlencoded": components["schemas"]["Body_complete_chunked_upload_api_v1_uploads_complete_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChunkedUploadCompleteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_upload_status_api_v1_uploads_status__upload_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                upload_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChunkedUploadStatusResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_upload_api_v1_uploads__upload_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                upload_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChunkedUploadCancelResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -11170,6 +10598,70 @@ export interface operations {
         requestBody: {
             content: {
                 "multipart/form-data": components["schemas"]["Body_api_create_image_file_block_api_v1_blocks_image_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BlockRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_video_file_block_api_v1_blocks_video_get: {
+        parameters: {
+            query: {
+                block_uuid: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BlockRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_create_video_file_block_api_v1_blocks_video_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_api_create_video_file_block_api_v1_blocks_video_post"];
             };
         };
         responses: {
@@ -11356,1129 +10848,6 @@ export interface operations {
             };
         };
     };
-    api_get_video_file_block_api_v1_blocks_video_get: {
-        parameters: {
-            query: {
-                block_uuid: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BlockRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_create_video_file_block_api_v1_blocks_video_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": components["schemas"]["Body_api_create_video_file_block_api_v1_blocks_video_post"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BlockRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_create_certification_api_v1_certifications_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CertificationCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CertificationRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_certificate_by_user_certification_uuid_api_v1_certifications_certificate__user_certification_uuid__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                user_certification_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_certifications_by_course_api_v1_certifications_course__course_uuid__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                course_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CertificationRead"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_all_user_certificates_api_v1_certifications_user_all_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    }[];
-                };
-            };
-        };
-    };
-    api_get_user_certificates_for_course_api_v1_certifications_user_course__course_uuid__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                course_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    }[];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_certification_api_v1_certifications__certification_uuid__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                certification_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CertificationRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_update_certification_api_v1_certifications__certification_uuid__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                certification_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CertificationUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CertificationRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_delete_certification_api_v1_certifications__certification_uuid__delete: {
-        parameters: {
-            query?: {
-                last_known_update_date?: string | null;
-            };
-            header?: never;
-            path: {
-                certification_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_create_coursechapter_api_v1_chapters_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ChapterCreateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ChapterRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_reorder_chapters_and_activities_api_v1_chapters_course__course_uuid__order_patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                course_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ChapterUpdateOrder"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_coursechapter_api_v1_chapters__chapter_uuid__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                chapter_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ChapterRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_delete_coursechapter_api_v1_chapters__chapter_uuid__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                chapter_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_update_coursechapter_api_v1_chapters__chapter_uuid__patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                chapter_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ChapterUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ChapterRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_move_activity_to_order_api_v1_chapters__chapter_uuid__activities__activity_uuid__order_patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                chapter_uuid: string;
-                activity_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ActivityOrderPayload"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_move_chapter_to_order_api_v1_chapters__chapter_uuid__order_patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                chapter_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ChapterOrderPayload"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ChapterRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    check_judge0_health_api_v1_code_challenges_health_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
-    get_available_languages_api_v1_code_challenges_languages_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Judge0Language"][];
-                };
-            };
-        };
-    };
-    get_submission_detail_api_v1_code_challenges_submissions__submission_uuid__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                submission_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CodeSubmissionDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_code_challenge_api_v1_code_challenges__activity_uuid__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                activity_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ActivityRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_challenge_analytics_api_v1_code_challenges__activity_uuid__analytics_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                activity_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InstructorAnalytics"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_student_analytics_api_v1_code_challenges__activity_uuid__analytics__user_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                activity_uuid: string;
-                user_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StudentAnalytics"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    run_custom_test_api_v1_code_challenges__activity_uuid__custom_test_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                activity_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CustomTestRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CustomTestResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_leaderboard_api_v1_code_challenges__activity_uuid__leaderboard_get: {
-        parameters: {
-            query?: {
-                timeframe?: "all" | "week" | "month";
-                limit?: number;
-            };
-            header?: never;
-            path: {
-                activity_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CodeChallengeLeaderboard"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_challenge_settings_endpoint_api_v1_code_challenges__activity_uuid__settings_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                activity_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_challenge_settings_api_v1_code_challenges__activity_uuid__settings_put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                activity_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SettingsUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_submission_history_api_v1_code_challenges__activity_uuid__submissions_get: {
-        parameters: {
-            query?: {
-                limit?: number;
-                offset?: number;
-            };
-            header?: never;
-            path: {
-                activity_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CodeSubmissionRead"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    submit_code_challenge_api_v1_code_challenges__activity_uuid__submit_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                activity_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CodeSubmissionCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SubmissionResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    run_visible_tests_api_v1_code_challenges__activity_uuid__test_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                activity_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CodeSubmissionCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TestRunResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_create_collection_api_v1_collections_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CollectionCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CollectionRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_platform_collections_api_v1_collections_page__page__limit__limit__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                page: number;
-                limit: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CollectionReadWithPermissions"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_collection_api_v1_collections__collection_uuid__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                collection_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CollectionReadWithPermissions"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_update_collection_api_v1_collections__collection_uuid__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                collection_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CollectionUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CollectionRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_delete_collection_api_v1_collections__collection_uuid__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                collection_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     api_create_course_api_v1_courses_post: {
         parameters: {
             query?: never;
@@ -12512,53 +10881,20 @@ export interface operations {
             };
         };
     };
-    api_get_platform_editable_courses_api_v1_courses_editable_page__page__limit__limit__get: {
-        parameters: {
-            query?: {
-                query?: string | null;
-                sort_by?: string | null;
-                preset?: string | null;
-            };
-            header?: never;
-            path: {
-                page: number;
-                limit: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CourseReadWithPermissions"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_platform_courses_api_v1_courses_page__page__limit__limit__get: {
+    api_create_course_thumbnail_api_v1_courses__course_uuid__thumbnail_put: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                page: number;
-                limit: number;
+                course_uuid: string;
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_api_create_course_thumbnail_api_v1_courses__course_uuid__thumbnail_put"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -12566,40 +10902,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CourseReadWithPermissions"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_search_platform_courses_api_v1_courses_search_get: {
-        parameters: {
-            query: {
-                query: string;
-                page?: number;
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CourseRead"][];
+                    "application/json": components["schemas"]["CourseRead"];
                 };
             };
             /** @description Validation Error */
@@ -12675,6 +10978,175 @@ export interface operations {
             };
         };
     };
+    api_get_course_meta_api_v1_courses__course_uuid__meta_get: {
+        parameters: {
+            query?: {
+                with_unpublished_activities?: boolean;
+            };
+            header?: never;
+            path: {
+                course_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FullCourseRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_platform_courses_api_v1_courses_page__page__limit__limit__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                page: number;
+                limit: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseReadWithPermissions"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_platform_editable_courses_api_v1_courses_editable_page__page__limit__limit__get: {
+        parameters: {
+            query?: {
+                query?: string | null;
+                sort_by?: string | null;
+                preset?: string | null;
+            };
+            header?: never;
+            path: {
+                page: number;
+                limit: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseReadWithPermissions"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_search_platform_courses_api_v1_courses_search_get: {
+        parameters: {
+            query: {
+                query: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_course_metadata_api_v1_courses__course_uuid__metadata_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                course_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CourseMetadataUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     api_update_course_access_api_v1_courses__course_uuid__access_put: {
         parameters: {
             query?: never;
@@ -12716,6 +11188,206 @@ export interface operations {
             header?: never;
             path: {
                 course_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_course_updates_api_v1_courses__course_uuid__updates_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                course_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseUpdateRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_create_course_update_api_v1_courses__course_uuid__updates_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                course_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CourseUpdateCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseUpdateRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_course_update_api_v1_courses__course_uuid__update__courseupdate_uuid__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                course_uuid: string;
+                courseupdate_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CourseUpdateUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseUpdateRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_delete_course_update_api_v1_courses__course_uuid__update__courseupdate_uuid__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                course_uuid: string;
+                courseupdate_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_course_contributors_api_v1_courses__course_uuid__contributors_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                course_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_course_contributor_api_v1_courses__course_uuid__contributors__contributor_user_id__put: {
+        parameters: {
+            query: {
+                authorship: components["schemas"]["ResourceAuthorshipEnum"];
+                authorship_status: components["schemas"]["ResourceAuthorshipStatusEnum"];
+            };
+            header?: never;
+            path: {
+                course_uuid: string;
+                contributor_user_id: number;
             };
             cookie?: never;
         };
@@ -12811,7 +11483,7 @@ export interface operations {
             };
         };
     };
-    api_get_course_contributors_api_v1_courses__course_uuid__contributors_get: {
+    api_get_course_user_rights_api_v1_courses__course_uuid__rights_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -12828,42 +11500,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_update_course_contributor_api_v1_courses__course_uuid__contributors__contributor_user_id__put: {
-        parameters: {
-            query: {
-                authorship: components["schemas"]["ResourceAuthorshipEnum"];
-                authorship_status: components["schemas"]["ResourceAuthorshipStatusEnum"];
-            };
-            header?: never;
-            path: {
-                course_uuid: string;
-                contributor_user_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["CourseUserRightsResponse"];
                 };
             };
             /** @description Validation Error */
@@ -13018,38 +11655,6 @@ export interface operations {
             };
         };
     };
-    api_toggle_course_discussion_dislike_api_v1_courses__course_uuid__discussions__discussion_uuid__dislike_put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                course_uuid: string;
-                discussion_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     api_toggle_course_discussion_like_api_v1_courses__course_uuid__discussions__discussion_uuid__like_put: {
         parameters: {
             query?: never;
@@ -13146,6 +11751,38 @@ export interface operations {
             };
         };
     };
+    api_toggle_course_discussion_dislike_api_v1_courses__course_uuid__discussions__discussion_uuid__dislike_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                course_uuid: string;
+                discussion_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     api_get_discussion_replies_api_v1_courses__course_uuid__discussions__discussion_uuid__replies_get: {
         parameters: {
             query?: {
@@ -13183,14 +11820,45 @@ export interface operations {
             };
         };
     };
-    api_get_course_meta_api_v1_courses__course_uuid__meta_get: {
+    api_create_coursechapter_api_v1_chapters_post: {
         parameters: {
-            query?: {
-                with_unpublished_activities?: boolean;
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChapterCreateRequest"];
             };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChapterRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_coursechapter_api_v1_chapters__chapter_uuid__get: {
+        parameters: {
+            query?: never;
             header?: never;
             path: {
-                course_uuid: string;
+                chapter_uuid: string;
             };
             cookie?: never;
         };
@@ -13202,7 +11870,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FullCourseRead"];
+                    "application/json": components["schemas"]["ChapterRead"];
                 };
             };
             /** @description Validation Error */
@@ -13216,47 +11884,12 @@ export interface operations {
             };
         };
     };
-    api_update_course_metadata_api_v1_courses__course_uuid__metadata_put: {
+    api_delete_coursechapter_api_v1_chapters__chapter_uuid__delete: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                course_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CourseMetadataUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CourseRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_course_user_rights_api_v1_courses__course_uuid__rights_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                course_uuid: string;
+                chapter_uuid: string;
             };
             cookie?: never;
         };
@@ -13268,7 +11901,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CourseUserRightsResponse"];
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             /** @description Validation Error */
@@ -13282,54 +11917,18 @@ export interface operations {
             };
         };
     };
-    api_create_course_thumbnail_api_v1_courses__course_uuid__thumbnail_put: {
+    api_update_coursechapter_api_v1_chapters__chapter_uuid__patch: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                course_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "multipart/form-data": components["schemas"]["Body_api_create_course_thumbnail_api_v1_courses__course_uuid__thumbnail_put"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CourseRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_update_course_update_api_v1_courses__course_uuid__update__courseupdate_uuid__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                course_uuid: string;
-                courseupdate_uuid: string;
+                chapter_uuid: string;
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CourseUpdateUpdate"];
+                "application/json": components["schemas"]["ChapterUpdate"];
             };
         };
         responses: {
@@ -13339,7 +11938,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CourseUpdateRead"];
+                    "application/json": components["schemas"]["ChapterRead"];
                 };
             };
             /** @description Validation Error */
@@ -13353,13 +11952,448 @@ export interface operations {
             };
         };
     };
-    api_delete_course_update_api_v1_courses__course_uuid__update__courseupdate_uuid__delete: {
+    api_move_chapter_to_order_api_v1_chapters__chapter_uuid__order_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                chapter_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChapterOrderPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChapterRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_move_activity_to_order_api_v1_chapters__chapter_uuid__activities__activity_uuid__order_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                chapter_uuid: string;
+                activity_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActivityOrderPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_reorder_chapters_and_activities_api_v1_chapters_course__course_uuid__order_patch: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 course_uuid: string;
-                courseupdate_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChapterUpdateOrder"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_create_activity_api_v1_activities_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActivityCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_activity_api_v1_activities__activity_uuid__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activity_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityReadWithPermissions"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_delete_activity_api_v1_activities__activity_uuid__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activity_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_activity_api_v1_activities__activity_uuid__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activity_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActivityUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_create_video_activity_api_v1_activities_video_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_api_create_video_activity_api_v1_activities_video_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_create_external_video_activity_api_v1_activities_external_video_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExternalVideo"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_create_documentpdf_activity_api_v1_activities_documentpdf_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_api_create_documentpdf_activity_api_v1_activities_documentpdf_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_read_assignment_api_v1_assignments__assignment_uuid__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_assignment_api_v1_assignments__assignment_uuid__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignmentUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_read_assignment_from_activity_api_v1_assignments_activity__activity_uuid__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activity_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_delete_assignment_from_activity_api_v1_assignments_activity__activity_uuid__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activity_uuid: string;
             };
             cookie?: never;
         };
@@ -13385,7 +12419,346 @@ export interface operations {
             };
         };
     };
-    api_get_course_updates_api_v1_courses__course_uuid__updates_get: {
+    api_read_assignment_tasks_api_v1_assignments__assignment_uuid__tasks_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_create_assignment_tasks_api_v1_assignments__assignment_uuid__tasks_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignmentTaskCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_read_assignment_task_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_uuid: string;
+                assignment_task_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_assignment_tasks_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_uuid: string;
+                assignment_task_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignmentTaskUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_delete_assignment_tasks_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_uuid: string;
+                assignment_task_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_put_assignment_task_ref_file_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__ref_file_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_uuid: string;
+                assignment_task_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_api_put_assignment_task_ref_file_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__ref_file_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_put_assignment_task_sub_file_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__sub_file_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_uuid: string;
+                assignment_task_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_api_put_assignment_task_sub_file_api_v1_assignments__assignment_uuid__tasks__assignment_task_uuid__sub_file_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_assignment_draft_submission_api_v1_assignments__assignment_uuid__submissions_me_draft_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentDraftRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_save_assignment_draft_submission_api_v1_assignments__assignment_uuid__submissions_me_draft_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignmentDraftPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmissionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_submit_assignment_draft_submission_api_v1_assignments__assignment_uuid__submit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["AssignmentDraftPatch"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmissionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_assignments_api_v1_assignments_course__course_uuid__get: {
         parameters: {
             query?: never;
             header?: never;
@@ -13402,7 +12775,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CourseUpdateRead"][];
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -13416,18 +12789,81 @@ export interface operations {
             };
         };
     };
-    api_create_course_update_api_v1_courses__course_uuid__updates_post: {
+    api_get_assignments_for_courses_api_v1_assignments_courses_get: {
         parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                course_uuid: string;
+            query?: {
+                course_uuids?: string[];
             };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_editable_assignments_for_courses_api_v1_assignments_courses_editable_get: {
+        parameters: {
+            query?: {
+                course_uuids?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_create_assignment_with_activity_api_v1_assignments_with_activity_post: {
+        parameters: {
+            query: {
+                chapter_id: number;
+                activity_name: string;
+            };
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CourseUpdateCreate"];
+                "application/json": components["schemas"]["AssignmentCreateWithActivity"];
             };
         };
         responses: {
@@ -13437,7 +12873,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CourseUpdateRead"];
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -13451,7 +12887,7 @@ export interface operations {
             };
         };
     };
-    config_api_v1_dev_config_get: {
+    api_get_exam_config_api_v1_exams_config_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -13491,187 +12927,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ExamRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_exam_from_activity_api_v1_exams_activity__activity_uuid__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                activity_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExamRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_attempt_by_uuid_api_v1_exams_attempts__attempt_uuid__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                attempt_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExamAttemptRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_attempt_review_questions_api_v1_exams_attempts__attempt_uuid__questions_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                attempt_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["QuestionRead"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_exam_config_api_v1_exams_config_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
-    api_update_question_api_v1_exams_questions__question_uuid__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                question_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["QuestionUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["QuestionRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_delete_question_api_v1_exams_questions__question_uuid__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                question_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: string;
-                    };
                 };
             };
             /** @description Validation Error */
@@ -13819,12 +13074,12 @@ export interface operations {
             };
         };
     };
-    api_get_all_attempts_api_v1_exams__exam_uuid__attempts_all_get: {
+    api_get_exam_from_activity_api_v1_exams_activity__activity_uuid__get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                exam_uuid: string;
+                activity_uuid: string;
             };
             cookie?: never;
         };
@@ -13836,9 +13091,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    }[];
+                    "application/json": components["schemas"]["ExamRead"];
                 };
             };
             /** @description Validation Error */
@@ -13852,7 +13105,7 @@ export interface operations {
             };
         };
     };
-    api_get_my_attempts_api_v1_exams__exam_uuid__attempts_me_get: {
+    api_get_questions_api_v1_exams__exam_uuid__questions_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -13869,7 +13122,110 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ExamAttemptRead"][];
+                    "application/json": components["schemas"]["QuestionRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_create_question_api_v1_exams__exam_uuid__questions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                exam_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuestionCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuestionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_question_api_v1_exams_questions__question_uuid__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                question_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuestionUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuestionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_delete_question_api_v1_exams_questions__question_uuid__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                question_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
                 };
             };
             /** @description Validation Error */
@@ -13984,12 +13340,74 @@ export interface operations {
             };
         };
     };
-    api_get_questions_api_v1_exams__exam_uuid__questions_get: {
+    api_get_my_attempts_api_v1_exams__exam_uuid__attempts_me_get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 exam_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExamAttemptRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_attempt_by_uuid_api_v1_exams_attempts__attempt_uuid__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExamAttemptRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_attempt_review_questions_api_v1_exams_attempts__attempt_uuid__questions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_uuid: string;
             };
             cookie?: never;
         };
@@ -14015,7 +13433,7 @@ export interface operations {
             };
         };
     };
-    api_create_question_api_v1_exams__exam_uuid__questions_post: {
+    api_get_all_attempts_api_v1_exams__exam_uuid__attempts_all_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -14024,11 +13442,7 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["QuestionCreate"];
-            };
-        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
@@ -14036,7 +13450,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["QuestionRead"];
+                    "application/json": {
+                        [key: string]: unknown;
+                    }[];
                 };
             };
             /** @description Validation Error */
@@ -14157,6 +13573,1000 @@ export interface operations {
             };
         };
     };
+    get_available_languages_api_v1_code_challenges_languages_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Judge0Language"][];
+                };
+            };
+        };
+    };
+    check_judge0_health_api_v1_code_challenges_health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    get_code_challenge_api_v1_code_challenges__activity_uuid__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activity_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_challenge_settings_endpoint_api_v1_code_challenges__activity_uuid__settings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activity_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_challenge_settings_api_v1_code_challenges__activity_uuid__settings_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activity_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SettingsUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_code_challenge_api_v1_code_challenges__activity_uuid__submit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activity_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CodeSubmissionCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmissionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_visible_tests_api_v1_code_challenges__activity_uuid__test_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activity_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CodeSubmissionCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestRunResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_custom_test_api_v1_code_challenges__activity_uuid__custom_test_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activity_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomTestRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomTestResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_submission_history_api_v1_code_challenges__activity_uuid__submissions_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                activity_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CodeSubmissionRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_submission_detail_api_v1_code_challenges_submissions__submission_uuid__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                submission_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CodeSubmissionDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_student_analytics_api_v1_code_challenges__activity_uuid__analytics__user_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activity_uuid: string;
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentAnalytics"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_challenge_analytics_api_v1_code_challenges__activity_uuid__analytics_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activity_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InstructorAnalytics"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_leaderboard_api_v1_code_challenges__activity_uuid__leaderboard_get: {
+        parameters: {
+            query?: {
+                timeframe?: "all" | "week" | "month";
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                activity_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CodeChallengeLeaderboard"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_create_certification_api_v1_certifications_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CertificationCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CertificationRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_certification_api_v1_certifications__certification_uuid__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                certification_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CertificationRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_certification_api_v1_certifications__certification_uuid__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                certification_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CertificationUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CertificationRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_delete_certification_api_v1_certifications__certification_uuid__delete: {
+        parameters: {
+            query?: {
+                last_known_update_date?: string | null;
+            };
+            header?: never;
+            path: {
+                certification_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_certifications_by_course_api_v1_certifications_course__course_uuid__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                course_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CertificationRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_user_certificates_for_course_api_v1_certifications_user_course__course_uuid__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                course_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    }[];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_certificate_by_user_certification_uuid_api_v1_certifications_certificate__user_certification_uuid__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_certification_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_all_user_certificates_api_v1_certifications_user_all_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    }[];
+                };
+            };
+        };
+    };
+    api_create_collection_api_v1_collections_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CollectionCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_collection_api_v1_collections__collection_uuid__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                collection_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionReadWithPermissions"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_update_collection_api_v1_collections__collection_uuid__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                collection_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CollectionUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_delete_collection_api_v1_collections__collection_uuid__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                collection_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_platform_collections_api_v1_collections_page__page__limit__limit__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                page: number;
+                limit: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionReadWithPermissions"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_start_trail_api_v1_trail_start_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TrailCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Trail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_user_trail_api_v1_trail_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrailRead"];
+                };
+            };
+        };
+    };
+    api_add_course_to_trail_api_v1_trail_add_course__course_uuid__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                course_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrailRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_remove_course_to_trail_api_v1_trail_remove_course__course_uuid__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                course_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrailRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_add_activity_to_trail_api_v1_trail_add_activity__activity_uuid__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activity_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrailRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_remove_activity_from_trail_api_v1_trail_remove_activity__activity_uuid__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activity_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrailRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_unified_dashboard_api_v1_gamification__get: {
         parameters: {
             query?: never;
@@ -14177,14 +14587,46 @@ export interface operations {
             };
         };
     };
-    get_leaderboard_api_v1_gamification_leaderboard_get: {
+    award_xp_api_v1_gamification_xp_post: {
         parameters: {
-            query?: {
-                limit?: number;
-                offset?: number;
-            };
+            query?: never;
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["XPAwardRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["XPAwardResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_streak_api_v1_gamification_streaks__streak_type__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                streak_type: components["schemas"]["StreakType"];
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -14195,7 +14637,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["LeaderboardRead"];
+                    "application/json": components["schemas"]["StreakUpdateRead"];
                 };
             };
             /** @description Validation Error */
@@ -14244,6 +14686,38 @@ export interface operations {
             };
         };
     };
+    get_leaderboard_api_v1_gamification_leaderboard_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeaderboardRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_user_rank_api_v1_gamification_rank_get: {
         parameters: {
             query?: never;
@@ -14264,13 +14738,24 @@ export interface operations {
             };
         };
     };
-    update_streak_api_v1_gamification_streaks__streak_type__post: {
+    teacher_overview_platform_api_v1_analytics_teacher_overview_get: {
         parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                streak_type: components["schemas"]["StreakType"];
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
             };
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -14281,7 +14766,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["StreakUpdateRead"];
+                    "application/json": components["schemas"]["TeacherOverviewResponse"];
                 };
             };
             /** @description Validation Error */
@@ -14295,16 +14780,374 @@ export interface operations {
             };
         };
     };
-    award_xp_api_v1_gamification_xp_post: {
+    admin_analytics_overview_platform_api_v1_analytics_admin_overview_get: {
         parameters: {
-            query?: never;
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAnalyticsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    teacher_courses_platform_api_v1_analytics_teacher_courses_get: {
+        parameters: {
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeacherCourseListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    teacher_course_detail_by_uuid_platform_api_v1_analytics_teacher_courses_by_uuid__course_uuid__get: {
+        parameters: {
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path: {
+                course_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeacherCourseDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    teacher_course_detail_platform_api_v1_analytics_teacher_courses__course_id__get: {
+        parameters: {
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path: {
+                course_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeacherCourseDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    teacher_assessments_platform_api_v1_analytics_teacher_assessments_get: {
+        parameters: {
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeacherAssessmentListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    teacher_assessment_detail_platform_api_v1_analytics_teacher_assessments__assessment_type___assessment_id__get: {
+        parameters: {
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path: {
+                assessment_type: string;
+                assessment_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeacherAssessmentDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    teacher_at_risk_learners_platform_api_v1_analytics_teacher_learners_at_risk_get: {
+        parameters: {
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AtRiskLearnersResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    teacher_interventions_platform_api_v1_analytics_teacher_interventions_get: {
+        parameters: {
+            query?: {
+                user_id?: number | null;
+                course_id?: number | null;
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeacherInterventionListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_teacher_intervention_platform_api_v1_analytics_teacher_interventions_post: {
+        parameters: {
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
             header?: never;
             path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["XPAwardRequest"];
+                "application/json": components["schemas"]["TeacherInterventionCreate"];
             };
         };
         responses: {
@@ -14314,7 +15157,352 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["XPAwardResponse"];
+                    "application/json": components["schemas"]["TeacherInterventionRow"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    teacher_saved_views_platform_api_v1_analytics_teacher_saved_views_get: {
+        parameters: {
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedAnalyticsViewListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    save_teacher_saved_view_platform_api_v1_analytics_teacher_saved_views_post: {
+        parameters: {
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavedAnalyticsViewCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedAnalyticsViewRow"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_teacher_saved_view_platform_api_v1_analytics_teacher_saved_views__view_id__delete: {
+        parameters: {
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path: {
+                view_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    teacher_drillthrough_platform_api_v1_analytics_teacher_drill_through__metric__get: {
+        parameters: {
+            query?: {
+                course_id?: number | null;
+                assessment_type?: string | null;
+                assessment_id?: number | null;
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path: {
+                metric: "active_learners" | "completion_rate" | "pass_rate" | "backlog";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DrillThroughResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    teacher_at_risk_export_platform_api_v1_analytics_teacher_exports_at_risk_csv_get: {
+        parameters: {
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    teacher_grading_backlog_export_platform_api_v1_analytics_teacher_exports_grading_backlog_csv_get: {
+        parameters: {
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    teacher_course_progress_export_platform_api_v1_analytics_teacher_exports_course_progress_csv_get: {
+        parameters: {
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    teacher_assessment_outcomes_export_platform_api_v1_analytics_teacher_exports_assessment_outcomes_csv_get: {
+        parameters: {
+            query?: {
+                window?: "7d" | "28d" | "90d";
+                compare?: "previous_period" | "none";
+                bucket?: "day" | "week";
+                bucket_start?: string | null;
+                course_ids?: string | null;
+                cohort_ids?: string | null;
+                teacher_user_id?: number | null;
+                timezone?: string;
+                page?: number;
+                page_size?: number;
+                sort_by?: string | null;
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -14361,54 +15549,23 @@ export interface operations {
             };
         };
     };
-    api_list_submissions_api_v1_grading_submissions_get: {
+    api_submit_assessment_api_v1_grading_submit__activity_id__post: {
         parameters: {
             query: {
+                assessment_type: components["schemas"]["AssessmentType"];
+                violation_count?: number;
+            };
+            header?: never;
+            path: {
                 activity_id: number;
-                status?: string | null;
-                late_only?: boolean;
-                search?: string | null;
-                sort_by?: string;
-                sort_dir?: string;
-                page?: number;
-                page_size?: number;
             };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SubmissionListResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_batch_grade_submissions_api_v1_grading_submissions_batch_patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["BatchGradeRequest"];
+                "application/json": {
+                    [key: string]: unknown;
+                };
             };
         };
         responses: {
@@ -14418,38 +15575,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["BatchGradeResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_export_submissions_csv_api_v1_grading_submissions_export_get: {
-        parameters: {
-            query: {
-                activity_id: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["SubmissionRead"];
                 };
             };
             /** @description Validation Error */
@@ -14525,6 +15651,44 @@ export interface operations {
             };
         };
     };
+    api_list_submissions_api_v1_grading_submissions_get: {
+        parameters: {
+            query: {
+                activity_id: number;
+                status?: string | null;
+                late_only?: boolean;
+                search?: string | null;
+                sort_by?: string;
+                sort_dir?: string;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmissionListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     api_get_submission_stats_api_v1_grading_submissions_stats_get: {
         parameters: {
             query: {
@@ -14543,6 +15707,70 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SubmissionStats"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_export_submissions_csv_api_v1_grading_submissions_export_get: {
+        parameters: {
+            query: {
+                activity_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_batch_grade_submissions_api_v1_grading_submissions_batch_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BatchGradeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchGradeResponse"];
                 };
             };
             /** @description Validation Error */
@@ -14622,23 +15850,16 @@ export interface operations {
             };
         };
     };
-    api_submit_assessment_api_v1_grading_submit__activity_id__post: {
+    api_ai_start_activity_chat_session_api_v1_ai_start_activity_chat_session_post: {
         parameters: {
-            query: {
-                assessment_type: components["schemas"]["AssessmentType"];
-                violation_count?: number;
-            };
+            query?: never;
             header?: never;
-            path: {
-                activity_id: number;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
+                "application/json": components["schemas"]["StartActivityAIChatSession"];
             };
         };
         responses: {
@@ -14648,7 +15869,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SubmissionRead"];
+                    "application/json": components["schemas"]["ActivityAIChatSessionResponse"];
                 };
             };
             /** @description Validation Error */
@@ -14662,7 +15883,106 @@ export interface operations {
             };
         };
     };
-    health_api_v1_health_get: {
+    api_ai_send_activity_chat_message_api_v1_ai_send_activity_chat_message_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SendActivityAIChatMessage"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityAIChatSessionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_ai_start_activity_chat_session_stream_api_v1_ai_start_activity_chat_session_stream_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartActivityAIChatSession"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_ai_send_activity_chat_message_stream_api_v1_ai_send_activity_chat_message_stream_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SendActivityAIChatMessage"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    config_api_v1_dev_config_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -14682,7 +16002,7 @@ export interface operations {
             };
         };
     };
-    health_live_api_v1_health_live_get: {
+    root__get: {
         parameters: {
             query?: never;
             header?: never;
@@ -14698,1995 +16018,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        [key: string]: unknown;
+                        [key: string]: string;
                     };
-                };
-            };
-        };
-    };
-    health_ready_api_v1_health_ready_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
-    api_update_platform_landing_api_v1_landing_put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PlatformDetailResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_upload_platform_landing_content_api_v1_landing_content_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": components["schemas"]["Body_api_upload_platform_landing_content_api_v1_landing_content_post"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PlatformLandingUploadResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_update_platform_logo_api_v1_logo_put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": components["schemas"]["Body_api_update_platform_logo_api_v1_logo_put"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PlatformDetailResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_platform_users_api_v1_members_get: {
-        parameters: {
-            query?: {
-                page?: number;
-                per_page?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedPlatformUsers"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_remove_user_from_platform_api_v1_members__user_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                user_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PlatformDetailResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_update_platform_user_role_api_v1_members__user_id__role__role_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                user_id: number;
-                role_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PlatformDetailResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_platform_api_v1_platform_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PlatformRead"];
-                };
-            };
-        };
-    };
-    api_update_platform_api_v1_platform_put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PlatformUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PlatformRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_update_platform_preview_api_v1_preview_put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": components["schemas"]["Body_api_update_platform_preview_api_v1_preview_put"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PlatformPreviewUploadResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    check_permission_api_v1_rbac_check_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PermissionCheckRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PermissionCheckResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    check_permissions_batch_api_v1_rbac_check_batch_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["BatchPermissionCheckRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BatchPermissionCheckResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_my_permissions_api_v1_rbac_me_permissions_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserPermissionsResponse"];
-                };
-            };
-        };
-    };
-    assign_role_api_v1_rbac_roles_assign_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RoleAssignmentRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    revoke_role_api_v1_rbac_roles_revoke_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RoleRevocationRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_user_roles_api_v1_rbac_user_roles_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserRoleAssignmentResponse"][];
-                };
-            };
-        };
-    };
-    list_roles_api_v1_roles_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RoleRead"][];
-                };
-            };
-        };
-    };
-    create_role_api_v1_roles_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RoleCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RoleRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_role_audit_log_api_v1_roles_audit_log_get: {
-        parameters: {
-            query?: {
-                page?: number;
-                page_size?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RoleAuditListResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_all_permissions_api_v1_roles_permissions_all_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PermissionRead"][];
-                };
-            };
-        };
-    };
-    get_role_api_v1_roles__role_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                role_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RoleRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_role_api_v1_roles__role_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                role_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RoleUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RoleRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_role_api_v1_roles__role_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                role_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_role_permissions_api_v1_roles__role_id__permissions_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                role_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PermissionRead"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    add_permission_to_role_api_v1_roles__role_id__permissions_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                role_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AddPermissionBody"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    remove_permission_from_role_api_v1_roles__role_id__permissions__permission_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                role_id: number;
-                permission_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_role_users_count_api_v1_roles__role_id__users_count_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                role_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_search_platform_content_api_v1_search_get: {
-        parameters: {
-            query: {
-                query: string;
-                page?: number;
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SearchResult"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_update_platform_thumbnail_api_v1_thumbnail_put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": components["schemas"]["Body_api_update_platform_thumbnail_api_v1_thumbnail_put"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PlatformDetailResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_user_trail_api_v1_trail_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TrailRead"];
-                };
-            };
-        };
-    };
-    api_add_activity_to_trail_api_v1_trail_add_activity__activity_uuid__post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                activity_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TrailRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_add_course_to_trail_api_v1_trail_add_course__course_uuid__post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                course_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TrailRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_remove_activity_from_trail_api_v1_trail_remove_activity__activity_uuid__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                activity_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TrailRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_remove_course_to_trail_api_v1_trail_remove_course__course_uuid__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                course_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TrailRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_start_trail_api_v1_trail_start_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["TrailCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Trail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    upload_chunk_api_v1_uploads_chunk_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": components["schemas"]["Body_upload_chunk_api_v1_uploads_chunk_post"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ChunkedUploadChunkResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    complete_chunked_upload_api_v1_uploads_complete_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/x-www-form-urlencoded": components["schemas"]["Body_complete_chunked_upload_api_v1_uploads_complete_post"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ChunkedUploadCompleteResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    initiate_chunked_upload_api_v1_uploads_initiate_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/x-www-form-urlencoded": components["schemas"]["Body_initiate_chunked_upload_api_v1_uploads_initiate_post"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ChunkedUploadInitiateResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_upload_status_api_v1_uploads_status__upload_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                upload_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ChunkedUploadStatusResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    cancel_upload_api_v1_uploads__upload_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                upload_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ChunkedUploadCancelResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_usergroups_api_v1_usergroups_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserGroupRead"][];
-                };
-            };
-        };
-    };
-    api_create_usergroup_api_v1_usergroups_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserGroupCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserGroupRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_usergroupsby_resource_api_v1_usergroups_resource__resource_uuid__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                resource_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserGroupRead"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_usergroup_api_v1_usergroups__usergroup_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                usergroup_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserGroupRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_update_usergroup_api_v1_usergroups__usergroup_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                usergroup_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserGroupUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserGroupRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_delete_usergroup_api_v1_usergroups__usergroup_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                usergroup_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": string;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_add_resources_to_usergroup_api_v1_usergroups__usergroup_id__add_resources_post: {
-        parameters: {
-            query: {
-                resource_uuids: string;
-            };
-            header?: never;
-            path: {
-                usergroup_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": string;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_add_users_to_usergroup_api_v1_usergroups__usergroup_id__add_users_post: {
-        parameters: {
-            query: {
-                user_ids: string;
-            };
-            header?: never;
-            path: {
-                usergroup_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": string;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_delete_resources_from_usergroup_api_v1_usergroups__usergroup_id__remove_resources_delete: {
-        parameters: {
-            query: {
-                resource_uuids: string;
-            };
-            header?: never;
-            path: {
-                usergroup_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": string;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_delete_users_from_usergroup_api_v1_usergroups__usergroup_id__remove_users_delete: {
-        parameters: {
-            query: {
-                user_ids: string;
-            };
-            header?: never;
-            path: {
-                usergroup_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": string;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_users_linked_to_usergroup_api_v1_usergroups__usergroup_id__users_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                usergroup_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserRead"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_create_user_without_platform_api_v1_users_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_update_user_password_api_v1_users_change_password__user_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                user_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserUpdatePassword"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_user_by_id_api_v1_users_id__user_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                user_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_update_user_locale_api_v1_users_preferences_locale__user_id__put: {
-        parameters: {
-            query: {
-                locale: string;
-            };
-            header?: never;
-            path: {
-                user_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_update_user_theme_api_v1_users_preferences_theme__user_id__put: {
-        parameters: {
-            query: {
-                theme: string;
-            };
-            header?: never;
-            path: {
-                user_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_public_user_api_v1_users_profile_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserRead"];
-                };
-            };
-        };
-    };
-    api_get_public_user_session_api_v1_users_session_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserSession"];
-                };
-            };
-        };
-    };
-    api_update_avatar_user_api_v1_users_update_avatar__user_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                user_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "multipart/form-data": components["schemas"]["Body_api_update_avatar_user_api_v1_users_update_avatar__user_id__put"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_delete_user_api_v1_users_user_id__user_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                user_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_user_by_username_api_v1_users_username__username__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                username: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_user_by_uuid_api_v1_users_uuid__user_uuid__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                user_uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_update_user_api_v1_users__user_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                user_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserRead"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_user_courses_api_v1_users__user_id__courses_get: {
-        parameters: {
-            query?: {
-                page?: number;
-                limit?: number;
-            };
-            header?: never;
-            path: {
-                user_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CourseRead"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    link_preview_api_v1_utils_link_preview_get: {
-        parameters: {
-            query?: {
-                /** @description URL to preview */
-                url?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -10,12 +10,8 @@ export type AssignmentType = 'QUIZ' | 'FILE_SUBMISSION' | 'FORM' | 'OTHER';
 export interface AssignmentMutationPayload {
   title?: string;
   description?: string;
-  due_date?: string;
   due_at?: string | null;
   grading_type?: string;
-  course_id?: number;
-  chapter_id?: number;
-  activity_id?: number;
 }
 
 export interface AssignmentTaskMutationPayload {
@@ -26,7 +22,6 @@ export interface AssignmentTaskMutationPayload {
   assignment_type?: AssignmentType;
   contents?: Record<string, unknown>;
   max_grade_value?: number;
-  order?: number;
 }
 
 export interface AssignmentTaskAnswer {
@@ -156,8 +151,8 @@ export async function createAssignmentTask(body: AssignmentTaskMutationPayload, 
   return metadata;
 }
 
-export async function getAssignmentTask(assignmentTaskUUID: string) {
-  const result = await apiFetch(`assignments/task/${assignmentTaskUUID}`);
+export async function getAssignmentTask(assignmentUUID: string, assignmentTaskUUID: string) {
+  const result = await apiFetch(`assignments/${assignmentUUID}/tasks/${assignmentTaskUUID}`);
   return await getResponseMetadata(result);
 }
 
@@ -251,16 +246,25 @@ export async function getAssignmentsFromACourse(courseUUID: string) {
 }
 
 export async function getAssignmentsFromCourses(courseUUIDs: string[]) {
-  const result = await apiFetch('assignments/courses', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ course_uuids: courseUUIDs }),
-  });
+  const params = new URLSearchParams();
+  for (const uuid of courseUUIDs) params.append('course_uuids', uuid);
+  const result = await apiFetch(`assignments/courses?${params.toString()}`);
   return await getResponseMetadata(result);
 }
 
+/** Body shape for POST /assignments/with-activity (creation only). */
+export interface AssignmentCreatePayload {
+  title: string;
+  description?: string;
+  due_at?: string | null;
+  grading_type: string;
+  course_id?: number;
+  chapter_id?: number;
+  published?: boolean;
+}
+
 export interface CreateAssignmentWithActivityParams {
-  body: AssignmentMutationPayload;
+  body: AssignmentCreatePayload;
   chapterId: number;
   activityName: string;
 }

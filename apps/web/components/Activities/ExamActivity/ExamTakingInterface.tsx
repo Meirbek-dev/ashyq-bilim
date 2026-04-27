@@ -66,7 +66,7 @@ export default function ExamTakingInterface({ exam, questions, attempt, onComple
   // Centralized state management with reducer,
   const [state, dispatch] = useReducer(
     examTakingReducer,
-    createInitialTakingState(0, (attempt.answers ?? {}), attempt.violations?.length || 0),
+    createInitialTakingState(0, attempt.answers ?? {}, attempt.violations?.length || 0),
   );
 
   // Fullscreen state (separate from main state machine)
@@ -105,7 +105,7 @@ export default function ExamTakingInterface({ exam, questions, attempt, onComple
   );
 
   // Extract current state,
-  const {currentIndex} = state;
+  const { currentIndex } = state;
   const answers = getStateAnswers(state);
   const isSubmitting = state.mode === 'submitting';
   const showConfirmation = state.mode === 'confirming-submit';
@@ -234,7 +234,16 @@ export default function ExamTakingInterface({ exam, questions, attempt, onComple
         console.error('Failed to record violation:', error);
       }
     },
-    [state, exam.exam_uuid, attempt.attempt_uuid, settings.violation_threshold, handleSubmit, t, persistence, onComplete],
+    [
+      state,
+      exam.exam_uuid,
+      attempt.attempt_uuid,
+      settings.violation_threshold,
+      handleSubmit,
+      t,
+      persistence,
+      onComplete,
+    ],
   );
 
   useEffect(() => {

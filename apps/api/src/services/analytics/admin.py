@@ -71,7 +71,8 @@ def get_admin_analytics(
                 at_risk_learners=sum(
                     1
                     for row in risk_rows
-                    if row.course_id in course_ids and row.risk_level in {"medium", "high"}
+                    if row.course_id in course_ids
+                    and row.risk_level in {"medium", "high"}
                 ),
             )
         )
@@ -105,12 +106,18 @@ def get_admin_analytics(
     course_health.sort(key=lambda row: row.health_score)
     content_roi = sorted(
         course_health,
-        key=lambda row: row.content_roi_score if row.content_roi_score is not None else -1,
+        key=lambda row: (
+            row.content_roi_score if row.content_roi_score is not None else -1
+        ),
         reverse=True,
     )
 
     current_start, _current_end = filters.window_bounds(now=context.generated_at)
-    active_pairs = {(event.course_id, event.user_id) for event in events if event.ts >= current_start}
+    active_pairs = {
+        (event.course_id, event.user_id)
+        for event in events
+        if event.ts >= current_start
+    }
     cohort_members: dict[int, set[int]] = defaultdict(set)
     for user_id, cohort_ids in context.cohort_ids_by_user.items():
         for cohort_id in cohort_ids:
@@ -130,7 +137,9 @@ def get_admin_analytics(
         cohort_rows.append(
             AdminAnalyticsCohortRow(
                 cohort_id=cohort_id,
-                cohort_name=context.usergroup_names_by_id.get(cohort_id, f"Cohort {cohort_id}"),
+                cohort_name=context.usergroup_names_by_id.get(
+                    cohort_id, f"Cohort {cohort_id}"
+                ),
                 learners=len(user_ids),
                 retained_learners=len(retained),
                 retention_rate=safe_pct(len(retained), len(user_ids)),
@@ -147,7 +156,9 @@ def get_admin_analytics(
         course = context.courses_by_id.get(row.course_id)
         by_creator[course.creator_id if course is not None else None].append(row)
     for creator_id, rows in by_creator.items():
-        teacher = context.users_by_id.get(creator_id) if creator_id is not None else None
+        teacher = (
+            context.users_by_id.get(creator_id) if creator_id is not None else None
+        )
         course_ids = {row.course_id for row in rows}
         learner_count = len({
             snapshot.user_id
@@ -157,7 +168,9 @@ def get_admin_analytics(
         program_rows.append(
             AdminAnalyticsProgramRow(
                 program_id=creator_id,
-                program_name=f"{display_name(teacher)} courses" if teacher is not None else "Unassigned courses",
+                program_name=f"{display_name(teacher)} courses"
+                if teacher is not None
+                else "Unassigned courses",
                 course_count=len(rows),
                 learner_count=learner_count,
                 completion_rate=round(

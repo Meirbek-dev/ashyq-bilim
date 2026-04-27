@@ -31,7 +31,11 @@ export default function ForecastingPanel({ forecasts }: ForecastingPanelProps) {
             className="bg-muted rounded-lg border p-4"
           >
             <div className="mb-2 flex flex-wrap items-center gap-2">
-              <Badge variant={item.severity === 'critical' ? 'destructive' : item.severity === 'warning' ? 'warning' : 'outline'}>
+              <Badge
+                variant={
+                  item.severity === 'critical' ? 'destructive' : item.severity === 'warning' ? 'warning' : 'outline'
+                }
+              >
                 {t(`forecastingPanel.severity.${item.severity}`)}
               </Badge>
               <Badge variant="outline">{confidenceText(item.confidence_level)}</Badge>
@@ -40,7 +44,9 @@ export default function ForecastingPanel({ forecasts }: ForecastingPanelProps) {
             <div className="text-muted-foreground mt-1 text-sm leading-6">{item.prediction}</div>
           </div>
         ))}
-        {!forecasts.length ? <div className="text-muted-foreground text-sm">{t('forecastingPanel.noForecastRisks')}</div> : null}
+        {!forecasts.length ? (
+          <div className="text-muted-foreground text-sm">{t('forecastingPanel.noForecastRisks')}</div>
+        ) : null}
       </CardContent>
     </Card>
   );

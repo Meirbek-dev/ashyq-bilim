@@ -147,7 +147,8 @@ export function examTakingReducer(state: ExamTakingState, action: ExamTakingActi
     case 'START_SUBMIT': {
       if (state.mode === 'submitting') return state;
 
-      const answers = state.mode === 'recovery-prompt' ? state.recoveredAnswers : 'answers' in state ? state.answers : {};
+      const answers =
+        state.mode === 'recovery-prompt' ? state.recoveredAnswers : 'answers' in state ? state.answers : {};
       const currentIndex = 'currentIndex' in state ? state.currentIndex : 0;
 
       return {

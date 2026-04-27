@@ -26,16 +26,24 @@ export default function AnomalyPanel({ anomalies }: AnomalyPanelProps) {
             className="bg-muted rounded-lg border p-4"
           >
             <div className="mb-2 flex flex-wrap items-center gap-2">
-              <Badge variant={item.severity === 'critical' ? 'destructive' : item.severity === 'warning' ? 'warning' : 'outline'}>
+              <Badge
+                variant={
+                  item.severity === 'critical' ? 'destructive' : item.severity === 'warning' ? 'warning' : 'outline'
+                }
+              >
                 {item.severity}
               </Badge>
-              <span className="text-muted-foreground text-xs tracking-wider uppercase">{item.type.replaceAll('_', ' ')}</span>
+              <span className="text-muted-foreground text-xs tracking-wider uppercase">
+                {item.type.replaceAll('_', ' ')}
+              </span>
             </div>
             <div className="text-foreground font-medium">{item.title}</div>
             <div className="text-muted-foreground mt-1 text-sm leading-6">{item.detail}</div>
           </div>
         ))}
-        {!anomalies.length ? <div className="text-muted-foreground text-sm">No anomalies detected for this filter.</div> : null}
+        {!anomalies.length ? (
+          <div className="text-muted-foreground text-sm">No anomalies detected for this filter.</div>
+        ) : null}
       </CardContent>
     </Card>
   );

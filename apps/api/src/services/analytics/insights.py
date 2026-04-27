@@ -44,7 +44,11 @@ def build_insight_feed(
     for row in assessment_rows:
         if row.pass_rate is None or row.pass_rate >= 65:
             continue
-        reason = "quality diagnostics" if row.discrimination_index is not None else "low pass rate"
+        reason = (
+            "quality diagnostics"
+            if row.discrimination_index is not None
+            else "low pass rate"
+        )
         items.append(
             InsightFeedItem(
                 id=f"assessment-{row.assessment_type}-{row.assessment_id}",

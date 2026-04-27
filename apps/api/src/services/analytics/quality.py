@@ -50,7 +50,9 @@ def build_data_quality(
     courses_without_enough_data: list[dict[str, object]] = []
     for course_id in scope.course_ids:
         course_snapshots = [
-            snapshot for snapshot in snapshots.values() if snapshot.course_id == course_id
+            snapshot
+            for snapshot in snapshots.values()
+            if snapshot.course_id == course_id
         ]
         if len(course_snapshots) < 5:
             course = context.courses_by_id.get(course_id)

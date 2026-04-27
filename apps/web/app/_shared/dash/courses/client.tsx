@@ -92,8 +92,7 @@ const CoursesHome = ({
   const [pendingBulkAction, setPendingBulkAction] = useState<BulkActionKind | null>(null);
   const [optimisticCourses, removeOptimisticCourses] = useOptimistic(
     courses,
-    (state: ManageableCourse[], deletedUuids: string[]) =>
-      state.filter((c) => !deletedUuids.includes(c.course_uuid)),
+    (state: ManageableCourse[], deletedUuids: string[]) => state.filter((c) => !deletedUuids.includes(c.course_uuid)),
   );
   const { data: trailData, isLoading: trailQueryLoading } = useTrailCurrent({ enabled: isAuthenticated });
 
@@ -479,7 +478,12 @@ const CoursesHome = ({
         header: '',
         enableSorting: false,
         meta: { label: t('table.actions'), exportable: false },
-        cell: ({ row }) => <CourseRowActions course={row.original} onOptimisticDelete={removeOptimisticCourses} />,
+        cell: ({ row }) => (
+          <CourseRowActions
+            course={row.original}
+            onOptimisticDelete={removeOptimisticCourses}
+          />
+        ),
       },
     ],
     [

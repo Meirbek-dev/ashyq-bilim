@@ -31,9 +31,12 @@ def test_explainable_risk_helpers_identify_dominant_signal() -> None:
     components = {"inactivity": 14.0, "progress": 28.0, "failures": 8.0}
 
     assert _top_factor(components) == "progress"
-    assert _confidence_level(
-        risk_score=74,
-        reason_codes=["inactive_7d", "low_progress"],
-        days_since_last_activity=9,
-    ) == "high"
+    assert (
+        _confidence_level(
+            risk_score=74,
+            reason_codes=["inactive_7d", "low_progress"],
+            days_since_last_activity=9,
+        )
+        == "high"
+    )
     assert "seven-day" in _why_now(["inactive_7d"], "inactivity")

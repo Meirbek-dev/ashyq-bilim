@@ -1,7 +1,16 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { applyTheme, DEFAULT_THEME_MODE, DEFAULT_THEME_NAME, getStoredTheme, getStoredThemeMode, getSystemThemeMode, getTheme, themes } from '@/lib/themes';
+import {
+  applyTheme,
+  DEFAULT_THEME_MODE,
+  DEFAULT_THEME_NAME,
+  getStoredTheme,
+  getStoredThemeMode,
+  getSystemThemeMode,
+  getTheme,
+  themes,
+} from '@/lib/themes';
 import type { Theme, ThemeMode } from '@/lib/themes';
 import { useSession } from '@/hooks/useSession';
 import { useThemeSync } from '@/hooks/useThemeSync';

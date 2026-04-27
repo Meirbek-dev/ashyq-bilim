@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { createInitialTakingState, examTakingReducer } from '@/components/Activities/ExamActivity/state/examTakingReducer';
+import {
+  createInitialTakingState,
+  examTakingReducer,
+} from '@/components/Activities/ExamActivity/state/examTakingReducer';
 
 describe('examTakingReducer', () => {
   it('preserves answers when submitting directly from answering mode', () => {

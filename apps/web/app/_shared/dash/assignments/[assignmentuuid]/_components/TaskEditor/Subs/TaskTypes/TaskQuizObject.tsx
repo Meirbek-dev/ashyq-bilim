@@ -45,6 +45,8 @@ import { useAssignmentsTaskStore } from '@components/Contexts/Assignments/Assign
 import AssignmentBoxUI from '@components/Objects/Activities/Assignment/AssignmentBoxUI';
 import { useAssignments } from '@components/Contexts/Assignments/AssignmentContext';
 import { updateAssignmentTask } from '@services/courses/assignments';
+import { QuizContentsSchema } from '@/schemas/assignmentTaskContents';
+import * as v from 'valibot';
 
 // ============================================================================
 // Types
@@ -470,17 +472,27 @@ const TaskQuizObject = ({ assignmentTaskUUID }: TaskQuizObjectProps) => {
   }, []);
 
   const saveFC = useCallback(async () => {
+    const taskUUID = assignmentTask.assignment_task_uuid;
+    const assignmentUUID = assignment.assignment_object?.assignment_uuid;
+    if (!taskUUID || !assignmentUUID) {
+      toast.error(t('saveError'));
+      return;
+    }
+
+    const contentsResult = v.safeParse(QuizContentsSchema, {
+      kind: 'QUIZ' as const,
+      questions,
+      settings: quizSettings,
+    });
+    if (!contentsResult.success) {
+      toast.error(t('saveError'), { description: contentsResult.issues[0]?.message });
+      return;
+    }
+
     setIsSaving(true);
     try {
-      const taskUUID = assignmentTask.assignment_task_uuid;
-      const assignmentUUID = assignment.assignment_object?.assignment_uuid;
-      if (!taskUUID || !assignmentUUID) {
-        toast.error(t('saveError')); // fallback when required ids aren't available
-        return;
-      }
-
       const res = await updateAssignmentTask({
-        body: { contents: { questions, settings: quizSettings } },
+        body: { contents: contentsResult.output },
         assignmentTaskUUID: taskUUID,
         assignmentUUID,
       });

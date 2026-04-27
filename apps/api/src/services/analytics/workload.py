@@ -105,7 +105,9 @@ def build_teacher_workload(
 
     daily_inflow = submitted_in_window / max(1, filters.window_days)
     daily_grading = graded_in_window / max(1, filters.window_days)
-    forecast_backlog = max(0, round(backlog_total + ((daily_inflow - daily_grading) * 7)))
+    forecast_backlog = max(
+        0, round(backlog_total + ((daily_inflow - daily_grading) * 7))
+    )
 
     backlog_rows = [
         GradingBacklogItem(

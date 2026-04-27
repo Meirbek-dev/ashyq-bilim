@@ -28,7 +28,9 @@ interface AssignmentSubmissionsSubPageProps {
   assignment_uuid: string;
 }
 
-export default function AssignmentSubmissionsSubPage({ assignment_uuid: _assignment_uuid }: AssignmentSubmissionsSubPageProps) {
+export default function AssignmentSubmissionsSubPage({
+  assignment_uuid: _assignment_uuid,
+}: AssignmentSubmissionsSubPageProps) {
   const t = useTranslations('DashPage.Assignments');
   const assignments = useAssignments();
   void _assignment_uuid;

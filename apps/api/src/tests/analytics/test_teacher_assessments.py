@@ -33,7 +33,9 @@ def test_attempt_distribution_rolls_up_high_attempt_counts() -> None:
     assert lookup["5+"] == 2
 
 
-def test_assessment_quality_helpers_expose_variance_reliability_and_discrimination() -> None:
+def test_assessment_quality_helpers_expose_variance_reliability_and_discrimination() -> (
+    None
+):
     scores = [25, 40, 60, 85, 95]
     scores_by_user = {idx: score for idx, score in enumerate(scores, start=1)}
 

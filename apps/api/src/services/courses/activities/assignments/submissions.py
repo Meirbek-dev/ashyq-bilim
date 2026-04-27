@@ -95,7 +95,9 @@ def _validate_assignment_answer_tasks(
     if patch is None:
         return
     allowed_task_uuids = {task.assignment_task_uuid for task in assignment_tasks}
-    invalid = [t.task_uuid for t in patch.tasks if t.task_uuid not in allowed_task_uuids]
+    invalid = [
+        t.task_uuid for t in patch.tasks if t.task_uuid not in allowed_task_uuids
+    ]
     if invalid:
         raise HTTPException(
             status_code=400,
@@ -168,9 +170,13 @@ async def save_assignment_draft_submission(
     assignment, activity, course = _get_assignment_context(assignment_uuid, db_session)
     _require_assignment_submit_access(current_user, course, db_session)
 
-    blocking = _get_blocking_assignment_submission(activity.id, current_user.id, db_session)
+    blocking = _get_blocking_assignment_submission(
+        activity.id, current_user.id, db_session
+    )
     if blocking:
-        raise HTTPException(status_code=409, detail="Assignment has already been submitted")
+        raise HTTPException(
+            status_code=409, detail="Assignment has already been submitted"
+        )
 
     assignment_tasks = _get_assignment_tasks(assignment.id, db_session)
     _validate_assignment_answer_tasks(draft_patch, assignment_tasks)

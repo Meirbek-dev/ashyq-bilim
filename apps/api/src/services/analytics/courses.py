@@ -404,7 +404,9 @@ def build_course_rows(
                     else None,
                     "cohort_completion_delta_pct": round(
                         row.completion_rate
-                        - all_completion_by_course.get(row.course_id, row.completion_rate),
+                        - all_completion_by_course.get(
+                            row.course_id, row.completion_rate
+                        ),
                         1,
                     )
                     if filters.cohort_ids

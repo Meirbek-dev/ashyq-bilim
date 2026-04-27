@@ -174,7 +174,9 @@ export default function AtRiskLearnersTable({
           <div className="text-muted-foreground max-w-[280px] space-y-1 text-sm whitespace-normal">
             <span>{riskRow.recommended_action}</span>
             <div className="text-[11px]">
-              {riskRow.intervention_count ? `${riskRow.intervention_count} interventions logged` : 'No interventions logged'}
+              {riskRow.intervention_count
+                ? `${riskRow.intervention_count} interventions logged`
+                : 'No interventions logged'}
             </div>
             {hasGradingBlock && gradingHref && (
               <Link
@@ -200,10 +202,7 @@ export default function AtRiskLearnersTable({
                     className="h-7 px-2 text-xs"
                     disabled={pendingKey === key}
                     onClick={() =>
-                      logIntervention(
-                        riskRow,
-                        type as 'message_sent' | 'meeting_scheduled' | 'learner_recovered',
-                      )
+                      logIntervention(riskRow, type as 'message_sent' | 'meeting_scheduled' | 'learner_recovered')
                     }
                   >
                     {label}

@@ -15,8 +15,7 @@ export default function ContentBottlenecksTable({ rows }: ContentBottlenecksTabl
   const locale = useLocale();
   const t = useTranslations('Components.DashboardAnalytics');
   const numberFormatter = new Intl.NumberFormat(locale);
-  const signalLabel = (signal: ContentBottleneckRow['signal']) =>
-    t(`contentBottlenecksTable.signals.${signal}`);
+  const signalLabel = (signal: ContentBottleneckRow['signal']) => t(`contentBottlenecksTable.signals.${signal}`);
 
   return (
     <Card className="shadow-sm">
@@ -46,7 +45,11 @@ export default function ContentBottlenecksTable({ rows }: ContentBottlenecksTabl
                   <div className="text-muted-foreground text-xs">{row.course_name}</div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={row.severity === 'critical' ? 'destructive' : row.severity === 'warning' ? 'warning' : 'outline'}>
+                  <Badge
+                    variant={
+                      row.severity === 'critical' ? 'destructive' : row.severity === 'warning' ? 'warning' : 'outline'
+                    }
+                  >
                     {signalLabel(row.signal)}
                   </Badge>
                 </TableCell>
@@ -56,7 +59,9 @@ export default function ContentBottlenecksTable({ rows }: ContentBottlenecksTabl
                     : `${numberFormatter.format(row.completion_rate)}%`}
                 </TableCell>
                 <TableCell>{numberFormatter.format(row.exit_count)}</TableCell>
-                <TableCell className="max-w-[360px] whitespace-normal text-sm text-muted-foreground">{row.note}</TableCell>
+                <TableCell className="text-muted-foreground max-w-[360px] text-sm whitespace-normal">
+                  {row.note}
+                </TableCell>
               </TableRow>
             ))}
             {!rows.length ? (

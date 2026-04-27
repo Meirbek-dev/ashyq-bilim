@@ -7,7 +7,17 @@ import {
   saveAssignmentDraftSubmission,
   updateSubFile,
 } from '@services/courses/assignments';
-import { AlertCircle, Backpack, Calendar, CheckCircle2, Download, File, Info, Loader2, UploadCloud } from 'lucide-react';
+import {
+  AlertCircle,
+  Backpack,
+  Calendar,
+  CheckCircle2,
+  Download,
+  File,
+  Info,
+  Loader2,
+  UploadCloud,
+} from 'lucide-react';
 import { useAssignments } from '@components/Contexts/Assignments/AssignmentContext';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { Alert, AlertDescription } from '@components/ui/alert';
@@ -98,18 +108,20 @@ const assignmentDraftQueryKey = (assignmentUUID: string | undefined) =>
   ['assignments', 'draft-submission', assignmentUUID ?? 'missing'] as const;
 
 function useAssignmentDraft(assignmentUUID: string | undefined) {
-  return useQuery(queryOptions({
-    queryKey: assignmentDraftQueryKey(assignmentUUID),
-    queryFn: async () => {
-      if (!assignmentUUID) return null;
-      const res = await getAssignmentDraftSubmission(assignmentUUID);
-      if (!res.success) {
-        throw new Error(res.data?.detail || 'load_failed');
-      }
-      return res.data as AssignmentDraftRead;
-    },
-    enabled: Boolean(assignmentUUID),
-  }));
+  return useQuery(
+    queryOptions({
+      queryKey: assignmentDraftQueryKey(assignmentUUID),
+      queryFn: async () => {
+        if (!assignmentUUID) return null;
+        const res = await getAssignmentDraftSubmission(assignmentUUID);
+        if (!res.success) {
+          throw new Error(res.data?.detail || 'load_failed');
+        }
+        return res.data as AssignmentDraftRead;
+      },
+      enabled: Boolean(assignmentUUID),
+    }),
+  );
 }
 
 function draftTasks(draft: AssignmentDraftRead | null | undefined): AssignmentTaskAnswer[] {
@@ -480,7 +492,9 @@ const InteractiveQuizTask = ({ task, questions, t }: InteractiveQuizTaskProps) =
     }
 
     const taskAnswer = findDraftTaskAnswer(draftQuery.data, task.assignment_task_uuid);
-    const normalized = normalizeQuizSubmission(taskAnswer?.quiz_answers ?? legacyTaskSubmission(taskAnswer) ?? taskAnswer);
+    const normalized = normalizeQuizSubmission(
+      taskAnswer?.quiz_answers ?? legacyTaskSubmission(taskAnswer) ?? taskAnswer,
+    );
     setAnswers(normalized.answers);
     setInitialAnswers(normalized.answers);
   }, [assignmentUUID, draftQuery.data, task.assignment_task_uuid]);

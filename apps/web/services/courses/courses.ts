@@ -477,8 +477,7 @@ export async function deleteCourseFromBackend(
   const data = (await errorHandling(result)) as CourseDetailResponse;
   const deletionSucceeded =
     result.ok &&
-    (!('success' in (data as Record<string, unknown>)) ||
-      Boolean((data as { success?: unknown }).success));
+    (!('success' in (data as Record<string, unknown>)) || Boolean((data as { success?: unknown }).success));
 
   if (deletionSucceeded) {
     const { revalidateTag } = await import('next/cache');

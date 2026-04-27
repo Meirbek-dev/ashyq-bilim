@@ -39,13 +39,19 @@ export default function DataQualityPanel({ quality }: DataQualityPanelProps) {
             </div>
           </div>
           <div className="bg-muted rounded-lg border p-4">
-            <div className="text-muted-foreground text-xs tracking-wider uppercase">{t('dataQualityPanel.lastRollup')}</div>
+            <div className="text-muted-foreground text-xs tracking-wider uppercase">
+              {t('dataQualityPanel.lastRollup')}
+            </div>
             <div className="mt-2 text-sm font-medium">
-              {quality.last_rollup_time ? new Date(quality.last_rollup_time).toLocaleString(locale) : t('dataQualityPanel.liveQuery')}
+              {quality.last_rollup_time
+                ? new Date(quality.last_rollup_time).toLocaleString(locale)
+                : t('dataQualityPanel.liveQuery')}
             </div>
           </div>
           <div className="bg-muted rounded-lg border p-4">
-            <div className="text-muted-foreground text-xs tracking-wider uppercase">{t('dataQualityPanel.confidence')}</div>
+            <div className="text-muted-foreground text-xs tracking-wider uppercase">
+              {t('dataQualityPanel.confidence')}
+            </div>
             <div className="mt-2">
               <Badge
                 variant={
@@ -63,7 +69,9 @@ export default function DataQualityPanel({ quality }: DataQualityPanelProps) {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Badge variant="outline">{t('dataQualityPanel.freshness')} {freshness}</Badge>
+          <Badge variant="outline">
+            {t('dataQualityPanel.freshness')} {freshness}
+          </Badge>
           <Badge variant={quality.excluded_preview_attempts ? 'warning' : 'outline'}>
             {t('dataQualityPanel.previewAttemptsExcluded')} {quality.excluded_preview_attempts}
           </Badge>
@@ -82,7 +90,11 @@ export default function DataQualityPanel({ quality }: DataQualityPanelProps) {
                 key={issue.id}
                 className="bg-muted rounded-lg border p-3"
               >
-                <Badge variant={issue.severity === 'critical' ? 'destructive' : issue.severity === 'warning' ? 'warning' : 'outline'}>
+                <Badge
+                  variant={
+                    issue.severity === 'critical' ? 'destructive' : issue.severity === 'warning' ? 'warning' : 'outline'
+                  }
+                >
                   {t(`dataQualityPanel.issueSeverity.${issue.severity}`)}
                 </Badge>
                 <div className="mt-2 text-sm font-medium">{issue.title}</div>

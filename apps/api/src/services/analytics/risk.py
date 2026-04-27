@@ -33,7 +33,11 @@ def _risk_trend(
     current_level: str, current_score: float, previous: LearnerRiskSnapshot | None
 ) -> tuple[str, float | None, float | None]:
     if previous is None:
-        return ("newly_at_risk" if current_level in {"medium", "high"} else "stable", None, None)
+        return (
+            "newly_at_risk" if current_level in {"medium", "high"} else "stable",
+            None,
+            None,
+        )
     previous_score = float(previous.risk_score)
     delta = round(current_score - previous_score, 1)
     previous_weight = _RISK_LEVEL_WEIGHT.get(previous.risk_level, 0)
@@ -149,7 +153,9 @@ def enrich_risk_rows(
             row.risk_level, row.risk_score, previous_by_pair.get(key)
         )
         learner_interventions = interventions.get(key, [])
-        latest_intervention = learner_interventions[0] if learner_interventions else None
+        latest_intervention = (
+            learner_interventions[0] if learner_interventions else None
+        )
         enriched.append(
             row.model_copy(
                 update={

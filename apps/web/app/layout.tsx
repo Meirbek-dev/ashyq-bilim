@@ -4,12 +4,7 @@ import DevScriptLoader from '@/components/DevScriptLoader';
 import { ThemeScript } from '@/components/providers/theme-script';
 import { getSession } from '@/lib/auth/session';
 import { cookies } from 'next/headers';
-import {
-  DEFAULT_THEME_MODE,
-  DEFAULT_THEME_NAME,
-  getTheme,
-  THEME_MODE_STORAGE_KEY,
-} from '@/lib/themes';
+import { DEFAULT_THEME_MODE, DEFAULT_THEME_NAME, getTheme, THEME_MODE_STORAGE_KEY } from '@/lib/themes';
 import {
   getThemeFontStylesheetHref,
   resolveThemeFontFamilies,
@@ -32,11 +27,7 @@ function getThemeStyle(theme: ReturnType<typeof getTheme>): CSSProperties {
   };
 }
 
-async function LocalizedApp({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+async function LocalizedApp({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
   const initialThemeMode = getInitialThemeMode(cookieStore.get(THEME_MODE_STORAGE_KEY)?.value);
   const [locale, messages, initialSession] = await Promise.all([getLocale(), getMessages(), getSession()]);

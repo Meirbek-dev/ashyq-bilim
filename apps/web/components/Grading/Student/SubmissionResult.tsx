@@ -27,7 +27,7 @@ export default function SubmissionResult({ submission }: SubmissionResultProps) 
   const breakdown = submission.grading_json;
   const score = submission.final_score;
 
-  const passed = score !== null && score >= 50;
+  const passed = score != null && score >= 50;
   const scoreColor = score === null ? 'text-muted-foreground' : passed ? 'text-success' : 'text-destructive';
   // Only show teacher feedback and item breakdown if grade is published
   const isPublished = submission.status === 'PUBLISHED' || submission.status === 'RETURNED';

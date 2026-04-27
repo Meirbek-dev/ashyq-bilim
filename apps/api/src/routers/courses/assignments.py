@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Body, Depends, Request, UploadFile
+from fastapi import APIRouter, Depends, Query, UploadFile
 
 from src.auth.users import get_optional_public_user, get_public_user
 from src.db.courses.assignments import (
@@ -60,7 +60,9 @@ async def api_read_assignment_from_activity(
     ],
     db_session=Depends(get_db_session),
 ) -> AssignmentRead:
-    return await read_assignment_from_activity_uuid(activity_uuid, current_user, db_session)
+    return await read_assignment_from_activity_uuid(
+        activity_uuid, current_user, db_session
+    )
 
 
 @router.put("/{assignment_uuid}")
@@ -70,7 +72,9 @@ async def api_update_assignment(
     current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
 ) -> AssignmentRead:
-    return await update_assignment(assignment_uuid, assignment_object, current_user, db_session)
+    return await update_assignment(
+        assignment_uuid, assignment_object, current_user, db_session
+    )
 
 
 @router.delete("/activity/{activity_uuid}")
@@ -79,7 +83,9 @@ async def api_delete_assignment_from_activity(
     current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
 ):
-    return await delete_assignment_from_activity_uuid(activity_uuid, current_user, db_session)
+    return await delete_assignment_from_activity_uuid(
+        activity_uuid, current_user, db_session
+    )
 
 
 ## ASSIGNMENT TASKS ##
@@ -106,8 +112,9 @@ async def api_read_assignment_tasks(
     return await read_assignment_tasks(assignment_uuid, current_user, db_session)
 
 
-@router.get("/task/{assignment_task_uuid}")
+@router.get("/{assignment_uuid}/tasks/{assignment_task_uuid}")
 async def api_read_assignment_task(
+    assignment_uuid: str,
     assignment_task_uuid: str,
     current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
@@ -124,7 +131,11 @@ async def api_update_assignment_tasks(
     db_session=Depends(get_db_session),
 ):
     return await update_assignment_task(
-        assignment_uuid, assignment_task_uuid, assignment_task_object, current_user, db_session
+        assignment_uuid,
+        assignment_task_uuid,
+        assignment_task_object,
+        current_user,
+        db_session,
     )
 
 
@@ -178,7 +189,9 @@ async def api_get_assignment_draft_submission(
     db_session=Depends(get_db_session),
 ) -> AssignmentDraftRead:
     """Get the current user's Submission-backed assignment draft, if any."""
-    return await get_assignment_draft_submission(assignment_uuid, current_user, db_session)
+    return await get_assignment_draft_submission(
+        assignment_uuid, current_user, db_session
+    )
 
 
 @router.patch("/{assignment_uuid}/submissions/me/draft")
@@ -219,26 +232,24 @@ async def api_get_assignments(
     return await get_assignments_from_course(course_uuid, current_user, db_session)
 
 
-@router.post("/courses")
+@router.get("/courses")
 async def api_get_assignments_for_courses(
     current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
-    payload: dict = Body(...),
+    course_uuids: list[str] = Query(default=[]),
 ):
-    """Body: { "course_uuids": ["course_xxx", ...] }"""
-    course_uuids: list[str] = payload.get("course_uuids", [])
     return await get_assignments_from_courses(course_uuids, current_user, db_session)
 
 
-@router.post("/courses/editable")
+@router.get("/courses/editable")
 async def api_get_editable_assignments_for_courses(
     current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
-    payload: dict = Body(...),
+    course_uuids: list[str] = Query(default=[]),
 ):
-    """Body: { "course_uuids": ["course_xxx", ...] }"""
-    course_uuids: list[str] = payload.get("course_uuids", [])
-    return await get_editable_assignments_from_courses(course_uuids, current_user, db_session)
+    return await get_editable_assignments_from_courses(
+        course_uuids, current_user, db_session
+    )
 
 
 @router.post("/with-activity")

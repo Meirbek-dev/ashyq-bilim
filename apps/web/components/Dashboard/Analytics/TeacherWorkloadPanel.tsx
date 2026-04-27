@@ -34,34 +34,46 @@ export default function TeacherWorkloadPanel({ workload }: TeacherWorkloadPanelP
               <Inbox className="h-3.5 w-3.5" />
               {t('teacherWorkloadPanel.backlog')}
             </div>
-            <div className="text-foreground mt-2 text-2xl font-semibold">{numberFormatter.format(workload.backlog_total)}</div>
+            <div className="text-foreground mt-2 text-2xl font-semibold">
+              {numberFormatter.format(workload.backlog_total)}
+            </div>
           </div>
           <div className="bg-muted rounded-lg border p-4">
             <div className="text-muted-foreground flex items-center gap-2 text-xs tracking-wider uppercase">
               <Clock4 className="h-3.5 w-3.5" />
               {t('teacherWorkloadPanel.slaBreaches')}
             </div>
-            <div className="text-foreground mt-2 text-2xl font-semibold">{numberFormatter.format(workload.sla_breaches)}</div>
+            <div className="text-foreground mt-2 text-2xl font-semibold">
+              {numberFormatter.format(workload.sla_breaches)}
+            </div>
           </div>
           <div className="bg-muted rounded-lg border p-4">
             <div className="text-muted-foreground flex items-center gap-2 text-xs tracking-wider uppercase">
               <TimerReset className="h-3.5 w-3.5" />
               {t('teacherWorkloadPanel.forecast7d')}
             </div>
-            <div className="text-foreground mt-2 text-2xl font-semibold">{numberFormatter.format(workload.forecast_backlog_7d)}</div>
+            <div className="text-foreground mt-2 text-2xl font-semibold">
+              {numberFormatter.format(workload.forecast_backlog_7d)}
+            </div>
           </div>
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Badge variant="outline">{t('teacherWorkloadPanel.bucket0_24')} {workload.aging_buckets.h0_24}</Badge>
-          <Badge variant="outline">{t('teacherWorkloadPanel.bucket1_3d')} {workload.aging_buckets.d1_3}</Badge>
+          <Badge variant="outline">
+            {t('teacherWorkloadPanel.bucket0_24')} {workload.aging_buckets.h0_24}
+          </Badge>
+          <Badge variant="outline">
+            {t('teacherWorkloadPanel.bucket1_3d')} {workload.aging_buckets.d1_3}
+          </Badge>
           <Badge variant={workload.aging_buckets.d3_7 ? 'warning' : 'outline'}>
             {t('teacherWorkloadPanel.bucket3_7d')} {workload.aging_buckets.d3_7}
           </Badge>
           <Badge variant={workload.aging_buckets.d7_plus ? 'destructive' : 'outline'}>
             {t('teacherWorkloadPanel.bucket7dPlus')} {workload.aging_buckets.d7_plus}
           </Badge>
-          <Badge variant="outline">{t('teacherWorkloadPanel.medianFeedback')} {hours(workload.median_feedback_latency_hours)}</Badge>
+          <Badge variant="outline">
+            {t('teacherWorkloadPanel.medianFeedback')} {hours(workload.median_feedback_latency_hours)}
+          </Badge>
         </div>
 
         <Table>
@@ -76,7 +88,7 @@ export default function TeacherWorkloadPanel({ workload }: TeacherWorkloadPanelP
           <TableBody>
             {workload.backlog_by_assignment.slice(0, 5).map((item) => (
               <TableRow key={`${item.assessment_id}-${item.course_id}`}>
-                <TableCell className="max-w-[260px] whitespace-normal font-medium">{item.title}</TableCell>
+                <TableCell className="max-w-[260px] font-medium whitespace-normal">{item.title}</TableCell>
                 <TableCell className="max-w-[220px] whitespace-normal">{item.course_name}</TableCell>
                 <TableCell>{item.awaiting_review}</TableCell>
                 <TableCell>{hours(item.age_hours)}</TableCell>

@@ -308,9 +308,7 @@ async def delete_teacher_saved_view_platform(
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
     scope = await _scope_for(db_session, current_user, filters, action="read")
-    deleted = await asyncio.to_thread(
-        delete_analytics_view, db_session, scope, view_id
-    )
+    deleted = await asyncio.to_thread(delete_analytics_view, db_session, scope, view_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Saved view not found")
     return Response(status_code=204)

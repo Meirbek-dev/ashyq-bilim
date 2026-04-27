@@ -14,7 +14,9 @@ from src.services.courses.activities.assignments._queries import (
     _get_assignment_task_context,
 )
 from src.services.courses.activities.uploads.sub_file import upload_submission_file
-from src.services.courses.activities.uploads.tasks_ref_files import upload_reference_file
+from src.services.courses.activities.uploads.tasks_ref_files import (
+    upload_reference_file,
+)
 
 
 async def put_assignment_task_reference_file(

@@ -37,7 +37,9 @@ def _build_assignment_read(
         title=assignment.title,
         description=assignment.description,
         due_at=assignment.due_at,
-        published=activity_published if activity_published is not None else assignment.published,
+        published=activity_published
+        if activity_published is not None
+        else assignment.published,
         grading_type=assignment.grading_type,
         course_uuid=course_uuid,
         activity_uuid=activity_uuid,
@@ -214,9 +216,7 @@ async def create_assignment_with_activity(
         resource_owner_id=course.creator_id,
     )
 
-    chapter = db_session.exec(
-        select(Chapter).where(Chapter.id == chapter_id)
-    ).first()
+    chapter = db_session.exec(select(Chapter).where(Chapter.id == chapter_id)).first()
     if not chapter:
         raise HTTPException(status_code=404, detail="Chapter not found")
     if chapter.course_id != assignment_object.course_id:
@@ -333,7 +333,9 @@ async def get_assignments_from_courses(
 
     course_ids = list(course_id_to_uuid.keys())
     activities = (
-        db_session.exec(select(Activity).where(Activity.course_id.in_(course_ids))).all()
+        db_session.exec(
+            select(Activity).where(Activity.course_id.in_(course_ids))
+        ).all()
         if course_ids
         else []
     )
@@ -397,8 +399,12 @@ async def get_editable_assignments_from_courses(
     activity_id_to_course_uuid = {
         a.id: course_id_to_uuid.get(a.course_id) for a in activities
     }
-    activity_id_to_uuid = {a.id: a.activity_uuid for a in activities if a.id is not None}
-    activity_id_to_published = {a.id: a.published for a in activities if a.id is not None}
+    activity_id_to_uuid = {
+        a.id: a.activity_uuid for a in activities if a.id is not None
+    }
+    activity_id_to_published = {
+        a.id: a.published for a in activities if a.id is not None
+    }
     activity_ids = list(activity_id_to_course_uuid.keys())
 
     if not activity_ids:
@@ -415,7 +421,9 @@ async def get_editable_assignments_from_courses(
                     assignment,
                     course_uuid=c_uuid,
                     activity_uuid=activity_id_to_uuid.get(assignment.activity_id),
-                    activity_published=activity_id_to_published.get(assignment.activity_id),
+                    activity_published=activity_id_to_published.get(
+                        assignment.activity_id
+                    ),
                 )
             )
     return result

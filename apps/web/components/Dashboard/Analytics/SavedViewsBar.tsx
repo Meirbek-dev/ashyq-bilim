@@ -87,7 +87,9 @@ export default function SavedViewsBar({ query }: SavedViewsBarProps) {
               {view.name}
             </Button>
           ))}
-          {!views.length ? <span className="text-muted-foreground text-sm">{t('savedViewsBar.noSavedViews')}</span> : null}
+          {!views.length ? (
+            <span className="text-muted-foreground text-sm">{t('savedViewsBar.noSavedViews')}</span>
+          ) : null}
         </div>
         <div className="flex w-full gap-2 sm:w-auto">
           <Input

@@ -209,7 +209,9 @@ export default function ExamResults({
     switch (question.question_type) {
       case 'SINGLE_CHOICE':
       case 'TRUE_FALSE': {
-        return <span className="font-medium">{findAnswerOption(question, userAnswer)?.text || t('invalidAnswer')}</span>;
+        return (
+          <span className="font-medium">{findAnswerOption(question, userAnswer)?.text || t('invalidAnswer')}</span>
+        );
       }
 
       case 'MULTIPLE_CHOICE': {

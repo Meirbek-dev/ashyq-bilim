@@ -188,7 +188,9 @@ def _query_previous_negative_engagement_for_courses(
     if latest_date is None:
         return None
     result = db_session.exec(
-        select(func.count()).select_from(DailyCourseMetrics).where(
+        select(func.count())
+        .select_from(DailyCourseMetrics)
+        .where(
             DailyCourseMetrics.metric_date == latest_date,
             DailyCourseMetrics.course_id.in_(course_ids),
             DailyCourseMetrics.engagement_delta_pct < 0,

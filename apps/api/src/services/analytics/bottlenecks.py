@@ -14,7 +14,9 @@ from src.services.analytics.queries import (
 from src.services.analytics.schemas import ContentBottleneckRow
 
 
-def _time_spent_seconds(data: dict | None, created: object, updated: object) -> float | None:
+def _time_spent_seconds(
+    data: dict | None, created: object, updated: object
+) -> float | None:
     payload = data or {}
     for key in (
         "time_spent_seconds",
@@ -27,7 +29,7 @@ def _time_spent_seconds(data: dict | None, created: object, updated: object) -> 
             if raw is not None:
                 value = float(raw)
                 return value if value >= 0 else None
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             continue
     created_at = parse_timestamp(created)
     updated_at = parse_timestamp(updated)
@@ -44,7 +46,9 @@ def build_content_bottlenecks(
     limit: int = 12,
 ) -> list[ContentBottleneckRow]:
     allowed_user_ids = cohort_user_ids(context, filters.cohort_ids)
-    target_course_ids = {course_id} if course_id is not None else set(context.courses_by_id)
+    target_course_ids = (
+        {course_id} if course_id is not None else set(context.courses_by_id)
+    )
     started_by_activity: dict[int, set[int]] = defaultdict(set)
     completed_by_activity: dict[int, set[int]] = defaultdict(set)
     time_by_activity: dict[int, list[float]] = defaultdict(list)
@@ -57,7 +61,9 @@ def build_content_bottlenecks(
         started_by_activity[step.activity_id].add(step.user_id)
         if step.complete:
             completed_by_activity[step.activity_id].add(step.user_id)
-        time_spent = _time_spent_seconds(step.data, step.creation_date, step.update_date)
+        time_spent = _time_spent_seconds(
+            step.data, step.creation_date, step.update_date
+        )
         if time_spent is not None:
             time_by_activity[step.activity_id].append(time_spent)
 
@@ -81,7 +87,10 @@ def build_content_bottlenecks(
         completed = len(completed_by_activity.get(activity_id, set()))
         completion_rate = safe_pct(completed, started) if started else None
         avg_time = (
-            round(sum(time_by_activity[activity_id]) / len(time_by_activity[activity_id]), 1)
+            round(
+                sum(time_by_activity[activity_id]) / len(time_by_activity[activity_id]),
+                1,
+            )
             if time_by_activity.get(activity_id)
             else None
         )
@@ -165,14 +174,19 @@ def build_content_bottlenecks(
 
         last_update = course_last_content_update(context, activity.course_id or 0)
         stale_days = (
-            (context.generated_at - last_update).days if last_update is not None else None
+            (context.generated_at - last_update).days
+            if last_update is not None
+            else None
         )
         if (
             stale_days is not None
             and stale_days >= 45
             and (
                 (completion_rate is not None and completion_rate < 65)
-                or any((row.pass_rate or 100) < 65 for row in assessments_by_activity.get(activity_id, []))
+                or any(
+                    (row.pass_rate or 100) < 65
+                    for row in assessments_by_activity.get(activity_id, [])
+                )
             )
         ):
             rows.append(

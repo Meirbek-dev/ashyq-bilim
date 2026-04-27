@@ -38,7 +38,9 @@ def downgrade() -> None:
         sa.Column("grade", sa.Integer(), nullable=False),
         sa.Column("user_id", sa.Integer(), nullable=False),
         sa.Column("assignment_id", sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(["assignment_id"], ["assignment.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["assignment_id"], ["assignment.id"], ondelete="CASCADE"
+        ),
         sa.ForeignKeyConstraint(["user_id"], ["user.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )

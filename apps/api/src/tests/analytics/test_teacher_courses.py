@@ -117,9 +117,7 @@ def test_previous_completion_by_course_uses_scalar_max_date() -> None:
 
     db_session.exec.side_effect = [first_result, second_result]
 
-    result = _previous_completion_by_course(
-        db_session, [2, 3], date(2026, 2, 1)
-    )
+    result = _previous_completion_by_course(db_session, [2, 3], date(2026, 2, 1))
 
     assert result == {2: 0.75}
     first_result.scalar_one_or_none.assert_called_once()

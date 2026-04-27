@@ -152,7 +152,7 @@ export default function BatchGradingPanel({ open, submissions, onClose, onSubmit
       const result = await batchGradeSubmissions(payloads);
 
       if (result.failed > 0) {
-        const failures = result.results
+        const failures = (result.results ?? [])
           .filter((item) => !item.success)
           .map((item) => {
             const submission = submissions.find((candidate) => candidate.submission_uuid === item.submission_uuid);

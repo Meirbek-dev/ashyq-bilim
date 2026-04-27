@@ -92,7 +92,7 @@ const NewAssignment = ({ submitActivity, chapterId, course, closeModal }: any) =
         body: {
           title: values.name,
           description: values.description,
-          due_date: values.dueDate,
+          due_at: values.dueDate || null,
           grading_type: values.gradingType,
           course_id: course?.courseStructure.id,
           chapter_id: chapterId,

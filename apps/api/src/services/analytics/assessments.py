@@ -301,7 +301,10 @@ def _discrimination_index(scores_by_user: dict[int, float]) -> float | None:
 
 
 def _suspicious_flag(
-    *, pass_rate: float | None, score_variance: float | None, discrimination: float | None
+    *,
+    pass_rate: float | None,
+    score_variance: float | None,
+    discrimination: float | None,
 ) -> str | None:
     if pass_rate is not None and pass_rate >= 95:
         return "too_easy"
@@ -314,7 +317,9 @@ def _suspicious_flag(
     return None
 
 
-def _quality_by_question_from_quiz_attempts(attempts: list) -> dict[str, dict[str, float | int]]:
+def _quality_by_question_from_quiz_attempts(
+    attempts: list,
+) -> dict[str, dict[str, float | int]]:
     scored_attempts: list[tuple[float, object]] = []
     for attempt in attempts:
         if not attempt.end_ts or not attempt.max_score:
@@ -362,7 +367,8 @@ def _quality_by_question_from_quiz_attempts(attempts: list) -> dict[str, dict[st
             "strong_miss_pct": safe_pct(counts["strong_miss"], counts["strong"]) or 0.0,
             "weak_correct_pct": weak_accuracy,
             "distractor_issue_count": 1
-            if counts["strong"] and (safe_pct(counts["strong_miss"], counts["strong"]) or 0) > 35
+            if counts["strong"]
+            and (safe_pct(counts["strong_miss"], counts["strong"]) or 0) > 35
             else 0,
         }
     return quality
@@ -398,12 +404,20 @@ def _build_assignment_rows(
         graded = [
             submission
             for submission, _ in submissions
-            if assignment_is_graded(submission) and assignment_score(submission) is not None
+            if assignment_is_graded(submission)
+            and assignment_score(submission) is not None
         ]
         grades = [assignment_score(submission) or 0.0 for submission in graded]
-        scores_by_user = {submission.user_id: assignment_score(submission) or 0.0 for submission in graded}
+        scores_by_user = {
+            submission.user_id: assignment_score(submission) or 0.0
+            for submission in graded
+        }
         pass_rate = safe_pct(
-            sum(1 for submission in graded if (assignment_score(submission) or 0.0) >= 60),
+            sum(
+                1
+                for submission in graded
+                if (assignment_score(submission) or 0.0) >= 60
+            ),
             len(graded),
         )
         variance = _score_variance(grades)
@@ -501,7 +515,8 @@ def _build_exam_rows(
             if attempt.score is not None and attempt.max_score
         ]
         scores_by_user = {
-            attempt.user_id: (float(attempt.score or 0) / float(attempt.max_score)) * 100
+            attempt.user_id: (float(attempt.score or 0) / float(attempt.max_score))
+            * 100
             for attempt, _ in attempts
             if attempt.score is not None and attempt.max_score
         }
@@ -923,11 +938,7 @@ def get_teacher_assessment_detail(
             CommonFailureRow(
                 key="late",
                 label="Просроченные отправки",
-                count=sum(
-                    1
-                    for submission, _ in records
-                    if submission.is_late
-                ),
+                count=sum(1 for submission, _ in records if submission.is_late),
             ),
             CommonFailureRow(
                 key="ungraded",
@@ -1079,9 +1090,9 @@ def get_teacher_assessment_detail(
         submitted_users = {
             attempt.user_id for attempt, _activity in records if attempt.end_ts
         }
-        quality_by_question = _quality_by_question_from_quiz_attempts(
-            [attempt for attempt, _activity in records]
-        )
+        quality_by_question = _quality_by_question_from_quiz_attempts([
+            attempt for attempt, _activity in records
+        ])
         question_breakdown = []
         for stat in [
             item
