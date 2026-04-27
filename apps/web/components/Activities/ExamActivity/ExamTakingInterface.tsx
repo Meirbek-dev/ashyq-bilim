@@ -128,9 +128,12 @@ export default function ExamTakingInterface({ exam, questions, attempt, onComple
     if (!requiresFullscreen || typeof document === 'undefined') return;
 
     const fullscreenDocument = document as FullscreenDocument;
-    const canUseStandardFullscreen = Boolean(document.fullscreenEnabled && document.documentElement.requestFullscreen);
+    const target = document.documentElement as FullscreenElement;
+    const canUseStandardFullscreen = Boolean(
+      document.fullscreenEnabled && typeof target.requestFullscreen === 'function',
+    );
     const canUseWebkitFullscreen = Boolean(
-      fullscreenDocument.webkitFullscreenEnabled && (document.documentElement as FullscreenElement).webkitRequestFullscreen,
+      fullscreenDocument.webkitFullscreenEnabled && typeof target.webkitRequestFullscreen === 'function',
     );
 
     if (!canUseStandardFullscreen && !canUseWebkitFullscreen) {
