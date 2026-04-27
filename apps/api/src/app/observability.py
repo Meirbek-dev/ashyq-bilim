@@ -18,7 +18,7 @@ def configure_observability(
         return
 
     if not _logfire_configured:
-        logfire.configure(console=False, service_name="Ashyk Bilim")
+        logfire.configure(console=False, service_name="Ashyq Bilim")
         _logfire_configured = True
 
     logfire.instrument_fastapi(app)

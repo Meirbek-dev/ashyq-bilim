@@ -1,323 +1,672 @@
-I have a thorough picture of the system. Here is the full critical analysis and rewrite plan.
+# Assignment / Task / Activity / Progress Rewrite Plan
 
----
+## Goal
 
-## Critical Analysis
+Rewrite the assignment/task/activity system around one coherent progress and grading model so teachers can answer, for any course:
 
-### What the system is doing well
+- Which students are enrolled?
+- Which activities are required?
+- Who has not started, started, submitted, needs grading, passed, failed, returned, or completed each activity?
+- What is each student's overall course progress?
+- Which submissions require teacher action now?
 
-The unified `Submission` model (`db/grading/submissions.py`) is clean, well-structured, and correctly separates concerns. The grading service decomposition (`grader.py` → `quiz_grader.py`, `exam_grader.py`, `code_grader.py`, `assignment_breakdown.py`) is reasonable. The typed `AssignmentTaskConfig` discriminated union already exists in `assignments.py:232` — it just isn't enforced anywhere.
+The current implementation has partial improvements, but the product still cannot reliably show this because progress, attempts, grading, and completion are split across several competing models.
 
----
+## Current State
 
-### Issue Inventory (confirmed from source, not inferred)
+### What is already better
 
-#### Dead code — remove without replacement
+The older assignment service monolith has already been split:
 
-| Location                          | Problem                                                                                                                                                        |
-| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `routers/assignments.py:58-68`    | `POST /assignments` → `create_assignment()` which unconditionally raises HTTP 410. Both endpoint and service function are dead.                                |
-| `routers/assignments.py:119-129`  | `DELETE /{assignment_uuid}` → `delete_assignment()` which unconditionally raises HTTP 409 telling callers to use the activity endpoint instead. Both are dead. |
-| `routers/assignments.py:248-324`  | 6 endpoints all call `_legacy_assignment_submission_endpoint_disabled()` → HTTP 410. Dead code cluttering the router contract.                                 |
-| `routers/assignments.py:395-414`  | 2 more legacy submission endpoints returning 410: `/{uuid}/submissions/me`, `/{uuid}/submissions/{user_id}`.                                                   |
-| `services/assignments.py:494-507` | `create_assignment()` body is `raise HTTPException(status_code=410, ...)`.                                                                                     |
-| `services/assignments.py:686-726` | `delete_assignment()` body is `raise HTTPException(status_code=409, ...)`.                                                                                     |
+- `apps/api/src/services/courses/activities/assignments/crud.py`
+- `apps/api/src/services/courses/activities/assignments/tasks.py`
+- `apps/api/src/services/courses/activities/assignments/submissions.py`
+- `apps/api/src/services/courses/activities/assignments/_queries.py`
 
-**Total dead code: 2 service functions + 8 router functions + helper `_legacy_assignment_submission_endpoint_disabled`.**
+The assignment model also no longer exposes internal FK IDs in `AssignmentRead`, `due_at` is the only due-date field, assignment timestamps are proper datetime columns, and the legacy dead assignment submission endpoints are gone.
 
-#### Monolith — the 1397-line service file
+The unified `Submission` table in `apps/api/src/db/grading/submissions.py` is a good foundation. It already has:
 
-`services/courses/activities/assignments.py` mixes six unrelated concerns:
+- `assessment_type`
+- `activity_id`
+- `user_id`
+- `status`
+- `attempt_number`
+- `answers_json`
+- `grading_json`
+- scores
+- timestamps
+- teacher-facing list/stats schemas
 
-1. Date/time coercion utilities (`_coerce_datetime`, `_derive_due_at`, `_assignment_due_deadline`)
-2. Answer normalization & validation (`_normalize_assignment_answers`, `_validate_assignment_answer_tasks`)
-3. DB query helpers (`_get_assignment_context`, `_get_assignment_task_context`, `_get_assignment_tasks`, `_get_open_assignment_draft`, `_get_blocking_assignment_submission`, `_count_previous_assignment_attempts`)
-4. Course access/permission logic (`_require_assignment_submit_access`, `_user_has_course_access`, `_get_active_course_author_user_ids`, `_get_course_member_user_ids`)
-5. Assignment CRUD (`read_assignment`, `read_assignment_from_activity_uuid`, `update_assignment`, `delete_assignment_from_activity_uuid`, `create_assignment_with_activity`, `get_assignments_from_course`, `get_assignments_from_courses`, `get_editable_assignments_from_courses`)
-6. Task CRUD + file uploads (`create_assignment_task`, `read_assignment_tasks`, `read_assignment_task`, `update_assignment_task`, `delete_assignment_task`, `put_assignment_task_reference_file`, `put_assignment_task_submission_file`)
-7. Submission lifecycle (`get_assignment_draft_submission`, `save_assignment_draft_submission`, `submit_assignment_draft_submission`)
+### Core Problem
 
-#### Duplicate Submission creation block (lines 391–408 vs 448–465)
+Despite that, the system still has four separate progress/grading worlds:
 
-Both `save_assignment_draft_submission` and `submit_assignment_draft_submission` contain an identical `if not draft:` block that builds a new `Submission(...)`. Any change to Submission initialization must be made twice. The only difference after creation is that `submit` sets `status`, `is_late`, `submitted_at`, `grading_json`.
+1. Unified submissions: `Submission` in `apps/api/src/db/grading/submissions.py`
+2. Assignment-specific workflow: `Assignment`, `AssignmentTask`, assignment draft endpoints
+3. Legacy quiz workflow: `QuizAttempt` and `/blocks/quiz/{activity_id}`
+4. Legacy code challenge workflow: `CodeSubmission` and `/code-challenges/{activity_uuid}/submit`
+5. Trail completion workflow: `TrailStep.complete`, used by course progress and certificates
 
-#### Schema design problems in `db/courses/assignments.py`
+Analytics then tries to stitch those sources together in `apps/api/src/services/analytics/queries.py`, especially `build_activity_events()` and `progress_snapshots()`. That makes progress a derived guess, not a product invariant.
 
-**`AssignmentBase` leaks internal DB IDs into API responses:**
-```python
-# AssignmentBase fields exposed in AssignmentRead:
-course_id: int      # internal DB integer FK
-chapter_id: int     # internal DB integer FK
-activity_id: int    # internal DB integer FK
-```
-Clients receive raw database row IDs. `AssignmentRead` extends `AssignmentBase`, so these are serialized into every API response. The existing `course_uuid` and `activity_uuid` fields in `AssignmentRead` are what clients should use.
+## Critical Findings
 
-**Dual `due_date` / `due_at` fields:**
-`AssignmentBase` has `due_date: str` (ISO string, validated by `_normalize_due_date_value`) AND `due_at: datetime | None` (the parsed, UTC-normalized version). Both stored in the DB. `_derive_due_at` recomputes `due_at` from `due_date` on every write. The two can drift. Clients can pass either or both. Pick one source of truth.
+### 1. Activity, assessment, and completion are not clearly separated
 
-**`creation_date` / `update_date` as raw strings:**
-```python
-# Assignment model:
-creation_date: str | None = None
-update_date: str | None = None
-# AssignmentTask model:
-creation_date: str     # no None, no default
-update_date: str
-```
-These are set as `datetime.now().isoformat()` (naive, no timezone). Inconsistent with `Submission.created_at`/`updated_at` (proper `DateTime(timezone=True)`). The task model doesn't even allow None, which means it must be set before every insert.
+`Activity` is both content navigation and assessment container. Some activities are passive content, some are assignments, some are exams, some are code challenges. The system lacks one explicit contract that says:
 
-**`AssignmentTaskRead` exposes `max_grade_value` from `AssignmentTaskBase`:**
-`contents: dict[str, object]` is stored as an untyped JSON blob. The `AssignmentTaskConfig` discriminated union exists in the same file at line 232 but is never used for validation before DB write or API response.
+- Is this activity required for course completion?
+- Is it gradeable?
+- How many attempts are allowed?
+- What counts as completion?
+- What counts as pass/fail?
+- Does it need manual grading?
+- What is visible to the student vs teacher?
 
-#### Router design problems in `routers/courses/assignments.py`
+Right now those answers are scattered in `Activity.content`, `Activity.details`, `Assignment`, `Exam`, `Block.content.settings`, `CodeChallengeSettings`, and trail steps.
 
-**POST-as-GET pattern:**
-```python
-@router.post("/courses")     # body: {"course_uuids": [...]}
-@router.post("/courses/editable")  # body: {"course_uuids": [...]}
-```
-These are read-only queries using POST to pass a list. Should be `GET /courses?course_uuids=a,b,c` or a properly-named batch endpoint.
+### 2. `Submission` is not actually universal yet
 
-**Inconsistent URL for single task:**
-```python
-GET /task/{assignment_task_uuid}       # no assignment_uuid in path
-GET /{assignment_uuid}/tasks/{uuid}    # only for update/delete
-```
-`/task/{uuid}` is a different URL pattern from everything else. Cross-assignment task reads without the assignment context is also a permission-checking gap.
+The generic grading routes use `Submission`, but the app still records quiz attempts in `QuizAttempt` and code challenge attempts in `CodeSubmission`.
 
-**`request: Request` parameter threaded through everything:**
-Every service function takes `request: Request` as its first argument but nothing in the service layer uses it — the `request` is only relevant at the HTTP boundary. This is a FastAPI anti-pattern; the router should extract anything it needs from the request and pass typed values to services.
+Confirmed locations:
 
-#### Frontend type drift
+- `apps/api/src/db/grading/submissions.py:204` has the intended unified table.
+- `apps/api/src/db/courses/quiz.py:14` still defines `QuizAttempt`.
+- `apps/api/src/db/courses/code_challenges.py:224` still defines `CodeSubmission`.
+- `apps/api/src/routers/courses/activities/blocks.py:142` still exposes legacy quiz submit.
+- `apps/api/src/routers/courses/code_challenges.py:313` still exposes legacy code challenge submit.
+- `apps/api/src/services/grading/submit.py:102` has the newer unified submit pipeline.
 
-`apps/web/types/grading.ts` (232 lines) is a hand-maintained mirror of `db/grading/submissions.py` Pydantic models. No codegen. Already missing some fields added in recent backend changes.
+This guarantees drift. A teacher gradebook based on `Submission` misses legacy attempts unless analytics performs custom joins.
 
----
+### 3. Course progress is still driven by `TrailStep`, not by assessed activity state
 
-## Rewrite Plan
+`TrailStep.complete` is treated as course progress and certificate input:
 
-### Phase 0 — Delete dead code (no risk, do first)
+- `apps/api/src/db/trail_steps.py:18`
+- `apps/api/src/services/analytics/queries.py:735`
+- `apps/api/src/services/courses/certifications.py` counts completed `TrailStep` rows.
 
-**`apps/api/src/routers/courses/assignments.py`** — remove the following endpoints entirely (no redirect, no comment, no tombstone):
+This is too weak. A student can be marked complete for a gradeable activity separately from submission state. For assignments that require teacher grading, completion should not be the same as "visited activity" or "submitted draft".
 
-- `POST /` (`api_create_assignments`) — dead, raises 410
-- `DELETE /{assignment_uuid}` (`api_delete_assignment`) — dead, raises 409
-- `GET /{uuid}/tasks/{task_uuid}/submissions/me`
-- `GET /{uuid}/tasks/{task_uuid}/submissions/user/{user_id}`
-- `GET /{uuid}/tasks/{task_uuid}/submissions`
-- `PUT /{uuid}/tasks/{task_uuid}/submissions`
-- `PUT /submissions/{task_submission_uuid}`
-- `DELETE /{uuid}/tasks/{task_uuid}/submissions/{submission_uuid}`
-- `GET /{uuid}/submissions/me`
-- `GET /{uuid}/submissions/{user_id}`
-- The `_legacy_assignment_submission_endpoint_disabled` helper
+### 4. Teacher view is split between grading and analytics
 
-Also remove the now-unused imports from the router (`AssignmentCreate`, `AssignmentRead` from the explicit create path).
+The focused grading UI (`SubmissionsTable`) is per activity and only uses `Submission`:
 
-**`apps/api/src/services/courses/activities/assignments.py`** — remove:
+- `apps/web/components/Grading/SubmissionsTable.tsx`
 
-- `create_assignment()` function (raises 410)
-- `delete_assignment()` function (raises 409)
+The analytics learner rows are also per assessment but built from stitched sources:
 
-Update the router imports accordingly.
+- `apps/web/components/Dashboard/Analytics/AssessmentLearnerRowsTable.tsx`
+- `apps/api/src/services/analytics/assessments.py`
 
----
+There is no first-class course gradebook matrix: students x required activities. Teachers must jump between assignment pages, assessment analytics, course analytics, and CSV exports.
 
-### Phase 1 — Fix the data model
+### 5. Completion semantics are inconsistent by activity type
 
-**`apps/api/src/db/courses/assignments.py`**
+Examples:
 
-**1a. Collapse `due_date`/`due_at` into a single field.**
+- Assignment: submit creates `Submission(status=PENDING)`, later teacher can grade/publish.
+- Quiz via new grading API: can create `Submission(status=GRADED)`.
+- Quiz via legacy block API: creates `QuizAttempt`, not `Submission`.
+- Code challenge via legacy API: creates `CodeSubmission`, not `Submission`.
+- Trail: creates `TrailStep(complete=True)` when activity is added to trail.
 
-Keep only `due_at: datetime` (UTC-aware, required). Remove `due_date: str`. Clients that currently pass `due_date` as a string ISO date should pass `due_at` instead. The `_coerce_datetime` / `_derive_due_at` / `_assignment_due_deadline` utilities in the service go away.
+This means "completed" means different things depending on which UI/API path the student used.
 
-Migration: `ALTER TABLE assignment DROP COLUMN due_date`. `due_at` already exists and is populated; existing rows are not affected.
+### 6. `AssignmentTask.contents` validation is only partial
 
-**1b. Remove internal FK integer IDs from `AssignmentRead`.**
+The task config union exists in `apps/api/src/db/courses/assignments.py`, but `AssignmentTask.contents` is still stored and returned as `dict[str, object]`. Create/update validate raw contents, but the DB/read model does not expose the discriminated union as the actual contract.
 
-`AssignmentBase` currently is the shared base for both the DB table model and the API read model, which forces internal IDs into the API contract. Split them:
+This matters because tasks are the assignment equivalent of questions. If they are untyped at the storage/read boundary, teacher grading and analytics have to tolerate malformed task payloads forever.
 
-```
-AssignmentDB (table=True)  — has id, course_id, chapter_id, activity_id as FK columns
-AssignmentRead             — has assignment_uuid, course_uuid, activity_uuid, due_at, title, description, grading_type, published
-AssignmentCreate           — input model, takes course_id/chapter_id (internal, for the service layer only, not returned)
-AssignmentUpdate           — partial patch, only title/description/due_at/grading_type
-```
+### 7. Analytics is compensating for missing domain tables
 
-`AssignmentRead` must not inherit from `AssignmentBase`. It is a projection model.
+`load_analytics_context()` loads many operational models and builds snapshots in memory. That is useful as a reporting fallback, but it should not be the source of truth for live teacher tracking.
 
-**1c. Replace `creation_date`/`update_date` strings with proper datetime fields.**
+The live operational product needs a normalized, queryable state:
 
-```python
-# Before:
-creation_date: str | None = None
-update_date: str | None = None
+- one row per learner per course activity
+- latest submission/attempt state
+- completion state
+- grade state
+- timestamps
+- teacher action state
 
-# After:
-created_at: datetime = Field(sa_column=Column(DateTime(timezone=True)))
-updated_at: datetime = Field(sa_column=Column(DateTime(timezone=True)))
-```
+## Target Model
 
-Migration: `ALTER TABLE assignment RENAME COLUMN creation_date TO created_at; ALTER TABLE assignmenttask ...` — then cast to `TIMESTAMPTZ`. Same for `AssignmentTask`. The values are already valid ISO strings so `USING creation_date::timestamptz` works.
+### Domain Terms
 
-**1d. Enforce `AssignmentTaskConfig` on write.**
+Use these terms consistently:
 
-In `AssignmentTaskBase.contents`, replace the untyped `dict[str, object]` with:
+- `Activity`: a course curriculum item. It may be content-only or assessable.
+- `Assessment`: the grading/completion policy for a gradeable activity.
+- `Task`: a sub-item inside an assignment. It is not a course-level activity.
+- `Submission`: one learner attempt for one assessable activity.
+- `ActivityProgress`: one learner's current state for one course activity.
+- `CourseProgress`: aggregate state across all required activities in one course.
+- `Gradebook`: teacher-facing read model built from `ActivityProgress`, `Submission`, activity metadata, and enrollment.
 
-```python
-contents: AssignmentTaskConfig = Field(
-    default_factory=AssignmentOtherTaskConfig,
-    sa_column=Column(JSON),
-)
-```
+### Source of Truth
 
-The discriminated union `AssignmentTaskConfig` already exists in `assignments.py:232`. This just plugs it in. Pydantic will reject malformed configs before they reach the DB.
+Use these rules:
 
-**1e. Make `order` append-only via the API.**
+- `Activity` is the source of truth for curriculum order and publication.
+- `AssessmentPolicy` is the source of truth for attempt limits, pass threshold, due date, grading mode, and completion rules.
+- `Submission` is the source of truth for all gradeable attempts.
+- `ActivityProgress` is the source of truth for current per-student activity state.
+- `CourseProgress` is either stored as a denormalized projection or computed from `ActivityProgress`, but never from `TrailStep`.
+- `TrailStep` becomes legacy/personal trail UX only, not course completion truth.
 
-Remove `order: int | None = None` from `AssignmentTaskUpdate`. The order of an existing task cannot be changed via a plain PATCH; a dedicated `POST /{assignment_uuid}/tasks/reorder` endpoint (body: `[{task_uuid, order}]`) should do the reorder atomically.
+## Proposed Backend Model
 
----
+### 1. Add `assessment_policy`
 
-### Phase 2 — Break up the service monolith
+One row per gradeable activity.
 
-Split `apps/api/src/services/courses/activities/assignments.py` into:
+Suggested fields:
 
-```
-apps/api/src/services/courses/activities/assignments/
-├── __init__.py          — re-exports the public functions (no logic)
-├── crud.py              — read, update, delete_from_activity, create_with_activity, get_from_course(s)
-├── tasks.py             — create_task, read_task(s), update_task, delete_task, reorder_tasks
-├── uploads.py           — put_task_reference_file, put_task_submission_file
-├── submissions.py       — get_draft, save_draft, submit_draft
-└── _queries.py          — internal DB helpers (prefixed _, not exported):
-                             _get_assignment_context
-                             _get_assignment_task_context
-                             _get_assignment_tasks
-                             _get_open_assignment_draft
-                             _get_blocking_assignment_submission
-                             _count_previous_assignment_attempts
+```text
+id
+policy_uuid
+activity_id
+assessment_type              QUIZ | ASSIGNMENT | EXAM | CODE_CHALLENGE
+grading_mode                 AUTO | MANUAL | AUTO_THEN_MANUAL
+completion_rule              VIEWED | SUBMITTED | GRADED | PASSED | TEACHER_VERIFIED
+passing_score
+max_attempts
+time_limit_seconds
+due_at
+allow_late
+late_policy_json
+settings_json
+created_at
+updated_at
 ```
 
-The `_user_has_course_access`, `_get_active_course_author_user_ids`, `_get_course_member_user_ids` functions are not assignment-specific — move them to `services/courses/access.py` (or wherever course-membership checks live) and import from there.
+This replaces type-specific due dates and scattered attempt settings as the operational contract. Type-specific editors can still store rich authoring content in assignment tasks, exam questions, quiz blocks, and code challenge settings.
 
-Drop `request: Request` from all service function signatures. The request object is never used inside services; it was only threaded in by convention. Remove it from service functions and update the router call sites.
+### 2. Keep and strengthen `submission`
 
----
+Keep the existing `Submission` table, but make it truly universal.
 
-### Phase 3 — Deduplicate submission creation
+Add or confirm:
 
-In the new `submissions.py`, extract the shared draft-construction logic:
-
-```python
-def _get_or_create_draft(
-    activity_id: int,
-    user_id: int,
-    db_session: Session,
-    *,
-    now: datetime,
-) -> Submission:
-    draft = _get_open_assignment_draft(activity_id, user_id, db_session)
-    if draft:
-        return draft
-    return Submission(
-        submission_uuid=f"submission_{ULID()}",
-        assessment_type=AssessmentType.ASSIGNMENT,
-        activity_id=activity_id,
-        user_id=user_id,
-        status=SubmissionStatus.DRAFT,
-        attempt_number=_count_previous_assignment_attempts(activity_id, user_id, db_session) + 1,
-        answers_json={},
-        grading_json={},
-        started_at=now,
-        created_at=now,
-        updated_at=now,
-    )
+```text
+submission_uuid unique
+assessment_policy_id nullable during migration, then not null
+activity_id
+user_id
+assessment_type
+status
+attempt_number
+auto_score
+final_score
+max_score
+passed
+is_late
+needs_manual_review
+answers_json
+grading_json
+artifact_refs_json
+started_at
+submitted_at
+graded_at
+published_at
+returned_at
+created_at
+updated_at
+grading_version
 ```
 
-`save_draft` calls `_get_or_create_draft`, patches `answers_json`, commits.
-`submit_draft` calls `_get_or_create_draft`, patches `answers_json`, then additionally sets `status`, `is_late`, `submitted_at`, `grading_json`.
+Important rule: every quiz, exam, assignment, code challenge, file upload task, open answer, and form answer produces a `Submission` attempt if it affects grading or completion.
 
----
+### 3. Add `activity_progress`
 
-### Phase 4 — Fix the router
+One row per learner per activity once the learner is eligible/enrolled or first interacts.
 
-**4a. Replace POST-as-GET with proper GET endpoints.**
+Suggested fields:
 
-```python
-# Before:
-@router.post("/courses")         # body: {"course_uuids": [...]}
-@router.post("/courses/editable")
-
-# After:
-@router.get("/courses")          # query: ?course_uuids=a&course_uuids=b
-@router.get("/courses/editable")
+```text
+course_id
+activity_id
+user_id
+state                       NOT_STARTED | IN_PROGRESS | SUBMITTED | NEEDS_GRADING | RETURNED | GRADED | PASSED | FAILED | COMPLETED
+required
+score
+passed
+best_submission_id
+latest_submission_id
+attempt_count
+started_at
+last_activity_at
+submitted_at
+graded_at
+completed_at
+due_at
+is_late
+teacher_action_required
+status_reason
+created_at
+updated_at
 ```
 
-Update the frontend query hooks (`assignments.query.ts`) to pass `course_uuids` as repeated query params.
+Unique key:
 
-**4b. Fix inconsistent single-task URL.**
-
-```python
-# Before:
-GET /task/{assignment_task_uuid}
-
-# After:
-GET /{assignment_uuid}/tasks/{assignment_task_uuid}
+```text
+(activity_id, user_id)
 ```
 
-Update frontend `useAssignments` hooks and query options. The old URL can be removed (no backwards compat shim needed since this is an internal API).
+This table is what teachers query for progress. It is updated synchronously after every submission lifecycle event and can be repaired by a backfill job.
 
-**4c. Drop `request: Request` from all route handlers** where it is not used (it's passed to services which don't use it either). Keep it only where middleware/logging actually reads it.
+### 4. Add `course_progress`
 
----
+Either materialized or computed from `activity_progress`.
 
-### Phase 5 — Frontend type generation
+Suggested fields if materialized:
 
-Add `openapi-typescript` to the frontend build:
+```text
+course_id
+user_id
+completed_required_count
+total_required_count
+progress_pct
+grade_average
+missing_required_count
+needs_grading_count
+last_activity_at
+completed_at
+certificate_eligible
+updated_at
+```
 
-```json
-// apps/web/package.json
-"scripts": {
-  "generate:types": "openapi-typescript http://localhost:8000/openapi.json -o src/types/api.generated.ts"
+Unique key:
+
+```text
+(course_id, user_id)
+```
+
+Certificates should read this table/projection, not `TrailStep.complete`.
+
+### 5. Normalize assignment tasks
+
+Keep `Assignment` and `AssignmentTask`, but treat `Assignment` as authoring metadata for an assessment policy, not a parallel assessment system.
+
+Changes:
+
+- `Assignment.activity_id` remains the link to course activity.
+- `Assignment.due_at` should move to `assessment_policy.due_at` or be treated as a legacy mirror during migration.
+- `AssignmentTask.contents` should become a typed discriminated union in read/write schemas.
+- Add explicit task kinds for open answer and file submission rather than hiding them in generic contents.
+- Store submission answers in `Submission.answers_json`, keyed by task UUID.
+- Store teacher per-task grading in `Submission.grading_json.items`.
+
+## Lifecycle Contract
+
+All gradeable activity types should use the same state machine.
+
+### Student lifecycle
+
+```text
+NOT_STARTED
+  -> IN_PROGRESS       when opened/started/draft created
+  -> SUBMITTED         when submitted but no grading decision yet
+  -> NEEDS_GRADING     when manual review is required
+  -> GRADED            when teacher or autograder has a score
+  -> PASSED / FAILED   when score is evaluated against passing score
+  -> COMPLETED         when completion_rule is satisfied
+  -> RETURNED          when teacher sends back for revision
+```
+
+Implementation detail: `Submission.status` can remain smaller (`DRAFT`, `PENDING`, `GRADED`, `PUBLISHED`, `RETURNED`), while `ActivityProgress.state` is the teacher-facing current state.
+
+### Completion rules
+
+Use explicit policy:
+
+- Content page/video/document: `VIEWED` or `TEACHER_VERIFIED`
+- Quiz: usually `PASSED` or `GRADED`
+- Assignment: usually `GRADED` or `PASSED`
+- Exam: usually `PASSED`
+- Code challenge: usually `PASSED`
+- Optional activity: excluded from required progress but still visible
+
+### Teacher action rule
+
+`teacher_action_required = true` when:
+
+- latest submission needs manual grading
+- returned submission has been resubmitted
+- student is overdue and activity is required, if configured
+- plagiarism/violation flag needs review
+
+## API Rewrite
+
+### Student APIs
+
+Create one submission API:
+
+```text
+POST /activities/{activity_uuid}/submissions/start
+PATCH /activities/{activity_uuid}/submissions/draft
+POST /activities/{activity_uuid}/submissions/submit
+GET /activities/{activity_uuid}/submissions/me
+GET /activities/{activity_uuid}/progress/me
+```
+
+The request body can vary by `assessment_type`, but the lifecycle should not.
+
+Deprecate or adapt:
+
+- `/blocks/quiz/{activity_id}`
+- `/grading/start/{activity_id}`
+- `/grading/submit/{activity_id}`
+- `/assignments/{assignment_uuid}/submissions/me/draft`
+- `/assignments/{assignment_uuid}/submit`
+- `/code-challenges/{activity_uuid}/submit`
+
+Do not remove old routes immediately. Make them adapters that call the unified service and write `Submission` + `ActivityProgress`.
+
+### Teacher APIs
+
+Add course-level tracking endpoints:
+
+```text
+GET /teacher/courses/{course_uuid}/gradebook
+GET /teacher/courses/{course_uuid}/learners/{user_uuid}/progress
+GET /teacher/courses/{course_uuid}/activities/{activity_uuid}/progress
+GET /teacher/courses/{course_uuid}/actions
+PATCH /teacher/submissions/{submission_uuid}/grade
+PATCH /teacher/submissions/batch-grade
+POST /teacher/progress/recalculate
+```
+
+`/gradebook` should return a matrix-ready response:
+
+```text
+course
+learners[]
+activities[]
+cells[] {
+  user_uuid
+  activity_uuid
+  state
+  score
+  passed
+  attempt_count
+  is_late
+  due_at
+  latest_submission_uuid
+  teacher_action_required
+  updated_at
+}
+summary {
+  total_learners
+  avg_progress_pct
+  needs_grading_count
+  overdue_count
+  completed_count
 }
 ```
 
-Replace hand-maintained `apps/web/types/grading.ts` with imports from the generated file. The generated types become the single source of truth for all API shapes. Run `generate:types` as part of CI.
+### Analytics APIs
 
----
+Analytics should consume `ActivityProgress` and `Submission` instead of stitching together operational tables. Rollups can remain, but they should be projections from the same canonical state.
 
-### Phase 6 — `AssignmentTask.contents` type validation on the frontend
+## Migration Plan
 
-`TaskEditor` components (`TaskFileObject.tsx`, `TaskQuizObject.tsx`, `TaskFormObject.tsx`) currently build `contents` as plain objects. Add Zod schemas mirroring the backend `AssignmentTaskConfig` discriminated union so validation happens at form submission, not silently on the server.
+### Phase 0 - Freeze semantics
 
----
+Before code changes, write a short ADR:
 
-### What NOT to change
+- What is an activity?
+- What is an assessment?
+- What is a task?
+- What is a submission?
+- What is completion?
+- What statuses can students/teachers see?
 
-- `db/grading/submissions.py` — clean, do not touch
-- `services/grading/` modules (`grader.py`, `quiz_grader.py`, `exam_grader.py`, `code_grader.py`, `assignment_breakdown.py`, `teacher.py`, `submit.py`) — well-structured, leave alone
-- `db/courses/activities.py` — fine as-is
-- The migration files already run — do not alter them
-- `AssignmentTaskConfig` discriminated union — already correct, just wire it in (Phase 1d)
-- Submission state machine logic in `teacher.py` — correct, just needs an optimistic-lock column added later (not in this rewrite)
+This prevents another partial rewrite where each feature invents its own status model.
 
----
+### Phase 1 - Add canonical tables
 
-### Execution order
+Add:
 
+- `assessment_policy`
+- `activity_progress`
+- optional `course_progress`
+
+Add indexes:
+
+```text
+activity_progress(course_id, user_id)
+activity_progress(activity_id, state)
+activity_progress(course_id, teacher_action_required)
+submission(activity_id, user_id, status)
+submission(assessment_policy_id, user_id, attempt_number)
 ```
-Phase 0  (delete dead code)          — 1-2 hours, zero risk
-Phase 1a (collapse due fields)       — requires 1 migration
-Phase 1b (split AssignmentRead)      — schema-only, no migration
-Phase 1c (fix date string fields)    — requires 1 migration (can batch with 1a)
-Phase 1d (enforce TaskConfig)        — schema-only
-Phase 1e (append-only order)         — schema + new reorder endpoint
-Phase 2  (split service module)      — mechanical refactor, no logic change
-Phase 3  (dedup draft creation)      — logic change, needs tests
-Phase 4  (fix router)                — requires frontend call-site updates
-Phase 5  (type codegen)              — tooling only
-Phase 6  (frontend Zod validation)   — frontend only, low risk
+
+No existing behavior changes yet.
+
+### Phase 2 - Backfill policies
+
+Create one policy per existing gradeable activity:
+
+- Assignment rows become `assessment_type=ASSIGNMENT`.
+- Exams become `assessment_type=EXAM`.
+- Quiz block activities become `assessment_type=QUIZ`.
+- Code challenge activities become `assessment_type=CODE_CHALLENGE`.
+
+Move or mirror due dates, attempt limits, time limits, passing scores into `assessment_policy`.
+
+### Phase 3 - Backfill submissions
+
+Backfill `Submission` from:
+
+- existing assignment `Submission` rows
+- `QuizAttempt`
+- `ExamAttempt`
+- `CodeSubmission`
+
+For code challenge source code, do not force large source payloads into `answers_json` if that is a storage/security problem. Store references or compact metadata in `artifact_refs_json`.
+
+During this phase, keep legacy rows for compatibility.
+
+### Phase 4 - Backfill activity progress
+
+For every enrolled learner and every published required activity:
+
+- create `ActivityProgress`
+- calculate state from best/latest submission
+- calculate `attempt_count`
+- calculate completion from policy
+- calculate teacher action flags
+- set last activity timestamps
+
+Use this backfill as the repair job that can be safely rerun.
+
+### Phase 5 - Route writes through one service
+
+Create `services/progress/submissions.py` or similar:
+
+```text
+start_activity_submission()
+save_activity_draft()
+submit_activity()
+grade_submission()
+return_submission()
+publish_grade()
+recalculate_activity_progress()
+recalculate_course_progress()
 ```
 
-Phases 0–1 are independent of each other and can be done in any order. Phase 2 is a prerequisite for Phase 3 (easier to see the duplication once isolated). Phase 4 requires Phase 2 to be done (no more `request` threading). Phases 5–6 are purely additive and can be done any time.
+All assignment, quiz, exam, and code challenge routes must call this service.
+
+### Phase 6 - Convert legacy routes to adapters
+
+Keep old URLs temporarily but make them thin adapters:
+
+- quiz block submit writes `Submission`
+- code challenge submit writes/updates `Submission`
+- assignment submit keeps its URL but calls unified submit
+- grading routes call unified grade service
+
+Add warnings in code comments and tests that no new feature should write to `QuizAttempt` or `CodeSubmission` directly.
+
+### Phase 7 - Build the teacher gradebook UI
+
+Add a course dashboard page centered on the matrix:
+
+- rows: enrolled students
+- columns: required activities
+- cells: current state, score, late flag, action required
+- filters: cohort, status, activity type, overdue, needs grading, not started
+- bulk actions: grade selected, export, message selected later
+- drilldown: click cell to open latest submission and activity history
+
+This should become the teacher's main operational view. The existing per-activity `SubmissionsTable` remains as a drilldown, not the only place to grade.
+
+### Phase 8 - Move certificates and analytics
+
+Certificates:
+
+- replace `TrailStep.complete` counting with `course_progress.certificate_eligible` or equivalent computed state.
+
+Analytics:
+
+- replace `progress_snapshots()` dependence on `TrailStep.complete`
+- read `ActivityProgress`/`CourseProgress`
+- keep nightly rollups as performance projections only
+
+### Phase 9 - Retire legacy tables or mark them explicitly archival
+
+After adapters have run in production and backfill is verified:
+
+- stop writing `QuizAttempt`
+- stop writing `CodeSubmission` as primary progress source
+- keep code execution artifacts in a new code-specific artifact table if needed
+- keep `TrailStep` only for personal trail UX, not required course progress
+
+## Frontend Plan
+
+### 1. Create shared status vocabulary
+
+Add frontend types generated from OpenAPI for:
+
+- `ActivityProgressState`
+- `ActivityProgressCell`
+- `CourseGradebookResponse`
+- `Submission`
+- `TeacherAction`
+
+Remove local hand-maintained status logic where possible.
+
+### 2. Replace per-assessment-only tracking
+
+Current views:
+
+- `SubmissionsTable` is useful but per activity.
+- `AssessmentLearnerRowsTable` is analytics-focused and not an operational gradebook.
+
+New views:
+
+- Course gradebook matrix
+- Student progress drawer
+- Activity progress drawer
+- Teacher action queue
+
+### 3. Keep authoring separate from tracking
+
+Assignment task editors, quiz editors, exam editors, and code challenge editors should author activity content. They should not own progress semantics. Progress semantics live in assessment policy controls:
+
+- required/optional
+- due date
+- passing score
+- attempts
+- grading mode
+- completion rule
+
+## Testing Plan
+
+### Backend unit tests
+
+Add tests for:
+
+- policy resolution per activity type
+- submission state transitions
+- returned/resubmitted assignment flow
+- late submission calculation
+- attempt limit calculation
+- pass/fail/completion rule calculation
+- progress recalculation idempotency
+- course progress aggregation
+
+### Backend migration tests
+
+Add tests for:
+
+- QuizAttempt to Submission backfill
+- CodeSubmission to Submission backfill
+- assignment Submission preservation
+- TrailStep-derived progress backfill only as fallback
+- rerunning backfill safely
+
+### API contract tests
+
+Add tests for:
+
+- `GET /teacher/courses/{course_uuid}/gradebook`
+- filters and pagination
+- teacher cannot see another teacher's course
+- co-authors can see the gradebook if authorized
+- student cannot access teacher progress endpoints
+
+### Frontend tests
+
+Add tests for:
+
+- matrix status rendering
+- filter behavior
+- clicking a cell opens the correct submission
+- action queue count matches gradebook cells
+- returned/resubmitted cells update correctly
+
+## Success Criteria
+
+This rewrite is done when:
+
+- Every gradeable activity write path produces/updates a `Submission`.
+- Every learner/activity pair has a canonical `ActivityProgress` row or computable equivalent.
+- Course completion no longer depends on `TrailStep.complete`.
+- Teachers can open one course gradebook and see all students across all activities.
+- Needs-grading, overdue, returned, failed, passed, and completed states are consistent across assignments, quizzes, exams, and code challenges.
+- Analytics and certificates read from the same progress model as the teacher UI.
+- Legacy quiz/code challenge tables are adapters or archival, not operational truth.
+
+## Recommended Execution Order
+
+1. Write ADR for domain terms and state machine.
+2. Add `assessment_policy` and `activity_progress`.
+3. Backfill policies.
+4. Backfill submissions from legacy attempt tables.
+5. Backfill activity progress.
+6. Route assignment submit/grade through unified progress service.
+7. Route quiz submit through unified progress service.
+8. Route code challenge submit through unified progress service.
+9. Add course gradebook API.
+10. Build teacher course gradebook UI.
+11. Move certificate eligibility to course progress.
+12. Move analytics snapshots to activity/course progress.
+13. Retire or archive legacy attempt/progress tables.
+
+## Non-Goals For This Rewrite
+
+- Redesigning the whole course editor.
+- Replacing the rich assignment task editor.
+- Replacing Judge0 integration.
+- Removing analytics rollups entirely.
+- Changing RBAC concepts beyond using them consistently in new endpoints.
+
+The rewrite should make progress and grading coherent first. UI polish and advanced analytics should come after the source of truth is fixed.
