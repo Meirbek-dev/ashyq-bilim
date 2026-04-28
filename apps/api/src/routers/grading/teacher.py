@@ -10,7 +10,7 @@ PATCH /grading/submissions/{uuid}    — save teacher grade + feedback
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Header, Query
 from fastapi.responses import StreamingResponse
 from sqlmodel import Session
 
@@ -164,15 +164,37 @@ async def api_save_grade(
     grade_input: TeacherGradeInput,
     db_session: Annotated[Session, Depends(get_db_session)],
     current_user: Annotated[PublicUser, Depends(get_public_user)],
+    if_match: Annotated[
+        str | None,
+        Header(
+            alias="If-Match",
+            description=(
+                "Optimistic concurrency token. Supply the `version` value from the "
+                "submission you loaded. If the submission has been modified "
+                "concurrently, 412 Precondition Failed is returned."
+            ),
+        ),
+    ] = None,
 ) -> SubmissionRead:
     """
     Save a teacher-entered final score and optional per-item feedback.
 
     Permission is checked in save_grade via the activity's creator_id.
+
+    Supply `If-Match: <version>` to enable optimistic concurrency control and
+    prevent silent overwrites when two teachers grade the same submission.
     """
+    expected_version: int | None = None
+    if if_match is not None:
+        try:
+            expected_version = int(if_match.strip('"'))
+        except ValueError:
+            pass  # malformed header — ignore and proceed without version check
+
     return await save_grade(
         submission_uuid=submission_uuid,
         grade_input=grade_input,
         current_user=current_user,
         db_session=db_session,
+        expected_version=expected_version,
     )

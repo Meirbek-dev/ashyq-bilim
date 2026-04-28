@@ -8,6 +8,7 @@ from ulid import ULID
 
 from src.db.courses.assignments import (
     Assignment,
+    AssignmentStatus,
     AssignmentTask,
     AssignmentTaskCreate,
     AssignmentTaskRead,
@@ -19,6 +20,24 @@ from src.security.rbac import PermissionChecker
 from src.services.courses.activities.assignments._queries import (
     _get_assignment_task_context,
 )
+
+_LOCKED_STATUSES: frozenset[str] = frozenset({
+    AssignmentStatus.PUBLISHED,
+    AssignmentStatus.ARCHIVED,
+})
+
+
+def _require_assignment_editable(assignment: Assignment) -> None:
+    """Raise 409 if the assignment's status prevents task mutations."""
+    raw = str(getattr(assignment.status, "value", assignment.status))
+    if raw in _LOCKED_STATUSES:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                f"Tasks cannot be modified on a {raw} assignment. "
+                "Archive or keep the assignment in DRAFT/SCHEDULED to edit tasks."
+            ),
+        )
 
 
 async def create_assignment_task(
@@ -44,6 +63,8 @@ async def create_assignment_task(
         "assignment:create",
         resource_owner_id=course.creator_id,
     )
+
+    _require_assignment_editable(assignment)
 
     last_task = db_session.exec(
         select(AssignmentTask)
@@ -145,6 +166,8 @@ async def update_assignment_task(
         resource_owner_id=course.creator_id,
     )
 
+    _require_assignment_editable(_assignment)
+
     for field, value in assignment_task_object.model_dump(exclude_unset=True).items():
         setattr(assignment_task, field, value)
     assignment_task.updated_at = datetime.now(UTC)
@@ -170,6 +193,8 @@ async def delete_assignment_task(
         "assignment:delete",
         resource_owner_id=course.creator_id,
     )
+
+    _require_assignment_editable(_assignment)
 
     db_session.delete(assignment_task)
     db_session.commit()

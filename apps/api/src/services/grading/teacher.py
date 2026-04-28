@@ -37,6 +37,10 @@ from src.security.rbac import PermissionChecker
 from src.services.gamification.service import award_xp as _gamification_award_xp
 from src.services.grading.assignment_breakdown import build_effective_grading_breakdown
 from src.services.progress import submissions as progress_submissions
+from src.services.progress.submissions import (
+    _attach_policy,
+    recalculate_activity_progress,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -396,8 +400,15 @@ async def save_grade(
     grade_input: TeacherGradeInput,
     current_user: PublicUser,
     db_session: Session,
+    *,
+    expected_version: int | None = None,
 ) -> SubmissionRead:
-    """Apply a teacher-entered final score and optional per-item feedback."""
+    """Apply a teacher-entered final score and optional per-item feedback.
+
+    Pass ``expected_version`` (from the ``If-Match`` request header) to enable
+    optimistic concurrency control.  If the submission has been modified since
+    the teacher loaded it, a 412 Precondition Failed is returned.
+    """
     submission, activity = _get_submission_with_activity(submission_uuid, db_session)
 
     checker = PermissionChecker(db_session)
@@ -412,6 +423,7 @@ async def save_grade(
         grade_input=grade_input,
         submission_uuid=submission_uuid,
         db_session=db_session,
+        expected_version=expected_version,
     )
 
 
@@ -527,14 +539,33 @@ def _save_teacher_grade(
     grade_input: TeacherGradeInput,
     submission_uuid: str,
     db_session: Session,
+    expected_version: int | None = None,
 ) -> SubmissionRead:
-    """Persist a teacher-entered grade after the caller has validated access."""
+    """Persist a teacher-entered grade after the caller has validated access.
 
-    # Validate status transition against the state machine.
+    Atomicity guarantee: the submission update, ActivityProgress, and
+    CourseProgress are all flushed inside a single ``db_session.commit()``.
+    If any step raises, the whole operation rolls back.
+
+    Optimistic locking: if ``expected_version`` is supplied and does not match
+    ``submission.version``, raises 412 Precondition Failed so the caller knows
+    a concurrent edit already landed.
+    """
+
+    # ── Optimistic lock check ─────────────────────────────────────────────────
+    if expected_version is not None and submission.version != expected_version:
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED,
+            detail=(
+                f"Submission was modified concurrently (version {submission.version}). "
+                "Refresh and retry."
+            ),
+        )
+
+    # ── State machine validation ──────────────────────────────────────────────
     requested_status = SubmissionStatus(grade_input.status)
     current_status = submission.status
 
-    # shortcut no-op if status already matched (allows re-posting same status)
     if requested_status != current_status:
         allowed = _ALLOWED_TEACHER_TRANSITIONS.get(current_status, frozenset())
         if requested_status not in allowed:
@@ -552,9 +583,7 @@ def _save_teacher_grade(
                 ),
             )
 
-    # Model-aware merge of item feedback — preserves all GradedItem fields.
-    # Only items explicitly included in grade_input.item_feedback are updated;
-    # untouched auto-graded items keep their original "Correct"/"Incorrect" text.
+    # ── Merge item feedback into grading breakdown ────────────────────────────
     existing = build_effective_grading_breakdown(submission, db_session)
     item_map = {item.item_id: item for item in existing.items}
 
@@ -581,7 +610,6 @@ def _save_teacher_grade(
     still_needs_review = any(
         item.needs_manual_review and not item.feedback for item in item_map.values()
     )
-
     updated_grading = GradingBreakdown(
         items=list(item_map.values()),
         needs_manual_review=still_needs_review,
@@ -589,27 +617,33 @@ def _save_teacher_grade(
         feedback=grade_input.feedback,
     )
 
+    # ── Apply all writes and commit atomically ────────────────────────────────
     now = datetime.now(UTC)
     submission.final_score = grade_input.final_score
     submission.status = requested_status
     submission.grading_json = updated_grading.model_dump()
     submission.graded_at = now
     submission.updated_at = now
+    submission.version = submission.version + 1  # bump optimistic lock version
 
+    # Ensure the assessment policy is attached before progress recalculation.
+    _attach_policy(submission, db_session)
     db_session.add(submission)
+
+    # Recalculate ActivityProgress + CourseProgress in the same transaction.
+    recalculate_activity_progress(
+        submission.activity_id,
+        submission.user_id,
+        db_session,
+        commit=False,  # we commit below — all three tables in one transaction
+    )
+
     db_session.commit()
     db_session.refresh(submission)
 
-    if requested_status == SubmissionStatus.PUBLISHED:
-        progress_submissions.publish_grade(submission, db_session)
-    elif requested_status == SubmissionStatus.RETURNED:
-        progress_submissions.return_submission(submission, db_session)
-    else:
-        progress_submissions.grade_submission(submission, db_session)
-
-    # Award XP when a grade is published and the student passed.
-    # The idempotency key ensures this is safe to call multiple times
-    # (e.g., re-publishing after a recall) without double-awarding.
+    # ── Post-commit side-effects (non-critical, separate transactions) ────────
+    # XP is awarded after the main commit so a gamification failure never rolls
+    # back a grade. The idempotency key prevents double-awarding on re-publish.
     if (
         current_status != SubmissionStatus.PUBLISHED
         and requested_status == SubmissionStatus.PUBLISHED

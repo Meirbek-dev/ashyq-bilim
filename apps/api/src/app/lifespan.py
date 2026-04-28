@@ -17,6 +17,7 @@ from src.infra.db.engine import (
 )
 from src.infra.logging import configure_logging
 from src.infra.settings import AppSettings
+from src.tasks.assignment_scheduler import assignment_scheduler_loop
 
 logger = logging.getLogger(__name__)
 
@@ -67,14 +68,19 @@ def create_lifespan(settings: AppSettings) -> Callable[[FastAPI], AsyncIterator[
             _ttl_sweep_loop(settings.ai_config.collection_retention),
             name="vector_ttl_sweep",
         )
+        scheduler_task = asyncio.create_task(
+            assignment_scheduler_loop(settings),
+            name="assignment_scheduler",
+        )
 
         try:
             yield
         finally:
-            if not ttl_sweep_task.done():
-                ttl_sweep_task.cancel()
-                with contextlib.suppress(asyncio.CancelledError):
-                    await ttl_sweep_task
+            for bg_task in (ttl_sweep_task, scheduler_task):
+                if not bg_task.done():
+                    bg_task.cancel()
+                    with contextlib.suppress(asyncio.CancelledError):
+                        await bg_task
             await redis_infra.close()
             unregister_engine()
             engine.dispose()

@@ -5,6 +5,7 @@ from typing import Literal
 from pydantic import ConfigDict, field_validator, model_validator
 from sqlalchemy import (
     JSON,
+    Boolean,
     Column,
     DateTime,
     ForeignKey,
@@ -28,6 +29,13 @@ def _validate_max_grade_value(value: int | None) -> int | None:
 
 
 # ── Enums ──────────────────────────────────────────────────────────────────────
+
+
+class AssignmentStatus(StrEnum):
+    DRAFT = "DRAFT"
+    SCHEDULED = "SCHEDULED"
+    PUBLISHED = "PUBLISHED"
+    ARCHIVED = "ARCHIVED"
 
 
 class GradingTypeEnum(StrEnum):
@@ -132,6 +140,8 @@ class Assignment(SQLModelStrictBaseModel, table=True):
     __table_args__ = (
         UniqueConstraint("activity_id", name="uq_assignment_activity_id"),
         Index("idx_assignment_activity_id", "activity_id"),
+        Index("idx_assignment_status", "status"),
+        Index("idx_assignment_scheduled_publish_at", "scheduled_publish_at"),
     )
 
     model_config = ConfigDict(use_enum_values=True)
@@ -144,7 +154,30 @@ class Assignment(SQLModelStrictBaseModel, table=True):
         default=None,
         sa_column=Column(DateTime(timezone=True), nullable=True),
     )
-    published: bool = Field(default=False)
+    # Lifecycle status — replaces the legacy `published` boolean.
+    # Keep published col in DB for backward compat; dropped in Phase 7 cleanup.
+    published: bool = Field(
+        default=False,
+        sa_column=Column(Boolean, nullable=False, server_default="false"),
+    )
+    status: AssignmentStatus = Field(
+        default=AssignmentStatus.DRAFT,
+        sa_column=Column(
+            "status", String, nullable=False, server_default="DRAFT"
+        ),
+    )
+    scheduled_publish_at: datetime | None = Field(
+        default=None,
+        sa_column=Column("scheduled_publish_at", DateTime(timezone=True), nullable=True),
+    )
+    published_at: datetime | None = Field(
+        default=None,
+        sa_column=Column("published_at", DateTime(timezone=True), nullable=True),
+    )
+    archived_at: datetime | None = Field(
+        default=None,
+        sa_column=Column("archived_at", DateTime(timezone=True), nullable=True),
+    )
     grading_type: GradingTypeEnum = Field(
         sa_column=Column("grading_type", String, nullable=False)
     )
@@ -177,12 +210,23 @@ class AssignmentRead(SQLModelStrictBaseModel):
     title: str
     description: str
     due_at: datetime | None = None
+    # Legacy field: kept for backward compat — use `status` for lifecycle logic.
     published: bool
+    status: AssignmentStatus
+    scheduled_publish_at: datetime | None = None
+    published_at: datetime | None = None
+    archived_at: datetime | None = None
     grading_type: GradingTypeEnum
     course_uuid: str | None = None
     activity_uuid: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
+
+
+class AssignmentPublishInput(SQLModelStrictBaseModel):
+    """Input for POST /assignments/{uuid}/publish."""
+
+    scheduled_at: datetime | None = None  # None = publish immediately
 
 
 class AssignmentCreateWithActivity(SQLModelStrictBaseModel):
@@ -193,7 +237,7 @@ class AssignmentCreateWithActivity(SQLModelStrictBaseModel):
     title: str
     description: str
     due_at: datetime | None = None
-    published: bool = False
+    status: AssignmentStatus = AssignmentStatus.DRAFT
     grading_type: GradingTypeEnum
     course_id: int
     chapter_id: int
@@ -205,9 +249,20 @@ class AssignmentCreateWithActivity(SQLModelStrictBaseModel):
             return GradingTypeEnum(v)
         return v
 
+    @field_validator("status", mode="before")
+    @classmethod
+    def validate_status(cls, v: object) -> object:
+        if isinstance(v, str):
+            return AssignmentStatus(v)
+        return v
+
 
 class AssignmentUpdate(SQLModelStrictBaseModel):
-    """Partial update — only the fields a teacher can change after creation."""
+    """Partial update — only the fields a teacher can change after creation.
+
+    Lifecycle transitions (publish, archive) use dedicated endpoints;
+    ``status`` is intentionally absent from this schema.
+    """
 
     model_config = ConfigDict(use_enum_values=True)
 

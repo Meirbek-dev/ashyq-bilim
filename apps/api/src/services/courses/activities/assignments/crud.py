@@ -15,6 +15,7 @@ from src.db.courses.assignments import (
     Assignment,
     AssignmentCreateWithActivity,
     AssignmentRead,
+    AssignmentStatus,
     AssignmentUpdate,
 )
 from src.db.courses.chapters import Chapter
@@ -32,14 +33,24 @@ def _build_assignment_read(
     activity_uuid: str | None = None,
     activity_published: bool | None = None,
 ) -> AssignmentRead:
+    # `published` bool: activity flag takes precedence (it's the canonical
+    # "visible to students" toggle). Fall back to status == PUBLISHED.
+    is_published = (
+        activity_published
+        if activity_published is not None
+        else str(getattr(assignment.status, "value", assignment.status))
+        == AssignmentStatus.PUBLISHED
+    )
     return AssignmentRead(
         assignment_uuid=assignment.assignment_uuid,
         title=assignment.title,
         description=assignment.description,
         due_at=assignment.due_at,
-        published=activity_published
-        if activity_published is not None
-        else assignment.published,
+        published=is_published,
+        status=assignment.status,
+        scheduled_publish_at=assignment.scheduled_publish_at,
+        published_at=assignment.published_at,
+        archived_at=assignment.archived_at,
         grading_type=assignment.grading_type,
         course_uuid=course_uuid,
         activity_uuid=activity_uuid,
@@ -225,12 +236,15 @@ async def create_assignment_with_activity(
             detail="Chapter does not belong to the specified course",
         )
 
+    is_published = str(
+        getattr(assignment_object.status, "value", assignment_object.status)
+    ) == AssignmentStatus.PUBLISHED
     now = datetime.now(UTC)
     activity = Activity(
         name=activity_name,
         activity_type=ActivityTypeEnum.TYPE_ASSIGNMENT,
         activity_sub_type=ActivitySubTypeEnum.SUBTYPE_ASSIGNMENT_ANY,
-        published=assignment_object.published,
+        published=is_published,
         chapter_id=chapter_id,
         course_id=assignment_object.course_id,
         order=_next_activity_order(chapter_id, db_session),
@@ -247,7 +261,9 @@ async def create_assignment_with_activity(
         title=assignment_object.title,
         description=assignment_object.description,
         due_at=assignment_object.due_at,
-        published=assignment_object.published,
+        published=is_published,
+        status=assignment_object.status,
+        published_at=now if is_published else None,
         grading_type=assignment_object.grading_type,
         course_id=assignment_object.course_id,
         chapter_id=chapter_id,

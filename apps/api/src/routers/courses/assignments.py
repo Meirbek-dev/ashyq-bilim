@@ -7,6 +7,7 @@ from src.db.courses.assignments import (
     AssignmentCreateWithActivity,
     AssignmentDraftPatch,
     AssignmentDraftRead,
+    AssignmentPublishInput,
     AssignmentRead,
     AssignmentTaskCreate,
     AssignmentTaskUpdate,
@@ -34,6 +35,11 @@ from src.services.courses.activities.assignments import (
     submit_assignment_draft_submission,
     update_assignment,
     update_assignment_task,
+)
+from src.services.courses.assignment_lifecycle import (
+    archive_assignment,
+    cancel_schedule,
+    publish_assignment,
 )
 
 router = APIRouter()
@@ -75,6 +81,44 @@ async def api_update_assignment(
     return await update_assignment(
         assignment_uuid, assignment_object, current_user, db_session
     )
+
+
+@router.post("/{assignment_uuid}/publish")
+async def api_publish_assignment(
+    assignment_uuid: str,
+    publish_input: AssignmentPublishInput,
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
+    db_session=Depends(get_db_session),
+) -> AssignmentRead:
+    """Publish immediately or schedule for a future date.
+
+    Body ``scheduled_at`` is optional:
+    - Omit or set to null → publish now (status becomes PUBLISHED).
+    - Set to a future datetime → schedule (status becomes SCHEDULED).
+    """
+    return await publish_assignment(
+        assignment_uuid, publish_input, current_user, db_session
+    )
+
+
+@router.post("/{assignment_uuid}/archive")
+async def api_archive_assignment(
+    assignment_uuid: str,
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
+    db_session=Depends(get_db_session),
+) -> AssignmentRead:
+    """Archive an assignment.  Read-only for everyone afterwards; not deletable."""
+    return await archive_assignment(assignment_uuid, current_user, db_session)
+
+
+@router.post("/{assignment_uuid}/cancel-schedule")
+async def api_cancel_assignment_schedule(
+    assignment_uuid: str,
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
+    db_session=Depends(get_db_session),
+) -> AssignmentRead:
+    """Revert a SCHEDULED assignment back to DRAFT."""
+    return await cancel_schedule(assignment_uuid, current_user, db_session)
 
 
 @router.delete("/activity/{activity_uuid}")

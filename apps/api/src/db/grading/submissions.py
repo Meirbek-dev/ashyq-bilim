@@ -12,6 +12,7 @@ from sqlalchemy import (
     Boolean,
     Column,
     DateTime,
+    Float,
     ForeignKey,
     Index,
     Integer,
@@ -125,6 +126,10 @@ class SubmissionBase(SQLModelStrictBaseModel):
     # Late flag — set when submitted after due_date, independent of status
     is_late: bool = False
 
+    # Penalty percentage snapshotted at submit time from the AssessmentPolicy's
+    # late_policy_json.  0.0 = no penalty.  final_score = raw * (1 - pct/100).
+    late_penalty_pct: float = 0.0
+
     @field_validator("assessment_type", mode="before")
     @classmethod
     def validate_assessment_type(cls, v: object) -> object:
@@ -164,12 +169,14 @@ class SubmissionRead(SubmissionBase):
     submission_uuid: str
     answers_json: dict = SQLField(default_factory=dict)
     grading_json: GradingBreakdown = SQLField(default_factory=GradingBreakdown)
+    late_penalty_pct: float = 0.0
     started_at: datetime | None = None
     submitted_at: datetime | None = None
     graded_at: datetime | None = None
     created_at: datetime
     updated_at: datetime
     grading_version: int = 1
+    version: int = 1  # optimistic lock counter — include in If-Match header
 
     # Populated by the teacher list endpoint; None for student-facing endpoints
     user: SubmissionUser | None = None
@@ -277,6 +284,17 @@ class Submission(SubmissionBase, table=True):
         sa_column=Column(Boolean, nullable=False, server_default="false"),
     )
 
+    # Penalty applied to this submission's final score (0–100, snapshotted at submit).
+    late_penalty_pct: float = SQLField(
+        default=0.0,
+        sa_column=Column(
+            "late_penalty_pct",
+            Float,
+            nullable=False,
+            server_default="0",
+        ),
+    )
+
     # Server-only start timestamp (B2: prevents client falsification)
     started_at: datetime | None = SQLField(
         default=None,
@@ -303,6 +321,15 @@ class Submission(SubmissionBase, table=True):
         default=1,
         sa_column=Column(
             "grading_version", Integer, nullable=False, server_default="1"
+        ),
+    )
+
+    # Optimistic concurrency lock — incremented on every teacher grade write.
+    # Teachers pass this as the If-Match header value; a mismatch → 412.
+    version: int = SQLField(
+        default=1,
+        sa_column=Column(
+            "version", Integer, nullable=False, server_default="1"
         ),
     )
 
