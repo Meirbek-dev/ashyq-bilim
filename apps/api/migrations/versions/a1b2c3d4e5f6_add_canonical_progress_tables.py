@@ -416,8 +416,8 @@ def _backfill_assessment_policies() -> None:
             TRUE,
             '{}'::json,
             COALESCE(activity.details, '{}'::json),
-            COALESCE(activity.creation_date, now()),
-            COALESCE(activity.update_date, now())
+            COALESCE(NULLIF(activity.creation_date::text, '')::timestamptz, now()),
+            COALESCE(NULLIF(activity.update_date::text, '')::timestamptz, now())
         FROM activity
         WHERE activity.activity_type = 'TYPE_CODE_CHALLENGE'
         ON CONFLICT (activity_id) DO NOTHING

@@ -65,6 +65,8 @@ def test_assessment_rows_include_code_challenge_without_attempts() -> None:
             SimpleNamespace(id=101, course_id=1, user_id=6),
         ],
         trail_steps=[],
+        activity_progress=[],
+        course_progress=[],
         certificates=[],
         assignments=[],
         assignment_submissions=[],

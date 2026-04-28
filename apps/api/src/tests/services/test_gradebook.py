@@ -155,5 +155,9 @@ async def test_course_gradebook_returns_student_activity_matrix(
         ActivityProgressState.NEEDS_GRADING,
         ActivityProgressState.NOT_STARTED,
     ]
+    assert len(gradebook.teacher_actions) == 1
+    assert gradebook.teacher_actions[0].submission_uuid == submission.submission_uuid
+    assert gradebook.teacher_actions[0].student_name == "Student One"
+    assert gradebook.teacher_actions[0].activity_name == "Assignment"
     assert gradebook.summary.needs_grading_count == 1
     assert gradebook.summary.not_started_count == 1
