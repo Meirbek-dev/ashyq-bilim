@@ -37,72 +37,17 @@ export type BatchGradeRequest = components['schemas']['BatchGradeRequest'];
 export type BatchGradeResultItem = components['schemas']['BatchGradeResultItem'];
 export type BatchGradeResponse = components['schemas']['BatchGradeResponse'];
 
-export type ActivityProgressState =
-  | 'NOT_STARTED'
-  | 'IN_PROGRESS'
-  | 'SUBMITTED'
-  | 'NEEDS_GRADING'
-  | 'RETURNED'
-  | 'GRADED'
-  | 'PASSED'
-  | 'FAILED'
-  | 'COMPLETED';
+export type ActivityProgressState = components['schemas']['ActivityProgressState'];
+export type ActivityProgressCell = components['schemas']['ActivityProgressCell'];
+export type CourseGradebookResponse = components['schemas']['CourseGradebookResponse'];
+export type GradebookActivity = components['schemas']['GradebookActivity'];
+export type GradebookStudent = components['schemas']['GradebookStudent'];
+export type GradebookSummary = components['schemas']['GradebookSummary'];
+export type TeacherAction = components['schemas']['TeacherAction'];
 
-export interface GradebookActivity {
-  id: number;
-  activity_uuid: string;
-  name: string;
-  activity_type: string;
-  assessment_type?: AssessmentType | null;
-  order: number;
-  due_at?: string | null;
-}
-
-export interface GradebookStudent {
-  id: number;
-  user_uuid: string;
-  username: string;
-  first_name?: string | null;
-  last_name?: string | null;
-  email: string;
-}
-
-export interface GradebookCell {
-  user_id: number;
-  activity_id: number;
-  state: ActivityProgressState;
-  score?: number | null;
-  passed?: boolean | null;
-  is_late: boolean;
-  teacher_action_required: boolean;
-  attempt_count: number;
-  latest_submission_uuid?: string | null;
-  latest_submission_status?: string | null;
-  submitted_at?: string | null;
-  graded_at?: string | null;
-  completed_at?: string | null;
-  due_at?: string | null;
-  status_reason?: string | null;
-}
-
-export interface GradebookSummary {
-  student_count: number;
-  activity_count: number;
-  needs_grading_count: number;
-  overdue_count: number;
-  not_started_count: number;
-  completed_count: number;
-}
-
-export interface GradebookResponse {
-  course_uuid: string;
-  course_id: number;
-  course_name: string;
-  students: GradebookStudent[];
-  activities: GradebookActivity[];
-  cells: GradebookCell[];
-  summary: GradebookSummary;
-}
+/** Backward-compatible aliases for older imports while callers migrate. */
+export type GradebookCell = ActivityProgressCell;
+export type GradebookResponse = CourseGradebookResponse;
 
 // ── Answer payload shapes (frontend-only, not in OpenAPI schema) ──────────────
 
@@ -175,6 +120,43 @@ export const STATUS_COLORS: Record<SubmissionStatus, string> = {
   PUBLISHED: 'bg-teal-100 text-teal-800',
   RETURNED: 'bg-violet-100 text-violet-800',
 };
+
+export const ACTIVITY_PROGRESS_STATE_LABELS: Record<ActivityProgressState, string> = {
+  NOT_STARTED: 'Not started',
+  IN_PROGRESS: 'In progress',
+  SUBMITTED: 'Submitted',
+  NEEDS_GRADING: 'Needs grading',
+  RETURNED: 'Returned',
+  GRADED: 'Graded',
+  PASSED: 'Passed',
+  FAILED: 'Failed',
+  COMPLETED: 'Completed',
+};
+
+export const ACTIVITY_PROGRESS_STATE_CLASSES: Record<ActivityProgressState, string> = {
+  NOT_STARTED: 'border-slate-200 bg-slate-50 text-slate-700',
+  IN_PROGRESS: 'border-blue-200 bg-blue-50 text-blue-700',
+  SUBMITTED: 'border-indigo-200 bg-indigo-50 text-indigo-700',
+  NEEDS_GRADING: 'border-amber-200 bg-amber-50 text-amber-800',
+  RETURNED: 'border-violet-200 bg-violet-50 text-violet-800',
+  GRADED: 'border-teal-200 bg-teal-50 text-teal-800',
+  PASSED: 'border-emerald-200 bg-emerald-50 text-emerald-800',
+  FAILED: 'border-rose-200 bg-rose-50 text-rose-800',
+  COMPLETED: 'border-emerald-200 bg-emerald-50 text-emerald-800',
+};
+
+export function isActivityProgressComplete(state: ActivityProgressState): boolean {
+  return state === 'PASSED' || state === 'COMPLETED';
+}
+
+export function isActivityProgressOverdue(cell: ActivityProgressCell, now = Date.now()): boolean {
+  if (!cell.due_at || isActivityProgressComplete(cell.state)) return false;
+  return new Date(cell.due_at).getTime() < now;
+}
+
+export function activityProgressNeedsTeacherAction(cell: ActivityProgressCell): boolean {
+  return cell.teacher_action_required && Boolean(cell.latest_submission_uuid);
+}
 
 /** True when the submission needs teacher action */
 export function needsTeacherAction(status: SubmissionStatus): boolean {

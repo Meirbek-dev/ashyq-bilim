@@ -1,7 +1,13 @@
 'use client';
 
 import { apiFetcher } from '@/lib/api-client';
-import type { GradebookResponse, Submission, SubmissionStats, SubmissionStatus, SubmissionsPage } from '@/types/grading';
+import type {
+  CourseGradebookResponse,
+  Submission,
+  SubmissionStats,
+  SubmissionStatus,
+  SubmissionsPage,
+} from '@/types/grading';
 import { queryOptions } from '@tanstack/react-query';
 import { getAPIUrl } from '@services/config/config';
 import { queryKeys } from '@/lib/react-query/queryKeys';
@@ -40,7 +46,7 @@ export function courseGradebookQueryOptions(courseUuid: string) {
   return queryOptions({
     queryKey: queryKeys.grading.gradebook(courseUuid),
     queryFn: () =>
-      apiFetcher(`${getAPIUrl()}grading/courses/${courseUuid}/gradebook`) as Promise<GradebookResponse>,
+      apiFetcher(`${getAPIUrl()}grading/courses/${courseUuid}/gradebook`) as Promise<CourseGradebookResponse>,
     staleTime: 5000,
   });
 }

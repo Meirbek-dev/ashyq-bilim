@@ -4119,6 +4119,47 @@ export interface components {
             /** Position */
             position: number;
         };
+        /** ActivityProgressCell */
+        ActivityProgressCell: {
+            /** Activity Id */
+            activity_id: number;
+            /**
+             * Attempt Count
+             * @default 0
+             */
+            attempt_count: number;
+            /** Completed At */
+            completed_at?: string | null;
+            /** Due At */
+            due_at?: string | null;
+            /** Graded At */
+            graded_at?: string | null;
+            /**
+             * Is Late
+             * @default false
+             */
+            is_late: boolean;
+            /** Latest Submission Status */
+            latest_submission_status?: string | null;
+            /** Latest Submission Uuid */
+            latest_submission_uuid?: string | null;
+            /** Passed */
+            passed?: boolean | null;
+            /** Score */
+            score?: number | null;
+            state: components["schemas"]["ActivityProgressState"];
+            /** Status Reason */
+            status_reason?: string | null;
+            /** Submitted At */
+            submitted_at?: string | null;
+            /**
+             * Teacher Action Required
+             * @default false
+             */
+            teacher_action_required: boolean;
+            /** User Id */
+            user_id: number;
+        };
         /**
          * ActivityProgressState
          * @enum {string}
@@ -5704,6 +5745,24 @@ export interface components {
             content?: string | null;
             status?: components["schemas"]["DiscussionStatusEnum"] | null;
         };
+        /** CourseGradebookResponse */
+        CourseGradebookResponse: {
+            /** Activities */
+            activities: components["schemas"]["GradebookActivity"][];
+            /** Cells */
+            cells: components["schemas"]["ActivityProgressCell"][];
+            /** Course Id */
+            course_id: number;
+            /** Course Name */
+            course_name: string;
+            /** Course Uuid */
+            course_uuid: string;
+            /** Students */
+            students: components["schemas"]["GradebookStudent"][];
+            summary: components["schemas"]["GradebookSummary"];
+            /** Teacher Actions */
+            teacher_actions: components["schemas"]["TeacherAction"][];
+        };
         /** CourseMetadataUpdate */
         CourseMetadataUpdate: {
             /** About */
@@ -6321,63 +6380,6 @@ export interface components {
             name: string;
             /** Order */
             order: number;
-        };
-        /** GradebookCell */
-        GradebookCell: {
-            /** Activity Id */
-            activity_id: number;
-            /**
-             * Attempt Count
-             * @default 0
-             */
-            attempt_count: number;
-            /** Completed At */
-            completed_at?: string | null;
-            /** Due At */
-            due_at?: string | null;
-            /** Graded At */
-            graded_at?: string | null;
-            /**
-             * Is Late
-             * @default false
-             */
-            is_late: boolean;
-            /** Latest Submission Status */
-            latest_submission_status?: string | null;
-            /** Latest Submission Uuid */
-            latest_submission_uuid?: string | null;
-            /** Passed */
-            passed?: boolean | null;
-            /** Score */
-            score?: number | null;
-            state: components["schemas"]["ActivityProgressState"];
-            /** Status Reason */
-            status_reason?: string | null;
-            /** Submitted At */
-            submitted_at?: string | null;
-            /**
-             * Teacher Action Required
-             * @default false
-             */
-            teacher_action_required: boolean;
-            /** User Id */
-            user_id: number;
-        };
-        /** GradebookResponse */
-        GradebookResponse: {
-            /** Activities */
-            activities: components["schemas"]["GradebookActivity"][];
-            /** Cells */
-            cells: components["schemas"]["GradebookCell"][];
-            /** Course Id */
-            course_id: number;
-            /** Course Name */
-            course_name: string;
-            /** Course Uuid */
-            course_uuid: string;
-            /** Students */
-            students: components["schemas"]["GradebookStudent"][];
-            summary: components["schemas"]["GradebookSummary"];
         };
         /** GradebookStudent */
         GradebookStudent: {
@@ -7588,6 +7590,31 @@ export interface components {
             user_uuid?: string | null;
             /** Username */
             username: string;
+        };
+        /** TeacherAction */
+        TeacherAction: {
+            /**
+             * Action Type
+             * @constant
+             */
+            action_type: "GRADE_SUBMISSION";
+            /** Activity Id */
+            activity_id: number;
+            /** Activity Name */
+            activity_name: string;
+            /**
+             * Is Late
+             * @default false
+             */
+            is_late: boolean;
+            /** Student Name */
+            student_name: string;
+            /** Submission Uuid */
+            submission_uuid: string;
+            /** Submitted At */
+            submitted_at?: string | null;
+            /** User Id */
+            user_id: number;
         };
         /** TeacherAssessmentDetailResponse */
         TeacherAssessmentDetailResponse: {
@@ -13806,7 +13833,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["GradebookResponse"];
+                    "application/json": components["schemas"]["CourseGradebookResponse"];
                 };
             };
             /** @description Validation Error */
