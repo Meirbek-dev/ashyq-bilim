@@ -1,3 +1,9 @@
+from src.db.grading.bulk_actions import (
+    BulkAction,
+    BulkActionRead,
+    BulkActionStatus,
+    BulkActionType,
+)
 from src.db.grading.entries import GradingEntry, GradingEntryRead
 from src.db.grading.item_feedback import (
     ItemFeedbackAnnotationType,
@@ -24,6 +30,7 @@ from src.db.grading.schemas import (
     BatchGradeResponse,
     BatchGradeResultItem,
     BulkPublishGradesResponse,
+    DeadlineExtensionRequest,
     QuizAnswer,
     QuizAnswers,
 )
@@ -55,8 +62,13 @@ __all__ = [
     "BatchGradeRequest",
     "BatchGradeResponse",
     "BatchGradeResultItem",
+    "BulkAction",
+    "BulkActionRead",
+    "BulkActionStatus",
+    "BulkActionType",
     "BulkPublishGradesResponse",
     "CourseProgress",
+    "DeadlineExtensionRequest",
     "GradeReleaseMode",
     "GradedItem",
     "GradingBreakdown",

@@ -15,6 +15,7 @@ from fastapi import HTTPException, Request, status
 from sqlmodel import Session, select
 from ulid import ULID
 
+import src.services.integrations.plagiarism
 from src.db.courses.activities import Activity
 from src.db.gamification import XPSource
 from src.db.grading.entries import GradingEntry
@@ -32,6 +33,7 @@ from src.services.gamification.service import award_xp as _gamification_award_xp
 from src.services.grading.assignment_breakdown import build_effective_grading_breakdown
 from src.services.grading.grader import grade_submission
 from src.services.grading.settings_loader import AssessmentSettings
+from src.services.grading.submission import SubmissionSubmittedEvent, event_bus
 from src.services.progress import submissions as progress_submissions
 
 logger = logging.getLogger(__name__)
@@ -226,6 +228,17 @@ async def submit_assessment(
             current_user.id, assessment_type, draft.submission_uuid, db_session
         )
 
+    await event_bus.emit(
+        SubmissionSubmittedEvent(
+            submission_uuid=draft.submission_uuid,
+            assessment_type=assessment_type,
+            user_id=current_user.id,
+            activity_id=activity_id,
+            attempt_number=draft.attempt_number,
+            file_keys=_extract_file_keys(answers_payload),
+        )
+    )
+
     return SubmissionRead.model_validate(draft)
 
 
@@ -405,6 +418,20 @@ def _parse_answers(
         code_strategy = answers_payload.get("code_strategy", "BEST_SUBMISSION")
 
     return user_answers, exam_answers, test_results, code_strategy
+
+
+def _extract_file_keys(payload: object) -> list[str]:
+    keys: list[str] = []
+    if isinstance(payload, dict):
+        for key, value in payload.items():
+            if key == "file_key" and isinstance(value, str) and value:
+                keys.append(value)
+            else:
+                keys.extend(_extract_file_keys(value))
+    elif isinstance(payload, list):
+        for item in payload:
+            keys.extend(_extract_file_keys(item))
+    return keys
 
 
 def _detect_late(due_date_iso: str | None, now: datetime) -> bool:

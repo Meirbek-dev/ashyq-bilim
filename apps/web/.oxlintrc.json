@@ -53,6 +53,7 @@
     "func-style": "off",
     /* Reduce noisy rules */
     "oxc/no-async-await": "off",
+    "forbid-component-props": "off",
     "no-optional-chaining": "off",
     "no-rest-spread-properties": "off",
     "no-await-in-loop": "off",

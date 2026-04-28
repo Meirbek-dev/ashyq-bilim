@@ -144,3 +144,11 @@ class BulkPublishGradesResponse(PydanticStrictBaseModel):
     activity_id: int
     published_count: int  # submissions that had their grade published now
     already_published_count: int  # submissions already visible to students
+
+
+class DeadlineExtensionRequest(PydanticStrictBaseModel):
+    """Request for extending an activity deadline for selected students."""
+
+    user_uuids: list[str] = Field(min_length=1, max_length=500)
+    new_due_at: datetime
+    reason: str = ""

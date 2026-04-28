@@ -437,7 +437,11 @@ async def batch_grade_submissions(
     current_user: PublicUser,
     db_session: Session,
 ) -> BatchGradeResponse:
-    """Apply teacher grades to multiple submissions in one request."""
+    """Apply teacher grades to multiple submissions in one request.
+
+    Each item is isolated: a failure on one submission rolls back only that
+    item and is reported in the response, while valid items still commit.
+    """
     if len(batch_request.grades) > 100:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -455,43 +459,41 @@ async def batch_grade_submissions(
         submission.submission_uuid: (submission, activity)
         for submission, activity in rows
     }
-    missing_uuids = [
-        uuid for uuid in requested_uuids if uuid not in submissions_by_uuid
-    ]
-    if missing_uuids:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail={
-                "message": "One or more submission UUIDs are invalid or inaccessible",
-                "submission_uuids": missing_uuids,
-            },
-        )
-
     checker = PermissionChecker(db_session)
-    unauthorized_uuids = [
-        submission_uuid
-        for submission_uuid, (_, activity) in submissions_by_uuid.items()
-        if not checker.check(
-            current_user.id,
-            "assignment:grade",
-            resource_owner_id=activity.creator_id,
-        )
-    ]
-    if unauthorized_uuids:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail={
-                "message": "One or more submission UUIDs are not owned by the requesting teacher",
-                "submission_uuids": unauthorized_uuids,
-            },
-        )
 
     results: list[BatchGradeResultItem] = []
     succeeded = 0
     failed = 0
 
     for grade in batch_request.grades:
-        submission, _activity = submissions_by_uuid[grade.submission_uuid]
+        row = submissions_by_uuid.get(grade.submission_uuid)
+        if row is None:
+            results.append(
+                BatchGradeResultItem(
+                    submission_uuid=grade.submission_uuid,
+                    success=False,
+                    error="Submission not found",
+                )
+            )
+            failed += 1
+            continue
+
+        submission, activity = row
+        if not checker.check(
+            current_user.id,
+            "assignment:grade",
+            resource_owner_id=activity.creator_id,
+        ):
+            results.append(
+                BatchGradeResultItem(
+                    submission_uuid=grade.submission_uuid,
+                    success=False,
+                    error="Not authorized to grade this submission",
+                )
+            )
+            failed += 1
+            continue
+
         try:
             grade_input = TeacherGradeInput(
                 final_score=grade.final_score,
@@ -514,6 +516,7 @@ async def batch_grade_submissions(
             )
             succeeded += 1
         except HTTPException as exc:
+            db_session.rollback()
             results.append(
                 BatchGradeResultItem(
                     submission_uuid=grade.submission_uuid,
@@ -523,6 +526,7 @@ async def batch_grade_submissions(
             )
             failed += 1
         except Exception as exc:
+            db_session.rollback()
             logger.exception(
                 "Unexpected batch grading failure for submission %s",
                 grade.submission_uuid,

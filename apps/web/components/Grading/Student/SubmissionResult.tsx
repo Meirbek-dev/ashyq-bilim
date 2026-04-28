@@ -35,10 +35,9 @@ export default function SubmissionResult({ submission, onRefresh }: SubmissionRe
   useEffect(() => {
     if (!submission.submission_uuid || typeof EventSource === 'undefined') return;
 
-    const source = new EventSource(
-      `${getAPIUrl()}grading/submissions/${submission.submission_uuid}/feedback-stream`,
-      { withCredentials: true },
-    );
+    const source = new EventSource(`${getAPIUrl()}grading/submissions/${submission.submission_uuid}/feedback-stream`, {
+      withCredentials: true,
+    });
 
     const handleRefreshEvent = (event: MessageEvent<string>) => {
       try {

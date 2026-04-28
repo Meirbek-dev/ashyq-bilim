@@ -72,6 +72,27 @@ export interface InlineItemFeedbackInput {
   annotation_data_key?: string | null;
 }
 
+export interface BulkAction {
+  id: number;
+  action_uuid: string;
+  performed_by: number;
+  action_type: 'EXTEND_DEADLINE' | 'RELEASE_GRADES' | 'RETURN_ALL' | 'OVERRIDE_SCORE' | 'BATCH_GRADE';
+  params: Record<string, unknown>;
+  target_user_ids: number[];
+  activity_id: number;
+  status: 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED';
+  affected_count: number;
+  error_log: string;
+  created_at: string;
+  completed_at?: string | null;
+}
+
+export interface BulkPublishGradesResponse {
+  activity_id: number;
+  published_count: number;
+  already_published_count: number;
+}
+
 /** Backward-compatible aliases for older imports while callers migrate. */
 export type GradebookCell = ActivityProgressCell;
 export type GradebookResponse = CourseGradebookResponse;

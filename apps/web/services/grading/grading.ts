@@ -4,6 +4,8 @@ import type {
   AssessmentType,
   BatchGradeItem,
   BatchGradeResponse,
+  BulkAction,
+  BulkPublishGradesResponse,
   InlineItemFeedback,
   InlineItemFeedbackInput,
   Submission,
@@ -134,6 +136,31 @@ export async function batchGradeSubmissions(grades: BatchGradeItem[]): Promise<B
 
   revalidateTag('submissions', 'max');
   return meta.data as BatchGradeResponse;
+}
+
+export async function extendDeadline(
+  activityId: number,
+  input: { user_uuids: string[]; new_due_at: string; reason?: string },
+): Promise<BulkAction> {
+  const res = await apiFetch(`grading/activities/${activityId}/extend-deadline`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+  const meta = await getResponseMetadata(res);
+  if (!meta.success) throw new Error(meta.data?.detail ?? 'Failed to extend deadline');
+
+  revalidateTag('submissions', 'max');
+  return meta.data as BulkAction;
+}
+
+export async function publishActivityGrades(activityId: number): Promise<BulkPublishGradesResponse> {
+  const res = await apiFetch(`grading/activities/${activityId}/publish-grades`, { method: 'POST' });
+  const meta = await getResponseMetadata(res);
+  if (!meta.success) throw new Error(meta.data?.detail ?? 'Failed to publish grades');
+
+  revalidateTag('submissions', 'max');
+  return meta.data as BulkPublishGradesResponse;
 }
 
 export async function getInlineFeedback(submissionUuid: string): Promise<InlineItemFeedback[]> {

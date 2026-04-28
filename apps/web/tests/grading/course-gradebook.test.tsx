@@ -177,9 +177,7 @@ describe('CourseGradebook', () => {
   it('shows an action queue count matching cells that need teacher action', () => {
     render(<CourseGradebook courseUuid="course_gradebook" />);
 
-    const actionCells = gradebook.cells.filter(
-      (cell) => cell.teacher_action_required && cell.latest_submission_uuid,
-    );
+    const actionCells = gradebook.cells.filter((cell) => cell.teacher_action_required && cell.latest_submission_uuid);
 
     expect(screen.getByText(`${actionCells.length} submissions need attention`)).toBeInTheDocument();
     expect(screen.getAllByText('Student One').length).toBeGreaterThan(0);

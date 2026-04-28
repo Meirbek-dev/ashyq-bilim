@@ -1,10 +1,11 @@
 'use client';
 
-import { Download, ExternalLink, Filter, MessageSquare, Search, SquarePen } from 'lucide-react';
+import { ExternalLink, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { courseGradebookQueryOptions } from '@/features/grading/queries/grading.query';
+import GradebookToolbar from '@/components/Grading/GradebookToolbar';
 import {
   ACTIVITY_PROGRESS_STATE_CLASSES,
   ACTIVITY_PROGRESS_STATE_LABELS,
@@ -81,7 +82,7 @@ function exportGradebookCsv(data: CourseGradebookResponse) {
 }
 
 export default function CourseGradebook({ courseUuid }: CourseGradebookProps) {
-  const { data, isLoading } = useQuery(courseGradebookQueryOptions(courseUuid));
+  const { data, isLoading, refetch } = useQuery(courseGradebookQueryOptions(courseUuid));
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<ActivityProgressState | 'all'>('all');
   const [activityTypeFilter, setActivityTypeFilter] = useState('all');
@@ -97,7 +98,10 @@ export default function CourseGradebook({ courseUuid }: CourseGradebookProps) {
     () => new Map((data?.cells ?? []).map((cell) => [cellKey(cell.user_id, cell.activity_id), cell])),
     [data?.cells],
   );
-  const studentMap = useMemo(() => new Map((data?.students ?? []).map((student) => [student.id, student])), [data?.students]);
+  const studentMap = useMemo(
+    () => new Map((data?.students ?? []).map((student) => [student.id, student])),
+    [data?.students],
+  );
   const activityMap = useMemo(
     () => new Map((data?.activities ?? []).map((activity) => [activity.id, activity])),
     [data?.activities],
@@ -149,6 +153,13 @@ export default function CourseGradebook({ courseUuid }: CourseGradebookProps) {
       }).length,
     [cellMap, selectedKeys],
   );
+  const selectedCells = useMemo(
+    () =>
+      Array.from(selectedKeys)
+        .map((key) => cellMap.get(key))
+        .filter((cell): cell is ActivityProgressCell => Boolean(cell)),
+    [cellMap, selectedKeys],
+  );
 
   const selectedStudent = studentDrawerId === null ? null : (studentMap.get(studentDrawerId) ?? null);
   const selectedActivity = activityDrawerId === null ? null : (activityMap.get(activityDrawerId) ?? null);
@@ -170,11 +181,28 @@ export default function CourseGradebook({ courseUuid }: CourseGradebookProps) {
   return (
     <div className="space-y-5">
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        <SummaryTile label="Learners" value={data.summary.student_count} />
-        <SummaryTile label="Activities" value={data.summary.activity_count} />
-        <SummaryTile label="Needs grading" value={data.summary.needs_grading_count} tone="amber" />
-        <SummaryTile label="Overdue" value={data.summary.overdue_count} tone="rose" />
-        <SummaryTile label="Not started" value={data.summary.not_started_count} />
+        <SummaryTile
+          label="Learners"
+          value={data.summary.student_count}
+        />
+        <SummaryTile
+          label="Activities"
+          value={data.summary.activity_count}
+        />
+        <SummaryTile
+          label="Needs grading"
+          value={data.summary.needs_grading_count}
+          tone="amber"
+        />
+        <SummaryTile
+          label="Overdue"
+          value={data.summary.overdue_count}
+          tone="rose"
+        />
+        <SummaryTile
+          label="Not started"
+          value={data.summary.not_started_count}
+        />
       </div>
 
       <TeacherActionQueue
@@ -196,7 +224,10 @@ export default function CourseGradebook({ courseUuid }: CourseGradebookProps) {
               className="pl-9"
             />
           </div>
-          <NativeSelect value="all" aria-label="Cohort">
+          <NativeSelect
+            value="all"
+            aria-label="Cohort"
+          >
             <NativeSelectOption value="all">All cohorts</NativeSelectOption>
           </NativeSelect>
           <NativeSelect
@@ -206,7 +237,10 @@ export default function CourseGradebook({ courseUuid }: CourseGradebookProps) {
           >
             <NativeSelectOption value="all">All statuses</NativeSelectOption>
             {Object.entries(ACTIVITY_PROGRESS_STATE_LABELS).map(([state, label]) => (
-              <NativeSelectOption key={state} value={state}>
+              <NativeSelectOption
+                key={state}
+                value={state}
+              >
                 {label}
               </NativeSelectOption>
             ))}
@@ -218,7 +252,10 @@ export default function CourseGradebook({ courseUuid }: CourseGradebookProps) {
           >
             <NativeSelectOption value="all">All activity types</NativeSelectOption>
             {activityTypes.map((type) => (
-              <NativeSelectOption key={type} value={type}>
+              <NativeSelectOption
+                key={type}
+                value={type}
+              >
                 {type.replace('TYPE_', '').replaceAll('_', ' ')}
               </NativeSelectOption>
             ))}
@@ -241,38 +278,20 @@ export default function CourseGradebook({ courseUuid }: CourseGradebookProps) {
           </NativeSelect>
         </div>
 
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setNotStartedFilter((value) => (value === 'yes' ? 'all' : 'yes'))}
-          >
-            <Filter className="size-4" />
-            Not started
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={selectedGradeableCount === 0}
-            onClick={() => {
-              const first = Array.from(selectedKeys)
-                .map((key) => cellMap.get(key))
-                .find((cell): cell is ActivityProgressCell => Boolean(cell && activityProgressNeedsTeacherAction(cell)));
-              if (first) openCell(first);
-            }}
-          >
-            <SquarePen className="size-4" />
-            Grade selected
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => exportGradebookCsv(data)}>
-            <Download className="size-4" />
-            Export
-          </Button>
-          <Button variant="outline" size="sm" disabled>
-            <MessageSquare className="size-4" />
-            Message
-          </Button>
-        </div>
+        <GradebookToolbar
+          activities={data.activities}
+          students={data.students}
+          selectedCells={selectedCells}
+          selectedGradeableCount={selectedGradeableCount}
+          notStartedOnly={notStartedFilter === 'yes'}
+          onToggleNotStarted={() => setNotStartedFilter((value) => (value === 'yes' ? 'all' : 'yes'))}
+          onGradeSelected={() => {
+            const first = selectedCells.find(activityProgressNeedsTeacherAction);
+            if (first) openCell(first);
+          }}
+          onExport={() => exportGradebookCsv(data)}
+          onRefresh={() => void refetch()}
+        />
       </div>
 
       <div className="border-border overflow-x-auto rounded-lg border">
@@ -281,14 +300,17 @@ export default function CourseGradebook({ courseUuid }: CourseGradebookProps) {
             <TableRow>
               <TableHead className="bg-background sticky left-0 z-10 w-64">Learner</TableHead>
               {visibleActivities.map((activity) => (
-                <TableHead key={activity.id} className="w-44 align-bottom">
+                <TableHead
+                  key={activity.id}
+                  className="w-44 align-bottom"
+                >
                   <button
                     type="button"
                     onClick={() => {
                       setStudentDrawerId(null);
                       setActivityDrawerId(activity.id);
                     }}
-                    className="block w-full text-left hover:text-primary"
+                    className="hover:text-primary block w-full text-left"
                   >
                     <span className="line-clamp-2 text-xs font-semibold">{activity.name}</span>
                     <span className="text-muted-foreground mt-1 block text-[11px]">{activityKind(activity)}</span>
@@ -318,7 +340,10 @@ export default function CourseGradebook({ courseUuid }: CourseGradebookProps) {
                   const cell = cellMap.get(key) ?? emptyCell(student.id, activity.id);
                   const selected = selectedKeys.has(key);
                   return (
-                    <TableCell key={key} className="h-24 align-top">
+                    <TableCell
+                      key={key}
+                      className="h-24 align-top"
+                    >
                       <div
                         role="button"
                         tabIndex={0}
@@ -369,7 +394,10 @@ export default function CourseGradebook({ courseUuid }: CourseGradebookProps) {
         </Table>
       </div>
 
-      <Sheet open={Boolean(selectedStudent)} onOpenChange={(open) => !open && setStudentDrawerId(null)}>
+      <Sheet
+        open={Boolean(selectedStudent)}
+        onOpenChange={(open) => !open && setStudentDrawerId(null)}
+      >
         <SheetContent className="overflow-y-auto sm:max-w-xl">
           {selectedStudent ? (
             <StudentProgressDrawer
@@ -383,7 +411,10 @@ export default function CourseGradebook({ courseUuid }: CourseGradebookProps) {
         </SheetContent>
       </Sheet>
 
-      <Sheet open={Boolean(selectedActivity)} onOpenChange={(open) => !open && setActivityDrawerId(null)}>
+      <Sheet
+        open={Boolean(selectedActivity)}
+        onOpenChange={(open) => !open && setActivityDrawerId(null)}
+      >
         <SheetContent className="overflow-y-auto sm:max-w-xl">
           {selectedActivity ? (
             <ActivityProgressDrawer
@@ -426,7 +457,7 @@ function TeacherActionQueue({
               key={`${action.submission_uuid}:${action.user_id}:${action.activity_id}`}
               type="button"
               onClick={() => onOpen(action)}
-              className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-muted/60"
+              className="hover:bg-muted/60 flex w-full items-center justify-between gap-3 px-3 py-2 text-left"
             >
               <span className="min-w-0">
                 <span className="block truncate text-sm font-medium">{action.student_name}</span>
@@ -521,7 +552,7 @@ function ActivityProgressDrawer({
                 key={student.id}
                 type="button"
                 onClick={() => onSelectCell(cell)}
-                className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-muted/60"
+                className="hover:bg-muted/60 flex w-full items-center justify-between gap-3 px-3 py-2 text-left"
               >
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-medium">{learnerName(student)}</span>
@@ -560,10 +591,22 @@ function CellDetails({ cell }: { cell: ActivityProgressCell }) {
         ) : null}
       </div>
       <div className="grid gap-2 text-sm sm:grid-cols-2">
-        <HistoryItem label="Score" value={cell.score === null || cell.score === undefined ? '--' : `${cell.score}%`} />
-        <HistoryItem label="Submitted" value={formatDate(cell.submitted_at)} />
-        <HistoryItem label="Graded" value={formatDate(cell.graded_at)} />
-        <HistoryItem label="Completed" value={formatDate(cell.completed_at)} />
+        <HistoryItem
+          label="Score"
+          value={cell.score === null || cell.score === undefined ? '--' : `${cell.score}%`}
+        />
+        <HistoryItem
+          label="Submitted"
+          value={formatDate(cell.submitted_at)}
+        />
+        <HistoryItem
+          label="Graded"
+          value={formatDate(cell.graded_at)}
+        />
+        <HistoryItem
+          label="Completed"
+          value={formatDate(cell.completed_at)}
+        />
       </div>
     </div>
   );

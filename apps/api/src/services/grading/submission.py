@@ -13,6 +13,10 @@ block content (AssessmentSettings).  This prevents students from bypassing the
 limit by submitting through endpoints that only check block-level settings.
 """
 
+import inspect
+import logging
+from collections.abc import Awaitable, Callable
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
 from fastapi import HTTPException, status
@@ -31,6 +35,45 @@ from src.db.grading.submissions import (
 from src.db.users import PublicUser
 from src.security.rbac import PermissionChecker
 from src.services.progress import submissions as progress_submissions
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class SubmissionSubmittedEvent:
+    submission_uuid: str
+    assessment_type: AssessmentType
+    user_id: int
+    activity_id: int
+    attempt_number: int
+    file_keys: list[str] = field(default_factory=list)
+
+
+Subscriber = Callable[[SubmissionSubmittedEvent], Awaitable[None] | None]
+
+
+class EventBus:
+    """Tiny in-process async event bus for grading extension hooks."""
+
+    def __init__(self) -> None:
+        self._subscribers: dict[type[object], list[Subscriber]] = {}
+
+    def subscribe(self, event_type: type[object], subscriber: Subscriber) -> None:
+        subscribers = self._subscribers.setdefault(event_type, [])
+        if subscriber not in subscribers:
+            subscribers.append(subscriber)
+
+    async def emit(self, event: object) -> None:
+        for subscriber in self._subscribers.get(type(event), []):
+            try:
+                result = subscriber(event)  # type: ignore[arg-type]
+                if inspect.isawaitable(result):
+                    await result
+            except Exception:
+                logger.exception("Submission event subscriber failed")
+
+
+event_bus = EventBus()
 
 # ── Valid student-facing transitions ─────────────────────────────────────────
 # Kept narrow on purpose: the teacher-side transitions live in teacher.py.

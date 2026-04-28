@@ -10,16 +10,18 @@ PATCH /grading/submissions/{uuid}    — save teacher grade + feedback
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Header, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, Query, status
 from fastapi.responses import StreamingResponse
 from sqlmodel import Session
 
 from src.auth.users import get_public_user
+from src.db.grading.bulk_actions import BulkActionRead
 from src.db.grading.gradebook import CourseGradebookResponse
 from src.db.grading.schemas import (
     BatchGradeRequest,
     BatchGradeResponse,
     BulkPublishGradesResponse,
+    DeadlineExtensionRequest,
 )
 from src.db.grading.submissions import (
     SubmissionListResponse,
@@ -29,6 +31,11 @@ from src.db.grading.submissions import (
 )
 from src.db.users import PublicUser
 from src.infra.db.session import get_db_session
+from src.services.grading.bulk import (
+    create_deadline_extension_action,
+    get_bulk_action,
+    run_deadline_extension_action,
+)
 from src.services.grading.gradebook import get_course_gradebook
 from src.services.grading.teacher import (
     batch_grade_submissions,
@@ -81,6 +88,47 @@ async def api_bulk_publish_grades(
         current_user=current_user,
         db_session=db_session,
     )
+
+
+@router.post(
+    "/activities/{activity_id}/extend-deadline",
+    response_model=BulkActionRead,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def api_extend_deadline(
+    activity_id: int,
+    request: DeadlineExtensionRequest,
+    background_tasks: BackgroundTasks,
+    db_session: Annotated[Session, Depends(get_db_session)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
+) -> BulkActionRead:
+    """Grant selected students a deadline extension via StudentPolicyOverride."""
+    action = create_deadline_extension_action(
+        activity_id=activity_id,
+        user_uuids=request.user_uuids,
+        new_due_at=request.new_due_at,
+        reason=request.reason,
+        current_user=current_user,
+        db_session=db_session,
+        execute_inline=False,
+    )
+    background_tasks.add_task(run_deadline_extension_action, action.action_uuid)
+    return BulkActionRead.model_validate(action)
+
+
+@router.get("/bulk-actions/{action_uuid}", response_model=BulkActionRead)
+async def api_get_bulk_action(
+    action_uuid: str,
+    db_session: Annotated[Session, Depends(get_db_session)],
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
+) -> BulkActionRead:
+    """Poll a bulk action created by an async teacher operation."""
+    action = get_bulk_action(
+        action_uuid=action_uuid,
+        current_user=current_user,
+        db_session=db_session,
+    )
+    return BulkActionRead.model_validate(action)
 
 
 @router.get("/submissions", response_model=SubmissionListResponse)
