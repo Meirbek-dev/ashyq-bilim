@@ -12,7 +12,7 @@ import {
   Settings2,
 } from 'lucide-react';
 import { buildCourseWorkspacePath } from '@/lib/course-management';
-import { useMemo, useState, useTransition } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import type { FC } from 'react';
@@ -534,10 +534,15 @@ const CourseThumbnail: FC<CourseThumbnailProps> = ({
   const locale = useLocale();
   const router = useRouter();
   const { user: currentUser, isAuthenticated } = useSession();
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   // Defensive: never show loading state for unauthenticated users even if
   // the parent accidentally passes trailLoading=true without trail data.
-  const effectiveTrailLoading = isAuthenticated && trailLoading;
+  const effectiveTrailLoading = isAuthenticated && trailLoading && hasMounted;
 
   const activeAuthors = useMemo(
     () => course.authors?.filter((a) => a.authorship_status === 'ACTIVE') || [],
@@ -577,7 +582,7 @@ const CourseThumbnail: FC<CourseThumbnailProps> = ({
 
   const actionUrl = useMemo(() => actionLink || courseUrl, [actionLink, courseUrl]);
 
-  const isEnrolled = Boolean(courseRun);
+  const isEnrolled = hasMounted && Boolean(courseRun);
   const titleId = `course-title-${cleanCourseUuid}`;
 
   const currentUserId = currentUser?.id;
