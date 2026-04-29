@@ -6905,6 +6905,73 @@
       "assessmentPassThresholdDefault": "Өту шегі: 60%"
     }
   },
+  "Features": {
+    "Grading": {
+      "Gradebook": {
+        "title": "Курс прогресі",
+        "loading": "Бағалар журналы жүктелуде...",
+        "loadError": "Бағалар журналын жүктеу мүмкін болмады.",
+        "unavailable": "Бағалар журналы қолжетімді емес.",
+        "backToGradebook": "Журналға қайту",
+        "submissionReview": "Жұмысты тексеру",
+        "searchLearner": "Білім алушыны іздеу",
+        "activityType": "Тапсырма түрі",
+        "allActivityTypes": "Барлық тапсырма түрлері",
+        "learner": "Білім алушы",
+        "email": "Email",
+        "selectCell": "Прогресс ұяшығын таңдау",
+        "actionRequired": "Әрекет",
+        "late": "Кеш",
+        "attempts": "{count, plural, =0 {# талпыныс} one {# талпыныс} other {# талпыныс}}",
+        "refresh": "Жаңарту",
+        "export": "Экспорт",
+        "noScore": "Баға әлі жоқ",
+        "averageScore": "Орташа {score}%",
+        "defaultCohort": "Курс тізімі",
+        "summary": {
+          "learners": "Білім алушылар",
+          "activities": "Тапсырмалар",
+          "needsGrading": "Тексеру керек",
+          "overdue": "Мерзімі өтті",
+          "notStarted": "Басталмаған",
+          "selected": "Таңдалған"
+        },
+        "savedFilters": {
+          "all": "Барлығы",
+          "needs_grading": "Тексеру керек",
+          "overdue": "Мерзімі өтті",
+          "returned": "Қайтарылған",
+          "failed": "Өтпеді",
+          "not_started": "Басталмаған"
+        },
+        "states": {
+          "not_started": "Басталмаған",
+          "in_progress": "Орындалуда",
+          "submitted": "Жіберілді",
+          "needs_grading": "Тексеру керек",
+          "returned": "Қайтарылған",
+          "graded": "Бағаланды",
+          "passed": "Өтті",
+          "failed": "Өтпеді",
+          "completed": "Аяқталды"
+        },
+        "rollups": {
+          "title": "Прогресс жиынтығы",
+          "description": "Прогресті топ, когорта, білім алушы және тапсырма бойынша салыстыру үшін көріністі ауыстырыңыз.",
+          "assignment_group": "Топтар",
+          "cohort": "Когорталар",
+          "learner": "Білім алушылар",
+          "activity": "Тапсырмалар"
+        },
+        "activityTypes": {
+          "assignment": "Тапсырма",
+          "quiz": "Тест",
+          "form": "Форма",
+          "file": "Файл"
+        }
+      }
+    }
+  },
   "Themes": {
     "amberminimal": {
       "description": "Минималистік қарағай тақырыбы",

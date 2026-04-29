@@ -22,6 +22,8 @@ import { useTranslations } from 'next-intl';
 
 import { useAssignments } from '@components/Contexts/Assignments/AssignmentContext';
 import GradingReviewWorkspace from '@/features/grading/review/GradingReviewWorkspace';
+import { isAssignmentsV2Enabled } from '@/features/assignments/flags';
+import SubmissionsTable from '@/components/Grading/SubmissionsTable';
 import PageLoading from '@components/Objects/Loaders/PageLoading';
 
 interface AssignmentSubmissionsSubPageProps {
@@ -40,6 +42,17 @@ export default function AssignmentSubmissionsSubPage({
 
   if (!activityId) {
     return <PageLoading />;
+  }
+
+  if (!isAssignmentsV2Enabled()) {
+    return (
+      <div className="w-full px-10 py-6">
+        <SubmissionsTable
+          activityId={activityId}
+          title={t('submissionsTitle')}
+        />
+      </div>
+    );
   }
 
   return (

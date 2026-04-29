@@ -6907,6 +6907,73 @@
       "assessmentPassThresholdDefault": "Проходной порог: 60%"
     }
   },
+  "Features": {
+    "Grading": {
+      "Gradebook": {
+        "title": "Прогресс курса",
+        "loading": "Журнал оценок загружается...",
+        "loadError": "Не удалось загрузить журнал оценок.",
+        "unavailable": "Журнал оценок недоступен.",
+        "backToGradebook": "Назад к журналу",
+        "submissionReview": "Проверка работы",
+        "searchLearner": "Поиск студента",
+        "activityType": "Тип задания",
+        "allActivityTypes": "Все типы заданий",
+        "learner": "Студент",
+        "email": "Email",
+        "selectCell": "Выбрать ячейку прогресса",
+        "actionRequired": "Действие",
+        "late": "Поздно",
+        "attempts": "{count, plural, =0 {# попыток} one {# попытка} few {# попытки} many {# попыток} other {# попытки}}",
+        "refresh": "Обновить",
+        "export": "Экспорт",
+        "noScore": "Оценки пока нет",
+        "averageScore": "Средний балл {score}%",
+        "defaultCohort": "Список курса",
+        "summary": {
+          "learners": "Студенты",
+          "activities": "Задания",
+          "needsGrading": "На проверке",
+          "overdue": "Просрочено",
+          "notStarted": "Не начато",
+          "selected": "Выбрано"
+        },
+        "savedFilters": {
+          "all": "Все",
+          "needs_grading": "На проверке",
+          "overdue": "Просрочено",
+          "returned": "Возвращено",
+          "failed": "Не сдано",
+          "not_started": "Не начато"
+        },
+        "states": {
+          "not_started": "Не начато",
+          "in_progress": "В работе",
+          "submitted": "Отправлено",
+          "needs_grading": "На проверке",
+          "returned": "Возвращено",
+          "graded": "Оценено",
+          "passed": "Сдано",
+          "failed": "Не сдано",
+          "completed": "Завершено"
+        },
+        "rollups": {
+          "title": "Сводки прогресса",
+          "description": "Переключайте разрезы, чтобы сравнивать прогресс по группам, когортам, студентам и заданиям.",
+          "assignment_group": "Группы",
+          "cohort": "Когорты",
+          "learner": "Студенты",
+          "activity": "Задания"
+        },
+        "activityTypes": {
+          "assignment": "Задание",
+          "quiz": "Тест",
+          "form": "Форма",
+          "file": "Файл"
+        }
+      }
+    }
+  },
   "Themes": {
     "amberminimal": {
       "description": "Минималистичная янтарная тема",

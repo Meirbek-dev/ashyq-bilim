@@ -6881,6 +6881,73 @@
       "assessmentPassThresholdDefault": "Pass threshold: 60%"
     }
   },
+  "Features": {
+    "Grading": {
+      "Gradebook": {
+        "title": "Course progress",
+        "loading": "Loading gradebook...",
+        "loadError": "Failed to load gradebook.",
+        "unavailable": "Gradebook is unavailable.",
+        "backToGradebook": "Back to gradebook",
+        "submissionReview": "Submission review",
+        "searchLearner": "Search learner",
+        "activityType": "Activity type",
+        "allActivityTypes": "All activity types",
+        "learner": "Learner",
+        "email": "Email",
+        "selectCell": "Select progress cell",
+        "actionRequired": "Action",
+        "late": "Late",
+        "attempts": "{count, plural, =0 {# attempts} one {# attempt} other {# attempts}}",
+        "refresh": "Refresh",
+        "export": "Export",
+        "noScore": "No score yet",
+        "averageScore": "Average {score}%",
+        "defaultCohort": "Course roster",
+        "summary": {
+          "learners": "Learners",
+          "activities": "Activities",
+          "needsGrading": "Needs grading",
+          "overdue": "Overdue",
+          "notStarted": "Not started",
+          "selected": "Selected"
+        },
+        "savedFilters": {
+          "all": "All",
+          "needs_grading": "Needs grading",
+          "overdue": "Overdue",
+          "returned": "Returned",
+          "failed": "Failed",
+          "not_started": "Not started"
+        },
+        "states": {
+          "not_started": "Not started",
+          "in_progress": "In progress",
+          "submitted": "Submitted",
+          "needs_grading": "Needs grading",
+          "returned": "Returned",
+          "graded": "Graded",
+          "passed": "Passed",
+          "failed": "Failed",
+          "completed": "Completed"
+        },
+        "rollups": {
+          "title": "Progress rollups",
+          "description": "Switch views to compare course progress by group, cohort, learner, or activity.",
+          "assignment_group": "Groups",
+          "cohort": "Cohorts",
+          "learner": "Learners",
+          "activity": "Activities"
+        },
+        "activityTypes": {
+          "assignment": "Assignment",
+          "quiz": "Quiz",
+          "form": "Form",
+          "file": "File"
+        }
+      }
+    }
+  },
   "Themes": {
     "amberminimal": {
       "description": "Minimalistic amber theme",

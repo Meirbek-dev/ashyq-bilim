@@ -126,17 +126,15 @@ export function buildGradebookRollups(data: CourseGradebookResponse, kind: Grade
     return Array.from(groups.entries()).map(([group, cells]) => buildRollupRow(group, group, cells));
   }
 
-  return [
-    buildRollupRow(
-      data.course_uuid,
-      data.course_name,
-      data.cells.length > 0
-        ? data.cells
-        : data.students.flatMap((student) =>
-            data.activities.map((activity) => emptyGradebookCell(student.id, activity.id)),
-          ),
-    ),
-  ];
+  const cohorts = new Map<string, ActivityProgressCell[]>();
+  for (const student of data.students) {
+    const cohort =
+      (student as GradebookStudent & { cohort_name?: string | null; cohort?: string | null }).cohort_name ??
+      (student as GradebookStudent & { cohort_name?: string | null; cohort?: string | null }).cohort ??
+      '__default_cohort__';
+    cohorts.set(String(cohort), [...(cohorts.get(String(cohort)) ?? []), ...(cellsByStudent.get(student.id) ?? [])]);
+  }
+  return Array.from(cohorts.entries()).map(([cohort, cells]) => buildRollupRow(cohort, cohort, cells));
 }
 
 function buildRollupRow(id: string, label: string, cells: ActivityProgressCell[]): GradebookRollupRow {
