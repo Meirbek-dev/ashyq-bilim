@@ -23,13 +23,13 @@ import {
   buildAnswerMapFromDraft,
   buildAnswerMapFromSubmission,
 } from './attempt-utils';
-import type { AssignmentAnswerMap, StudentAssignmentContextData } from './types';
+import type { AssignmentAnswerMap, StudentAssignmentAttemptData } from './types';
 import SubmissionFooter, { type DraftSaveState } from './SubmissionFooter';
 import StudentResultPanel from './ResultPanel';
 import TaskAttemptList from './TaskAttemptList';
 
 interface StudentAssignmentShellProps {
-  data: StudentAssignmentContextData;
+  data: StudentAssignmentAttemptData;
 }
 
 const assignmentDraftQueryKey = (assignmentUuid: string | undefined) =>

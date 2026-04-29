@@ -19,6 +19,15 @@ export function assignmentDetailQueryOptions(assignmentUuid: string) {
   });
 }
 
+export function assignmentByActivityQueryOptions(activityUuid: string) {
+  const canonicalActivityUuid = activityUuid.startsWith('activity_') ? activityUuid : `activity_${activityUuid}`;
+
+  return queryOptions({
+    queryKey: ['assignments', 'activity', canonicalActivityUuid],
+    queryFn: () => apiFetcher(`${getAPIUrl()}assignments/activity/${canonicalActivityUuid}`) as Promise<AssignmentRead>,
+  });
+}
+
 export function assignmentTasksQueryOptions(assignmentUuid: string) {
   const canonicalAssignmentUuid = normalizeAssignmentUuid(assignmentUuid);
 

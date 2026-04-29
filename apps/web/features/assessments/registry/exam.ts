@@ -10,20 +10,14 @@
  */
 
 import type { ComponentType } from 'react';
-import { registerKind, type KindAuthorProps, type KindAttemptProps, type KindReviewProps } from './index';
+import { registerKind, type KindAttemptProps, type KindReviewProps } from './index';
 
 registerKind('TYPE_EXAM', async () => {
-  const [{ default: GradingReviewWorkspace }, { default: ExamReviewDetail }] = await Promise.all([
+  const [{ default: GradingReviewWorkspace }, { default: ExamReviewDetail }, { default: ExamAuthor }] = await Promise.all([
     import('@/features/grading/review/GradingReviewWorkspace'),
     import('./exam-review-detail'),
+    import('./exam-author'),
   ]);
-
-  /**
-   * Phase 1 stub. ExamActivity is mounted by ActivityClient and branches
-   * internally on contributorStatus. Until Phase 3, the studio route for
-   * exams remains at /course/[c]/activity/[a] with the manage tab.
-   */
-  const AuthorPassthrough: ComponentType<KindAuthorProps> = () => null;
 
   /**
    * Phase 1 stub. ExamActivity is mounted by ActivityClient directly.
@@ -44,7 +38,7 @@ registerKind('TYPE_EXAM', async () => {
   return {
     label: 'Exam',
     iconName: 'GraduationCap',
-    Author: AuthorPassthrough,
+    Author: ExamAuthor,
     Attempt: AttemptPassthrough,
     Review: ReviewPassthrough,
     ReviewDetail: ExamReviewDetail,

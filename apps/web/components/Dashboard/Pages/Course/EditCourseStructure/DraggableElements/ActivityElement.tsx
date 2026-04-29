@@ -510,7 +510,7 @@ const ActivityEditButton = ({
         </ToolTip>
       );
     }
-    const editUrl = `${getAbsoluteUrl('')}/dash/assignments/${assignmentUUID}`;
+    const editUrl = `${getAbsoluteUrl('')}/dash/courses/${cleanCourseUuid(course?.courseStructure?.course_uuid ?? course_uuid)}/activity/${cleanActivityUuid(activity.activity_uuid)}/studio`;
     return (
       <ToolTip
         content={t('editAssignmentButton')}
@@ -536,8 +536,8 @@ const ActivityEditButton = ({
     );
   }
 
-  if (activity.activity_type === 'TYPE_CODE_CHALLENGE') {
-    const editUrl = `${getAbsoluteUrl('')}/course/${cleanCourseUuid(course?.courseStructure?.course_uuid ?? course_uuid)}/activity/${cleanActivityUuid(activity.activity_uuid)}/editor`;
+  if (activity.activity_type === 'TYPE_EXAM' || activity.activity_type === 'TYPE_CODE_CHALLENGE') {
+    const editUrl = `${getAbsoluteUrl('')}/dash/courses/${cleanCourseUuid(course?.courseStructure?.course_uuid ?? course_uuid)}/activity/${cleanActivityUuid(activity.activity_uuid)}/studio`;
     return (
       <ToolTip
         content={t('configureButton')}

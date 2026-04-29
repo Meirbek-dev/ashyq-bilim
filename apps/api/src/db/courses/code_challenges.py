@@ -154,6 +154,10 @@ class CodeChallengeSettings(PydanticStrictBaseModel):
     hidden_tests: list[TestCase] = PydanticField(default_factory=list)
     hints: list[Hint] = PydanticField(default_factory=list)
     reference_solution: str | None = None  # Encrypted, admin only
+    lifecycle_status: str = "DRAFT"
+    scheduled_at: str | None = None
+    published_at: str | None = None
+    archived_at: str | None = None
 
     @field_validator("difficulty", mode="before")
     @classmethod

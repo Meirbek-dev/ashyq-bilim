@@ -415,9 +415,9 @@ revision for code challenges, anti-cheat for assignments, etc.).
 
 ### Phase 0 — preconditions
 
-- [ ] Audit every route in `apps/web/app/` for empty directories, document the
+- [x] Audit every route in `apps/web/app/` for empty directories, document the
       list, delete in one go (no behaviour change).
-- [ ] Move `SubmissionStatusBadge` to a single canonical location and have all
+- [x] Move `SubmissionStatusBadge` to a single canonical location and have all
       callers import from it.
 - [ ] Add `assessment-grading-redesign.md` to `docs/` and link it from
       `docs/assignment-grading-product-model.md`.
@@ -444,16 +444,16 @@ revision for code challenges, anti-cheat for assignments, etc.).
 
 ### Phase 3 — Author surface unification
 
-- [ ] Move Assignment Studio to `/dash/courses/[c]/activity/[a]/studio` and
+- [x] Move Assignment Studio to `/dash/courses/[c]/activity/[a]/studio` and
       delete the `/dash/assignments/[uuid]` route.
-- [ ] Build the shared `Author` shell (topbar, breadcrumbs, save state,
+- [x] Build the shared `Author` shell (topbar, breadcrumbs, save state,
       lifecycle controls, validation alert). Each kind plugs in its content
       panel via the registry.
-- [ ] Migrate exam authoring (`QuestionEditor`, `QuestionManagement`,
+- [x] Migrate exam authoring (`QuestionEditor`, `QuestionManagement`,
       `ExamSettings`) into the exam-kind contribution.
-- [ ] Migrate code-challenge authoring (`CodeChallengeForm`,
+- [x] Migrate code-challenge authoring (`CodeChallengeForm`,
       `CodeChallengeConfigEditor`) into the code-challenge contribution.
-- [ ] Add lifecycle (DRAFT/SCHEDULED/PUBLISHED/ARCHIVED) to exam and
+- [x] Add lifecycle (DRAFT/SCHEDULED/PUBLISHED/ARCHIVED) to exam and
       code-challenge backends.
 
 ### Phase 4 — Student Attempt surface unification
@@ -465,8 +465,9 @@ revision for code challenges, anti-cheat for assignments, etc.).
 - [ ] Decompose `app/_shared/withmenu/.../activity.tsx`. The activity-page god
       component becomes a thin shell that delegates to `Attempt` for assessable
       kinds and to existing renderers (Video, PDF, Dynamic) for content kinds.
-- [ ] Remove `useExamMutation`; replace with `useMutation`.
-- [ ] Remove `AssignmentContext`; replace with `useAssessment`.
+- [x] Remove `useExamMutation`; replace with `useMutation`.
+- [x] Remove `AssignmentContext`; assignment surfaces now use TanStack Query
+      bundle hooks while `useAssessment` remains the target surface VM.
 
 ### Phase 5 — anti-cheat consolidation
 
@@ -487,7 +488,12 @@ revision for code challenges, anti-cheat for assignments, etc.).
 ### Phase 7 — empty-folder cleanup and dead code removal
 
 - [ ] Delete every directory and file marked DELETE in §4.
-- [ ] Verify no imports remain via `knip` and TS strict.
+      Done for dead/replaced files after Phases 2-3; `ExamResults.tsx` remains
+      live until the Phase 4 Attempt shell replaces the student exam result
+      panel.
+- [x] Verify no cleanup-target imports remain via `knip`, `git grep`, and TS
+      strict. `knip` completes under Bun runtime in this Windows environment;
+      the default Node path fails inside `oxc-parser` before analysis.
 
 ---
 

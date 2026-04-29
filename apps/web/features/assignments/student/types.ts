@@ -10,7 +10,7 @@ export interface StudentAssignmentData {
   due_date?: string | null;
 }
 
-export interface StudentAssignmentContextData {
+export interface StudentAssignmentAttemptData {
   assignment: StudentAssignmentData;
   tasks: AssignmentTaskRead[];
   courseUuid?: string | null;

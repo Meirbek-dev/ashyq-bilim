@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 
-import { CodeRunStatusBadge as SubmissionStatusBadge } from './SubmissionStatusBadge';
+import { CodeRunStatusBadge } from './CodeRunStatusBadge';
 import { LanguageSelector } from './LanguageSelector';
 import type { TestCaseResult } from './TestCaseCard';
 import { TestResultsList } from './TestCaseCard';
@@ -436,7 +436,7 @@ export function CodeChallengeEditor({
                         <div className="flex items-center justify-between">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <SubmissionStatusBadge
+                              <CodeRunStatusBadge
                                 status={submission.status}
                                 score={submission.score}
                                 maxScore={submission.max_score}

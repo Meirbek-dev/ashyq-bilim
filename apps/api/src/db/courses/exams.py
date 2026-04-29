@@ -60,6 +60,13 @@ class ExamSettingsBase(SQLModelStrictBaseModel):
     fullscreen_enforcement: bool = False
     violation_threshold: int | None = 3  # None = no auto-submit
 
+    # Unified authoring lifecycle for the shared assessment studio. Stored in
+    # activity.details/settings by the activity update service for exams.
+    lifecycle_status: str = "DRAFT"
+    scheduled_at: str | None = None
+    published_at: str | None = None
+    archived_at: str | None = None
+
     @field_validator("time_limit", mode="before")
     @classmethod
     def validate_time_limit(cls, v):

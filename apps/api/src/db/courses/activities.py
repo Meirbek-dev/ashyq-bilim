@@ -47,6 +47,13 @@ class ActivitySubTypeEnum(StrEnum):
     SUBTYPE_CUSTOM = "SUBTYPE_CUSTOM"
 
 
+class AssessmentLifecycleStatus(StrEnum):
+    DRAFT = "DRAFT"
+    SCHEDULED = "SCHEDULED"
+    PUBLISHED = "PUBLISHED"
+    ARCHIVED = "ARCHIVED"
+
+
 class ActivityBase(SQLModelStrictBaseModel):
     name: str
     activity_type: ActivityTypeEnum

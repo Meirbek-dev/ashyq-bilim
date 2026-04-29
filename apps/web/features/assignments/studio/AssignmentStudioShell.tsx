@@ -29,9 +29,9 @@ import {
   type AssignmentTaskRead,
   type AssignmentTaskType,
 } from '@/features/assignments/domain';
+import { useAssignmentBundle } from '@/features/assignments/hooks/useAssignments';
 import { getTaskTypeEditor } from './task-editors/registry';
 import { patchEditorValue, taskToEditorValue, type AssignmentTaskEditorValue } from './task-editors/types';
-import { AssignmentProvider, useAssignments } from '@components/Contexts/Assignments/AssignmentContext';
 import {
   archiveAssignment,
   createAssignmentTask,
@@ -52,9 +52,12 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import Link from '@components/ui/AppLink';
 import { cn } from '@/lib/utils';
+import PageLoading from '@/components/Objects/Loaders/PageLoading';
+import ErrorUI from '@/components/Objects/Elements/Error/Error';
 
 interface AssignmentStudioRouteProps {
   assignmentUuid: string;
+  embedded?: boolean;
 }
 
 type SaveState = 'idle' | 'dirty' | 'saving' | 'saved' | 'error';
@@ -66,16 +69,22 @@ const TASK_ICONS: Record<AssignmentTaskType, ElementType> = {
   OTHER: BookOpen,
 };
 
-export default function AssignmentStudioRoute({ assignmentUuid }: AssignmentStudioRouteProps) {
+function normalizeAssignmentUuid(assignmentUuid: string) {
+  return assignmentUuid.startsWith('assignment_') ? assignmentUuid : `assignment_${assignmentUuid}`;
+}
+
+export default function AssignmentStudioRoute({ assignmentUuid, embedded = false }: AssignmentStudioRouteProps) {
+  const canonicalAssignmentUuid = normalizeAssignmentUuid(assignmentUuid);
   return (
-    <AssignmentProvider assignment_uuid={`assignment_${assignmentUuid}`}>
-      <AssignmentStudioShell assignmentUuid={`assignment_${assignmentUuid}`} />
-    </AssignmentProvider>
+    <AssignmentStudioShell
+      assignmentUuid={canonicalAssignmentUuid}
+      embedded={embedded}
+    />
   );
 }
 
-function AssignmentStudioShell({ assignmentUuid }: { assignmentUuid: string }) {
-  const assignments = useAssignments();
+function AssignmentStudioShell({ assignmentUuid, embedded = false }: { assignmentUuid: string; embedded?: boolean }) {
+  const { data: assignments, error, isPending } = useAssignmentBundle(assignmentUuid);
   const assignment = assignments.assignment_object as AssignmentRead | null;
   const tasks = useMemo(() => normalizeAssignmentTasks(assignments.assignment_tasks), [assignments.assignment_tasks]);
   const [selectedTaskUuid, setSelectedTaskUuid] = useState<string | null>(tasks[0]?.assignment_task_uuid ?? null);
@@ -87,6 +96,14 @@ function AssignmentStudioShell({ assignmentUuid }: { assignmentUuid: string }) {
       setSelectedTaskUuid(tasks[0]?.assignment_task_uuid ?? null);
     }
   }, [selectedTaskUuid, tasks]);
+
+  if (error) {
+    return <ErrorUI message="Unable to load assignment studio." />;
+  }
+
+  if (isPending) {
+    return <PageLoading />;
+  }
 
   if (!assignment) {
     return null;
@@ -105,15 +122,22 @@ function AssignmentStudioShell({ assignmentUuid }: { assignmentUuid: string }) {
 
   return (
     <div className="bg-background min-h-screen">
-      <AssignmentStudioTopBar
-        assignment={assignment}
-        courseUuid={assignments.course_object?.course_uuid ?? assignment.course_uuid ?? null}
-        activityUuid={assignments.activity_object?.activity_uuid ?? assignment.activity_uuid ?? null}
-        publishIssues={publishIssues}
-        onPublished={refresh}
-      />
+      {embedded ? null : (
+        <AssignmentStudioTopBar
+          assignment={assignment}
+          courseUuid={assignments.course_object?.course_uuid ?? assignment.course_uuid ?? null}
+          activityUuid={assignments.activity_object?.activity_uuid ?? assignment.activity_uuid ?? null}
+          publishIssues={publishIssues}
+          onPublished={refresh}
+        />
+      )}
 
-      <main className="grid min-h-[calc(100vh-88px)] grid-cols-1 gap-0 lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[18rem_minmax(0,1fr)_22rem]">
+      <main
+        className={cn(
+          'grid grid-cols-1 gap-0 lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[18rem_minmax(0,1fr)_22rem]',
+          embedded ? 'min-h-[calc(100vh-170px)]' : 'min-h-[calc(100vh-88px)]',
+        )}
+      >
         <TaskOutlineRail
           assignmentUuid={assignmentUuid}
           tasks={tasks}

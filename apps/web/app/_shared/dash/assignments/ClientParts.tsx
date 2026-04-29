@@ -22,6 +22,8 @@ interface Course {
 
 interface Assignment {
   assignment_uuid: string;
+  course_uuid?: string;
+  activity_uuid?: string;
   title: string;
   description: string;
 }
@@ -36,6 +38,7 @@ interface CourseCardProps {
 
 interface AssignmentRowProps {
   assignment: Assignment;
+  course: Course;
   platform?: PlatformLike | null;
 }
 
@@ -92,6 +95,7 @@ export const CourseCard = ({ course, assignments, platform }: CourseCardProps) =
               <div key={assignment.assignment_uuid}>
                 <AssignmentRow
                   assignment={assignment}
+                  course={course}
                   platform={platform}
                 />
                 {idx < assignments.length - 1 && <Separator className="mt-3" />}
@@ -109,10 +113,11 @@ export const CourseCard = ({ course, assignments, platform }: CourseCardProps) =
   );
 };
 
-export const AssignmentRow = ({ assignment, platform: _platform }: AssignmentRowProps) => {
+export const AssignmentRow = ({ assignment, course, platform: _platform }: AssignmentRowProps) => {
   void _platform;
   const t = useTranslations('DashPage.Assignments.HomePage');
-  const assignmentId = assignment.assignment_uuid.replace('assignment_', '');
+  const activityId = assignment.activity_uuid?.replace('activity_', '');
+  const courseId = (assignment.course_uuid ?? course.course_uuid).replace('course_', '');
 
   return (
     <div className="bg-card hover:bg-accent/50 flex flex-col gap-4 rounded-lg border p-5 transition-colors sm:flex-row sm:items-center sm:justify-between">
@@ -135,10 +140,7 @@ export const AssignmentRow = ({ assignment, platform: _platform }: AssignmentRow
       <div className="flex items-center gap-2">
         <Link
           prefetch={false}
-          href={{
-            pathname: getAbsoluteUrl(`/dash/assignments/${assignmentId}`),
-            query: { subpage: 'editor' },
-          }}
+          href={getAbsoluteUrl(activityId ? `/dash/courses/${courseId}/activity/${activityId}/studio` : '/dash/assignments')}
           className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'inline-flex items-center justify-center')}
         >
           <Layers2 className="mr-2 h-4 w-4" />
@@ -147,10 +149,7 @@ export const AssignmentRow = ({ assignment, platform: _platform }: AssignmentRow
 
         <Link
           prefetch={false}
-          href={{
-            pathname: getAbsoluteUrl(`/dash/assignments/${assignmentId}`),
-            query: { subpage: 'submissions' },
-          }}
+          href={getAbsoluteUrl(activityId ? `/dash/courses/${courseId}/gradebook` : '/dash/assignments')}
           className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'inline-flex items-center justify-center')}
         >
           <UserPen className="mr-2 h-4 w-4" />

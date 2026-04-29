@@ -29,7 +29,6 @@ import { markActivityAsComplete, unmarkActivityAsComplete } from '@services/cour
 import FixedActivitySecondaryBar from '@components/Pages/Activity/FixedActivitySecondaryBar';
 import type { Activity, CourseStructure } from '@components/Contexts/CourseContext';
 import ActivityChapterDropdown from '@components/Pages/Activity/ActivityChapterDropdown';
-import { AssignmentProvider } from '@components/Contexts/Assignments/AssignmentContext';
 import { ActivityAIChatProvider } from '@components/Contexts/AI/ActivityAIChatContext';
 import { useSession } from '@/hooks/useSession';
 import GeneralWrapper from '@/components/Objects/Elements/Wrappers/GeneralWrapper';
@@ -328,9 +327,7 @@ const ActivityClient = (props: ActivityClientProps) => {
 
         return assignment?.assignment_uuid ? (
           <Suspense fallback={<LoadingFallback />}>
-            <AssignmentProvider assignment_uuid={assignment.assignment_uuid}>
-              <AssignmentStudentActivity />
-            </AssignmentProvider>
+            <AssignmentStudentActivity assignmentUuid={assignment.assignment_uuid} />
           </Suspense>
         ) : null;
       }

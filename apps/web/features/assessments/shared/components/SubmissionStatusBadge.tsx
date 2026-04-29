@@ -5,7 +5,7 @@
  *   DRAFT | PENDING | GRADED | PUBLISHED | RETURNED
  *
  * For Judge0 code-execution feedback use `Judge0StatusBadge` from
- * `components/features/courses/code-challenges/SubmissionStatusBadge`.
+ * `components/features/courses/code-challenges/CodeRunStatusBadge`.
  */
 
 import type { SubmissionStatus } from '@/types/grading';

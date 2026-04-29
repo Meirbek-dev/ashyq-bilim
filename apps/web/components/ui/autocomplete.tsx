@@ -32,6 +32,7 @@ export function AutocompleteInput({
   return (
     <AutocompletePrimitive.InputGroup
       className="text-foreground relative w-full not-has-[>*.w-full]:w-fit has-disabled:opacity-64"
+      data-size={sizeValue}
       data-slot="autocomplete-input-group"
     >
       {startAddon && (
@@ -54,10 +55,7 @@ export function AutocompleteInput({
         )}
         data-slot="autocomplete-input"
         render={
-          <Input
-            nativeInput
-            size={sizeValue}
-          />
+          <Input size={typeof sizeValue === 'number' ? sizeValue : undefined} />
         }
         {...props}
       />
@@ -223,10 +221,7 @@ export function AutocompleteValue({ ...props }: AutocompletePrimitive.Value.Prop
 
 export function AutocompleteList({ className, ...props }: AutocompletePrimitive.List.Props): React.ReactElement {
   return (
-    <ScrollArea
-      scrollbarGutter
-      scrollFade
-    >
+    <ScrollArea>
       <AutocompletePrimitive.List
         className={cn('not-empty:scroll-py-1 not-empty:p-1 in-data-has-overflow-y:pe-3', className)}
         data-slot="autocomplete-list"

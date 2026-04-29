@@ -10,19 +10,13 @@
  */
 
 import type { ComponentType } from 'react';
-import { registerKind, type KindAuthorProps, type KindAttemptProps, type KindReviewProps } from './index';
+import { registerKind, type KindAttemptProps, type KindReviewProps } from './index';
 
 registerKind('TYPE_CODE_CHALLENGE', async () => {
-  const [{ default: GradingReviewWorkspace }] = await Promise.all([
+  const [{ default: GradingReviewWorkspace }, { default: CodeChallengeAuthor }] = await Promise.all([
     import('@/features/grading/review/GradingReviewWorkspace'),
+    import('./code-challenge-author'),
   ]);
-
-  /**
-   * Phase 1 stub. Code-challenge configuration is currently done via inline
-   * settings panels rendered by ActivityClient. Until Phase 3, the teacher
-   * edits settings within the student-facing activity URL.
-   */
-  const AuthorPassthrough: ComponentType<KindAuthorProps> = () => null;
 
   /**
    * Phase 1 stub. CodeChallengeActivity is mounted by ActivityClient directly.
@@ -36,7 +30,7 @@ registerKind('TYPE_CODE_CHALLENGE', async () => {
   return {
     label: 'Code Challenge',
     iconName: 'Code2',
-    Author: AuthorPassthrough,
+    Author: CodeChallengeAuthor,
     Attempt: AttemptPassthrough,
     Review: ReviewPassthrough,
   };

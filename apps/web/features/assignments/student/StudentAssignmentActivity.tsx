@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 
-import { useAssignments } from '@components/Contexts/Assignments/AssignmentContext';
+import { useAssignmentBundle, useAssignmentByActivity } from '@/features/assignments/hooks/useAssignments';
 import { normalizeAssignmentTasks } from '@/features/assignments/domain';
 import StudentAssignmentShell from '@/features/assignments/student/StudentAssignmentShell';
 
@@ -23,18 +23,18 @@ interface ActivityObject {
   activity_uuid: string;
 }
 
-interface AssignmentsData {
-  assignment_object?: AssignmentObject | null;
-  assignment_tasks?: unknown[] | null;
-  course_object?: CourseObject | null;
-  activity_object?: ActivityObject | null;
+interface StudentAssignmentActivityProps {
+  assignmentUuid?: string | null;
+  activityUuid?: string | null;
 }
 
-export default function StudentAssignmentActivity() {
+export default function StudentAssignmentActivity({ assignmentUuid, activityUuid }: StudentAssignmentActivityProps) {
   const t = useTranslations('Activities.AssignmentStudentActivity');
-  const assignments = useAssignments() as AssignmentsData | null;
+  const assignmentByActivity = useAssignmentByActivity(assignmentUuid ? null : activityUuid);
+  const resolvedAssignmentUuid = assignmentUuid ?? assignmentByActivity.data?.assignment_uuid ?? null;
+  const { data: assignments, isPending } = useAssignmentBundle(resolvedAssignmentUuid);
 
-  if (!assignments) {
+  if (isPending || assignmentByActivity.isPending) {
     return (
       <div className="flex items-center justify-center p-8">
         <p className="text-sm text-slate-500">{t('loading', { default: 'Loading assignment...' })}</p>
@@ -61,7 +61,7 @@ export default function StudentAssignmentActivity() {
           title: assignment_object.title,
           description: assignment_object.description,
           due_at: assignment_object.due_at,
-          due_date: assignment_object.due_date,
+          due_date: null,
         },
         tasks,
         courseUuid: course_object?.course_uuid,

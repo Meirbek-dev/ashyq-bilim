@@ -128,7 +128,7 @@ const NewActivityButton = (props: NewActivityButtonProps) => {
     const destination =
       kind === 'dynamic'
         ? `/course/${cleanCourse}/activity/${cleanActivity}/edit`
-        : `/course/${cleanCourse}/activity/${cleanActivity}/editor`;
+        : `/dash/courses/${cleanCourse}/activity/${cleanActivity}/studio`;
 
     router.push(destination);
   };

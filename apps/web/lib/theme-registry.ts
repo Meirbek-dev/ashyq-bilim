@@ -47,7 +47,7 @@ interface ShadcnRegistryItem {
   };
 }
 
-const rawRegistry = rawThemeRegistry as { items?: ShadcnRegistryItem[] };
+const rawRegistry = rawThemeRegistry as unknown as { items?: ShadcnRegistryItem[] };
 
 // Merge `theme` (shared) block into both light and dark so every preset is self-contained.
 const registry: Record<string, ThemePreset> = Object.fromEntries(

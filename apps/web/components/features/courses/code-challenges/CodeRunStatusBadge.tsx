@@ -2,12 +2,8 @@
  * CodeRunStatusBadge and Judge0StatusBadge for code-challenge execution feedback.
  *
  * These components show Judge0 code-execution status (pending/processing/
- * accepted/failed/error). They are NOT the same as the unified workflow
- * SubmissionStatusBadge from features/assessments/shared/components.
- *
- * Use CodeRunStatusBadge/Judge0StatusBadge here; use SubmissionStatusBadge from
- * @/features/assessments/shared/components for DRAFT/PENDING/GRADED/PUBLISHED/RETURNED
- * workflow states.
+ * accepted/failed/error). Workflow submission states live in
+ * features/assessments/shared/components/SubmissionStatusBadge.
  */
 
 'use client';
@@ -265,8 +261,3 @@ export function Judge0StatusBadge({
     </span>
   );
 }
-
-/** @deprecated Use `CodeRunStatusBadge`. Kept for backward-compat during migration. */
-export { CodeRunStatusBadge as SubmissionStatusBadge };
-
-export default CodeRunStatusBadge;

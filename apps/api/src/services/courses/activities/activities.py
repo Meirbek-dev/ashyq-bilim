@@ -10,8 +10,11 @@ from src.db.courses.activities import (
     ActivityCreate,
     ActivityRead,
     ActivityReadWithPermissions,
+    ActivityTypeEnum,
     ActivityUpdate,
+    AssessmentLifecycleStatus,
 )
+from src.db.courses.assignments import Assignment, AssignmentStatus
 from src.db.courses.chapters import Chapter
 from src.db.courses.courses import Course
 from src.db.users import AnonymousUser, PublicUser
@@ -151,7 +154,15 @@ async def update_activity(
     update_data = activity_object.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         if value is not None:
-            setattr(activity, field, value)
+            if field == "details" and isinstance(value, dict):
+                activity.details = {
+                    **(activity.details or {}),
+                    **value,
+                }
+            else:
+                setattr(activity, field, value)
+
+    _sync_assessment_lifecycle(activity, update_data, db_session)
 
     activity.update_date = datetime.now(tz=UTC)
 
@@ -163,12 +174,87 @@ async def update_activity(
         from src.services.ai.cache_manager import get_ai_cache_manager
 
         get_ai_cache_manager().invalidate_activity_cache(activity_uuid)
-    except Exception as _inv_err:
+    except Exception as _inv_err:  # noqa: BLE001
         logger.warning(
             "AI cache invalidation failed for %s: %s", activity_uuid, _inv_err
         )
 
     return ActivityRead.model_validate(activity)
+
+
+def _sync_assessment_lifecycle(
+    activity: Activity,
+    update_data: dict[str, object],
+    db_session: Session,
+) -> None:
+    if activity.activity_type not in {
+        ActivityTypeEnum.TYPE_ASSIGNMENT,
+        ActivityTypeEnum.TYPE_EXAM,
+        ActivityTypeEnum.TYPE_CODE_CHALLENGE,
+    }:
+        return
+
+    details = activity.details if isinstance(activity.details, dict) else {}
+    lifecycle_raw = details.get("lifecycle_status")
+    now = datetime.now(tz=UTC).isoformat()
+
+    if lifecycle_raw is None and "published" in update_data:
+        lifecycle_raw = (
+            AssessmentLifecycleStatus.PUBLISHED.value
+            if activity.published
+            else AssessmentLifecycleStatus.DRAFT.value
+        )
+
+    if lifecycle_raw is None:
+        return
+
+    try:
+        lifecycle = AssessmentLifecycleStatus(str(lifecycle_raw))
+    except ValueError:
+        raise HTTPException(status_code=422, detail="Invalid lifecycle_status")
+
+    details["lifecycle_status"] = lifecycle.value
+    if lifecycle == AssessmentLifecycleStatus.PUBLISHED:
+        activity.published = True
+        details["published_at"] = details.get("published_at") or now
+        details["scheduled_at"] = None
+    elif lifecycle == AssessmentLifecycleStatus.SCHEDULED:
+        activity.published = False
+    elif lifecycle == AssessmentLifecycleStatus.ARCHIVED:
+        activity.published = False
+        details["archived_at"] = details.get("archived_at") or now
+        details["scheduled_at"] = None
+    else:
+        activity.published = False
+        details["scheduled_at"] = None
+
+    activity.details = details
+
+    if activity.activity_type == ActivityTypeEnum.TYPE_ASSIGNMENT and activity.id is not None:
+        assignment = db_session.exec(
+            select(Assignment).where(Assignment.activity_id == activity.id)
+        ).first()
+        if assignment is not None:
+            assignment.status = AssignmentStatus(lifecycle.value)
+            assignment.published = lifecycle == AssessmentLifecycleStatus.PUBLISHED
+            assignment.published_at = (
+                datetime.now(tz=UTC)
+                if lifecycle == AssessmentLifecycleStatus.PUBLISHED
+                else assignment.published_at
+            )
+            assignment.scheduled_publish_at = (
+                _coerce_datetime(details.get("scheduled_at"))
+                if lifecycle == AssessmentLifecycleStatus.SCHEDULED
+                else None
+            )
+            db_session.add(assignment)
+
+
+def _coerce_datetime(value: object) -> datetime | None:
+    if value is None or not isinstance(value, str) or not value:
+        return None
+    parsed = datetime.fromisoformat(value)
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
 
 
 async def delete_activity(
@@ -191,7 +277,7 @@ async def delete_activity(
         from src.services.ai.cache_manager import get_ai_cache_manager
 
         get_ai_cache_manager().invalidate_activity_cache(activity_uuid)
-    except Exception as _inv_err:
+    except Exception as _inv_err:  # noqa: BLE001
         logger.warning(
             "AI cache invalidation failed for %s: %s", activity_uuid, _inv_err
         )

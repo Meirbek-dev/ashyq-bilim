@@ -22,12 +22,9 @@ import {
   canPublish,
   canSchedule,
   canArchive,
-  lifecycleFromExamPublished,
   type AssessmentLifecycle,
 } from '../domain/lifecycle';
-import { getReleaseState, isVisibleToStudent } from '../domain/release';
-import { resolveScore } from '../domain/score';
-import { DEFAULT_POLICY_VIEW, policyFromExamSettings } from '../domain/policy';
+import { DEFAULT_POLICY_VIEW } from '../domain/policy';
 import type { AssessmentKind, AssessmentSurface, StudioViewModel, AttemptViewModel } from '../domain/view-models';
 
 // ── Internal activity shape (subset of what the API returns) ──────────────────
@@ -38,6 +35,7 @@ interface ActivityDetail {
   name: string;
   activity_type: string;
   published: boolean;
+  details?: Record<string, unknown> | null;
 }
 
 function activityDetailQueryOptions(activityUuid: string) {
@@ -117,7 +115,7 @@ export function useAssessment(
     // Assignment kind has its own lifecycle via AssignmentStatus; exams use boolean.
     // Future: load kind-specific metadata (assignment.status, exam.settings, etc.)
     // to produce a richer StudioViewModel.
-    const lifecycle: AssessmentLifecycle = activity.published ? 'PUBLISHED' : 'DRAFT';
+    const lifecycle = lifecycleFromActivity(activity);
 
     const vm: StudioViewModel = {
       surface: 'STUDIO',
@@ -158,6 +156,12 @@ export function useAssessment(
     isResultVisible: false,
   };
   return { vm: { surface: 'ATTEMPT', vm, kind }, isLoading: false, error: null };
+}
+
+function lifecycleFromActivity(activity: ActivityDetail): AssessmentLifecycle {
+  const raw = activity.details?.lifecycle_status;
+  if (raw === 'DRAFT' || raw === 'SCHEDULED' || raw === 'PUBLISHED' || raw === 'ARCHIVED') return raw;
+  return activity.published ? 'PUBLISHED' : 'DRAFT';
 }
 
 // ── Convenience selector hooks ─────────────────────────────────────────────────

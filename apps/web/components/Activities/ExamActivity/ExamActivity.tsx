@@ -20,14 +20,13 @@ import { examFlowReducer } from './state/examFlowReducer';
 import GradingReviewWorkspace from '@/features/grading/review/GradingReviewWorkspace';
 import { loadKindModule, type KindModule } from '@/features/assessments/registry';
 import ExamTakingInterface from './ExamTakingInterface';
-import QuestionManagement from './QuestionManagement';
 import { examActions } from './state/examActions';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import ExamPreScreen from './ExamPreScreen';
-import ExamSettings from './ExamSettings';
 import ExamResults from './ExamResults';
 import ExamLayout from './ExamLayout';
+import Link from '@components/ui/AppLink';
 
 interface ActivityObject {
   activity_uuid: string;
@@ -60,14 +59,14 @@ export default function ExamActivity({ activity, course }: ExamActivityProps) {
 
   // Centralized state management with reducer
   const [state, dispatch] = useReducer(examFlowReducer, { phase: 'loading' });
-  const [activeTab, setActiveTab] = useState('questions');
+  const [activeTab, setActiveTab] = useState('studio');
   const [examKindModule, setExamKindModule] = useState<KindModule | undefined>();
   const isCompletingRef = useRef(false);
 
   const isTeacher = contributorStatus === 'ACTIVE';
 
   // Fetch exam data
-  const { data: exam, error: examError, refetch: mutateExam } = useExamActivity(activity.activity_uuid);
+  const { data: exam, error: examError } = useExamActivity(activity.activity_uuid);
 
   // Safe exam uuid reference to avoid accessing property on undefined
   const examUuid = exam?.exam_uuid ?? null;
@@ -244,6 +243,8 @@ export default function ExamActivity({ activity, course }: ExamActivityProps) {
 
   // Teacher management view
   if (state.phase === 'manage' && isTeacher) {
+    const studioHref = `/dash/courses/${course.course_uuid.replace('course_', '')}/activity/${activity.activity_uuid.replace('activity_', '')}/studio`;
+
     return (
       <ExamLayout title={activity.name}>
         <div className="space-y-6 p-0">
@@ -261,32 +262,27 @@ export default function ExamActivity({ activity, course }: ExamActivityProps) {
             value={activeTab}
             onValueChange={(value) => value && setActiveTab(value)}
           >
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="questions">{t('questions')}</TabsTrigger>
-              <TabsTrigger value="settings">{t('settings')}</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="studio">Studio</TabsTrigger>
               <TabsTrigger value="results">{t('results')}</TabsTrigger>
             </TabsList>
 
             <TabsContent
-              value="questions"
+              value="studio"
               className="mt-6"
             >
-              <QuestionManagement
-                examUuid={examUuid}
-                questions={questions}
-                onQuestionsChange={() => mutateQuestions()}
-              />
-            </TabsContent>
-
-            <TabsContent
-              value="settings"
-              className="mt-6"
-            >
-              <ExamSettings
-                exam={exam}
-                courseUuid={course.course_uuid}
-                onSettingsUpdated={() => mutateExam()}
-              />
+              <div className="rounded-md border border-dashed p-6">
+                <h2 className="text-lg font-semibold">Exam authoring moved to Studio</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Questions and settings now use the shared assessment author surface.
+                </p>
+                <Button
+                  className="mt-4"
+                  render={<Link href={studioHref} />}
+                >
+                  Open Studio
+                </Button>
+              </div>
             </TabsContent>
 
             <TabsContent
