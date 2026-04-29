@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@components/ui/card';
-import type { AttemptData, ExamData, QuestionData } from './state/examFlowReducer';
+import type { AttemptData, ExamData, QuestionData } from './state/examTypes';
 import { RadioGroup, RadioGroupItem } from '@components/ui/radio-group';
 import { Alert, AlertDescription } from '@components/ui/alert';
 import { useTestGuard } from '@/hooks/useTestGuard';

@@ -3,8 +3,7 @@
  *
  * Author → wraps CodeChallengeConfigEditor (currently mounted inline by ActivityClient).
  *          Phase 3 will move it to the shared StudioShell.
- * Attempt → wraps CodeChallengeActivity.
- *           Phase 4 will move it to the shared AttemptShell.
+ * Attempt → renders the code challenge attempt content slot.
  * Review → wraps GradingReviewWorkspace.
  *          Phase 2 ensures code challenge submissions route through Submission.
  */
@@ -13,15 +12,15 @@ import type { ComponentType } from 'react';
 import { registerKind, type KindAttemptProps, type KindReviewProps } from './index';
 
 registerKind('TYPE_CODE_CHALLENGE', async () => {
-  const [{ default: GradingReviewWorkspace }, { default: CodeChallengeAuthor }] = await Promise.all([
+  const [
+    { default: GradingReviewWorkspace },
+    { default: CodeChallengeAuthor },
+    { default: CodeChallengeAttemptContent },
+  ] = await Promise.all([
     import('@/features/grading/review/GradingReviewWorkspace'),
     import('./code-challenge-author'),
+    import('./code-challenge/CodeChallengeAttemptContent'),
   ]);
-
-  /**
-   * Phase 1 stub. CodeChallengeActivity is mounted by ActivityClient directly.
-   */
-  const AttemptPassthrough: ComponentType<KindAttemptProps> = () => null;
 
   const ReviewPassthrough: ComponentType<KindReviewProps> = ({ activityId, submissionUuid, title }) => {
     return GradingReviewWorkspace({ activityId, initialSubmissionUuid: submissionUuid ?? null, title });
@@ -31,7 +30,7 @@ registerKind('TYPE_CODE_CHALLENGE', async () => {
     label: 'Code Challenge',
     iconName: 'Code2',
     Author: CodeChallengeAuthor,
-    Attempt: AttemptPassthrough,
+    Attempt: CodeChallengeAttemptContent as ComponentType<KindAttemptProps>,
     Review: ReviewPassthrough,
   };
 });

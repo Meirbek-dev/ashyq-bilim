@@ -100,7 +100,7 @@ export function useAssessment(
   });
 
   if (isLoading || !activity) {
-    return { vm: null, isLoading, error: error as Error | null };
+    return { vm: null, isLoading, error };
   }
 
   const kind = activityTypeToKind(activity.activity_type);
@@ -149,6 +149,7 @@ export function useAssessment(
     submissionStatus: null,
     releaseState: 'HIDDEN',
     score: { percent: null, source: 'none' },
+    policy: DEFAULT_POLICY_VIEW,
     canEdit: true,
     canSaveDraft: true,
     canSubmit: true,

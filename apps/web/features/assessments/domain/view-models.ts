@@ -78,6 +78,7 @@ export interface AttemptViewModel {
   submissionStatus: SubmissionStatus | null;
   releaseState: ReleaseState;
   score: NormalizedScore;
+  policy: PolicyView;
   /** Student may edit answers. */
   canEdit: boolean;
   /** Student may save a draft. */

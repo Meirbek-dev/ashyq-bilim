@@ -14,7 +14,7 @@
  */
 
 import type { ComponentType, ReactNode } from 'react';
-import type { AssessmentKind } from '../domain';
+import type { AssessmentKind, AttemptViewModel } from '../domain';
 import type { Submission } from '@/features/grading/domain/types';
 
 export interface KindAuthorProps {
@@ -25,6 +25,7 @@ export interface KindAuthorProps {
 export interface KindAttemptProps {
   activityUuid: string;
   courseUuid: string;
+  vm?: AttemptViewModel;
 }
 
 export interface KindReviewProps {

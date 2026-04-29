@@ -69,7 +69,16 @@ interface CodeChallengeEditorProps {
   settings?: CodeChallengeSettings;
   initialCode?: string;
   initialLanguageId?: number;
+  hideHeader?: boolean;
+  hideSubmitButton?: boolean;
+  onSubmitControlChange?: (control: CodeChallengeSubmitControl | null) => void;
   onSubmissionComplete?: (submission: Submission) => void;
+}
+
+export interface CodeChallengeSubmitControl {
+  canSubmit: boolean;
+  isSubmitting: boolean;
+  submit: () => void;
 }
 
 export function CodeChallengeEditor({
@@ -79,6 +88,9 @@ export function CodeChallengeEditor({
   settings,
   initialCode = '',
   initialLanguageId,
+  hideHeader = false,
+  hideSubmitButton = false,
+  onSubmitControlChange,
   onSubmissionComplete,
 }: CodeChallengeEditorProps) {
   const t = useTranslations('Activities.CodeChallenges');
@@ -205,6 +217,16 @@ export function CodeChallengeEditor({
     }
   }, [code, selectedLanguageId, submitCodeChallengeMutation, t]);
 
+  useEffect(() => {
+    onSubmitControlChange?.({
+      canSubmit: Boolean(code.trim()) && !isRunning && !isSubmitting,
+      isSubmitting,
+      submit: handleSubmit,
+    });
+
+    return () => onSubmitControlChange?.(null);
+  }, [code, handleSubmit, isRunning, isSubmitting, onSubmitControlChange]);
+
   // Get language name from ID
   const getLanguageName = (languageId: number): string => {
     const lang = JUDGE0_LANGUAGES.find((l) => l.id === languageId);
@@ -217,13 +239,23 @@ export function CodeChallengeEditor({
 
   return (
     <div className="flex h-full flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b p-4">
-        <div>
-          {challengeTitle && <h2 className="text-xl font-semibold">{challengeTitle}</h2>}
-          {challengeDescription && <p className="text-muted-foreground mt-1 text-sm">{challengeDescription}</p>}
+      {!hideHeader ? (
+        <div className="flex items-center justify-between border-b p-4">
+          <div>
+            {challengeTitle && <h2 className="text-xl font-semibold">{challengeTitle}</h2>}
+            {challengeDescription && <p className="text-muted-foreground mt-1 text-sm">{challengeDescription}</p>}
+          </div>
+          <div className="flex items-center gap-2">
+            <LanguageSelector
+              languages={JUDGE0_LANGUAGES}
+              selectedId={selectedLanguageId}
+              onSelect={setSelectedLanguageId}
+              allowedLanguages={settings?.allowed_languages}
+            />
+          </div>
         </div>
-        <div className="flex items-center gap-2">
+      ) : (
+        <div className="flex items-center justify-end border-b p-3">
           <LanguageSelector
             languages={JUDGE0_LANGUAGES}
             selectedId={selectedLanguageId}
@@ -231,7 +263,7 @@ export function CodeChallengeEditor({
             allowedLanguages={settings?.allowed_languages}
           />
         </div>
-      </div>
+      )}
 
       {/* Main Content */}
       <ResizablePanelGroup
@@ -277,14 +309,16 @@ export function CodeChallengeEditor({
                   {t('runTests')}
                 </Button>
               </div>
-              <Button
-                size="sm"
-                onClick={handleSubmit}
-                disabled={isRunning || isSubmitting}
-              >
-                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-                {t('submit')}
-              </Button>
+              {!hideSubmitButton ? (
+                <Button
+                  size="sm"
+                  onClick={handleSubmit}
+                  disabled={isRunning || isSubmitting}
+                >
+                  {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+                  {t('submit')}
+                </Button>
+              ) : null}
             </div>
           </div>
         </ResizablePanel>

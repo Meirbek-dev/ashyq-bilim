@@ -15,14 +15,14 @@ registerKind('TYPE_ASSIGNMENT', async () => {
     { default: AssignmentTaskOutline },
     { default: AssignmentTaskEditor },
     { default: AssignmentInspector },
-    { default: StudentAssignmentActivity },
+    { default: AssignmentAttemptContent },
     { default: GradingReviewWorkspace },
   ] = await Promise.all([
     import('./AssignmentStudioContext'),
     import('./AssignmentTaskOutline'),
     import('./AssignmentTaskEditor'),
     import('./AssignmentInspector'),
-    import('@/features/assignments/student/StudentAssignmentActivity'),
+    import('./AssignmentAttemptContent'),
     import('@/features/grading/review/GradingReviewWorkspace'),
   ]);
 
@@ -30,10 +30,6 @@ registerKind('TYPE_ASSIGNMENT', async () => {
     <AssignmentStudioProvider activityUuid={activityUuid} courseUuid={courseUuid}>
       {children}
     </AssignmentStudioProvider>
-  );
-
-  const AttemptPassthrough: ComponentType<KindAttemptProps> = ({ activityUuid }) => (
-    <StudentAssignmentActivity activityUuid={activityUuid} />
   );
 
   const ReviewPassthrough: ComponentType<KindReviewProps> = ({ activityId, submissionUuid, title }) =>
@@ -46,7 +42,7 @@ registerKind('TYPE_ASSIGNMENT', async () => {
     Outline: AssignmentTaskOutline,
     Author: AssignmentTaskEditor,
     Inspector: AssignmentInspector,
-    Attempt: AttemptPassthrough,
+    Attempt: AssignmentAttemptContent as ComponentType<KindAttemptProps>,
     Review: ReviewPassthrough,
   };
 });

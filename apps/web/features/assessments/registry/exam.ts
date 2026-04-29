@@ -3,8 +3,7 @@
  *
  * Author → wraps the existing in-activity manage tab (ExamActivity with manage phase).
  *          Phase 3 will move this to the shared StudioShell.
- * Attempt → wraps ExamActivity (student phases).
- *           Phase 4 will split the phase machine into shared Attempt shell.
+ * Attempt → renders the exam attempt content slot.
  * Review → wraps GradingReviewWorkspace (same as assignment kind).
  *          Phase 2 wires exam attempts into the Submission table so this works.
  */
@@ -13,17 +12,17 @@ import type { ComponentType } from 'react';
 import { registerKind, type KindAttemptProps, type KindReviewProps } from './index';
 
 registerKind('TYPE_EXAM', async () => {
-  const [{ default: GradingReviewWorkspace }, { default: ExamReviewDetail }, { default: ExamAuthor }] = await Promise.all([
+  const [
+    { default: GradingReviewWorkspace },
+    { default: ExamReviewDetail },
+    { default: ExamAuthor },
+    { default: ExamAttemptContent },
+  ] = await Promise.all([
     import('@/features/grading/review/GradingReviewWorkspace'),
     import('./exam-review-detail'),
     import('./exam-author'),
+    import('./exam/ExamAttemptContent'),
   ]);
-
-  /**
-   * Phase 1 stub. ExamActivity is mounted by ActivityClient directly.
-   * Until Phase 4, the attempt route for exams stays at /course/[c]/activity/[a].
-   */
-  const AttemptPassthrough: ComponentType<KindAttemptProps> = () => null;
 
   /**
    * Phase 2 target: once ExamAttempt rows are projected to Submission, this
@@ -39,7 +38,7 @@ registerKind('TYPE_EXAM', async () => {
     label: 'Exam',
     iconName: 'GraduationCap',
     Author: ExamAuthor,
-    Attempt: AttemptPassthrough,
+    Attempt: ExamAttemptContent as ComponentType<KindAttemptProps>,
     Review: ReviewPassthrough,
     ReviewDetail: ExamReviewDetail,
   };

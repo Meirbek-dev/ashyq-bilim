@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@components/ui/card';
-import type { AttemptData, ExamData, QuestionData } from './state/examFlowReducer';
+import type { AttemptData, ExamData, QuestionData } from './state/examTypes';
 import { getOrderedExamQuestions } from './utils/questionOrder';
 import { Progress } from '@components/ui/progress';
 import { Button } from '@components/ui/button';
