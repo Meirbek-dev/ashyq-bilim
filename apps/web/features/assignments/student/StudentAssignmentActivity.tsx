@@ -1,9 +1,10 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import { useAssignments } from '@components/Contexts/Assignments/AssignmentContext';
 import { normalizeAssignmentTasks } from '@/features/assignments/domain';
 import StudentAssignmentShell from '@/features/assignments/student/StudentAssignmentShell';
-import { useTranslations } from 'next-intl';
 
 interface AssignmentObject {
   assignment_uuid: string;
@@ -29,11 +30,10 @@ interface AssignmentsData {
   activity_object?: ActivityObject | null;
 }
 
-const AssignmentStudentActivity = () => {
+export default function StudentAssignmentActivity() {
   const t = useTranslations('Activities.AssignmentStudentActivity');
   const assignments = useAssignments() as AssignmentsData | null;
 
-  // Early returns for loading/error states
   if (!assignments) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -70,6 +70,4 @@ const AssignmentStudentActivity = () => {
       }}
     />
   );
-};
-
-export default AssignmentStudentActivity;
+}

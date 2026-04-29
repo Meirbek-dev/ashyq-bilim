@@ -3,11 +3,7 @@
 /**
  * useGradingPanel
  *
- * Single hook for the teacher grading side panel.
- *
- * Replaces the 3 nested Context Providers (AssignmentProvider,
- * AssignmentsTaskProvider, AssignmentSubmissionProvider) that were stacked
- * inside a modal trigger render prop — all for a single grading form.
+ * Single hook for loading a submission into the teacher review workspace.
  */
 
 import type { Submission } from '@/types/grading';

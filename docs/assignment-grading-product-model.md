@@ -130,14 +130,10 @@ Mapping:
 
 Every frontend assignment/grading component should consume a domain view model or helper from `features/assignments/domain` or `features/grading/domain`. Raw API objects may enter at query boundaries, but UI components should not duplicate workflow rules, status labels, release visibility checks, score normalization, lateness logic, or legacy answer normalization.
 
-## Rewrite Rollout
+## Active Routes
 
-The rewritten surfaces are guarded by `NEXT_PUBLIC_ASSIGNMENTS_V2`.
-
-When the flag is enabled:
+The rewritten surfaces are the active assignment and grading system:
 
 - `/dash/assignments/[assignmentuuid]` opens Assignment Studio.
 - `/dash/assignments/[assignmentuuid]?subpage=submissions` opens Submission Review.
 - `/dash/courses/[courseuuid]/gradebook` opens the Gradebook command center.
-
-When the flag is disabled, legacy assignment and gradebook routes remain active. Delete old components only after route parity, interaction parity, and regression tests pass for Assignment Studio, Student Attempt, Submission Review, and Gradebook.

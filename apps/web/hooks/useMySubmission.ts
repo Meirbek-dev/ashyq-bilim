@@ -4,8 +4,6 @@
  * useMySubmission
  *
  * Fetches the current student's latest submission for an activity.
- * Replaces the ad-hoc per-context submission lookups scattered across
- * AssignmentSubmissionContext, AssignmentsTaskContext, etc.
  */
 
 import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query';

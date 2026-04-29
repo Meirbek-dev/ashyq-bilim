@@ -25,7 +25,6 @@ import {
   UserRoundPen,
 } from 'lucide-react';
 import { getCourseThumbnailMediaDirectory, getUserAvatarMediaDirectory } from '@services/media/media';
-import { AssignmentsTaskProvider } from '@components/Contexts/Assignments/AssignmentsTaskContext';
 import { markActivityAsComplete, unmarkActivityAsComplete } from '@services/courses/activity';
 import FixedActivitySecondaryBar from '@components/Pages/Activity/FixedActivitySecondaryBar';
 import type { Activity, CourseStructure } from '@components/Contexts/CourseContext';
@@ -73,7 +72,7 @@ const DocumentPdfActivity = dynamic(() => import('@components/Objects/Activities
   ssr: false,
 });
 const AssignmentStudentActivity = dynamic(
-  () => import('@components/Objects/Activities/Assignment/AssignmentStudentActivity'),
+  () => import('@/features/assignments/student/StudentAssignmentActivity'),
   { loading: () => <LoadingFallback />, ssr: false },
 );
 const ExamActivity = dynamic(() => import('@components/Activities/ExamActivity/ExamActivity'), {
@@ -330,9 +329,7 @@ const ActivityClient = (props: ActivityClientProps) => {
         return assignment?.assignment_uuid ? (
           <Suspense fallback={<LoadingFallback />}>
             <AssignmentProvider assignment_uuid={assignment.assignment_uuid}>
-              <AssignmentsTaskProvider>
-                <AssignmentStudentActivity />
-              </AssignmentsTaskProvider>
+              <AssignmentStudentActivity />
             </AssignmentProvider>
           </Suspense>
         ) : null;

@@ -6,7 +6,7 @@
  * Shows a student their grading breakdown: score, teacher feedback,
  * per-item results (question text, their answer, correct answer, item feedback).
  *
- * Rendered inside SubmissionShell when status is GRADED or RETURNED.
+ * Rendered by the Student Attempt result panel after release visibility allows it.
  */
 
 import { CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
