@@ -42,10 +42,6 @@ export const QuizSettingsSchema = v.object({
   max_attempts: v.optional(v.nullable(v.pipe(v.number(), v.integer(), v.minValue(1))), null),
   time_limit_seconds: v.optional(v.nullable(v.pipe(v.number(), v.integer(), v.minValue(1))), null),
   max_score_penalty_per_attempt: v.optional(v.nullable(v.pipe(v.number(), v.minValue(0), v.maxValue(100))), null),
-  prevent_copy: v.optional(v.boolean(), true),
-  track_violations: v.optional(v.boolean(), true),
-  max_violations: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(10)), 2),
-  block_on_violations: v.optional(v.boolean(), true),
 });
 
 export const QuizContentsSchema = v.object({

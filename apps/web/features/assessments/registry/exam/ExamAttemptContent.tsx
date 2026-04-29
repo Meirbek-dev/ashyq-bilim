@@ -12,7 +12,7 @@ import { courseKeys } from '@/hooks/courses/courseKeys';
 import { useContributorStatus } from '@/hooks/useContributorStatus';
 import { useExamActivity, useExamMyAttempts, useExamQuestions } from '@/features/exams/hooks/useExam';
 import { examMyAttemptsQueryOptions } from '@/features/exams/queries/exams.query';
-import { policyFromExamSettings } from '@/features/assessments/domain/policy';
+import { DEFAULT_POLICY_VIEW } from '@/features/assessments/domain/policy';
 import { useAttemptShellControls, type AttemptSaveState } from '@/features/assessments/shared/AttemptShell';
 import { useExamPersistence } from '@/hooks/useExamPersistence';
 import PageLoading from '@components/Objects/Loaders/PageLoading';
@@ -51,7 +51,7 @@ function getStateAnswers(state: TakingState): Record<number, any> {
   return state.mode === 'recovery-prompt' ? state.recoveredAnswers : 'answers' in state ? state.answers : {};
 }
 
-export default function ExamAttemptContent({ activityUuid, courseUuid }: KindAttemptProps) {
+export default function ExamAttemptContent({ activityUuid, courseUuid, vm }: KindAttemptProps) {
   const t = useTranslations('Activities.ExamActivity');
   const queryClient = useQueryClient();
   const { contributorStatus } = useContributorStatus(courseUuid);
@@ -60,6 +60,7 @@ export default function ExamAttemptContent({ activityUuid, courseUuid }: KindAtt
   const { data: questions, error: questionsError, refetch: refetchQuestions } = useExamQuestions(examUuid);
   const { data: attempts, error: attemptsError, refetch: refetchAttempts } = useExamMyAttempts(examUuid);
   const [activeAttempt, setActiveAttempt] = useState<AttemptData | null>(null);
+  const policy = vm?.policy ?? DEFAULT_POLICY_VIEW;
 
   useEffect(() => {
     if (activeAttempt || !attempts?.length) return;
@@ -96,6 +97,7 @@ export default function ExamAttemptContent({ activityUuid, courseUuid }: KindAtt
           void refetchQuestions();
         }}
         isTeacher={contributorStatus === 'ACTIVE'}
+        policy={policy}
       />
     );
   }
@@ -105,6 +107,7 @@ export default function ExamAttemptContent({ activityUuid, courseUuid }: KindAtt
       exam={exam}
       questions={questions}
       attempt={activeAttempt}
+      policy={policy}
       onComplete={handleComplete}
     />
   );
@@ -114,11 +117,13 @@ function ExamTakingContent({
   exam,
   questions,
   attempt,
+  policy,
   onComplete,
 }: {
   exam: ExamData;
   questions: QuestionData[];
   attempt: AttemptData;
+  policy: typeof DEFAULT_POLICY_VIEW;
   onComplete: () => void | Promise<void>;
 }) {
   const t = useTranslations('Activities.ExamActivity');
@@ -276,7 +281,7 @@ function ExamTakingContent({
             },
           }
         : null,
-      policy: policyFromExamSettings(settings),
+      policy,
       initialViolationCount: state.violationCount,
       onViolation: handleViolation,
       onGuardAutoSubmit: () => {
@@ -307,6 +312,7 @@ function ExamTakingContent({
       isSubmitting,
       openSubmitConfirmation,
       orderedQuestions.length,
+      policy,
       clearSavedAnswers,
       getRecoverableData,
       saveState,

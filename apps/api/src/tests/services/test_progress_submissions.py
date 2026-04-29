@@ -597,7 +597,14 @@ def test_backfill_projects_legacy_exam_attempt_into_submission(
         course_id=activity.course_id,
         chapter_id=activity.chapter_id,
         activity_id=activity.id,
-        settings={},
+        settings={
+            "copy_paste_protection": True,
+            "tab_switch_detection": True,
+            "devtools_detection": False,
+            "right_click_disable": True,
+            "fullscreen_enforcement": False,
+            "violation_threshold": 4,
+        },
     )
     now = datetime.now(UTC).isoformat()
     attempt = ExamAttempt(
@@ -624,13 +631,23 @@ def test_backfill_projects_legacy_exam_attempt_into_submission(
     progress_submissions.backfill_activity_progress(db_session)
 
     submission = db_session.exec(select(Submission)).one()
+    policy = db_session.exec(select(AssessmentPolicy)).one()
     progress = db_session.exec(select(ActivityProgress)).one()
 
     assert submission.submission_uuid == "submission_attempt_progress"
     assert submission.assessment_type == AssessmentType.EXAM
+    assert submission.assessment_policy_id == policy.id
     assert submission.status == SubmissionStatus.GRADED
     assert submission.final_score == 80
     assert submission.answers_json["answers"] == {"1": 0}
     assert submission.answers_json["violations"][0]["type"] == "TAB_SWITCH"
+    assert policy.anti_cheat_json == {
+        "copy_paste_protection": True,
+        "tab_switch_detection": True,
+        "devtools_detection": False,
+        "right_click_disable": True,
+        "fullscreen_enforcement": False,
+        "violation_threshold": 4,
+    }
     assert progress.latest_submission_id == submission.id
     assert progress.state == ActivityProgressState.PASSED

@@ -119,6 +119,10 @@ class AssessmentPolicy(SQLModelStrictBaseModel, table=True):
         default_factory=dict,
         sa_column=Column(JSON, nullable=False, server_default="{}"),
     )
+    anti_cheat_json: dict = Field(
+        default_factory=dict,
+        sa_column=Column(JSON, nullable=False, server_default="{}"),
+    )
     settings_json: dict = Field(
         default_factory=dict,
         sa_column=Column(JSON, nullable=False, server_default="{}"),

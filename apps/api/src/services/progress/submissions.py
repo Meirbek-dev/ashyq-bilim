@@ -46,6 +46,15 @@ _ASSESSMENT_TYPE_BY_ACTIVITY_TYPE: dict[str, AssessmentType] = {
     ActivityTypeEnum.TYPE_CODE_CHALLENGE.value: AssessmentType.CODE_CHALLENGE,
 }
 
+DEFAULT_ANTI_CHEAT_JSON: dict[str, object] = {
+    "copy_paste_protection": False,
+    "tab_switch_detection": False,
+    "devtools_detection": False,
+    "right_click_disable": False,
+    "fullscreen_enforcement": False,
+    "violation_threshold": None,
+}
+
 
 def start_activity_submission(submission: Submission, db_session: Session) -> None:
     _record_submission_change(submission, db_session)
@@ -431,6 +440,42 @@ def sync_exam_attempt(
     return submission
 
 
+def sync_exam_policy(
+    exam: Exam,
+    db_session: Session,
+    *,
+    commit: bool = True,
+) -> AssessmentPolicy:
+    policy = db_session.exec(
+        select(AssessmentPolicy).where(AssessmentPolicy.activity_id == exam.activity_id)
+    ).first()
+    if policy is None:
+        policy = AssessmentPolicy(
+            policy_uuid=f"policy_{ULID()}",
+            activity_id=exam.activity_id,
+            assessment_type=AssessmentType.EXAM,
+        )
+
+    settings = exam.settings or {}
+    policy.assessment_type = AssessmentType.EXAM
+    policy.grading_mode = AssessmentGradingMode.AUTO_THEN_MANUAL
+    policy.completion_rule = AssessmentCompletionRule.PASSED
+    policy.passing_score = _number_setting(settings, "passing_score", 60.0)
+    policy.max_attempts = _positive_int_setting(settings, "attempt_limit")
+    time_limit_minutes = _positive_int_setting(settings, "time_limit")
+    policy.time_limit_seconds = (
+        time_limit_minutes * 60 if time_limit_minutes is not None else None
+    )
+    policy.anti_cheat_json = anti_cheat_from_exam_settings(settings)
+    policy.settings_json = settings
+
+    db_session.add(policy)
+    db_session.flush()
+    if commit:
+        db_session.commit()
+    return policy
+
+
 def sync_code_challenge_submission(
     code_submission: CodeSubmission,
     db_session: Session,
@@ -648,6 +693,13 @@ def _get_or_create_policy(
     if assessment_type is None:
         return None
 
+    if assessment_type == AssessmentType.EXAM:
+        exam = db_session.exec(
+            select(Exam).where(Exam.activity_id == activity.id)
+        ).first()
+        if exam is not None:
+            return sync_exam_policy(exam, db_session, commit=False)
+
     grading_mode = (
         AssessmentGradingMode.MANUAL
         if assessment_type == AssessmentType.ASSIGNMENT
@@ -660,6 +712,21 @@ def _get_or_create_policy(
         if assessment_type == AssessmentType.ASSIGNMENT
         else AssessmentCompletionRule.PASSED
     )
+    settings_json: dict[str, object] = {}
+    anti_cheat_json = DEFAULT_ANTI_CHEAT_JSON.copy()
+    if assessment_type == AssessmentType.QUIZ:
+        quiz_block = db_session.exec(
+            select(Block).where(
+                Block.activity_id == activity.id,
+                Block.block_type == BlockTypeEnum.BLOCK_QUIZ,
+            )
+        ).first()
+        if quiz_block is not None:
+            content = quiz_block.content if isinstance(quiz_block.content, dict) else {}
+            raw_settings = content.get("settings")
+            settings_json = raw_settings if isinstance(raw_settings, dict) else {}
+            anti_cheat_json = anti_cheat_from_quiz_settings(settings_json)
+
     policy = AssessmentPolicy(
         policy_uuid=f"policy_{ULID()}",
         activity_id=activity.id,
@@ -667,11 +734,60 @@ def _get_or_create_policy(
         grading_mode=grading_mode,
         completion_rule=completion_rule,
         passing_score=60,
-        settings_json={},
+        anti_cheat_json=anti_cheat_json,
+        settings_json=settings_json,
     )
     db_session.add(policy)
     db_session.flush()
     return policy
+
+
+def anti_cheat_from_exam_settings(settings: dict[str, object]) -> dict[str, object]:
+    return {
+        "copy_paste_protection": bool(settings.get("copy_paste_protection")),
+        "tab_switch_detection": bool(settings.get("tab_switch_detection")),
+        "devtools_detection": bool(settings.get("devtools_detection")),
+        "right_click_disable": bool(settings.get("right_click_disable")),
+        "fullscreen_enforcement": bool(settings.get("fullscreen_enforcement")),
+        "violation_threshold": _positive_int_setting(settings, "violation_threshold"),
+    }
+
+
+def anti_cheat_from_quiz_settings(settings: dict[str, object]) -> dict[str, object]:
+    track_violations = settings.get("track_violations") is True
+    return {
+        "copy_paste_protection": settings.get("prevent_copy") is True,
+        "tab_switch_detection": track_violations,
+        "devtools_detection": False,
+        "right_click_disable": False,
+        "fullscreen_enforcement": False,
+        "violation_threshold": (
+            _positive_int_setting(settings, "max_violations")
+            if track_violations and settings.get("block_on_violations") is True
+            else None
+        ),
+    }
+
+
+def _positive_int_setting(settings: dict[str, object], key: str) -> int | None:
+    value = settings.get(key)
+    if value is None:
+        return None
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return None
+    return parsed if parsed > 0 else None
+
+
+def _number_setting(settings: dict[str, object], key: str, default: float) -> float:
+    value = settings.get(key)
+    if value is None:
+        return default
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
 
 
 def _assessment_type_for_activity(

@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@components/ui/alert';
 import { Button } from '@components/ui/button';
+import type { PolicyView } from '@/features/assessments/domain/policy';
 
 interface ExamPreScreenProps {
   exam: any;
@@ -18,6 +19,7 @@ interface ExamPreScreenProps {
   onStartExam: (attempt: any) => void;
   onReviewAttempt?: (attempt: any) => void;
   isTeacher?: boolean;
+  policy: PolicyView;
 }
 
 export default function ExamPreScreen({
@@ -27,6 +29,7 @@ export default function ExamPreScreen({
   onStartExam,
   onReviewAttempt,
   isTeacher = false,
+  policy,
 }: ExamPreScreenProps) {
   const t = useTranslations('Activities.ExamActivity');
   const [isStarting, setIsStarting] = useState(false);
@@ -34,6 +37,9 @@ export default function ExamPreScreen({
   const settings = exam.settings || {};
   const attemptLimit = settings.attempt_limit;
   const timeLimit = settings.time_limit;
+  const antiCheat = policy.antiCheat;
+  const hasAntiCheatWarning =
+    antiCheat.tabSwitchDetection || antiCheat.copyPasteProtection || antiCheat.devtoolsDetection;
   const remainingAttempts = isTeacher
     ? null
     : attemptLimit && attemptLimit > 0
@@ -177,7 +183,7 @@ export default function ExamPreScreen({
                     </div>
                     <span className="text-foreground flex-1 text-sm leading-relaxed">{t('instruction2')}</span>
                   </li>
-                  {settings.tab_switch_detection && (
+                  {antiCheat.tabSwitchDetection && (
                     <li className="bg-card flex items-start gap-3 rounded-lg p-3 shadow-sm">
                       <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-amber-100">
                         <AlertCircle className="h-4 w-4 text-amber-600" />
@@ -185,7 +191,7 @@ export default function ExamPreScreen({
                       <span className="text-foreground flex-1 text-sm leading-relaxed">{t('instruction4')}</span>
                     </li>
                   )}
-                  {settings.copy_paste_protection && (
+                  {antiCheat.copyPasteProtection && (
                     <li className="bg-card flex items-start gap-3 rounded-lg p-3 shadow-sm">
                       <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-amber-100">
                         <AlertCircle className="h-4 w-4 text-amber-600" />
@@ -197,7 +203,7 @@ export default function ExamPreScreen({
               </div>
 
               {/* Anti-Cheating Warnings with modern alert */}
-              {(settings.tab_switch_detection || settings.copy_paste_protection || settings.devtools_detection) && (
+              {hasAntiCheatWarning && (
                 <Alert className="border-l-4 border-red-200 border-l-red-500 bg-red-50/80">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-600 text-white">
                     <AlertCircle className="size-6" />
@@ -206,7 +212,7 @@ export default function ExamPreScreen({
                     <AlertTitle className="text-lg font-bold text-red-900">{t('antiCheatingEnabled')}</AlertTitle>
                     <AlertDescription className="text-red-800">
                       {t('antiCheatingDescription', {
-                        threshold: settings.violation_threshold || t('notSet'),
+                        threshold: antiCheat.violationThreshold || t('notSet'),
                       })}
                     </AlertDescription>
                   </div>

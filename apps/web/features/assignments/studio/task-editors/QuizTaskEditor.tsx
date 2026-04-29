@@ -7,7 +7,6 @@ import { QuizContentsSchema } from '@/schemas/assignmentTaskContents';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { generateUUID } from '@/lib/utils';
 
@@ -81,10 +80,6 @@ function normalizeQuizContents(value: AssignmentTaskEditorValue) {
         typeof rawSettings.max_score_penalty_per_attempt === 'number'
           ? rawSettings.max_score_penalty_per_attempt
           : null,
-      prevent_copy: rawSettings.prevent_copy !== false,
-      track_violations: rawSettings.track_violations !== false,
-      max_violations: typeof rawSettings.max_violations === 'number' ? rawSettings.max_violations : 2,
-      block_on_violations: rawSettings.block_on_violations !== false,
     },
   };
 }
@@ -125,7 +120,7 @@ function QuizTaskEditorComponent({ value, disabled, onChange }: Parameters<TaskT
         <p className="text-muted-foreground mt-1 text-sm">Build questions, options, scoring, and quiz controls.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="quiz-attempts">Max attempts</Label>
           <Input
@@ -163,17 +158,6 @@ function QuizTaskEditorComponent({ value, disabled, onChange }: Parameters<TaskT
                   time_limit_seconds: event.target.value ? Math.max(1, Number(event.target.value) || 1) * 60 : null,
                 },
               })
-            }
-          />
-        </div>
-        <div className="flex items-center justify-between rounded-md border px-3 py-2">
-          <Label htmlFor="quiz-prevent-copy">Prevent copy</Label>
-          <Switch
-            id="quiz-prevent-copy"
-            checked={contents.settings.prevent_copy}
-            disabled={disabled}
-            onCheckedChange={(checked) =>
-              updateContents({ ...contents, settings: { ...contents.settings, prevent_copy: checked } })
             }
           />
         </div>

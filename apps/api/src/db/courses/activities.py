@@ -199,6 +199,18 @@ class ActivityRead(ActivityBase):
         return v
 
 
+class ActivityAssessmentPolicyRead(SQLModelStrictBaseModel):
+    id: int
+    policy_uuid: str
+    assessment_type: str
+    max_attempts: int | None = None
+    time_limit_seconds: int | None = None
+    due_at: datetime | None = None
+    late_policy_json: dict[str, object] = Field(default_factory=dict)
+    anti_cheat_json: dict[str, object] = Field(default_factory=dict)
+    settings_json: dict[str, object] = Field(default_factory=dict)
+
+
 class ActivityReadWithPermissions(ActivityRead):
     """Activity response with permission metadata."""
 
@@ -206,3 +218,4 @@ class ActivityReadWithPermissions(ActivityRead):
     can_delete: bool
     is_owner: bool
     is_creator: bool
+    assessment_policy: ActivityAssessmentPolicyRead | None = None

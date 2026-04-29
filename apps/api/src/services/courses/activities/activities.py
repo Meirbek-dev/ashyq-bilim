@@ -7,6 +7,7 @@ from ulid import ULID
 
 from src.db.courses.activities import (
     Activity,
+    ActivityAssessmentPolicyRead,
     ActivityCreate,
     ActivityRead,
     ActivityReadWithPermissions,
@@ -17,6 +18,7 @@ from src.db.courses.activities import (
 from src.db.courses.assignments import Assignment, AssignmentStatus
 from src.db.courses.chapters import Chapter
 from src.db.courses.courses import Course
+from src.db.grading.progress import AssessmentPolicy
 from src.db.users import AnonymousUser, PublicUser
 from src.security.rbac import PermissionChecker
 from src.services.courses._auth import require_course_permission
@@ -134,6 +136,31 @@ async def get_activity(
         can_delete=can_delete,
         is_owner=is_owner,
         is_creator=is_owner,
+        assessment_policy=_get_activity_policy_read(activity, db_session),
+    )
+
+
+def _get_activity_policy_read(
+    activity: Activity,
+    db_session: Session,
+) -> ActivityAssessmentPolicyRead | None:
+    if activity.id is None:
+        return None
+    policy = db_session.exec(
+        select(AssessmentPolicy).where(AssessmentPolicy.activity_id == activity.id)
+    ).first()
+    if policy is None:
+        return None
+    return ActivityAssessmentPolicyRead(
+        id=policy.id or 0,
+        policy_uuid=policy.policy_uuid,
+        assessment_type=str(policy.assessment_type),
+        max_attempts=policy.max_attempts,
+        time_limit_seconds=policy.time_limit_seconds,
+        due_at=policy.due_at,
+        late_policy_json=policy.late_policy_json,
+        anti_cheat_json=policy.anti_cheat_json,
+        settings_json=policy.settings_json,
     )
 
 

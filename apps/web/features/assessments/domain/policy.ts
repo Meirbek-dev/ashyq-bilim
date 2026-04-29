@@ -5,8 +5,7 @@
  * from any assessment type into one shape. Each kind provides a
  * `toPolicyView()` adapter in its registry contribution.
  *
- * Phase 5 will add AssessmentPolicy.anti_cheat_json to the backend so this
- * shape maps 1:1. For now it is a frontend view model only.
+ * Maps directly from backend AssessmentPolicy, including anti_cheat_json.
  */
 
 export interface AntiCheatPolicy {
@@ -57,6 +56,14 @@ export const DEFAULT_POLICY_VIEW: PolicyView = {
   antiCheat: DEFAULT_ANTI_CHEAT_POLICY,
 };
 
+export interface AssessmentPolicyDTO {
+  max_attempts?: number | null;
+  time_limit_seconds?: number | null;
+  due_at?: string | null;
+  late_policy_json?: Record<string, unknown> | null;
+  anti_cheat_json?: Record<string, unknown> | null;
+}
+
 export function isAntiCheatEnabled(policy: AntiCheatPolicy): boolean {
   return (
     policy.copyPasteProtection ||
@@ -67,22 +74,25 @@ export function isAntiCheatEnabled(policy: AntiCheatPolicy): boolean {
   );
 }
 
-/**
- * Build a PolicyView from exam settings JSON.
- * Remove once the exam backend adopts the unified AssessmentPolicy table.
- */
-export function policyFromExamSettings(settings: Record<string, unknown>): PolicyView {
+export function policyFromAssessmentPolicy(policy: AssessmentPolicyDTO | null | undefined): PolicyView {
+  if (!policy) return DEFAULT_POLICY_VIEW;
+  const antiCheat = policy.anti_cheat_json ?? {};
+  const latePolicy = policy.late_policy_json ?? {};
+
   return {
-    dueAt: null, // exams have no due_at today
-    maxAttempts: typeof settings['attempt_limit'] === 'number' ? settings['attempt_limit'] : null,
-    latePolicy: { penaltyPercent: 0 },
+    dueAt: policy.due_at ?? null,
+    maxAttempts: typeof policy.max_attempts === 'number' ? policy.max_attempts : null,
+    latePolicy: {
+      penaltyPercent: typeof latePolicy.penalty_percent === 'number' ? latePolicy.penalty_percent : 0,
+    },
     antiCheat: {
-      copyPasteProtection: Boolean(settings['copy_paste_protection']),
-      tabSwitchDetection: Boolean(settings['tab_switch_detection']),
-      devtoolsDetection: Boolean(settings['devtools_detection']),
-      rightClickDisabled: Boolean(settings['right_click_disable']),
-      fullscreenEnforced: Boolean(settings['fullscreen_enforcement']),
-      violationThreshold: typeof settings['violation_threshold'] === 'number' ? settings['violation_threshold'] : null,
+      copyPasteProtection: Boolean(antiCheat.copy_paste_protection),
+      tabSwitchDetection: Boolean(antiCheat.tab_switch_detection),
+      devtoolsDetection: Boolean(antiCheat.devtools_detection),
+      rightClickDisabled: Boolean(antiCheat.right_click_disable),
+      fullscreenEnforced: Boolean(antiCheat.fullscreen_enforcement),
+      violationThreshold:
+        typeof antiCheat.violation_threshold === 'number' ? antiCheat.violation_threshold : null,
     },
   };
 }

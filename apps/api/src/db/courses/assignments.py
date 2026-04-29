@@ -79,10 +79,6 @@ class AssignmentQuizTaskSettings(SQLModelStrictBaseModel):
     max_attempts: int | None = None
     time_limit_seconds: int | None = None
     max_score_penalty_per_attempt: float | None = None
-    prevent_copy: bool = True
-    track_violations: bool = True
-    max_violations: int = 2
-    block_on_violations: bool = True
 
 
 class AssignmentQuizTaskConfig(SQLModelStrictBaseModel):

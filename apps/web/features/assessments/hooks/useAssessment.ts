@@ -24,7 +24,7 @@ import {
   canArchive,
   type AssessmentLifecycle,
 } from '../domain/lifecycle';
-import { DEFAULT_POLICY_VIEW } from '../domain/policy';
+import { policyFromAssessmentPolicy, type AssessmentPolicyDTO } from '../domain/policy';
 import type { AssessmentKind, AssessmentSurface, StudioViewModel, AttemptViewModel } from '../domain/view-models';
 
 // ── Internal activity shape (subset of what the API returns) ──────────────────
@@ -36,6 +36,7 @@ interface ActivityDetail {
   activity_type: string;
   published: boolean;
   details?: Record<string, unknown> | null;
+  assessment_policy?: AssessmentPolicyDTO | null;
 }
 
 function activityDetailQueryOptions(activityUuid: string) {
@@ -128,7 +129,7 @@ export function useAssessment(
       canSchedule: canSchedule(lifecycle),
       canArchive: canArchive(lifecycle),
       scheduledAt: null,
-      policy: DEFAULT_POLICY_VIEW,
+      policy: policyFromAssessmentPolicy(activity.assessment_policy),
       validationIssues: [],
     };
     return { vm: { surface: 'STUDIO', vm, kind }, isLoading: false, error: null };
@@ -149,7 +150,7 @@ export function useAssessment(
     submissionStatus: null,
     releaseState: 'HIDDEN',
     score: { percent: null, source: 'none' },
-    policy: DEFAULT_POLICY_VIEW,
+    policy: policyFromAssessmentPolicy(activity.assessment_policy),
     canEdit: true,
     canSaveDraft: true,
     canSubmit: true,

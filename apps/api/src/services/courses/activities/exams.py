@@ -146,6 +146,8 @@ async def create_exam(
     )
 
     db_session.add(exam)
+    db_session.flush()
+    progress_submissions.sync_exam_policy(exam, db_session, commit=False)
     db_session.commit()
     db_session.refresh(exam)
 
@@ -259,6 +261,8 @@ async def update_exam(
     exam.update_date = _utc_now_iso()
 
     db_session.add(exam)
+    db_session.flush()
+    progress_submissions.sync_exam_policy(exam, db_session, commit=False)
     db_session.commit()
     db_session.refresh(exam)
 
@@ -378,6 +382,8 @@ async def create_exam_with_activity(
     )
 
     db_session.add(exam)
+    db_session.flush()
+    progress_submissions.sync_exam_policy(exam, db_session, commit=False)
     db_session.commit()
     db_session.refresh(exam)
     db_session.refresh(activity)
