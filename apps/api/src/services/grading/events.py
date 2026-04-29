@@ -44,6 +44,8 @@ def publish_grading_event(
         return
     message = grading_event(event_type, submission_uuid, payload)
     try:
-        client.publish(grading_channel(submission_uuid), json.dumps(message, default=str))
+        client.publish(
+            grading_channel(submission_uuid), json.dumps(message, default=str)
+        )
     except Exception:
         logger.warning("Failed to publish grading event %s", event_type, exc_info=True)

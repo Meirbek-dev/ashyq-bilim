@@ -119,7 +119,9 @@ async def test_gradebook_endpoint_returns_course_gradebook_contract(
         transport=ASGITransport(app=app),
         base_url="http://test",
     ) as client:
-        response = await client.get("/api/v1/grading/courses/course_gradebook/gradebook")
+        response = await client.get(
+            "/api/v1/grading/courses/course_gradebook/gradebook"
+        )
 
     assert response.status_code == 200
     body = response.json()

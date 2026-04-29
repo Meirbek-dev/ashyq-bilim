@@ -82,10 +82,7 @@ export function policyFromExamSettings(settings: Record<string, unknown>): Polic
       devtoolsDetection: Boolean(settings['devtools_detection']),
       rightClickDisabled: Boolean(settings['right_click_disable']),
       fullscreenEnforced: Boolean(settings['fullscreen_enforcement']),
-      violationThreshold:
-        typeof settings['violation_threshold'] === 'number'
-          ? settings['violation_threshold']
-          : null,
+      violationThreshold: typeof settings['violation_threshold'] === 'number' ? settings['violation_threshold'] : null,
     },
   };
 }

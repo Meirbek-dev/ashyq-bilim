@@ -409,12 +409,18 @@ class TestCreateResubmissionDraft:
         _seed_policy(db_session, activity, max_attempts=2)
         # 2 non-DRAFT submissions → already at the limit
         _make_non_draft(
-            db_session, activity.id, student.id,
-            status=SubmissionStatus.GRADED, attempt_number=1,
+            db_session,
+            activity.id,
+            student.id,
+            status=SubmissionStatus.GRADED,
+            attempt_number=1,
         )
         returned = _make_non_draft(
-            db_session, activity.id, student.id,
-            status=SubmissionStatus.RETURNED, attempt_number=2,
+            db_session,
+            activity.id,
+            student.id,
+            status=SubmissionStatus.RETURNED,
+            attempt_number=2,
         )
 
         with patch("src.services.grading.submission.PermissionChecker") as mock_pc:

@@ -61,18 +61,12 @@ class GradingEntry(SQLModelStrictBaseModel, table=True):
     )
 
     # Scores — all 0-100 scale
-    raw_score: float = Field(
-        sa_column=Column("raw_score", Float, nullable=False)
-    )
+    raw_score: float = Field(sa_column=Column("raw_score", Float, nullable=False))
     penalty_pct: float = Field(
         default=0.0,
-        sa_column=Column(
-            "penalty_pct", Float, nullable=False, server_default="0"
-        ),
+        sa_column=Column("penalty_pct", Float, nullable=False, server_default="0"),
     )
-    final_score: float = Field(
-        sa_column=Column("final_score", Float, nullable=False)
-    )
+    final_score: float = Field(sa_column=Column("final_score", Float, nullable=False))
 
     # Grading detail (per-item scores + feedback)
     breakdown: dict = Field(
@@ -83,9 +77,7 @@ class GradingEntry(SQLModelStrictBaseModel, table=True):
     # Teacher's overall comment — stored separately from per-item breakdown
     overall_feedback: str = Field(
         default="",
-        sa_column=Column(
-            "overall_feedback", Text, nullable=False, server_default=""
-        ),
+        sa_column=Column("overall_feedback", Text, nullable=False, server_default=""),
     )
 
     # Grading version — mirrors Submission.grading_version for schema evolution
@@ -99,17 +91,13 @@ class GradingEntry(SQLModelStrictBaseModel, table=True):
     # Immutable timestamps — created_at is never updated
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC),
-        sa_column=Column(
-            "created_at", DateTime(timezone=True), nullable=False
-        ),
+        sa_column=Column("created_at", DateTime(timezone=True), nullable=False),
     )
 
     # NULL = draft (teacher-only).  Non-null = published and visible to student.
     published_at: datetime | None = Field(
         default=None,
-        sa_column=Column(
-            "published_at", DateTime(timezone=True), nullable=True
-        ),
+        sa_column=Column("published_at", DateTime(timezone=True), nullable=True),
     )
 
 

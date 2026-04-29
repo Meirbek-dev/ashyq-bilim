@@ -32,14 +32,17 @@ export default function TaskAttemptList({
   onAnswerChange,
 }: TaskAttemptListProps) {
   if (tasks.length === 0) {
-    return <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">No tasks.</div>;
+    return (
+      <div className="text-muted-foreground rounded-lg border border-dashed p-8 text-center text-sm">No tasks.</div>
+    );
   }
 
   return (
     <div className="space-y-5">
       {tasks.map((task, index) => {
         const answer = answers[task.assignment_task_uuid] ?? null;
-        const Icon = task.assignment_type === 'QUIZ' ? ListTodo : task.assignment_type === 'FORM' ? TextCursorInput : FileUp;
+        const Icon =
+          task.assignment_type === 'QUIZ' ? ListTodo : task.assignment_type === 'FORM' ? TextCursorInput : FileUp;
         return (
           <Card key={task.assignment_task_uuid}>
             <CardContent className="space-y-4 p-5">

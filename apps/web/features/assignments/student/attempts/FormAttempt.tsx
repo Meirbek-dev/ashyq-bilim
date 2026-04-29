@@ -33,7 +33,7 @@ export default function FormAttempt({ task, answer, disabled, onChange }: Attemp
   };
 
   if (questions.length === 0) {
-    return <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">No form fields.</div>;
+    return <div className="text-muted-foreground rounded-md border border-dashed p-4 text-sm">No form fields.</div>;
   }
 
   return (
@@ -41,7 +41,7 @@ export default function FormAttempt({ task, answer, disabled, onChange }: Attemp
       {questions.map((question, questionIndex) => (
         <div
           key={question.questionUUID ?? questionIndex}
-          className="rounded-md border bg-muted/30 p-4"
+          className="bg-muted/30 rounded-md border p-4"
         >
           <div className="mb-3 flex items-start gap-2">
             <Badge variant="secondary">Q{questionIndex + 1}</Badge>
@@ -64,7 +64,7 @@ export default function FormAttempt({ task, answer, disabled, onChange }: Attemp
                     disabled={disabled}
                     onChange={(event) => updateBlank(blankId, event.target.value)}
                   />
-                  {blank.hint ? <p className="text-xs text-muted-foreground">{blank.hint}</p> : null}
+                  {blank.hint ? <p className="text-muted-foreground text-xs">{blank.hint}</p> : null}
                 </div>
               );
             })}

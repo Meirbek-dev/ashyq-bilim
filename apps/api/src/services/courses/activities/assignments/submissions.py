@@ -155,9 +155,7 @@ def _get_assessment_policy(
     db_session: Session,
 ) -> AssessmentPolicy | None:
     return db_session.exec(
-        select(AssessmentPolicy).where(
-            AssessmentPolicy.activity_id == activity_id
-        )
+        select(AssessmentPolicy).where(AssessmentPolicy.activity_id == activity_id)
     ).first()
 
 

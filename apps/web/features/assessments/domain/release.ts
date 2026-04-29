@@ -11,11 +11,7 @@
 
 import type { SubmissionStatus } from './submission-status';
 
-export type ReleaseState =
-  | 'HIDDEN'
-  | 'AWAITING_RELEASE'
-  | 'VISIBLE'
-  | 'RETURNED_FOR_REVISION';
+export type ReleaseState = 'HIDDEN' | 'AWAITING_RELEASE' | 'VISIBLE' | 'RETURNED_FOR_REVISION';
 
 export const RELEASE_STATE_LABELS: Record<ReleaseState, string> = {
   HIDDEN: 'Hidden from student',
@@ -26,10 +22,14 @@ export const RELEASE_STATE_LABELS: Record<ReleaseState, string> = {
 
 export function getReleaseState(status: SubmissionStatus): ReleaseState {
   switch (status) {
-    case 'GRADED': return 'AWAITING_RELEASE';
-    case 'PUBLISHED': return 'VISIBLE';
-    case 'RETURNED': return 'RETURNED_FOR_REVISION';
-    default: return 'HIDDEN';
+    case 'GRADED':
+      return 'AWAITING_RELEASE';
+    case 'PUBLISHED':
+      return 'VISIBLE';
+    case 'RETURNED':
+      return 'RETURNED_FOR_REVISION';
+    default:
+      return 'HIDDEN';
   }
 }
 

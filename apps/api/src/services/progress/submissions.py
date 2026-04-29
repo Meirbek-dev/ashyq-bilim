@@ -160,9 +160,7 @@ def recalculate_course_progress(
     # ── Weighted grade average ────────────────────────────────────────────────
     # Fetch assignment weights for all activities that have scores.
     # Activities without an Assignment row get weight = 1.0.
-    scored_activity_ids = [
-        row.activity_id for row in rows if row.score is not None
-    ]
+    scored_activity_ids = [row.activity_id for row in rows if row.score is not None]
     weight_by_activity: dict[int, float] = {}
     if scored_activity_ids:
         assignment_rows = db_session.exec(
@@ -170,7 +168,9 @@ def recalculate_course_progress(
                 Assignment.activity_id.in_(scored_activity_ids)
             )
         ).all()
-        weight_by_activity = {row.activity_id: float(row.weight) for row in assignment_rows}
+        weight_by_activity = {
+            row.activity_id: float(row.weight) for row in assignment_rows
+        }
 
     weighted_numerator = 0.0
     weighted_denominator = 0.0
@@ -276,6 +276,12 @@ def backfill_activity_progress(
         if activity.course_id is not None
     ]
 
+    backfill_exam_attempt_submissions(
+        db_session,
+        course_id=course_id,
+        commit=False,
+    )
+
     user_ids_by_course = _known_user_ids_by_course(db_session, activities)
 
     rows = 0
@@ -305,6 +311,35 @@ def backfill_activity_progress(
     if commit:
         db_session.commit()
     return {"activities": len(activities), "progress_rows_repaired": rows}
+
+
+def backfill_exam_attempt_submissions(
+    db_session: Session,
+    *,
+    course_id: int | None = None,
+    activity_id: int | None = None,
+    commit: bool = True,
+) -> int:
+    """Project legacy ExamAttempt rows into canonical Submission rows."""
+
+    query = (
+        select(ExamAttempt)
+        .join(Exam, Exam.id == ExamAttempt.exam_id)
+        .where(ExamAttempt.is_preview == False)
+    )
+    if course_id is not None:
+        query = query.where(Exam.course_id == course_id)
+    if activity_id is not None:
+        query = query.where(Exam.activity_id == activity_id)
+
+    synced = 0
+    for attempt in db_session.exec(query).all():
+        if sync_exam_attempt(attempt, db_session, commit=False) is not None:
+            synced += 1
+
+    if commit:
+        db_session.commit()
+    return synced
 
 
 def sync_quiz_attempt(
@@ -371,7 +406,13 @@ def sync_exam_attempt(
     )
     submission.attempt_number = _legacy_exam_attempt_number(attempt, db_session)
     submission.status = status
-    submission.answers_json = {"answers": attempt.answers or {}}
+    submission.answers_json = {
+        "answers": attempt.answers or {},
+        "question_order": attempt.question_order or [],
+        "violations": attempt.violations or [],
+        "attempt_uuid": attempt.attempt_uuid,
+        "status": _enum_value(attempt.status),
+    }
     submission.grading_json = {}
     submission.auto_score = score
     submission.final_score = score if status == SubmissionStatus.GRADED else None

@@ -20,6 +20,7 @@ from src.db.courses.code_challenges import (
     SubmissionStatus as CodeSubmissionStatus,
 )
 from src.db.courses.courses import Course
+from src.db.courses.exams import AttemptStatusEnum, Exam, ExamAttempt
 from src.db.courses.quiz import QuizAttempt
 from src.db.grading.progress import (
     ActivityProgress,
@@ -430,9 +431,15 @@ def test_attempt_count_ignores_drafts_and_counts_submitted_attempts(
         )
     )
     db_session.commit()
-    db_session.add(make_submission(activity, status=SubmissionStatus.DRAFT, attempt_number=1))
-    db_session.add(make_submission(activity, status=SubmissionStatus.PENDING, attempt_number=2))
-    db_session.add(make_submission(activity, status=SubmissionStatus.PENDING, attempt_number=3))
+    db_session.add(
+        make_submission(activity, status=SubmissionStatus.DRAFT, attempt_number=1)
+    )
+    db_session.add(
+        make_submission(activity, status=SubmissionStatus.PENDING, attempt_number=2)
+    )
+    db_session.add(
+        make_submission(activity, status=SubmissionStatus.PENDING, attempt_number=3)
+    )
     db_session.commit()
 
     progress = progress_submissions.recalculate_activity_progress(
@@ -573,3 +580,57 @@ def test_backfill_preserves_existing_assignment_submission(
     assert len(submissions) == 1
     assert submissions[0].id == original_id
     assert progress.latest_submission_id == original_id
+
+
+def test_backfill_projects_legacy_exam_attempt_into_submission(
+    db_session: Session,
+) -> None:
+    activity = seed_activity(db_session)
+    activity.activity_type = ActivityTypeEnum.TYPE_EXAM
+    activity.activity_sub_type = ActivitySubTypeEnum.SUBTYPE_EXAM_STANDARD
+    exam = Exam(
+        id=1,
+        exam_uuid="exam_progress",
+        title="Exam",
+        description="",
+        published=True,
+        course_id=activity.course_id,
+        chapter_id=activity.chapter_id,
+        activity_id=activity.id,
+        settings={},
+    )
+    now = datetime.now(UTC).isoformat()
+    attempt = ExamAttempt(
+        id=1,
+        attempt_uuid="attempt_progress",
+        exam_id=exam.id,
+        user_id=10,
+        status=AttemptStatusEnum.SUBMITTED,
+        score=8,
+        max_score=10,
+        answers={"1": 0},
+        question_order=[1],
+        violations=[{"type": "TAB_SWITCH", "timestamp": now}],
+        started_at=now,
+        submitted_at=now,
+        creation_date=now,
+        update_date=now,
+    )
+    db_session.add(activity)
+    db_session.add(exam)
+    db_session.add(attempt)
+    db_session.commit()
+
+    progress_submissions.backfill_activity_progress(db_session)
+
+    submission = db_session.exec(select(Submission)).one()
+    progress = db_session.exec(select(ActivityProgress)).one()
+
+    assert submission.submission_uuid == "submission_attempt_progress"
+    assert submission.assessment_type == AssessmentType.EXAM
+    assert submission.status == SubmissionStatus.GRADED
+    assert submission.final_score == 80
+    assert submission.answers_json["answers"] == {"1": 0}
+    assert submission.answers_json["violations"][0]["type"] == "TAB_SWITCH"
+    assert progress.latest_submission_id == submission.id
+    assert progress.state == ActivityProgressState.PASSED

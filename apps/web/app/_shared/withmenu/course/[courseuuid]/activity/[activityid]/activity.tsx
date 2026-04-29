@@ -71,10 +71,10 @@ const DocumentPdfActivity = dynamic(() => import('@components/Objects/Activities
   loading: () => <LoadingFallback />,
   ssr: false,
 });
-const AssignmentStudentActivity = dynamic(
-  () => import('@/features/assignments/student/StudentAssignmentActivity'),
-  { loading: () => <LoadingFallback />, ssr: false },
-);
+const AssignmentStudentActivity = dynamic(() => import('@/features/assignments/student/StudentAssignmentActivity'), {
+  loading: () => <LoadingFallback />,
+  ssr: false,
+});
 const ExamActivity = dynamic(() => import('@components/Activities/ExamActivity/ExamActivity'), {
   loading: () => <LoadingFallback />,
   ssr: false,

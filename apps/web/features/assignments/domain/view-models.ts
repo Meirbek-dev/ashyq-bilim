@@ -2,12 +2,7 @@ import { isPublishedToStudent } from '@/features/grading/domain';
 import type { Submission } from '@/features/grading/domain';
 
 import { getAssignmentTotalPoints, getTaskMaxPoints } from './scoring';
-import {
-  canArchiveAssignment,
-  canPublishAssignment,
-  canScheduleAssignment,
-  isAssignmentEditable,
-} from './workflow';
+import { canArchiveAssignment, canPublishAssignment, canScheduleAssignment, isAssignmentEditable } from './workflow';
 import type {
   AssignmentRead,
   AssignmentStudioViewModel,

@@ -17,7 +17,12 @@ import PageLoading from '@components/Objects/Loaders/PageLoading';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 
-import { areAnswerMapsEqual, answerMapToPatch, buildAnswerMapFromDraft, buildAnswerMapFromSubmission } from './attempt-utils';
+import {
+  areAnswerMapsEqual,
+  answerMapToPatch,
+  buildAnswerMapFromDraft,
+  buildAnswerMapFromSubmission,
+} from './attempt-utils';
 import type { AssignmentAnswerMap, StudentAssignmentContextData } from './types';
 import SubmissionFooter, { type DraftSaveState } from './SubmissionFooter';
 import StudentResultPanel from './ResultPanel';
@@ -128,7 +133,7 @@ export default function StudentAssignmentShell({ data }: StudentAssignmentShellP
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 pb-28">
-      <section className="rounded-lg border bg-card p-5">
+      <section className="bg-card rounded-lg border p-5">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
             <div className="text-muted-foreground text-xs font-medium uppercase">Assignment</div>

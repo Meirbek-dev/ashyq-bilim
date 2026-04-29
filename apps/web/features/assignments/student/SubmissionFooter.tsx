@@ -38,7 +38,7 @@ export default function SubmissionFooter({
             state={returned ? 'returned' : state}
             status={status}
           />
-          {canSave ? <span className="text-sm text-muted-foreground">You have unsaved changes.</span> : null}
+          {canSave ? <span className="text-muted-foreground text-sm">You have unsaved changes.</span> : null}
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -65,12 +65,35 @@ export default function SubmissionFooter({
 }
 
 function FooterStateBadge({ state, status }: { state: DraftSaveState; status: SubmissionStatus | null }) {
-  if (state === 'saving') return <Badge variant="secondary"><LoaderCircle className="size-3 animate-spin" />Saving</Badge>;
+  if (state === 'saving')
+    return (
+      <Badge variant="secondary">
+        <LoaderCircle className="size-3 animate-spin" />
+        Saving
+      </Badge>
+    );
   if (state === 'unsaved') return <Badge variant="warning">Unsaved</Badge>;
   if (state === 'error') return <Badge variant="destructive">Save failed</Badge>;
-  if (state === 'submitted' || status === 'PENDING') return <Badge variant="secondary"><CheckCircle2 className="size-3" />Submitted</Badge>;
-  if (state === 'returned') return <Badge variant="warning"><RotateCcw className="size-3" />Returned</Badge>;
+  if (state === 'submitted' || status === 'PENDING')
+    return (
+      <Badge variant="secondary">
+        <CheckCircle2 className="size-3" />
+        Submitted
+      </Badge>
+    );
+  if (state === 'returned')
+    return (
+      <Badge variant="warning">
+        <RotateCcw className="size-3" />
+        Returned
+      </Badge>
+    );
   if (status === 'GRADED') return <Badge variant="secondary">Awaiting release</Badge>;
   if (status === 'PUBLISHED') return <Badge variant="success">Published</Badge>;
-  return <Badge variant="success"><CheckCircle2 className="size-3" />Saved</Badge>;
+  return (
+    <Badge variant="success">
+      <CheckCircle2 className="size-3" />
+      Saved
+    </Badge>
+  );
 }

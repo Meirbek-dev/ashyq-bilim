@@ -337,9 +337,7 @@ class Submission(SubmissionBase, table=True):
     # Teachers pass this as the If-Match header value; a mismatch → 412.
     version: int = SQLField(
         default=1,
-        sa_column=Column(
-            "version", Integer, nullable=False, server_default="1"
-        ),
+        sa_column=Column("version", Integer, nullable=False, server_default="1"),
     )
 
 

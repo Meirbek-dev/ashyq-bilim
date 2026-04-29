@@ -22,10 +22,24 @@ vi.mock('@/features/grading/queries/grading.query', () => ({
   courseGradebookQueryOptions: vi.fn(() => ({ queryKey: ['gradebook'] })),
 }));
 
+vi.mock('@/features/assessments/registry', () => ({
+  loadKindModule: vi.fn(async () => ({ ReviewDetail: undefined })),
+}));
+
 vi.mock('@/features/grading/review/GradingReviewWorkspace', () => ({
-  default: ({ initialSubmissionUuid, activityId }: { initialSubmissionUuid: string; activityId: number }) => (
+  default: ({
+    initialSubmissionUuid,
+    activityId,
+    activityUuid,
+    initialFilter,
+  }: {
+    initialSubmissionUuid: string;
+    activityId: number;
+    activityUuid?: string;
+    initialFilter?: string;
+  }) => (
     <div>
-      review:{initialSubmissionUuid}:{activityId}
+      review:{initialSubmissionUuid}:{activityId}:{activityUuid}:{initialFilter}
     </div>
   ),
 }));
@@ -187,7 +201,7 @@ describe('CourseGradebookCommandCenter', () => {
 
     fireEvent.click(within(screen.getByRole('table')).getByText('states.needs_grading'));
 
-    expect(screen.getByText('review:submission_assignment:1')).toBeInTheDocument();
+    expect(screen.getByText('review:submission_assignment:1:activity_assignment:ALL')).toBeInTheDocument();
   });
 
   it('shows command-center rollups and summary counts', () => {

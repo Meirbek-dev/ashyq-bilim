@@ -30,7 +30,7 @@ function TextTaskEditorComponent({ value, disabled, onChange }: Parameters<TaskT
   const contents = normalizeTextContents(value);
   return (
     <div className="space-y-4">
-      <div className="rounded-md border bg-muted/40 p-4">
+      <div className="bg-muted/40 rounded-md border p-4">
         <div className="flex items-center gap-2 text-sm font-semibold">
           <AlignLeft className="size-4" />
           Text task

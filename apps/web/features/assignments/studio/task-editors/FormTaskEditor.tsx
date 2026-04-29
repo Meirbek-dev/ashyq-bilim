@@ -89,7 +89,7 @@ function FormTaskEditorComponent({ value, disabled, onChange }: Parameters<TaskT
 
   return (
     <div className="space-y-5">
-      <div className="rounded-md border bg-muted/40 p-4">
+      <div className="bg-muted/40 rounded-md border p-4">
         <div className="flex items-center gap-2 text-sm font-semibold">
           <TextCursorInput className="size-4" />
           Form task
@@ -135,7 +135,7 @@ function FormTaskEditorComponent({ value, disabled, onChange }: Parameters<TaskT
             {question.blanks.map((blank, blankIndex) => (
               <div
                 key={blank.blankUUID}
-                className="grid gap-2 rounded-md border bg-background p-3 md:grid-cols-[1fr_1fr_1fr_auto]"
+                className="bg-background grid gap-2 rounded-md border p-3 md:grid-cols-[1fr_1fr_1fr_auto]"
               >
                 <Input
                   value={blank.placeholder}
@@ -147,7 +147,9 @@ function FormTaskEditorComponent({ value, disabled, onChange }: Parameters<TaskT
                         ? {
                             ...item,
                             blanks: item.blanks.map((candidate, candidateIndex) =>
-                              candidateIndex === blankIndex ? { ...candidate, placeholder: event.target.value } : candidate,
+                              candidateIndex === blankIndex
+                                ? { ...candidate, placeholder: event.target.value }
+                                : candidate,
                             ),
                           }
                         : item,
@@ -247,15 +249,16 @@ export const FormTaskEditor: TaskTypeEditorModule = {
   type: 'FORM',
   label: 'Form task',
   description: 'Structured written responses.',
-  buildDefaultContents: () => normalizeFormContents({
-    assignment_task_uuid: '',
-    assignment_type: 'FORM',
-    title: '',
-    description: '',
-    hint: '',
-    max_grade_value: 1,
-    contents: {},
-  }),
+  buildDefaultContents: () =>
+    normalizeFormContents({
+      assignment_task_uuid: '',
+      assignment_type: 'FORM',
+      title: '',
+      description: '',
+      hint: '',
+      max_grade_value: 1,
+      contents: {},
+    }),
   validate,
   getPreviewPayload: normalizeFormContents,
   Component: FormTaskEditorComponent,

@@ -434,12 +434,12 @@ revision for code challenges, anti-cheat for assignments, etc.).
 
 ### Phase 2 — Submission Review unification
 
-- [ ] Make `GradingReviewWorkspace` accept any `assessment_type`. Add
+- [x] Make `GradingReviewWorkspace` accept any `assessment_type`. Add
       kind-aware detail panel via registry.
-- [ ] Project `ExamAttempt` into `Submission` (backend work). Frontend treats
+- [x] Project `ExamAttempt` into `Submission` (backend work). Frontend treats
       every exam attempt as a `Submission`.
-- [ ] Wire the gradebook command center to navigate into review for any kind.
-- [ ] Delete `ExamResultsDashboard.tsx` once gradebook + review cover its
+- [x] Wire the gradebook command center to navigate into review for any kind.
+- [x] Delete `ExamResultsDashboard.tsx` once gradebook + review cover its
       surface.
 
 ### Phase 3 — Author surface unification

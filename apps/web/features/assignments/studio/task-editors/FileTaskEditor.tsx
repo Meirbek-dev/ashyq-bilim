@@ -37,7 +37,7 @@ function FileTaskEditorComponent({ value, disabled, onChange }: Parameters<TaskT
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border bg-muted/40 p-4">
+      <div className="bg-muted/40 rounded-md border p-4">
         <div className="flex items-center gap-2 text-sm font-semibold">
           <FileUp className="size-4" />
           File submission
@@ -115,7 +115,12 @@ export const FileTaskEditor: TaskTypeEditorModule = {
   type: 'FILE_SUBMISSION',
   label: 'File task',
   description: 'Upload-based task with file constraints.',
-  buildDefaultContents: () => ({ kind: 'FILE_SUBMISSION', allowed_mime_types: [], max_file_size_mb: null, max_files: 1 }),
+  buildDefaultContents: () => ({
+    kind: 'FILE_SUBMISSION',
+    allowed_mime_types: [],
+    max_file_size_mb: null,
+    max_files: 1,
+  }),
   validate,
   getPreviewPayload: normalizeFileContents,
   Component: FileTaskEditorComponent,

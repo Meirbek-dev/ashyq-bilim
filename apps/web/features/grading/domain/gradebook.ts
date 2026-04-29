@@ -1,8 +1,4 @@
-import {
-  activityProgressNeedsTeacherAction,
-  isActivityProgressOverdue,
-  isActivityProgressComplete,
-} from './status';
+import { activityProgressNeedsTeacherAction, isActivityProgressOverdue, isActivityProgressComplete } from './status';
 import type {
   ActivityProgressCell,
   ActivityProgressState,
@@ -90,7 +86,8 @@ export function filterGradebookStudents(
     const searchable = `${gradebookLearnerName(student)} ${student.username} ${student.email}`.toLowerCase();
     if (normalizedSearch && !searchable.includes(normalizedSearch)) return false;
     return visibleActivities.some((activity) => {
-      const cell = cellMap.get(gradebookCellKey(student.id, activity.id)) ?? emptyGradebookCell(student.id, activity.id);
+      const cell =
+        cellMap.get(gradebookCellKey(student.id, activity.id)) ?? emptyGradebookCell(student.id, activity.id);
       return matchesGradebookSavedFilter(cell, filters.savedFilter);
     });
   });

@@ -129,7 +129,9 @@ def start_submission_v2(
     # Enforce max_attempts from AssessmentPolicy before creating a new DRAFT.
     _enforce_attempt_limit_from_policy(activity_id, current_user.id, db_session)
 
-    attempt_number = _count_previous_attempts(activity_id, current_user.id, db_session) + 1
+    attempt_number = (
+        _count_previous_attempts(activity_id, current_user.id, db_session) + 1
+    )
     now = datetime.now(UTC)
 
     submission = Submission(
@@ -172,17 +174,17 @@ def create_resubmission_draft(
     _validate_transition(original.status, SubmissionStatus.DRAFT)
 
     activity = _get_activity_or_404(original.activity_id, db_session)
-    _require_permission(
-        current_user, activity, original.assessment_type, db_session
-    )
+    _require_permission(current_user, activity, original.assessment_type, db_session)
 
     # max_attempts includes the attempt that was just RETURNED
-    _enforce_attempt_limit_from_policy(original.activity_id, current_user.id, db_session)
+    _enforce_attempt_limit_from_policy(
+        original.activity_id, current_user.id, db_session
+    )
 
     now = datetime.now(UTC)
-    next_attempt = _count_previous_attempts(
-        original.activity_id, current_user.id, db_session
-    ) + 1
+    next_attempt = (
+        _count_previous_attempts(original.activity_id, current_user.id, db_session) + 1
+    )
 
     draft = Submission(
         submission_uuid=f"submission_{ULID()}",

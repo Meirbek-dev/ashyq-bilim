@@ -227,7 +227,12 @@ function AssignmentStudioTopBar({
               <Button
                 variant="outline"
                 size="sm"
-                render={<Link href={previewHref} target="_blank" />}
+                render={
+                  <Link
+                    href={previewHref}
+                    target="_blank"
+                  />
+                }
               >
                 <Eye className="size-4" />
                 Preview
@@ -346,7 +351,7 @@ function TaskOutlineRail({
       </div>
 
       {tasks.length === 0 ? (
-        <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">Add a task to begin.</div>
+        <div className="text-muted-foreground rounded-md border border-dashed p-4 text-sm">Add a task to begin.</div>
       ) : (
         <div className="space-y-2">
           {tasks.map((task, index) => {
@@ -515,7 +520,7 @@ function UnifiedTaskEditor({
         </Alert>
       ) : null}
 
-      <section className="rounded-lg border bg-card p-4 md:p-5">
+      <section className="bg-card rounded-lg border p-4 md:p-5">
         <div className="mb-4">
           <h3 className="text-sm font-semibold">Task metadata</h3>
           <p className="text-muted-foreground text-xs">Shared title, instructions, hint, and point value.</p>
@@ -575,7 +580,7 @@ function UnifiedTaskEditor({
         </div>
       </section>
 
-      <section className="rounded-lg border bg-card p-4 md:p-5">
+      <section className="bg-card rounded-lg border p-4 md:p-5">
         <div className="mb-4">
           <h3 className="text-sm font-semibold">Task content</h3>
           <p className="text-muted-foreground text-xs">Type-specific authoring using the shared editor contract.</p>
@@ -615,9 +620,20 @@ function AssignmentPolicyInspector({
     setDescription(assignment.description);
     setDueAt(toDateTimeLocal(assignment.due_at));
     setGradingType(assignment.grading_type);
-    lastSavedRef.current = serializeAssignmentSettings(assignment.title, assignment.description, assignment.due_at, assignment.grading_type);
+    lastSavedRef.current = serializeAssignmentSettings(
+      assignment.title,
+      assignment.description,
+      assignment.due_at,
+      assignment.grading_type,
+    );
     setSaveState('idle');
-  }, [assignment.assignment_uuid, assignment.description, assignment.due_at, assignment.grading_type, assignment.title]);
+  }, [
+    assignment.assignment_uuid,
+    assignment.description,
+    assignment.due_at,
+    assignment.grading_type,
+    assignment.title,
+  ]);
 
   const saveAssignment = useCallback(async () => {
     setSaveState('saving');
@@ -780,7 +796,7 @@ function ScoreSummary({ tasks }: { tasks: AssignmentTaskRead[] }) {
               <span className="truncate font-medium">{task.title || 'Untitled task'}</span>
               <span className="shrink-0">{task.max_grade_value || 0} pts</span>
             </div>
-            <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+            <div className="bg-muted mt-1 h-1.5 overflow-hidden rounded-full">
               <div
                 className="bg-primary h-full"
                 style={{ width: `${pointsToPercent(task.max_grade_value || 0, totalPoints) ?? 0}%` }}

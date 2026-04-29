@@ -43,7 +43,7 @@ registerKind('TYPE_ASSIGNMENT', async () => {
   const AttemptPassthrough: ComponentType<KindAttemptProps> = () => {
     // StudentAssignmentActivity is mounted by ActivityClient via AssignmentProvider.
     // This passthrough is a stub until Phase 4 migrates it to the unified Attempt shell.
-    return StudentAssignmentActivity({});
+    return StudentAssignmentActivity();
   };
 
   const ReviewPassthrough: ComponentType<KindReviewProps> = ({ activityId, submissionUuid, title }) => {

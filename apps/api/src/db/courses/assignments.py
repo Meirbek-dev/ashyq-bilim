@@ -163,13 +163,13 @@ class Assignment(SQLModelStrictBaseModel, table=True):
     )
     status: AssignmentStatus = Field(
         default=AssignmentStatus.DRAFT,
-        sa_column=Column(
-            "status", String, nullable=False, server_default="DRAFT"
-        ),
+        sa_column=Column("status", String, nullable=False, server_default="DRAFT"),
     )
     scheduled_publish_at: datetime | None = Field(
         default=None,
-        sa_column=Column("scheduled_publish_at", DateTime(timezone=True), nullable=True),
+        sa_column=Column(
+            "scheduled_publish_at", DateTime(timezone=True), nullable=True
+        ),
     )
     published_at: datetime | None = Field(
         default=None,
@@ -184,9 +184,7 @@ class Assignment(SQLModelStrictBaseModel, table=True):
     # more; 0.0 makes it optional (not included in weighted_grade_average).
     weight: float = Field(
         default=1.0,
-        sa_column=Column(
-            "weight", Float, nullable=False, server_default="1.0"
-        ),
+        sa_column=Column("weight", Float, nullable=False, server_default="1.0"),
     )
     grading_type: GradingTypeEnum = Field(
         sa_column=Column("grading_type", String, nullable=False)

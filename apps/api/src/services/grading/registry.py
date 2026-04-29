@@ -55,9 +55,7 @@ class QuizGrader(BaseGrader):
         penalized = apply_attempt_penalty(
             base_score=raw_score,
             attempt_number=kwargs.get("attempt_number", 1),
-            max_score_penalty_per_attempt=kwargs.get(
-                "max_score_penalty_per_attempt"
-            ),
+            max_score_penalty_per_attempt=kwargs.get("max_score_penalty_per_attempt"),
         )
         return GradingResult(
             auto_score=penalized,

@@ -233,8 +233,11 @@ async def test_batch_grade_reports_failures_per_item(
     assert response.failed == 1
     assert response.results[0].success is True
     assert response.results[1].success is False
-    assert db_session.exec(
-        select(Submission.status).where(
-            Submission.submission_uuid == "submission_valid"
-        )
-    ).one() == SubmissionStatus.GRADED
+    assert (
+        db_session.exec(
+            select(Submission.status).where(
+                Submission.submission_uuid == "submission_valid"
+            )
+        ).one()
+        == SubmissionStatus.GRADED
+    )

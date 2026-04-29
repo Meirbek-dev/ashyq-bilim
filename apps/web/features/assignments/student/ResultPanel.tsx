@@ -14,7 +14,7 @@ export default function StudentResultPanel({ submission, onRefresh }: ResultPane
     <section className="space-y-3">
       <div>
         <h2 className="text-xl font-semibold">Result</h2>
-        <p className="text-sm text-muted-foreground">Released score and feedback.</p>
+        <p className="text-muted-foreground text-sm">Released score and feedback.</p>
       </div>
       <SubmissionResult
         submission={submission}

@@ -63,7 +63,7 @@ export function CodeRunStatusBadge({
   size,
   className,
   showIcon = true,
-}: SubmissionStatusBadgeProps) {
+}: CodeRunStatusBadgeProps) {
   const t = useTranslations('Activities.CodeChallenges');
 
   const getConfig = () => {

@@ -104,7 +104,9 @@ def _latest_or_create_grading_entry(
         raw_score=float(submission.final_score or submission.auto_score or 0),
         penalty_pct=float(submission.late_penalty_pct or 0),
         final_score=float(submission.final_score or submission.auto_score or 0),
-        breakdown=submission.grading_json if isinstance(submission.grading_json, dict) else {},
+        breakdown=submission.grading_json
+        if isinstance(submission.grading_json, dict)
+        else {},
         overall_feedback=(
             submission.grading_json.get("feedback", "")
             if isinstance(submission.grading_json, dict)
@@ -130,7 +132,9 @@ async def api_list_item_feedback(
 ) -> list[ItemFeedbackRead]:
     submission, activity = _submission_with_activity(submission_uuid, db_session)
     if not _can_read_feedback(submission, activity, current_user, db_session):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
+        )
 
     query = (
         select(ItemFeedbackEntry)
@@ -140,7 +144,9 @@ async def api_list_item_feedback(
     )
     if submission.user_id == current_user.id:
         query = query.where(GradingEntry.published_at.is_not(None))
-    return [ItemFeedbackRead.model_validate(row) for row in db_session.exec(query).all()]
+    return [
+        ItemFeedbackRead.model_validate(row) for row in db_session.exec(query).all()
+    ]
 
 
 @router.post(
@@ -197,11 +203,17 @@ async def api_update_item_feedback(
 ) -> ItemFeedbackRead:
     row = db_session.get(ItemFeedbackEntry, feedback_id)
     if row is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Feedback not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Feedback not found"
+        )
     existing_submission = db_session.get(Submission, row.submission_id)
     if existing_submission is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Submission not found")
-    submission, activity = _submission_with_activity(existing_submission.submission_uuid, db_session)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Submission not found"
+        )
+    submission, activity = _submission_with_activity(
+        existing_submission.submission_uuid, db_session
+    )
     _require_teacher(activity, current_user, db_session)
 
     update = feedback.model_dump(exclude_unset=True)
@@ -227,13 +239,19 @@ async def api_delete_item_feedback(
 ) -> None:
     row = db_session.get(ItemFeedbackEntry, feedback_id)
     if row is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Feedback not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Feedback not found"
+        )
     submission = db_session.get(Submission, row.submission_id)
     if submission is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Submission not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Submission not found"
+        )
     activity = db_session.get(Activity, submission.activity_id)
     if activity is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Activity not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Activity not found"
+        )
     _require_teacher(activity, current_user, db_session)
 
     payload = ItemFeedbackRead.model_validate(row).model_dump(mode="json")

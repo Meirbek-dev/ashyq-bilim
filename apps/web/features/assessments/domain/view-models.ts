@@ -16,11 +16,7 @@ import type { PolicyView } from './policy';
 export type AssessmentSurface = 'STUDIO' | 'REVIEW' | 'ATTEMPT';
 
 /** Assessment kind identifiers — mirrors ActivityType from the backend. */
-export type AssessmentKind =
-  | 'TYPE_ASSIGNMENT'
-  | 'TYPE_EXAM'
-  | 'TYPE_CODE_CHALLENGE'
-  | 'TYPE_QUIZ';
+export type AssessmentKind = 'TYPE_ASSIGNMENT' | 'TYPE_EXAM' | 'TYPE_CODE_CHALLENGE' | 'TYPE_QUIZ';
 
 // ── Studio surface ─────────────────────────────────────────────────────────────
 
@@ -110,10 +106,15 @@ export interface ValidationIssue {
  */
 export function assessmentTypeToKind(assessmentType: string): AssessmentKind | null {
   switch (assessmentType) {
-    case 'ASSIGNMENT': return 'TYPE_ASSIGNMENT';
-    case 'EXAM': return 'TYPE_EXAM';
-    case 'CODE_CHALLENGE': return 'TYPE_CODE_CHALLENGE';
-    case 'QUIZ': return 'TYPE_QUIZ';
-    default: return null;
+    case 'ASSIGNMENT':
+      return 'TYPE_ASSIGNMENT';
+    case 'EXAM':
+      return 'TYPE_EXAM';
+    case 'CODE_CHALLENGE':
+      return 'TYPE_CODE_CHALLENGE';
+    case 'QUIZ':
+      return 'TYPE_QUIZ';
+    default:
+      return null;
   }
 }

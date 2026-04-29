@@ -42,7 +42,7 @@ export interface KindReviewDetailProps {
   /** The selected submission being reviewed. */
   submission: Submission;
   /** Activity UUID — required by some kinds (e.g. exam) to load question data. */
-  activityUuid: string;
+  activityUuid?: string;
 }
 
 export interface KindModule {
@@ -103,3 +103,4 @@ export async function loadKindModule(kind: AssessmentKind): Promise<KindModule> 
 import './assignment';
 import './exam';
 import './code-challenge';
+import './quiz';

@@ -57,7 +57,9 @@ def test_empty_late_policy_json_returns_zero() -> None:
 
 def test_allow_late_false_returns_zero() -> None:
     """When allow_late is False the penalty is bypassed (submissions blocked upstream)."""
-    p = _policy(late_policy_json={"type": "FLAT_PERCENT", "percent": 50}, allow_late=False)
+    p = _policy(
+        late_policy_json={"type": "FLAT_PERCENT", "percent": 50}, allow_late=False
+    )
     submitted_at = DUE_AT + timedelta(hours=1)
     assert _calculate_late_penalty(submitted_at, DUE_AT, p) == 0.0
 
@@ -120,52 +122,62 @@ def test_flat_percent_missing_percent_key() -> None:
 
 def test_per_day_one_minute_late_counts_as_one_day() -> None:
     """Any partial day must count as a full day (ceil semantics)."""
-    p = _policy(late_policy_json={
-        "type": "PER_DAY",
-        "percent_per_day": 10.0,
-        "max_pct": 100.0,
-    })
+    p = _policy(
+        late_policy_json={
+            "type": "PER_DAY",
+            "percent_per_day": 10.0,
+            "max_pct": 100.0,
+        }
+    )
     submitted_at = DUE_AT + timedelta(minutes=1)  # 1 minute → 1 day
     assert _calculate_late_penalty(submitted_at, DUE_AT, p) == 10.0
 
 
 def test_per_day_one_second_late_counts_as_one_day() -> None:
-    p = _policy(late_policy_json={
-        "type": "PER_DAY",
-        "percent_per_day": 10.0,
-        "max_pct": 100.0,
-    })
+    p = _policy(
+        late_policy_json={
+            "type": "PER_DAY",
+            "percent_per_day": 10.0,
+            "max_pct": 100.0,
+        }
+    )
     submitted_at = DUE_AT + timedelta(seconds=1)
     assert _calculate_late_penalty(submitted_at, DUE_AT, p) == 10.0
 
 
 def test_per_day_exactly_one_day_late() -> None:
-    p = _policy(late_policy_json={
-        "type": "PER_DAY",
-        "percent_per_day": 10.0,
-        "max_pct": 100.0,
-    })
+    p = _policy(
+        late_policy_json={
+            "type": "PER_DAY",
+            "percent_per_day": 10.0,
+            "max_pct": 100.0,
+        }
+    )
     submitted_at = DUE_AT + timedelta(hours=24)
     result = _calculate_late_penalty(submitted_at, DUE_AT, p)
     assert result == 10.0
 
 
 def test_per_day_three_days_late() -> None:
-    p = _policy(late_policy_json={
-        "type": "PER_DAY",
-        "percent_per_day": 10.0,
-        "max_pct": 100.0,
-    })
+    p = _policy(
+        late_policy_json={
+            "type": "PER_DAY",
+            "percent_per_day": 10.0,
+            "max_pct": 100.0,
+        }
+    )
     submitted_at = DUE_AT + timedelta(days=3)
     assert _calculate_late_penalty(submitted_at, DUE_AT, p) == 30.0
 
 
 def test_per_day_capped_by_max_pct() -> None:
-    p = _policy(late_policy_json={
-        "type": "PER_DAY",
-        "percent_per_day": 20.0,
-        "max_pct": 50.0,
-    })
+    p = _policy(
+        late_policy_json={
+            "type": "PER_DAY",
+            "percent_per_day": 20.0,
+            "max_pct": 50.0,
+        }
+    )
     submitted_at = DUE_AT + timedelta(days=10)
     assert _calculate_late_penalty(submitted_at, DUE_AT, p) == 50.0
 

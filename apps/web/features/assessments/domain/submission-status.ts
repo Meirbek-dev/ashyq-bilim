@@ -18,8 +18,7 @@
 
 import type { components } from '@/lib/api/generated/schema';
 
-export type SubmissionStatus =
-  components['schemas']['src__db__grading__submissions__SubmissionStatus'];
+export type SubmissionStatus = components['schemas']['src__db__grading__submissions__SubmissionStatus'];
 
 export const SUBMISSION_STATUS_LABELS: Record<SubmissionStatus, string> = {
   DRAFT: 'Draft',

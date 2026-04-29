@@ -2,6 +2,7 @@
 
 from src.services.progress.submissions import (
     backfill_activity_progress,
+    backfill_exam_attempt_submissions,
     grade_submission,
     publish_grade,
     recalculate_activity_progress,
@@ -17,6 +18,7 @@ from src.services.progress.submissions import (
 
 __all__ = [
     "backfill_activity_progress",
+    "backfill_exam_attempt_submissions",
     "grade_submission",
     "publish_grade",
     "recalculate_activity_progress",

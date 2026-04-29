@@ -37,6 +37,7 @@ class GradeReleaseMode(StrEnum):
                 POST /grading/activities/{uuid}/publish-grades, which stamps
                 GradingEntry.published_at for all PUBLISHED submissions at once.
     """
+
     IMMEDIATE = "IMMEDIATE"
     BATCH = "BATCH"
 

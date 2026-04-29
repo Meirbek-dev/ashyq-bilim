@@ -25,10 +25,7 @@ import {
   lifecycleFromExamPublished,
   type AssessmentLifecycle,
 } from '../domain/lifecycle';
-import {
-  getReleaseState,
-  isVisibleToStudent,
-} from '../domain/release';
+import { getReleaseState, isVisibleToStudent } from '../domain/release';
 import { resolveScore } from '../domain/score';
 import { DEFAULT_POLICY_VIEW, policyFromExamSettings } from '../domain/policy';
 import type { AssessmentKind, AssessmentSurface, StudioViewModel, AttemptViewModel } from '../domain/view-models';
@@ -53,11 +50,16 @@ function activityDetailQueryOptions(activityUuid: string) {
 
 function activityTypeToKind(activityType: string): AssessmentKind | null {
   switch (activityType) {
-    case 'TYPE_ASSIGNMENT': return 'TYPE_ASSIGNMENT';
-    case 'TYPE_EXAM': return 'TYPE_EXAM';
-    case 'TYPE_CODE_CHALLENGE': return 'TYPE_CODE_CHALLENGE';
-    case 'TYPE_QUIZ': return 'TYPE_QUIZ';
-    default: return null;
+    case 'TYPE_ASSIGNMENT':
+      return 'TYPE_ASSIGNMENT';
+    case 'TYPE_EXAM':
+      return 'TYPE_EXAM';
+    case 'TYPE_CODE_CHALLENGE':
+      return 'TYPE_CODE_CHALLENGE';
+    case 'TYPE_QUIZ':
+      return 'TYPE_QUIZ';
+    default:
+      return null;
   }
 }
 
@@ -90,7 +92,11 @@ export function useAssessment(
 } {
   const normalizedUuid = activityUuid?.replace(/^activity_/, '') ?? '';
 
-  const { data: activity, isLoading, error } = useQuery({
+  const {
+    data: activity,
+    isLoading,
+    error,
+  } = useQuery({
     ...activityDetailQueryOptions(normalizedUuid),
     enabled: Boolean(normalizedUuid),
   });

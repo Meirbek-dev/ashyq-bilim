@@ -12,17 +12,13 @@ import { queryKeys } from '@/lib/react-query/queryKeys';
 import { getAbsoluteUrl } from '@/services/config/config';
 import { useContributorStatus } from '@/hooks/useContributorStatus';
 import { courseKeys } from '@/hooks/courses/courseKeys';
-import {
-  useExamActivity,
-  useExamAllAttempts,
-  useExamMyAttempts,
-  useExamQuestions,
-} from '@/features/exams/hooks/useExam';
+import { useExamActivity, useExamMyAttempts, useExamQuestions } from '@/features/exams/hooks/useExam';
 import { examMyAttemptsQueryOptions } from '@/features/exams/queries/exams.query';
 import PageLoading from '@components/Objects/Loaders/PageLoading';
 import type { AttemptData } from './state/examFlowReducer';
 import { examFlowReducer } from './state/examFlowReducer';
-import ExamResultsDashboard from './ExamResultsDashboard';
+import GradingReviewWorkspace from '@/features/grading/review/GradingReviewWorkspace';
+import { loadKindModule, type KindModule } from '@/features/assessments/registry';
 import ExamTakingInterface from './ExamTakingInterface';
 import QuestionManagement from './QuestionManagement';
 import { examActions } from './state/examActions';
@@ -65,6 +61,7 @@ export default function ExamActivity({ activity, course }: ExamActivityProps) {
   // Centralized state management with reducer
   const [state, dispatch] = useReducer(examFlowReducer, { phase: 'loading' });
   const [activeTab, setActiveTab] = useState('questions');
+  const [examKindModule, setExamKindModule] = useState<KindModule | undefined>();
   const isCompletingRef = useRef(false);
 
   const isTeacher = contributorStatus === 'ACTIVE';
@@ -80,9 +77,6 @@ export default function ExamActivity({ activity, course }: ExamActivityProps) {
 
   // Fetch user's attempts (fetch for both students and teachers now)
   const { data: userAttempts, error: attemptsError, refetch: mutateAttempts } = useExamMyAttempts(examUuid);
-
-  // Fetch all attempts for teachers
-  const { data: allAttempts } = useExamAllAttempts(examUuid, { enabled: isTeacher });
 
   // Update state based on loaded data
   useEffect(() => {
@@ -122,6 +116,21 @@ export default function ExamActivity({ activity, course }: ExamActivityProps) {
       dispatch(examActions.setPreExam(exam, questions, userAttemptsList));
     }
   }, [exam, questions, userAttempts, examError, questionsError, attemptsError, isTeacher, t, state.phase]);
+
+  useEffect(() => {
+    if (!isTeacher) return;
+    let cancelled = false;
+    void loadKindModule('TYPE_EXAM')
+      .then((kindModule) => {
+        if (!cancelled) setExamKindModule(kindModule);
+      })
+      .catch(() => {
+        if (!cancelled) setExamKindModule(undefined);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isTeacher]);
 
   const handleStartExam = useCallback(
     (attempt: AttemptData) => {
@@ -235,18 +244,6 @@ export default function ExamActivity({ activity, course }: ExamActivityProps) {
 
   // Teacher management view
   if (state.phase === 'manage' && isTeacher) {
-    const totalQuestions = state.questions?.length ?? 0;
-    const totalAttempts = allAttempts?.length ?? 0;
-    const avgScore =
-      allAttempts && allAttempts.length > 0
-        ? Math.round(
-            allAttempts.reduce(
-              (s: number, a: AttemptData) => s + ((a as AttemptData & { percentage?: number }).percentage ?? 0),
-              0,
-            ) / allAttempts.length,
-          )
-        : 0;
-
     return (
       <ExamLayout title={activity.name}>
         <div className="space-y-6 p-0">
@@ -296,16 +293,13 @@ export default function ExamActivity({ activity, course }: ExamActivityProps) {
               value="results"
               className="mt-6"
             >
-              {allAttempts && (
-                <ExamResultsDashboard
-                  examUuid={examUuid}
-                  attempts={allAttempts}
-                  onViewAttempt={(attemptUuid) => {
-                    toast.info(t('viewAttempt', { attempt: attemptUuid }));
-                  }}
-                  onReviewAttempt={handleReviewAttempt}
-                />
-              )}
+              <GradingReviewWorkspace
+                activityId={exam.activity_id}
+                activityUuid={activity.activity_uuid}
+                title={t('results')}
+                initialFilter="ALL"
+                kindModule={examKindModule}
+              />
             </TabsContent>
           </Tabs>
         </div>

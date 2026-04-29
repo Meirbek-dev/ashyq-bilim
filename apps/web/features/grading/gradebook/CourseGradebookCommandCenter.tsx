@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 
+import { assessmentTypeToKind, type AssessmentKind } from '@/features/assessments/domain';
+import { loadKindModule, type KindModule } from '@/features/assessments/registry';
 import { courseGradebookQueryOptions } from '@/features/grading/queries/grading.query';
 import {
   ACTIVITY_PROGRESS_STATE_CLASSES,
@@ -12,7 +14,6 @@ import {
   emptyGradebookCell,
   filterGradebookStudents,
   formatGradebookStateKey,
-  gradebookActivityKind,
   gradebookCellKey,
   gradebookLearnerName,
   GRADEBOOK_SAVED_FILTERS,
@@ -38,8 +39,10 @@ interface CourseGradebookCommandCenterProps {
 
 interface ActiveReview {
   activityId: number;
+  activityUuid?: string;
   submissionUuid: string;
   title: string;
+  kindModule?: KindModule;
 }
 
 const ROLLUP_KINDS: GradebookRollupKind[] = ['assignment_group', 'cohort', 'learner', 'activity'];
@@ -117,8 +120,11 @@ export default function CourseGradebookCommandCenter({ courseUuid }: CourseGrade
         </Button>
         <GradingReviewWorkspace
           activityId={activeReview.activityId}
+          activityUuid={activeReview.activityUuid}
           initialSubmissionUuid={activeReview.submissionUuid}
+          initialFilter="ALL"
           title={activeReview.title}
+          kindModule={activeReview.kindModule}
         />
       </div>
     );
@@ -142,11 +148,32 @@ export default function CourseGradebookCommandCenter({ courseUuid }: CourseGrade
   const openCell = (cell: ActivityProgressCell) => {
     if (!cell.latest_submission_uuid) return;
     const activity = data.activities.find((item) => item.id === cell.activity_id);
-    setActiveReview({
+    const nextReview: ActiveReview = {
       activityId: cell.activity_id,
+      activityUuid: activity?.activity_uuid,
       submissionUuid: cell.latest_submission_uuid,
       title: activity?.name ?? t('submissionReview'),
-    });
+    };
+    setActiveReview(nextReview);
+
+    const kind = activity ? gradebookActivityToAssessmentKind(activity) : null;
+    if (!kind) return;
+
+    void loadKindModule(kind)
+      .then((kindModule) => {
+        setActiveReview((current) =>
+          current?.submissionUuid === nextReview.submissionUuid
+            ? {
+                ...current,
+                kindModule,
+              }
+            : current,
+        );
+      })
+      .catch(() => {
+        // Generic submission rendering remains available if a kind module has
+        // not been registered yet.
+      });
   };
 
   return (
@@ -272,10 +299,14 @@ export default function CourseGradebookCommandCenter({ courseUuid }: CourseGrade
                           {t(`states.${formatGradebookStateKey(cell.state)}`)}
                         </div>
                         <div className="mt-1 flex items-center gap-2 text-xs">
-                          <span>{cell.score === null || cell.score === undefined ? '--' : `${Math.round(cell.score)}%`}</span>
+                          <span>
+                            {cell.score === null || cell.score === undefined ? '--' : `${Math.round(cell.score)}%`}
+                          </span>
                           {cell.is_late ? <span className="font-medium text-rose-700">{t('late')}</span> : null}
                         </div>
-                        <div className="mt-1 text-[11px] opacity-80">{t('attempts', { count: cell.attempt_count })}</div>
+                        <div className="mt-1 text-[11px] opacity-80">
+                          {t('attempts', { count: cell.attempt_count })}
+                        </div>
                       </div>
                     </TableCell>
                   );
@@ -308,11 +339,28 @@ function CommandHeader({
         <p className="text-muted-foreground text-sm">{data.course_name}</p>
       </div>
       <div className="grid gap-2 sm:grid-cols-3 xl:grid-cols-5">
-        <SummaryTile label={t('summary.learners')} value={data.summary.student_count} />
-        <SummaryTile label={t('summary.activities')} value={data.summary.activity_count} />
-        <SummaryTile label={t('summary.needsGrading')} value={data.summary.needs_grading_count} tone="amber" />
-        <SummaryTile label={t('summary.overdue')} value={data.summary.overdue_count} tone="rose" />
-        <SummaryTile label={t('summary.selected')} value={selectedCount} />
+        <SummaryTile
+          label={t('summary.learners')}
+          value={data.summary.student_count}
+        />
+        <SummaryTile
+          label={t('summary.activities')}
+          value={data.summary.activity_count}
+        />
+        <SummaryTile
+          label={t('summary.needsGrading')}
+          value={data.summary.needs_grading_count}
+          tone="amber"
+        />
+        <SummaryTile
+          label={t('summary.overdue')}
+          value={data.summary.overdue_count}
+          tone="rose"
+        />
+        <SummaryTile
+          label={t('summary.selected')}
+          value={selectedCount}
+        />
       </div>
       <div className="flex shrink-0 flex-wrap items-center gap-2">
         <Button
@@ -379,12 +427,23 @@ function RollupPanel({ data }: { data: CourseGradebookResponse }) {
               >
                 <div className="truncate text-sm font-semibold">{labelRollupRow(t, kind, row.label)}</div>
                 <div className="text-muted-foreground mt-1 text-xs">
-                  {row.averageScore === null ? t('noScore') : t('averageScore', { score: Math.round(row.averageScore) })}
+                  {row.averageScore === null
+                    ? t('noScore')
+                    : t('averageScore', { score: Math.round(row.averageScore) })}
                 </div>
                 <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
-                  <RollupMetric label={t('summary.needsGrading')} value={row.needsGrading} />
-                  <RollupMetric label={t('summary.overdue')} value={row.overdue} />
-                  <RollupMetric label={t('summary.notStarted')} value={row.notStarted} />
+                  <RollupMetric
+                    label={t('summary.needsGrading')}
+                    value={row.needsGrading}
+                  />
+                  <RollupMetric
+                    label={t('summary.overdue')}
+                    value={row.overdue}
+                  />
+                  <RollupMetric
+                    label={t('summary.notStarted')}
+                    value={row.notStarted}
+                  />
                 </div>
               </div>
             ))}
@@ -458,10 +517,23 @@ function exportGradebookCsv(
 function labelActivityType(t: (key: string) => string, type: string) {
   const key = type.toLowerCase();
   if (key === 'type_assignment' || key === 'assignment') return t('activityTypes.assignment');
+  if (key === 'type_exam' || key === 'exam') return t('activityTypes.exam');
+  if (key === 'type_code_challenge' || key === 'code_challenge') return t('activityTypes.codeChallenge');
   if (key === 'type_dynamic' || key === 'quiz') return t('activityTypes.quiz');
   if (key === 'type_form' || key === 'form') return t('activityTypes.form');
   if (key === 'type_file' || key === 'file') return t('activityTypes.file');
   return type.replace('TYPE_', '').replaceAll('_', ' ');
+}
+
+function gradebookActivityToAssessmentKind(activity: {
+  activity_type: string;
+  assessment_type?: string | null;
+}): AssessmentKind | null {
+  if (activity.assessment_type) return assessmentTypeToKind(activity.assessment_type);
+  if (activity.activity_type === 'TYPE_ASSIGNMENT') return 'TYPE_ASSIGNMENT';
+  if (activity.activity_type === 'TYPE_EXAM') return 'TYPE_EXAM';
+  if (activity.activity_type === 'TYPE_CODE_CHALLENGE') return 'TYPE_CODE_CHALLENGE';
+  return null;
 }
 
 function labelRollupRow(t: (key: string) => string, kind: GradebookRollupKind, label: string) {

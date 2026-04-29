@@ -236,9 +236,10 @@ async def create_assignment_with_activity(
             detail="Chapter does not belong to the specified course",
         )
 
-    is_published = str(
-        getattr(assignment_object.status, "value", assignment_object.status)
-    ) == AssignmentStatus.PUBLISHED
+    is_published = (
+        str(getattr(assignment_object.status, "value", assignment_object.status))
+        == AssignmentStatus.PUBLISHED
+    )
     now = datetime.now(UTC)
     activity = Activity(
         name=activity_name,

@@ -53,10 +53,7 @@ export function canArchive(lifecycle: AssessmentLifecycle): boolean {
   return lifecycle !== 'ARCHIVED';
 }
 
-export function canTransitionLifecycle(
-  from: AssessmentLifecycle,
-  to: AssessmentLifecycle,
-): boolean {
+export function canTransitionLifecycle(from: AssessmentLifecycle, to: AssessmentLifecycle): boolean {
   return LIFECYCLE_ALLOWED_TRANSITIONS[from].includes(to);
 }
 

@@ -35,7 +35,11 @@ export default function FileAttempt({
 
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
-      const res = await updateSubFile({ file, assignmentTaskUUID: task.assignment_task_uuid, assignmentUUID: assignmentUuid });
+      const res = await updateSubFile({
+        file,
+        assignmentTaskUUID: task.assignment_task_uuid,
+        assignmentUUID: assignmentUuid,
+      });
       if (!res.success || !res.data?.file_uuid) throw new Error(res.data?.detail || 'Upload failed');
       return res.data.file_uuid as string;
     },
@@ -74,11 +78,17 @@ export default function FileAttempt({
       : null;
 
   return (
-    <div className="space-y-4 rounded-md border bg-muted/30 p-4">
+    <div className="bg-muted/30 space-y-4 rounded-md border p-4">
       {referenceUrl ? (
         <Button
           variant="outline"
-          render={<Link href={referenceUrl} target="_blank" download />}
+          render={
+            <Link
+              href={referenceUrl}
+              target="_blank"
+              download
+            />
+          }
         >
           <Download className="size-4" />
           Reference file
@@ -88,13 +98,18 @@ export default function FileAttempt({
       {fileUrl ? (
         <Button
           variant="outline"
-          render={<Link href={fileUrl} target="_blank" />}
+          render={
+            <Link
+              href={fileUrl}
+              target="_blank"
+            />
+          }
         >
           <File className="size-4" />
           Current file
         </Button>
       ) : localFileName ? (
-        <div className="inline-flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm">
+        <div className="bg-background inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm">
           <File className="size-4" />
           {localFileName}
         </div>
@@ -111,12 +126,18 @@ export default function FileAttempt({
             uploadMutation.mutate(file);
           }}
         />
-        {uploadMutation.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <UploadCloud className="size-4" />}
+        {uploadMutation.isPending ? (
+          <LoaderCircle className="size-4 animate-spin" />
+        ) : (
+          <UploadCloud className="size-4" />
+        )}
       </div>
 
       <Alert>
         <AlertCircle className="size-4" />
-        <AlertDescription>Files are uploaded first, then included in the single assignment draft when you save.</AlertDescription>
+        <AlertDescription>
+          Files are uploaded first, then included in the single assignment draft when you save.
+        </AlertDescription>
       </Alert>
     </div>
   );

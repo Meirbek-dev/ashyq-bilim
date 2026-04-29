@@ -75,8 +75,7 @@ def upgrade() -> None:
     )
     # Backfill published_at for already-published rows (use updated_at as proxy).
     op.execute(
-        "UPDATE assignment SET published_at = updated_at "
-        "WHERE status = 'PUBLISHED'"
+        "UPDATE assignment SET published_at = updated_at WHERE status = 'PUBLISHED'"
     )
 
     op.add_column(

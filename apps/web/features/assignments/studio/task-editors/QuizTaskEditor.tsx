@@ -66,9 +66,10 @@ function normalizeQuizContents(value: AssignmentTaskEditorValue) {
     };
   });
 
-  const rawSettings = value.contents.settings && typeof value.contents.settings === 'object'
-    ? (value.contents.settings as Record<string, unknown>)
-    : {};
+  const rawSettings =
+    value.contents.settings && typeof value.contents.settings === 'object'
+      ? (value.contents.settings as Record<string, unknown>)
+      : {};
 
   return {
     kind: 'QUIZ' as const,
@@ -116,7 +117,7 @@ function QuizTaskEditorComponent({ value, disabled, onChange }: Parameters<TaskT
 
   return (
     <div className="space-y-5">
-      <div className="rounded-md border bg-muted/40 p-4">
+      <div className="bg-muted/40 rounded-md border p-4">
         <div className="flex items-center gap-2 text-sm font-semibold">
           <ListTodo className="size-4" />
           Quiz task
@@ -269,7 +270,10 @@ function QuizTaskEditorComponent({ value, disabled, onChange }: Parameters<TaskT
                     onClick={() => {
                       const questions = contents.questions.map((item, index) =>
                         index === questionIndex
-                          ? { ...item, options: item.options.filter((_, candidateIndex) => candidateIndex !== optionIndex) }
+                          ? {
+                              ...item,
+                              options: item.options.filter((_, candidateIndex) => candidateIndex !== optionIndex),
+                            }
                           : item,
                       );
                       updateContents({ ...contents, questions });
@@ -316,15 +320,16 @@ export const QuizTaskEditor: TaskTypeEditorModule = {
   type: 'QUIZ',
   label: 'Quiz task',
   description: 'Auto-gradable questions and options.',
-  buildDefaultContents: () => normalizeQuizContents({
-    assignment_task_uuid: '',
-    assignment_type: 'QUIZ',
-    title: '',
-    description: '',
-    hint: '',
-    max_grade_value: 1,
-    contents: {},
-  }),
+  buildDefaultContents: () =>
+    normalizeQuizContents({
+      assignment_task_uuid: '',
+      assignment_type: 'QUIZ',
+      title: '',
+      description: '',
+      hint: '',
+      max_grade_value: 1,
+      contents: {},
+    }),
   validate,
   getPreviewPayload: normalizeQuizContents,
   Component: QuizTaskEditorComponent,

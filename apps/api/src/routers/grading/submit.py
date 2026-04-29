@@ -244,7 +244,9 @@ async def api_get_my_submission(
 # ── Grade visibility helper ───────────────────────────────────────────────────
 
 
-def _apply_grade_visibility(submission: Submission, db_session: Session) -> SubmissionRead:
+def _apply_grade_visibility(
+    submission: Submission, db_session: Session
+) -> SubmissionRead:
     """Return a SubmissionRead, masking grade fields until a grade is published.
 
     Grades are only shown if a GradingEntry exists with published_at IS NOT NULL.

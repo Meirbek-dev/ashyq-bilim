@@ -37,7 +37,7 @@ export default function QuizAttempt({ task, answer, disabled, onChange }: Attemp
   };
 
   if (questions.length === 0) {
-    return <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">No quiz questions.</div>;
+    return <div className="text-muted-foreground rounded-md border border-dashed p-4 text-sm">No quiz questions.</div>;
   }
 
   return (
@@ -48,7 +48,7 @@ export default function QuizAttempt({ task, answer, disabled, onChange }: Attemp
         return (
           <div
             key={questionId}
-            className="rounded-md border bg-muted/30 p-4"
+            className="bg-muted/30 rounded-md border p-4"
           >
             <div className="mb-3 flex items-start gap-2">
               <Badge variant="secondary">Q{questionIndex + 1}</Badge>
@@ -70,11 +70,11 @@ export default function QuizAttempt({ task, answer, disabled, onChange }: Attemp
                     )}
                     onClick={() => toggleOption(questionId, optionId)}
                   >
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold">
+                    <span className="bg-muted flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
                       {String.fromCodePoint(65 + optionIndex)}
                     </span>
                     <span className="flex-1">{option.text || 'Option'}</span>
-                    {isSelected ? <CheckCircle2 className="size-4 text-primary" /> : null}
+                    {isSelected ? <CheckCircle2 className="text-primary size-4" /> : null}
                   </Button>
                 );
               })}
