@@ -169,6 +169,7 @@ class SubmissionRead(SubmissionBase):
     submission_uuid: str
     answers_json: dict = SQLField(default_factory=dict)
     grading_json: GradingBreakdown = SQLField(default_factory=GradingBreakdown)
+    metadata_json: dict = SQLField(default_factory=dict)
     late_penalty_pct: float = 0.0
     late_penalty_reason: str | None = None
     started_at: datetime | None = None
@@ -283,6 +284,10 @@ class Submission(SubmissionBase, table=True):
         sa_column=Column(JSON),
     )
     grading_json: dict = SQLField(
+        default_factory=dict,
+        sa_column=Column(JSON),
+    )
+    metadata_json: dict = SQLField(
         default_factory=dict,
         sa_column=Column(JSON),
     )

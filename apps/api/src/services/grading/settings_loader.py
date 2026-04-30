@@ -14,6 +14,7 @@ from sqlmodel import Session, select
 from src.db.courses.blocks import Block, BlockTypeEnum
 from src.db.courses.quiz import QuizSettings
 from src.db.grading.submissions import AssessmentType
+from src.services.assessments.settings import get_settings
 
 
 @dataclass
@@ -41,13 +42,49 @@ def load_activity_settings(
     Returns default (empty) settings for types that have none — all downstream
     checks treat None/False/0 as "no restriction".
     """
+    canonical = get_settings(activity_id, db_session)
+
     if assessment_type == AssessmentType.QUIZ:
+        if canonical.kind == "QUIZ":
+            return AssessmentSettings(
+                questions=canonical.questions,
+                max_attempts=canonical.max_attempts,
+                time_limit_seconds=canonical.time_limit_seconds,
+                max_score_penalty_per_attempt=canonical.max_score_penalty_per_attempt,
+                due_date_iso=canonical.due_date_iso,
+                track_violations=canonical.track_violations,
+                block_on_violations=canonical.block_on_violations,
+                max_violations=canonical.max_violations,
+            )
         return _load_quiz_settings(activity_id, db_session)
 
     if assessment_type == AssessmentType.EXAM:
-        return _load_exam_settings(activity_id, db_session)
+        loaded = _load_exam_settings(activity_id, db_session)
+        if canonical.kind == "EXAM":
+            loaded.max_attempts = canonical.attempt_limit
+            loaded.time_limit_seconds = (
+                canonical.time_limit * 60 if canonical.time_limit else None
+            )
+            loaded.track_violations = any(
+                [
+                    canonical.copy_paste_protection,
+                    canonical.tab_switch_detection,
+                    canonical.devtools_detection,
+                    canonical.right_click_disable,
+                    canonical.fullscreen_enforcement,
+                ]
+            )
+            loaded.max_violations = canonical.violation_threshold or 3
+        return loaded
 
     # ASSIGNMENT and CODE_CHALLENGE have no timed settings but may have due_date
+    if canonical.kind == "CODE_CHALLENGE":
+        return AssessmentSettings(due_date_iso=canonical.due_date)
+    if canonical.kind == "ASSIGNMENT":
+        return AssessmentSettings(
+            due_date_iso=canonical.due_at,
+            max_attempts=canonical.attempt_limit,
+        )
     return _load_generic_settings(activity_id, db_session)
 
 

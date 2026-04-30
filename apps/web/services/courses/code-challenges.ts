@@ -43,6 +43,12 @@ export interface CodeSubmission {
   test_results?: { results?: TestCaseResult[] };
 }
 
+export interface CodeChallengeDraft {
+  id: number;
+  submission_uuid: string;
+  status: 'DRAFT' | 'PENDING' | 'GRADED' | 'PUBLISHED' | 'RETURNED';
+}
+
 export interface TestCaseResult {
   test_case_id: string;
   status: number;
@@ -98,6 +104,17 @@ export async function saveCodeChallengeSettings(
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
     throw new Error(error.detail || 'Failed to save code challenge settings');
+  }
+
+  return response.json();
+}
+
+export async function startCodeChallenge(activityUuid: string): Promise<CodeChallengeDraft> {
+  const response = await apiFetch(`code-challenges/${activityUuid}/start`, { method: 'POST' });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.detail || 'Failed to start code challenge');
   }
 
   return response.json();

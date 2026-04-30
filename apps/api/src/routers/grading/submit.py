@@ -1,7 +1,7 @@
 """
 Student-facing grading routes.
 
-POST /grading/start/{activity_id}        — server-stamp the start time
+POST /grading/start/v2/{activity_id}     — server-stamp the start time
 POST /grading/submit/{activity_id}       — submit answers and receive grading result
 GET  /grading/submissions/me             — student's own submissions for an activity
 GET  /grading/submissions/me/{uuid}      — student fetches one of their own submissions
@@ -33,29 +33,6 @@ from src.services.grading.submission import (
 from src.services.grading.submit import submit_assessment
 
 router = APIRouter()
-
-
-@router.post("/start/{activity_id}", response_model=SubmissionRead)
-async def api_start_submission_legacy(
-    request: Request,
-    activity_id: int,
-    assessment_type: AssessmentType,
-    db_session: Annotated[Session, Depends(get_db_session)],
-    current_user: Annotated[PublicUser, Depends(get_public_user)],
-) -> SubmissionRead:
-    """
-    (Legacy) Create a DRAFT Submission and record the server-stamped start time.
-
-    Prefer POST /grading/start/v2/{activity_id} for new integrations — that
-    endpoint enforces max_attempts from AssessmentPolicy rather than block
-    content so attempt counting is consistent across all submit paths.
-    """
-    return start_submission_v2(
-        activity_id=activity_id,
-        assessment_type=assessment_type,
-        current_user=current_user,
-        db_session=db_session,
-    )
 
 
 @router.post("/start/v2/{activity_id}", response_model=SubmissionRead)

@@ -60,6 +60,7 @@ class ActivityBase(SQLModelStrictBaseModel):
     activity_sub_type: ActivitySubTypeEnum
     content: dict[str, object] = Field(default_factory=dict, sa_column=Column(JSON))
     details: dict[str, object] | None = Field(default=None, sa_column=Column(JSON))
+    settings: dict[str, object] = Field(default_factory=dict, sa_column=Column(JSON))
     published: bool = False
 
     @field_validator("activity_type", mode="before")
@@ -139,6 +140,7 @@ class ActivityCreate(ActivityBase):
     activity_type: ActivityTypeEnum = ActivityTypeEnum.TYPE_CUSTOM
     activity_sub_type: ActivitySubTypeEnum = ActivitySubTypeEnum.SUBTYPE_CUSTOM
     details: dict[str, object] = Field(default_factory=dict, sa_column=Column(JSON))
+    settings: dict[str, object] = Field(default_factory=dict, sa_column=Column(JSON))
 
     @model_validator(mode="after")
     def subtype_matches_type(self):
@@ -159,6 +161,7 @@ class ActivityUpdate(ActivityBase):
     activity_sub_type: ActivitySubTypeEnum | None = None
     content: dict[str, object] | None = None
     details: dict[str, object] | None = None
+    settings: dict[str, object] | None = None
     published: bool | None = None
 
     @model_validator(mode="after")

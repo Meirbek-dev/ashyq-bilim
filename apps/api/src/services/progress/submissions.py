@@ -500,6 +500,12 @@ def sync_code_challenge_submission(
         "language_name": code_submission.language_name,
         "code_submission_uuid": code_submission.submission_uuid,
     }
+    submission.metadata_json = {
+        **(submission.metadata_json or {}),
+        "code_submission_id": code_submission.id,
+        "code_submission_uuid": code_submission.submission_uuid,
+        "ledger_table": "code_submission",
+    }
     submission.grading_json = {
         "test_results": code_submission.test_results or {},
         "passed_tests": code_submission.passed_tests,
@@ -511,7 +517,9 @@ def sync_code_challenge_submission(
     submitted_at = _coerce_datetime(code_submission.updated_at) or _coerce_datetime(
         code_submission.created_at
     )
-    submission.started_at = _coerce_datetime(code_submission.created_at)
+    submission.started_at = submission.started_at or _coerce_datetime(
+        code_submission.created_at
+    )
     submission.submitted_at = submitted_at
     submission.graded_at = submitted_at if completed else None
     submission.created_at = _coerce_datetime(

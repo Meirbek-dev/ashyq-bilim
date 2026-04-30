@@ -5,6 +5,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import CourseGradebookCommandCenter from '@/features/grading/gradebook/CourseGradebookCommandCenter';
 import type { CourseGradebookResponse } from '@/types/grading';
 
+const navigationMocks = vi.hoisted(() => ({
+  push: vi.fn(),
+  replace: vi.fn(),
+  searchParams: new URLSearchParams(),
+}));
+
 let gradebook: CourseGradebookResponse;
 let queryState: {
   data?: CourseGradebookResponse;
@@ -51,8 +57,8 @@ vi.mock('next-intl', () => ({
 
 vi.mock('next/navigation', () => ({
   usePathname: () => '/dash/courses/course_gradebook/gradebook',
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
-  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => navigationMocks,
+  useSearchParams: () => navigationMocks.searchParams,
 }));
 
 function baseGradebook(): CourseGradebookResponse {
@@ -176,6 +182,9 @@ describe('CourseGradebookCommandCenter', () => {
       isLoading: false,
       refetch: vi.fn(),
     };
+    navigationMocks.push.mockClear();
+    navigationMocks.replace.mockClear();
+    navigationMocks.searchParams = new URLSearchParams();
   });
 
   it('renders matrix statuses from canonical activity progress cells', () => {
@@ -200,6 +209,10 @@ describe('CourseGradebookCommandCenter', () => {
     const table = screen.getByRole('table');
     expect(within(table).queryByText('Student One')).not.toBeInTheDocument();
     expect(within(table).getByText('Student Two')).toBeInTheDocument();
+    expect(navigationMocks.replace).toHaveBeenCalledWith(
+      '/dash/courses/course_gradebook/gradebook?filter=not_started',
+      { scroll: false },
+    );
   });
 
   it('opens the shared review workspace from a clicked matrix cell', () => {
@@ -207,7 +220,9 @@ describe('CourseGradebookCommandCenter', () => {
 
     fireEvent.click(within(screen.getByRole('table')).getByText('states.needs_grading'));
 
-    expect(screen.getByText('review:submission_assignment:1:activity_assignment:ALL')).toBeInTheDocument();
+    expect(navigationMocks.push).toHaveBeenCalledWith(
+      '/dash/courses/gradebook/activity/assignment/review?submission=submission_assignment',
+    );
   });
 
   it('shows command-center rollups and summary counts', () => {

@@ -20,7 +20,7 @@ import { revalidateTag } from 'next/cache';
 // ── Student endpoints ─────────────────────────────────────────────────────────
 
 export async function startSubmission(activityId: number, assessmentType: AssessmentType): Promise<Submission> {
-  const res = await apiFetch(`grading/start/${activityId}?assessment_type=${assessmentType}`, { method: 'POST' });
+  const res = await apiFetch(`grading/start/v2/${activityId}?assessment_type=${assessmentType}`, { method: 'POST' });
   const meta = await getResponseMetadata(res);
   if (!meta.success) throw new Error(meta.data?.detail ?? 'Failed to start submission');
   return meta.data as Submission;

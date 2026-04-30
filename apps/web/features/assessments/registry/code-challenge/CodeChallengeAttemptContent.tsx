@@ -1,10 +1,11 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { CodeItemAttempt, CodeItemLoading, useCodeSubmitControl } from '@/features/assessments/items/code';
 import { useCodeChallengeSettings } from '@/features/code-challenges/hooks/useCodeChallenge';
 import { useAttemptShellControls } from '@/features/assessments/shell';
+import { startCodeChallenge } from '@/services/courses/code-challenges';
 import type { KindAttemptProps } from '../index';
 
 interface CodeChallengeTestCase {
@@ -34,6 +35,7 @@ export default function CodeChallengeAttemptContent({ activityUuid, vm }: KindAt
   const normalizedActivityUuid = activityUuid.replace(/^activity_/, '');
   const { data: settings, isLoading } = useCodeChallengeSettings<CodeChallengeActivitySettings>(normalizedActivityUuid);
   const { submitControl, handleSubmitControlChange } = useCodeSubmitControl();
+  const startedRef = useRef<string | null>(null);
 
   const primaryLanguageId = settings?.allowed_languages?.[0];
   const initialCode = primaryLanguageId !== undefined ? settings?.starter_code?.[String(primaryLanguageId)] ?? '' : '';
@@ -51,6 +53,15 @@ export default function CodeChallengeAttemptContent({ activityUuid, vm }: KindAt
     [submitControl],
   );
   useAttemptShellControls(shellControls);
+
+  useEffect(() => {
+    if (!isConfigured || startedRef.current === normalizedActivityUuid) return;
+
+    startedRef.current = normalizedActivityUuid;
+    void startCodeChallenge(normalizedActivityUuid).catch(() => {
+      startedRef.current = null;
+    });
+  }, [isConfigured, normalizedActivityUuid]);
 
   if (isLoading) {
     return <CodeItemLoading />;

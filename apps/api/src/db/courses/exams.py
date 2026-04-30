@@ -143,6 +143,8 @@ class ExamBase(SQLModelStrictBaseModel):
     chapter_id: int
     activity_id: int
 
+    # Deprecated compatibility mirror. Canonical settings live on Activity.settings
+    # and are read/written through src.services.assessments.settings.
     settings: dict[str, object] = Field(default_factory=dict, sa_column=Column(JSON))
 
 

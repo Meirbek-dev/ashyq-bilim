@@ -47,6 +47,7 @@ from src.db.courses.courses import Course
 from src.db.grading.submissions import (
     AssessmentType,
     Submission,
+    SubmissionRead,
 )
 from src.db.grading.submissions import (
     SubmissionStatus as GradingSubmissionStatus,
@@ -76,6 +77,8 @@ from src.services.code_challenges.sanitize import (
     sanitize_stdout,
 )
 from src.services.progress import submissions as progress_submissions
+from src.services.assessments.settings import CodeAssessmentSettings, get_settings, put_settings
+from src.services.grading.submission import start_submission_v2
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -143,10 +146,18 @@ async def check_challenge_access(
     return course
 
 
-def get_challenge_settings(activity: Activity) -> CodeChallengeSettings:
-    """Parse challenge settings from activity.details"""
+def get_challenge_settings(
+    activity: Activity,
+    db_session: Session,
+) -> CodeChallengeSettings:
+    """Parse challenge settings from canonical Activity.settings."""
     try:
-        return CodeChallengeSettings.model_validate(activity.details or {})
+        canonical = get_settings(activity.id, db_session)
+        if canonical.kind != "CODE_CHALLENGE":
+            return CodeChallengeSettings()
+        return CodeChallengeSettings.model_validate(
+            canonical.model_dump(mode="json", exclude={"kind"})
+        )
     except ValidationError, ValueError:
         return CodeChallengeSettings()
 
@@ -238,7 +249,7 @@ async def get_challenge_settings_endpoint(
     await verify_code_challenge_activity(activity)
     course = await check_challenge_access(activity, current_user, db_session)
 
-    settings = get_challenge_settings(activity)
+    settings = get_challenge_settings(activity, db_session)
 
     # Check if user is instructor
     from src.services.courses.activities.exams import is_course_contributor_or_admin
@@ -317,7 +328,7 @@ async def update_challenge_settings(
     )
 
     # Get current settings
-    current_settings = get_challenge_settings(activity)
+    current_settings = get_challenge_settings(activity, db_session)
     current_dict = current_settings.model_dump()
 
     # Update with new values (only non-None fields)
@@ -352,15 +363,37 @@ async def update_challenge_settings(
     except (ValidationError, ValueError) as e:
         raise HTTPException(status_code=400, detail=f"Invalid settings: {e!s}")
 
-    # Update activity.details
-    activity.details = updated_settings.model_dump()
-    db_session.add(activity)
-    db_session.commit()
+    put_settings(
+        activity.id,
+        CodeAssessmentSettings.model_validate(
+            {"kind": "CODE_CHALLENGE", **updated_settings.model_dump(mode="json")}
+        ),
+        db_session,
+    )
     db_session.refresh(activity)
 
     logger.info(f"Updated challenge settings for activity {activity_uuid}")
 
     return {"message": "Settings updated successfully", "settings": activity.details}
+
+
+@router.post("/{activity_uuid}/start", response_model=SubmissionRead)
+async def start_code_challenge(
+    activity_uuid: str,
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
+    db_session: Annotated[Session, Depends(get_db_session)],
+):
+    """Create or return the canonical DRAFT submission for this challenge."""
+    activity = await get_activity_or_404(activity_uuid, db_session)
+    await verify_code_challenge_activity(activity)
+    await check_challenge_access(activity, current_user, db_session)
+
+    return start_submission_v2(
+        activity_id=activity.id,
+        assessment_type=AssessmentType.CODE_CHALLENGE,
+        current_user=current_user,
+        db_session=db_session,
+    )
 
 
 @router.post("/{activity_uuid}/submit", response_model=SubmissionResponse)
@@ -376,7 +409,7 @@ async def submit_code_challenge(
     await verify_code_challenge_activity(activity)
     await check_challenge_access(activity, current_user, db_session)
 
-    settings = get_challenge_settings(activity)
+    settings = get_challenge_settings(activity, db_session)
 
     # Validate language is allowed
     if (
@@ -406,32 +439,39 @@ async def submit_code_challenge(
     except Judge0Error, Judge0UnavailableError:
         language_name = f"Language {submission.language_id}"
 
-    # Legacy adapter: create canonical Submission first, then the CodeSubmission
-    # row required by the Judge0 processing path. New features should not write
-    # CodeSubmission directly.
+    # Canonical state is created at start. CodeSubmission is only the Judge0
+    # per-run ledger referenced from Submission.metadata_json.
     now = datetime.now().isoformat()
-    submission_uuid = f"submission_{ULID()}"
+    draft = start_submission_v2(
+        activity_id=activity.id,
+        assessment_type=AssessmentType.CODE_CHALLENGE,
+        current_user=current_user,
+        db_session=db_session,
+    )
+    canonical_submission = db_session.exec(
+        select(Submission).where(Submission.submission_uuid == draft.submission_uuid)
+    ).first()
+    if canonical_submission is None:
+        raise HTTPException(status_code=404, detail="Submission draft not found")
+    submission_uuid = canonical_submission.submission_uuid
 
     # Combine all test cases
     all_tests = settings.visible_tests + settings.hidden_tests
 
-    canonical_submission = Submission(
-        submission_uuid=submission_uuid,
-        assessment_type=AssessmentType.CODE_CHALLENGE,
-        activity_id=activity.id,
-        user_id=current_user.id,
-        status=GradingSubmissionStatus.PENDING,
-        attempt_number=1,
-        answers_json={
-            "language_id": submission.language_id,
-            "language_name": language_name,
-            "code_submission_uuid": submission_uuid,
-        },
-        grading_json={},
-        submitted_at=datetime.now(),
-        created_at=datetime.now(),
-        updated_at=datetime.now(),
-    )
+    submitted_at = datetime.now()
+    canonical_submission.status = GradingSubmissionStatus.PENDING
+    canonical_submission.answers_json = {
+        "language_id": submission.language_id,
+        "language_name": language_name,
+        "code_submission_uuid": submission_uuid,
+    }
+    canonical_submission.metadata_json = {
+        "code_submission_uuid": submission_uuid,
+        "ledger_table": "code_submission",
+    }
+    canonical_submission.submitted_at = submitted_at
+    canonical_submission.updated_at = submitted_at
+
     code_submission = CodeSubmission(
         submission_uuid=submission_uuid,
         activity_id=activity.id,
@@ -447,6 +487,11 @@ async def submit_code_challenge(
 
     db_session.add(canonical_submission)
     db_session.add(code_submission)
+    db_session.flush()
+    canonical_submission.metadata_json = {
+        **canonical_submission.metadata_json,
+        "code_submission_id": code_submission.id,
+    }
     db_session.commit()
     db_session.refresh(code_submission)
     progress_submissions.sync_code_challenge_submission(code_submission, db_session)
@@ -613,7 +658,7 @@ async def run_visible_tests(
     await verify_code_challenge_activity(activity)
     await check_challenge_access(activity, current_user, db_session)
 
-    settings = get_challenge_settings(activity)
+    settings = get_challenge_settings(activity, db_session)
 
     # Decode and validate source code
     try:
@@ -676,7 +721,7 @@ async def run_custom_test(
     await verify_code_challenge_activity(activity)
     await check_challenge_access(activity, current_user, db_session)
 
-    settings = get_challenge_settings(activity)
+    settings = get_challenge_settings(activity, db_session)
 
     if not settings.allow_custom_input:
         raise ResourceAccessDenied(
