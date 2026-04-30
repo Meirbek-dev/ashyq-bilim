@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import operator
 from collections import defaultdict
 from datetime import date, timedelta
 
@@ -616,7 +617,7 @@ def get_teacher_course_detail(
             chapter_activity,
             activity,
         ))
-    ordered_steps.sort(key=lambda item: (item[0], item[1]))
+    ordered_steps.sort(key=operator.itemgetter(0, 1))
 
     completion_by_activity: dict[int, set[int]] = defaultdict(set)
     for progress in context.activity_progress:
@@ -684,7 +685,7 @@ def get_teacher_course_detail(
         chapter_id = activity_chapter.get(progress.activity_id)
         if chapter_id is not None:
             chapter_counts[chapter_id].add(progress.user_id)
-    for chapter_id, _order in sorted(chapter_order.items(), key=lambda item: item[1]):
+    for chapter_id, _order in sorted(chapter_order.items(), key=operator.itemgetter(1)):
         chapter = context.chapters_by_id.get(chapter_id)
         count = len(chapter_counts.get(chapter_id, set()))
         pct = (

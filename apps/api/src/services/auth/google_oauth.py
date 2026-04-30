@@ -59,9 +59,8 @@ def _validate_google_metadata(metadata: dict[str, Any]) -> dict[str, Any]:
         key for key in _REQUIRED_METADATA_KEYS if not isinstance(metadata.get(key), str)
     ]
     if missing:
-        raise ValueError(
-            f"Google discovery metadata missing required keys: {', '.join(missing)}"
-        )
+        msg = f"Google discovery metadata missing required keys: {', '.join(missing)}"
+        raise ValueError(msg)
     return metadata
 
 
@@ -267,7 +266,7 @@ async def _get_google_userinfo(
             headers={"Authorization": f"Bearer {access_token}"},
         )
     except _RETRYABLE_HTTP_ERRORS as exc:
-        logger.error(
+        logger.exception(
             "Google userinfo network error | endpoint=%s | error_type=%s",
             userinfo_endpoint,
             type(exc).__name__,
@@ -364,7 +363,7 @@ async def exchange_google_code(
                 google_error = exc.response.json()
             except ValueError:
                 google_error = exc.response.text
-            logger.error(
+            logger.exception(
                 "Google token exchange failed: HTTP %s | redirect_uri=%s | pkce=%s | error=%s",
                 exc.response.status_code,
                 redirect_uri,
@@ -376,7 +375,7 @@ async def exchange_google_code(
                 detail="Failed to exchange Google authorization code",
             ) from exc
         except httpx.HTTPError as exc:
-            logger.error(
+            logger.exception(
                 "Google token exchange network error | endpoint=%s | redirect_uri=%s | pkce=%s | error_type=%s",
                 metadata["token_endpoint"],
                 redirect_uri,

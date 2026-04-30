@@ -19,8 +19,7 @@ from src.db.courses.code_challenges import (
     ExecutionMode,
     GradingStrategy,
 )
-from src.db.courses.exams import AccessModeEnum
-from src.db.courses.exams import Exam
+from src.db.courses.exams import AccessModeEnum, Exam
 from src.db.courses.quiz import QuizSettings
 from src.db.strict_base_model import PydanticStrictBaseModel
 
@@ -70,7 +69,7 @@ class CodeAssessmentSettings(CodeChallengeSettings):
     execution_mode: ExecutionMode = ExecutionMode.COMPLETE_FEEDBACK
 
 
-AssessmentSettings: TypeAlias = Annotated[
+type AssessmentSettings = Annotated[
     AssignmentAssessmentSettings
     | ExamAssessmentSettings
     | QuizAssessmentSettings

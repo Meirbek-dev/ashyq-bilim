@@ -1,8 +1,8 @@
-import pytest
-
 from datetime import date
 from types import SimpleNamespace
 from unittest.mock import MagicMock
+
+import pytest
 
 from src.security.rbac import PermissionDenied
 from src.services.analytics.courses import _previous_completion_by_course

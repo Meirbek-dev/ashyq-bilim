@@ -37,7 +37,7 @@ def test_assessment_quality_helpers_expose_variance_reliability_and_discriminati
     None
 ):
     scores = [25, 40, 60, 85, 95]
-    scores_by_user = {idx: score for idx, score in enumerate(scores, start=1)}
+    scores_by_user = dict(enumerate(scores, start=1))
 
     assert _score_variance(scores) > 0
     assert _reliability_score(scores) is not None

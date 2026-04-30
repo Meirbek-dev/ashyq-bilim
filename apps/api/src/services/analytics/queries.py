@@ -345,7 +345,7 @@ def cohort_names_for_user(
 ) -> list[str]:
     memberships = context.cohort_ids_by_user.get(user_id, set())
     if cohort_ids is not None:
-        memberships = memberships & set(cohort_ids)
+        memberships &= set(cohort_ids)
     return [
         context.usergroup_names_by_id[group_id]
         for group_id in sorted(memberships)
@@ -558,24 +558,19 @@ def load_analytics_context(
     ]
 
     user_ids: set[int] = set()
-    for trail_run in trail_runs:
-        user_ids.add(trail_run.user_id)
-    for trail_step in trail_steps:
-        user_ids.add(trail_step.user_id)
-    for progress in activity_progress:
-        user_ids.add(progress.user_id)
-    for progress in course_progress:
-        user_ids.add(progress.user_id)
-    for submission, _assignment in assignment_submissions:
-        user_ids.add(submission.user_id)
-    for attempt, _exam in exam_attempts:
-        user_ids.add(attempt.user_id)
-    for attempt, _activity in quiz_attempts:
-        user_ids.add(attempt.user_id)
-    for submission, _activity in code_submissions:
-        user_ids.add(submission.user_id)
-    for certificate, _certification in certificate_rows:
-        user_ids.add(certificate.user_id)
+    user_ids.update(trail_run.user_id for trail_run in trail_runs)
+    user_ids.update(trail_step.user_id for trail_step in trail_steps)
+    user_ids.update(progress.user_id for progress in activity_progress)
+    user_ids.update(progress.user_id for progress in course_progress)
+    user_ids.update(
+        submission.user_id for submission, _assignment in assignment_submissions
+    )
+    user_ids.update(attempt.user_id for attempt, _exam in exam_attempts)
+    user_ids.update(attempt.user_id for attempt, _activity in quiz_attempts)
+    user_ids.update(submission.user_id for submission, _activity in code_submissions)
+    user_ids.update(
+        certificate.user_id for certificate, _certification in certificate_rows
+    )
     creator_ids = {
         course.creator_id for course in courses if course.creator_id is not None
     }
@@ -773,7 +768,7 @@ def progress_snapshots(
     for progress in context.activity_progress:
         if allowed_user_ids is not None and progress.user_id not in allowed_user_ids:
             continue
-        activity_progress_by_course_user[(progress.course_id, progress.user_id)].append(
+        activity_progress_by_course_user[progress.course_id, progress.user_id].append(
             progress
         )
 
@@ -781,15 +776,13 @@ def progress_snapshots(
     for progress in context.course_progress:
         if allowed_user_ids is not None and progress.user_id not in allowed_user_ids:
             continue
-        course_progress_by_course_user[(progress.course_id, progress.user_id)] = (
-            progress
-        )
+        course_progress_by_course_user[progress.course_id, progress.user_id] = progress
 
     trailrun_by_course_user: dict[tuple[int, int], int] = {}
     for trail_run in context.trail_runs:
         if allowed_user_ids is not None and trail_run.user_id not in allowed_user_ids:
             continue
-        trailrun_by_course_user[(trail_run.course_id, trail_run.user_id)] = (
+        trailrun_by_course_user[trail_run.course_id, trail_run.user_id] = (
             trail_run.id or 0
         )
 
@@ -841,7 +834,7 @@ def progress_snapshots(
         is_completed = has_certificate or is_completed
         if total_steps == 0 and has_certificate:
             progress_pct = 100.0
-        snapshots[(course_id, user_id)] = ProgressSnapshot(
+        snapshots[course_id, user_id] = ProgressSnapshot(
             course_id=course_id,
             user_id=user_id,
             completed_steps=completed_steps,

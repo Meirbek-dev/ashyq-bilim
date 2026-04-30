@@ -35,7 +35,7 @@ from src.db.model_registry import import_orm_models
 from src.services.progress import submissions as progress_submissions
 
 
-@pytest.fixture()
+@pytest.fixture
 def db_session() -> Session:
     import_orm_models()
     engine = create_engine(

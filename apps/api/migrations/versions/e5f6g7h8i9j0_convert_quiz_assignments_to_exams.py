@@ -184,10 +184,7 @@ def _map_quiz_question(
     if not answer_options:
         return None
 
-    if correct_count > 1:
-        question_type = "MULTIPLE_CHOICE"
-    else:
-        question_type = "SINGLE_CHOICE"
+    question_type = "MULTIPLE_CHOICE" if correct_count > 1 else "SINGLE_CHOICE"
 
     return {
         "question_text": question_text[:5000],

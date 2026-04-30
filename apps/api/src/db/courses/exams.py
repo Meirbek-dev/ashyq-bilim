@@ -7,7 +7,7 @@ from sqlmodel import Field
 from src.db.strict_base_model import SQLModelStrictBaseModel
 
 
-## Exam ##
+# Exam ##
 class AccessModeEnum(StrEnum):
     NO_ACCESS = "NO_ACCESS"
     WHITELIST = "WHITELIST"
@@ -191,7 +191,7 @@ class Exam(ExamBase, table=True):
     update_date: str = ""
 
 
-## Question ##
+# Question ##
 
 
 class QuestionBase(SQLModelStrictBaseModel):
@@ -323,7 +323,7 @@ class Question(QuestionBase, table=True):
     update_date: str = ""
 
 
-## Exam Attempt ##
+# Exam Attempt ##
 
 
 class AttemptStatusEnum(StrEnum):
@@ -424,7 +424,7 @@ class ExamAttempt(ExamAttemptBase, table=True):
     update_date: str = ""
 
 
-## Combined Creation ##
+# Combined Creation ##
 
 
 class ExamCreateWithActivity(SQLModelStrictBaseModel):

@@ -63,7 +63,7 @@ async def put_assignment_task_submission_file(
     current_user: PublicUser | AnonymousUser,
     sub_file: UploadFile | None = None,
 ) -> dict[str, str]:
-    assignment_task, assignment, activity, course = _get_assignment_task_context(
+    _assignment_task, assignment, activity, course = _get_assignment_task_context(
         assignment_uuid, assignment_task_uuid, db_session
     )
 

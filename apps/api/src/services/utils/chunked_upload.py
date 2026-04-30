@@ -56,8 +56,7 @@ class ChunkedUploadSession:
             )
 
         chunk_path = self.get_chunk_path(chunk_index)
-        with open(chunk_path, "wb") as f:
-            f.write(chunk_data)
+        Path(chunk_path).write_bytes(chunk_data)
 
         self.chunks_received.add(chunk_index)
 
@@ -79,7 +78,7 @@ class ChunkedUploadSession:
                     detail=f"Chunk {i} missing during assembly",
                 )
 
-            with open(chunk_path, "rb") as f:
+            with Path(chunk_path).open("rb") as f:
                 assembled_data.extend(f.read())
 
         # Verify file size

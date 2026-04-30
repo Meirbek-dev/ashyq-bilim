@@ -18,7 +18,7 @@ from src.db.users import PublicUser
 from src.services.grading import teacher as teacher_service
 
 
-@pytest.fixture()
+@pytest.fixture
 def db_session() -> Session:
     import_orm_models()
     engine = create_engine(

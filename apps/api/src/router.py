@@ -22,7 +22,11 @@ from src.routers import (
 from src.routers.ai import ai
 from src.routers.assessments import (
     assignments as assessment_assignments,
+)
+from src.routers.assessments import (
     code_challenges as assessment_code_challenges,
+)
+from src.routers.assessments import (
     exams as assessment_exams,
 )
 from src.routers.courses import (

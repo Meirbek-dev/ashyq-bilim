@@ -13,7 +13,6 @@ from src.db.courses.assignments import Assignment, AssignmentTask
 from src.db.courses.courses import Course
 from src.db.grading.submissions import AssessmentType, Submission, SubmissionStatus
 
-
 # ── Context loaders ────────────────────────────────────────────────────────────
 
 

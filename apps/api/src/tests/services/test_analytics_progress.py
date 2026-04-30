@@ -56,7 +56,7 @@ def test_progress_snapshots_use_course_progress_not_trail_steps() -> None:
         cohort_ids_by_user={},
     )
 
-    snapshot = progress_snapshots(context)[(1, 5)]
+    snapshot = progress_snapshots(context)[1, 5]
 
     assert snapshot.completed_steps == 1
     assert snapshot.total_steps == 4

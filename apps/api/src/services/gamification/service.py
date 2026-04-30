@@ -452,7 +452,7 @@ def on_activity_completed(
     source_id: str | None = None,
     idempotency_key: str | None = None,
 ):
-    profile, _tx, _level_up, _is_new = award_xp(
+    profile, _tx, _level_up, is_new = award_xp(
         db=db,
         user_id=user_id,
         source=XPSource.ACTIVITY_COMPLETION.value,
@@ -463,7 +463,7 @@ def on_activity_completed(
         idempotency_key=idempotency_key,
     )
     # Only update streaks and counters if this call resulted in a new XP transaction
-    if _is_new:
+    if is_new:
         profile = update_streak(db, user_id, StreakType.LEARNING.value)
         profile = get_profile(db, user_id)
         profile.total_activities_completed = (
@@ -484,7 +484,7 @@ def on_course_completed(
     source_id: str | None = None,
     idempotency_key: str | None = None,
 ):
-    profile, _tx, _level_up, _is_new = award_xp(
+    profile, _tx, _level_up, is_new = award_xp(
         db=db,
         user_id=user_id,
         source=XPSource.COURSE_COMPLETION.value,
@@ -495,7 +495,7 @@ def on_course_completed(
         idempotency_key=idempotency_key,
     )
     # Only update streaks and counters if this call resulted in a new XP transaction
-    if _is_new:
+    if is_new:
         profile = update_streak(db, user_id, StreakType.LEARNING.value)
         profile = get_profile(db, user_id)
         profile.total_courses_completed = (profile.total_courses_completed or 0) + 1

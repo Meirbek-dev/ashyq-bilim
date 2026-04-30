@@ -277,7 +277,7 @@ class HostingConfig(PlatformSectionSettings):
         return [origin.strip() for origin in stripped.split(",") if origin.strip()]
 
     @model_validator(mode="after")
-    def apply_cookie_domain_override(self) -> "HostingConfig":
+    def apply_cookie_domain_override(self) -> HostingConfig:
         if self.cookie_domain is not None:
             self.cookie_config = CookieConfig(domain=self.cookie_domain)
 
@@ -417,7 +417,7 @@ class PlatformConfig(PydanticStrictBaseModel):
     mailing_config: MailingConfig
 
     @model_validator(mode="after")
-    def validate_security_posture(self) -> "PlatformConfig":
+    def validate_security_posture(self) -> PlatformConfig:
         return self
 
 

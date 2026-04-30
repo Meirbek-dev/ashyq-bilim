@@ -44,7 +44,7 @@ from src.services.courses.assignment_lifecycle import (
 
 router = APIRouter()
 
-## ASSIGNMENTS ##
+# ASSIGNMENTS ##
 
 
 @router.get("/{assignment_uuid}")
@@ -132,7 +132,7 @@ async def api_delete_assignment_from_activity(
     )
 
 
-## ASSIGNMENT TASKS ##
+# ASSIGNMENT TASKS ##
 
 
 @router.post("/{assignment_uuid}/tasks")
@@ -223,7 +223,7 @@ async def api_delete_assignment_tasks(
     )
 
 
-## ASSIGNMENT SUBMISSIONS ##
+# ASSIGNMENT SUBMISSIONS ##
 
 
 @router.get("/{assignment_uuid}/submissions/me/draft")
@@ -264,7 +264,7 @@ async def api_submit_assignment_draft_submission(
     )
 
 
-## ASSIGNMENT LISTS ##
+# ASSIGNMENT LISTS ##
 
 
 @router.get("/course/{course_uuid}")
@@ -280,8 +280,10 @@ async def api_get_assignments(
 async def api_get_assignments_for_courses(
     current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
-    course_uuids: list[str] = Query(default=[]),
+    course_uuids: Annotated[list[str] | None, Query()] = None,
 ):
+    if course_uuids is None:
+        course_uuids = []
     return await get_assignments_from_courses(course_uuids, current_user, db_session)
 
 
@@ -289,8 +291,10 @@ async def api_get_assignments_for_courses(
 async def api_get_editable_assignments_for_courses(
     current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session=Depends(get_db_session),
-    course_uuids: list[str] = Query(default=[]),
+    course_uuids: Annotated[list[str] | None, Query()] = None,
 ):
+    if course_uuids is None:
+        course_uuids = []
     return await get_editable_assignments_from_courses(
         course_uuids, current_user, db_session
     )

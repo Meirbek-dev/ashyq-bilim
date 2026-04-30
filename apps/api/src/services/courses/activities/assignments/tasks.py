@@ -156,7 +156,7 @@ async def update_assignment_task(
     current_user: PublicUser | AnonymousUser,
     db_session: Session,
 ) -> AssignmentTaskRead:
-    assignment_task, _assignment, _activity, course = _get_assignment_task_context(
+    assignment_task, assignment, _activity, course = _get_assignment_task_context(
         assignment_uuid, assignment_task_uuid, db_session
     )
 
@@ -166,7 +166,7 @@ async def update_assignment_task(
         resource_owner_id=course.creator_id,
     )
 
-    _require_assignment_editable(_assignment)
+    _require_assignment_editable(assignment)
 
     for field, value in assignment_task_object.model_dump(exclude_unset=True).items():
         setattr(assignment_task, field, value)
@@ -184,7 +184,7 @@ async def delete_assignment_task(
     current_user: PublicUser | AnonymousUser,
     db_session: Session,
 ) -> dict[str, str]:
-    assignment_task, _assignment, _activity, course = _get_assignment_task_context(
+    assignment_task, assignment, _activity, course = _get_assignment_task_context(
         assignment_uuid, assignment_task_uuid, db_session
     )
 
@@ -194,7 +194,7 @@ async def delete_assignment_task(
         resource_owner_id=course.creator_id,
     )
 
-    _require_assignment_editable(_assignment)
+    _require_assignment_editable(assignment)
 
     db_session.delete(assignment_task)
     db_session.commit()

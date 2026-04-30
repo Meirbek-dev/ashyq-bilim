@@ -65,23 +65,23 @@ def build_insight_feed(
             )
         )
 
-    for bottleneck in bottlenecks[:4]:
-        items.append(
-            InsightFeedItem(
-                id=f"content-{bottleneck.signal}-{bottleneck.activity_id}",
-                category="content",
-                severity=bottleneck.severity,
-                priority=70
-                + (20 if bottleneck.severity == "critical" else 10)
-                + min(10, bottleneck.exit_count),
-                title=f"{bottleneck.activity_name} is a content bottleneck.",
-                body=bottleneck.note,
-                course_id=bottleneck.course_id,
-                activity_id=bottleneck.activity_id,
-                learner_count=bottleneck.started_learners,
-                href=f"/dash/analytics/courses?course_ids={bottleneck.course_id}",
-            )
+    items.extend(
+        InsightFeedItem(
+            id=f"content-{bottleneck.signal}-{bottleneck.activity_id}",
+            category="content",
+            severity=bottleneck.severity,
+            priority=70
+            + (20 if bottleneck.severity == "critical" else 10)
+            + min(10, bottleneck.exit_count),
+            title=f"{bottleneck.activity_name} is a content bottleneck.",
+            body=bottleneck.note,
+            course_id=bottleneck.course_id,
+            activity_id=bottleneck.activity_id,
+            learner_count=bottleneck.started_learners,
+            href=f"/dash/analytics/courses?course_ids={bottleneck.course_id}",
         )
+        for bottleneck in bottlenecks[:4]
+    )
 
     if workload.backlog_total:
         items.append(
@@ -102,19 +102,19 @@ def build_insight_feed(
         if row.historical_completion_delta_pct is not None
         and row.historical_completion_delta_pct >= 10
     ]
-    for row in improved_courses[:3]:
-        items.append(
-            InsightFeedItem(
-                id=f"completion-improved-{row.course_id}",
-                category="completion",
-                severity="info",
-                priority=45 + int(row.historical_completion_delta_pct or 0),
-                title=f"{row.course_name} completion improved by {row.historical_completion_delta_pct} points.",
-                body="This cohort is outperforming the course historical baseline.",
-                course_id=row.course_id,
-                href=f"/dash/analytics/courses/{row.course_uuid}",
-            )
+    items.extend(
+        InsightFeedItem(
+            id=f"completion-improved-{row.course_id}",
+            category="completion",
+            severity="info",
+            priority=45 + int(row.historical_completion_delta_pct or 0),
+            title=f"{row.course_name} completion improved by {row.historical_completion_delta_pct} points.",
+            body="This cohort is outperforming the course historical baseline.",
+            course_id=row.course_id,
+            href=f"/dash/analytics/courses/{row.course_uuid}",
         )
+        for row in improved_courses[:3]
+    )
 
     severity_score = {"critical": 2, "warning": 1, "info": 0}
     items.sort(

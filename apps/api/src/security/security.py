@@ -4,7 +4,7 @@ import string
 from fastapi_users.password import PasswordHelper
 from passlib.context import CryptContext
 
-### 🔒 Secure Random Generation #############################################
+# 🔒 Secure Random Generation #############################################
 
 
 def generate_secure_password(length: int = 12) -> str:
@@ -17,7 +17,7 @@ def generate_secure_code(length: int = 8) -> str:
     return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
-### 🔒 Password Hashing #####################################################
+# 🔒 Password Hashing #####################################################
 
 # passlib CryptContext with argon2 — compatible with existing argon2-cffi hashes
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")

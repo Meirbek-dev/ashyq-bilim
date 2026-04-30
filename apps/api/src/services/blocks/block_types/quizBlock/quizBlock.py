@@ -242,7 +242,7 @@ async def submit_quiz(
             triggered_level_up = xp_result.get("level_up", False)
         except Exception as e:  # noqa: BLE001
             # Log but don't fail the submission
-            logger.warning(f"Failed to award XP: {e}")
+            logger.warning("Failed to award XP: %s", e)
 
     # Build response
     grading_result["xp_awarded"] = xp_awarded

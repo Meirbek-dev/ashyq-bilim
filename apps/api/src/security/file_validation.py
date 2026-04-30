@@ -31,7 +31,7 @@ def validate_image_content(content: bytes) -> bool:
         return True
 
     # AVIF: ftyp..avif / avis
-    if magic_bytes[4:8] == b"ftyp" and magic_bytes[8:12] in (b"avif", b"avis"):
+    if magic_bytes[4:8] == b"ftyp" and magic_bytes[8:12] in {b"avif", b"avis"}:
         return True
 
     # WebP: RIFF....WEBP
@@ -58,12 +58,12 @@ def validate_audio_content(content: bytes) -> bool:
         return True
 
     # M4A: MP4 container with audio brand
-    return magic_bytes[4:8] == b"ftyp" and magic_bytes[8:12] in (
+    return magic_bytes[4:8] == b"ftyp" and magic_bytes[8:12] in {
         b"M4A ",
         b"isom",
         b"mp42",
         b"mp41",
-    )
+    }
 
 
 def validate_video_content(content: bytes) -> bool:

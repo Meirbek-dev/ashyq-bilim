@@ -19,7 +19,7 @@ from src.db.users import PublicUser
 from src.infra.db.session import get_db_session
 
 
-@pytest.fixture()
+@pytest.fixture
 def teacher() -> PublicUser:
     return PublicUser(
         id=99,
@@ -38,7 +38,7 @@ def teacher() -> PublicUser:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def app(teacher: PublicUser):
     app = create_app()
     app.dependency_overrides[get_db_session] = lambda: MagicMock(spec=Session)

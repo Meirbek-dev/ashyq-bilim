@@ -35,11 +35,10 @@ from src.services.grading.submission import (
     start_submission_v2,
 )
 
-
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
 
-@pytest.fixture()
+@pytest.fixture
 def db_session() -> Session:
     import_orm_models()
     engine = create_engine(
@@ -52,7 +51,7 @@ def db_session() -> Session:
         yield session
 
 
-@pytest.fixture()
+@pytest.fixture
 def student() -> PublicUser:
     return PublicUser(
         id=10,

@@ -148,7 +148,7 @@ async def get_submissions_for_activity(
                 )
 
     if late_only:
-        query = query.where(Submission.is_late == True)
+        query = query.where(Submission.is_late)
 
     if search:
         term = f"%{search}%"
@@ -232,7 +232,7 @@ async def get_submission_stats(
         select(func.count()).where(
             Submission.activity_id == activity_id,
             Submission.status != SubmissionStatus.DRAFT,
-            Submission.is_late == True,
+            Submission.is_late,
         )
     ).one()
 
@@ -642,7 +642,7 @@ def _save_teacher_grade(
     submission.grading_json = updated_grading.model_dump()
     submission.graded_at = now
     submission.updated_at = now
-    submission.version = submission.version + 1  # bump optimistic lock version
+    submission.version += 1  # bump optimistic lock version
 
     # Ensure the assessment policy is attached before progress recalculation.
     _attach_policy(submission, db_session)

@@ -64,7 +64,7 @@ async def api_get_exam_config():
     }
 
 
-## EXAMS ##
+# EXAMS ##
 
 
 @router.post("")
@@ -136,7 +136,7 @@ async def api_delete_exam(
     return await delete_exam(request, exam_uuid, current_user, db_session)
 
 
-## QUESTIONS ##
+# QUESTIONS ##
 
 
 @router.post("/{exam_uuid}/questions")
@@ -185,7 +185,7 @@ async def api_delete_question(
     return await delete_question(request, question_uuid, current_user, db_session)
 
 
-## EXAM ATTEMPTS ##
+# EXAM ATTEMPTS ##
 
 
 @router.post("/{exam_uuid}/attempts/start")

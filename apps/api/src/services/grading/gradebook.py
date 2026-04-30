@@ -129,7 +129,7 @@ def _course_activities(course_id: int, db_session: Session) -> list[Activity]:
             select(Activity)
             .where(
                 Activity.course_id == course_id,
-                Activity.published == True,
+                Activity.published,
             )
             .order_by(Activity.chapter_id, Activity.order, Activity.id)
         ).all()
@@ -144,33 +144,39 @@ def _course_students(
     activity_ids = [activity.id for activity in activities if activity.id is not None]
     user_ids: set[int] = set()
 
-    for row in db_session.exec(
-        select(UserGroupUser.user_id)
-        .join(
-            UserGroupResource,
-            UserGroupResource.usergroup_id == UserGroupUser.usergroup_id,
-        )
-        .where(UserGroupResource.resource_uuid == course.course_uuid)
-    ).all():
-        user_ids.add(row)
+    user_ids.update(
+        db_session.exec(
+            select(UserGroupUser.user_id)
+            .join(
+                UserGroupResource,
+                UserGroupResource.usergroup_id == UserGroupUser.usergroup_id,
+            )
+            .where(UserGroupResource.resource_uuid == course.course_uuid)
+        ).all()
+    )
 
-    for row in db_session.exec(
-        select(TrailRun.user_id).where(TrailRun.course_id == course.id)
-    ).all():
-        user_ids.add(row)
+    user_ids.update(
+        db_session.exec(
+            select(TrailRun.user_id).where(TrailRun.course_id == course.id)
+        ).all()
+    )
 
     if activity_ids:
-        for row in db_session.exec(
-            select(Submission.user_id).where(Submission.activity_id.in_(activity_ids))
-        ).all():
-            user_ids.add(row)
+        user_ids.update(
+            db_session.exec(
+                select(Submission.user_id).where(
+                    Submission.activity_id.in_(activity_ids)
+                )
+            ).all()
+        )
 
-        for row in db_session.exec(
-            select(ActivityProgress.user_id).where(
-                ActivityProgress.activity_id.in_(activity_ids)
-            )
-        ).all():
-            user_ids.add(row)
+        user_ids.update(
+            db_session.exec(
+                select(ActivityProgress.user_id).where(
+                    ActivityProgress.activity_id.in_(activity_ids)
+                )
+            ).all()
+        )
 
     if not user_ids:
         return []

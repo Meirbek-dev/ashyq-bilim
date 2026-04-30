@@ -71,7 +71,7 @@ def _metric(
     # let the frontend display "no prior data" rather than the misleading "Stable" label.
     delta_pct = (
         round(((value - previous) / previous) * 100, 1)
-        if previous not in (None, 0)
+        if previous not in {None, 0}
         else None
     )
     return MetricCard(
@@ -349,17 +349,16 @@ def get_teacher_overview(
         )
     )
 
-    completions_events = []
-    for snapshot in snapshots.values():
-        if snapshot.is_completed and snapshot.last_activity_at is not None:
-            completions_events.append(
-                ActivityEvent(
-                    user_id=snapshot.user_id,
-                    course_id=snapshot.course_id,
-                    ts=snapshot.last_activity_at,
-                    source="completion",
-                )
-            )
+    completions_events = [
+        ActivityEvent(
+            user_id=snapshot.user_id,
+            course_id=snapshot.course_id,
+            ts=snapshot.last_activity_at,
+            source="completion",
+        )
+        for snapshot in snapshots.values()
+        if snapshot.is_completed and snapshot.last_activity_at is not None
+    ]
     submission_events = [
         event
         for event in events
@@ -435,10 +434,9 @@ def get_teacher_overview(
         ],
     )
 
-    alerts: list[AlertItem] = []
-    for row in course_rows:
-        if row.top_alert is not None:
-            alerts.append(row.top_alert)
+    alerts: list[AlertItem] = [
+        row.top_alert for row in course_rows if row.top_alert is not None
+    ]
     if at_risk_count > 0:
         alerts.append(
             AlertItem(

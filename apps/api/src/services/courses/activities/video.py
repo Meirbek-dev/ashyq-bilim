@@ -40,7 +40,7 @@ def validate_video_file(video_file: UploadFile | None) -> str:
             status_code=status.HTTP_409_CONFLICT,
             detail="Video : No video file provided",
         )
-    if video_file.content_type not in ["video/mp4", "video/webm", "video/x-matroska"]:
+    if video_file.content_type not in {"video/mp4", "video/webm", "video/x-matroska"}:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Video : Wrong video format",

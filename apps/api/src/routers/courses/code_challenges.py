@@ -60,6 +60,11 @@ from src.security.rbac import (
     PermissionChecker,
     ResourceAccessDenied,
 )
+from src.services.assessments.settings import (
+    CodeAssessmentSettings,
+    get_settings,
+    put_settings,
+)
 from src.services.code_challenges.grading import (
     apply_grading_strategy,
     calculate_composite_score,
@@ -76,13 +81,8 @@ from src.services.code_challenges.sanitize import (
     sanitize_stderr,
     sanitize_stdout,
 )
-from src.services.progress import submissions as progress_submissions
-from src.services.assessments.settings import (
-    CodeAssessmentSettings,
-    get_settings,
-    put_settings,
-)
 from src.services.grading.submission import start_submission_v2
+from src.services.progress import submissions as progress_submissions
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -100,7 +100,7 @@ async def get_activity_or_404(
     db_session: Session,
 ) -> Activity:
     """Get activity by UUID or raise 404"""
-    logger.info(f"Looking for activity with UUID: {activity_uuid}")
+    logger.info("Looking for activity with UUID: %s", activity_uuid)
 
     # Handle both cases: with and without 'activity_' prefix
     # Frontend strips the prefix, but DB stores it with prefix
@@ -111,7 +111,7 @@ async def get_activity_or_404(
     activity = db_session.exec(statement).first()
 
     if not activity:
-        logger.warning(f"Activity not found: {activity_uuid}")
+        logger.warning("Activity not found: %s", activity_uuid)
         raise HTTPException(status_code=404, detail="Activity not found")
 
     logger.info(
@@ -377,7 +377,7 @@ async def update_challenge_settings(
     )
     db_session.refresh(activity)
 
-    logger.info(f"Updated challenge settings for activity {activity_uuid}")
+    logger.info("Updated challenge settings for activity %s", activity_uuid)
 
     return {"message": "Settings updated successfully", "settings": activity.details}
 
@@ -533,7 +533,7 @@ async def process_submission(
     try:
         submission = db_session.get(CodeSubmission, submission_id)
         if not submission:
-            logger.error(f"Submission {submission_id} not found")
+            logger.error("Submission %s not found", submission_id)
             return
 
         # Update status to processing
@@ -549,7 +549,7 @@ async def process_submission(
             db_session.commit()
             progress_submissions.sync_code_challenge_submission(submission, db_session)
             logger.warning(
-                f"Judge0 unavailable, submission {submission_id} marked as pending"
+                "Judge0 unavailable, submission %s marked as pending", submission_id
             )
             return
 
@@ -590,7 +590,7 @@ async def process_submission(
         if passed_tests == len(test_cases) and len(test_cases) > 0:
             award_challenge_xp(submission, db_session)
 
-        logger.info(f"Submission {submission_id} completed with score {score}")
+        logger.info("Submission %s completed with score %s", submission_id, score)
 
     except Judge0UnavailableError:
         submission = db_session.get(CodeSubmission, submission_id)
@@ -600,7 +600,7 @@ async def process_submission(
             db_session.commit()
             progress_submissions.sync_code_challenge_submission(submission, db_session)
         logger.warning(
-            f"Judge0 unavailable during processing of submission {submission_id}"
+            "Judge0 unavailable during processing of submission %s", submission_id
         )
 
     except Exception:

@@ -19,7 +19,7 @@ def _serialize_validation_errors(exc: RequestValidationError) -> list[dict]:
 
 def register_exception_handlers(app: FastAPI) -> None:
     # Maps fastapi-users string error codes to structured client-facing errors.
-    _FASTAPI_USERS_ERROR_MAP: dict[str, dict] = {
+    FASTAPI_USERS_ERROR_MAP: dict[str, dict] = {
         "REGISTER_USER_ALREADY_EXISTS": {
             "error_code": "email_taken",
             "message": "Email already exists",
@@ -31,10 +31,10 @@ def register_exception_handlers(app: FastAPI) -> None:
     def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
         detail = exc.detail
         headers = exc.headers
-        if isinstance(detail, str) and detail in _FASTAPI_USERS_ERROR_MAP:
+        if isinstance(detail, str) and detail in FASTAPI_USERS_ERROR_MAP:
             return JSONResponse(
                 status_code=exc.status_code,
-                content=_FASTAPI_USERS_ERROR_MAP[detail],
+                content=FASTAPI_USERS_ERROR_MAP[detail],
                 headers=headers,
             )
         if isinstance(detail, dict):

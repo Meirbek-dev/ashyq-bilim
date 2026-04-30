@@ -1,4 +1,5 @@
 import os
+import pathlib
 from typing import Literal
 
 from fastapi import HTTPException, UploadFile
@@ -8,7 +9,7 @@ from src.security.file_validation import validate_upload
 
 def ensure_directory_exists(directory: str) -> None:
     # Use exist_ok to avoid race conditions in concurrent environments
-    os.makedirs(directory, exist_ok=True)
+    pathlib.Path(directory).mkdir(exist_ok=True, parents=True)
 
 
 async def upload_file(
@@ -84,9 +85,6 @@ async def upload_content(
 
     ensure_directory_exists(f"{storage_root}/{directory}")
 
-    with open(
-        f"{storage_root}/{directory}/{file_and_format}",
-        "wb",
-    ) as f:
+    with pathlib.Path(f"{storage_root}/{directory}/{file_and_format}").open("wb") as f:
         f.write(file_binary)
         f.close()

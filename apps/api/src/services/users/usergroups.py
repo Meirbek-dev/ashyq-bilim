@@ -255,7 +255,7 @@ async def add_users_to_usergroup(
         try:
             parsed_ids.append(int(user_id_str.strip()))
         except ValueError:
-            logging.exception(f"Invalid user_id format: {user_id_str}")
+            logging.exception("Invalid user_id format: %s", user_id_str)
 
     if not parsed_ids:
         return "Users added to UserGroup successfully"
@@ -279,7 +279,7 @@ async def add_users_to_usergroup(
     new_entries = []
     for user_id in parsed_ids:
         if user_id in existing_user_ids:
-            logging.error(f"User with id {user_id} already exists in UserGroup")
+            logging.error("User with id %s already exists in UserGroup", user_id)
             continue
 
         user = users_map.get(user_id)
@@ -293,7 +293,7 @@ async def add_users_to_usergroup(
                 )
             )
         else:
-            logging.error(f"User with id {user_id} not found")
+            logging.error("User with id %s not found", user_id)
 
     if new_entries:
         for entry in new_entries:
@@ -337,7 +337,7 @@ async def remove_users_from_usergroup(
         try:
             parsed_ids.append(int(user_id_str.strip()))
         except ValueError:
-            logging.exception(f"Invalid user_id format: {user_id_str}")
+            logging.exception("Invalid user_id format: %s", user_id_str)
 
     # Batch fetch all memberships in one query
     usergroup_users = db_session.exec(
@@ -350,7 +350,7 @@ async def remove_users_from_usergroup(
     found_user_ids = {ugu.user_id for ugu in usergroup_users}
     for user_id in parsed_ids:
         if user_id not in found_user_ids:
-            logging.error(f"User with id {user_id} not found in UserGroup")
+            logging.error("User with id %s not found in UserGroup", user_id)
 
     for usergroup_user in usergroup_users:
         db_session.delete(usergroup_user)
@@ -403,7 +403,7 @@ async def add_resources_to_usergroup(
     new_entries = []
     for resource_uuid in resources_uuids_array:
         if resource_uuid in existing_uuids:
-            logging.error(f"Resource {resource_uuid} already exists in UserGroup")
+            logging.error("Resource %s already exists in UserGroup", resource_uuid)
             continue
 
         # TODO : Find a way to check if resource really exists
@@ -462,7 +462,7 @@ async def remove_resources_from_usergroup(
     found_uuids = {ugr.resource_uuid for ugr in usergroup_resources}
     for resource_uuid in resources_uuids_array:
         if resource_uuid not in found_uuids:
-            logging.error(f"resource with uuid {resource_uuid} not found in UserGroup")
+            logging.error("resource with uuid %s not found in UserGroup", resource_uuid)
 
     for usergroup_resource in usergroup_resources:
         db_session.delete(usergroup_resource)

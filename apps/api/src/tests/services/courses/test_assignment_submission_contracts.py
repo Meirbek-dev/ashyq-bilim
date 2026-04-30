@@ -6,6 +6,7 @@ import pytest
 from sqlalchemy.pool import StaticPool
 from sqlmodel import Session, SQLModel, create_engine, select
 
+import src.services.courses.activities.assignments.submissions as submissions_module
 from src.db.courses.activities import (
     Activity,
     ActivitySubTypeEnum,
@@ -24,10 +25,9 @@ from src.db.courses.courses import Course
 from src.db.grading.submissions import Submission, SubmissionStatus
 from src.db.model_registry import import_orm_models
 from src.db.users import PublicUser
-import src.services.courses.activities.assignments.submissions as submissions_module
 
 
-@pytest.fixture()
+@pytest.fixture
 def db_session() -> Session:
     import_orm_models()
     engine = create_engine(
@@ -40,7 +40,7 @@ def db_session() -> Session:
         yield session
 
 
-@pytest.fixture()
+@pytest.fixture
 def current_user() -> PublicUser:
     return PublicUser(
         id=10,

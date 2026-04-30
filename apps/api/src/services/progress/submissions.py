@@ -144,7 +144,7 @@ def recalculate_course_progress(
             select(ActivityProgress).where(
                 ActivityProgress.course_id == course_id,
                 ActivityProgress.user_id == user_id,
-                ActivityProgress.required == True,
+                ActivityProgress.required,
             )
         ).all()
     )
@@ -235,7 +235,7 @@ def _ensure_course_activity_progress_rows(
         for activity in db_session.exec(
             select(Activity).where(
                 Activity.course_id == course_id,
-                Activity.published == True,
+                Activity.published,
             )
         ).all()
         if activity.id is not None
@@ -276,7 +276,7 @@ def backfill_activity_progress(
 ) -> dict[str, int]:
     """Repair canonical progress rows for known enrolled/interacting learners."""
 
-    activity_query = select(Activity).where(Activity.published == True)
+    activity_query = select(Activity).where(Activity.published)
     if course_id is not None:
         activity_query = activity_query.where(Activity.course_id == course_id)
     activities = [
@@ -334,7 +334,7 @@ def backfill_exam_attempt_submissions(
     query = (
         select(ExamAttempt)
         .join(Exam, Exam.id == ExamAttempt.exam_id)
-        .where(ExamAttempt.is_preview == False)
+        .where(not ExamAttempt.is_preview)
     )
     if course_id is not None:
         query = query.where(Exam.course_id == course_id)

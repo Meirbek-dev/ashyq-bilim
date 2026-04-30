@@ -74,9 +74,7 @@ def _has_submitted_work(value: Any) -> bool:
         return False
     if set(payload.keys()) == {"file_uuid"} and not payload.get("file_uuid"):
         return False
-    if "answers" in payload and payload.get("answers") in ({}, [], None, ""):
-        return False
-    return True
+    return not ("answers" in payload and payload.get("answers") in ({}, [], None, ""))
 
 
 def _content_type_for_assignment_type(assignment_type: str | None) -> str:

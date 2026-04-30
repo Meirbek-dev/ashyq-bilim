@@ -53,7 +53,7 @@ def _resolve_google_redirect_uri() -> str:
     proto = "https" if settings.hosting_config.ssl else "http"
     domain = settings.hosting_config.domain
     port = settings.hosting_config.port
-    port_suffix = f":{port}" if port not in (80, 443) else ""
+    port_suffix = f":{port}" if port not in {80, 443} else ""
     uri = f"{proto}://{domain}{port_suffix}/api/v1/auth/google/callback"
     logger.warning(
         "PLATFORM_GOOGLE_REDIRECT_URI is not set — using auto-constructed '%s'. "

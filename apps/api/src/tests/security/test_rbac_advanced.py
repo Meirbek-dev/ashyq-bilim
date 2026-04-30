@@ -25,10 +25,9 @@ def db_session() -> MagicMock:
 def checker(db_session: MagicMock) -> PermissionChecker:
     # We mock _get_or_load directly so we can test the resolution logic
     # without needing the full DB setup or user/role fixtures.
-    pc = PermissionChecker(db=db_session)
+    return PermissionChecker(db=db_session)
     # Important: `_resolve` calls `_has_perm` directly, but we test `check()`.
     # Let's manually implement `_get_or_load` using a simple cache
-    return pc
 
 
 # ---------------------------------------------------------------------------
@@ -38,7 +37,7 @@ def checker(db_session: MagicMock) -> PermissionChecker:
 
 class TestRBACResolution:
     @pytest.mark.parametrize(
-        "granted_perms, requested_perm, kwargs, expected",
+        ("granted_perms", "requested_perm", "kwargs", "expected"),
         [
             # --- Global/Platform Scope Tests ---
             ({"course:read:all"}, "course:read", {}, True),

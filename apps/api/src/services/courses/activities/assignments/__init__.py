@@ -33,27 +33,27 @@ from src.services.courses.activities.assignments.uploads import (
 )
 
 __all__ = [
+    # submissions
+    "_require_assignment_submit_access",
+    # tasks
+    "create_assignment_task",
     # crud
     "create_assignment_with_activity",
     "delete_assignment_from_activity_uuid",
+    "delete_assignment_task",
+    "get_assignment_draft_submission",
     "get_assignments_from_course",
     "get_assignments_from_courses",
     "get_editable_assignments_from_courses",
-    "read_assignment",
-    "read_assignment_from_activity_uuid",
-    "update_assignment",
-    # submissions
-    "_require_assignment_submit_access",
-    "get_assignment_draft_submission",
-    "save_assignment_draft_submission",
-    "submit_assignment_draft_submission",
-    # tasks
-    "create_assignment_task",
-    "delete_assignment_task",
-    "read_assignment_task",
-    "read_assignment_tasks",
-    "update_assignment_task",
     # uploads
     "put_assignment_task_reference_file",
     "put_assignment_task_submission_file",
+    "read_assignment",
+    "read_assignment_from_activity_uuid",
+    "read_assignment_task",
+    "read_assignment_tasks",
+    "save_assignment_draft_submission",
+    "submit_assignment_draft_submission",
+    "update_assignment",
+    "update_assignment_task",
 ]

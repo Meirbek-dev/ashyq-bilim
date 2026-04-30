@@ -51,7 +51,7 @@ class Judge0Service:
                 response = await client.get(f"{self.base_url}/config_info")
                 return response.status_code == 200
         except Exception as e:
-            logger.exception(f"Judge0 health check failed: {e}")
+            logger.exception("Judge0 health check failed: %s", e)
             return False
 
     async def get_languages(self) -> list[Judge0Language]:
@@ -62,7 +62,7 @@ class Judge0Service:
                 response.raise_for_status()
                 return [Judge0Language(**lang) for lang in response.json()]
         except Exception as e:
-            logger.exception(f"Failed to fetch languages: {e}")
+            logger.exception("Failed to fetch languages: %s", e)
             msg = f"Failed to fetch languages: {e}"
             raise Judge0Error(msg)
 
@@ -74,7 +74,7 @@ class Judge0Service:
                 response.raise_for_status()
                 return {s["id"]: s["description"] for s in response.json()}
         except Exception as e:
-            logger.exception(f"Failed to fetch statuses: {e}")
+            logger.exception("Failed to fetch statuses: %s", e)
             msg = f"Failed to fetch statuses: {e}"
             raise Judge0Error(msg)
 
@@ -175,7 +175,7 @@ class Judge0Service:
             msg = f"Judge0 HTTP error: {e.response.status_code}"
             raise Judge0Error(msg)
         except Exception as e:
-            logger.exception(f"Judge0 submission failed: {e}")
+            logger.exception("Judge0 submission failed: %s", e)
             msg = f"Judge0 submission failed: {e}"
             raise Judge0Error(msg)
 
@@ -211,7 +211,7 @@ class Judge0Service:
             msg = "Judge0 request timed out"
             raise Judge0UnavailableError(msg)
         except Exception as e:
-            logger.exception(f"Judge0 batch submission failed: {e}")
+            logger.exception("Judge0 batch submission failed: %s", e)
             msg = f"Judge0 batch submission failed: {e}"
             raise Judge0Error(msg)
 
@@ -227,7 +227,7 @@ class Judge0Service:
                 return self._process_result(response.json())
 
         except Exception as e:
-            logger.exception(f"Failed to get submission {token}: {e}")
+            logger.exception("Failed to get submission %s: %s", token, e)
             msg = f"Failed to get submission: {e}"
             raise Judge0Error(msg)
 
@@ -247,7 +247,7 @@ class Judge0Service:
                 return [self._process_result(s) for s in data.get("submissions", [])]
 
         except Exception as e:
-            logger.exception(f"Failed to get batch submissions: {e}")
+            logger.exception("Failed to get batch submissions: %s", e)
             msg = f"Failed to get batch submissions: {e}"
             raise Judge0Error(msg)
 
@@ -329,7 +329,7 @@ class Judge0Service:
 
                     # Check for failure in stop_on_failure mode
                     if stop_on_failure and status.is_error:
-                        logger.info(f"Stopping on failure at test {original_idx}")
+                        logger.info("Stopping on failure at test %s", original_idx)
                         return [r for r in results if r is not None]
 
             if pending and attempt < max_retries:

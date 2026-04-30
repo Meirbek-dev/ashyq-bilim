@@ -96,7 +96,7 @@ def list_latest_course_rollups(
         DailyCourseMetrics.metric_date == metric_date,
         DailyCourseMetrics.course_id.in_(course_ids),
     )
-    if teacher_user_id not in (None, 0):
+    if teacher_user_id not in {None, 0}:
         statement = statement.where(
             DailyCourseMetrics.teacher_user_id == teacher_user_id
         )
@@ -470,7 +470,7 @@ def refresh_teacher_analytics_rollups(
                 started = activity_users.get(activity_id, set())
                 completed = completed_users.get(activity_id, set())
                 dropoff_pct = None
-                if previous_completed_count not in (None, 0):
+                if previous_completed_count not in {None, 0}:
                     dropoff_pct = round(
                         (
                             (previous_completed_count - len(completed))

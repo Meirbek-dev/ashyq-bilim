@@ -34,7 +34,7 @@ def _extract_block_text(node: dict) -> str:
     if node_type == "paragraph":
         return _extract_inline_text(content)
 
-    if node_type in ("calloutInfo", "calloutWarning"):
+    if node_type in {"calloutInfo", "calloutWarning"}:
         label = "Note" if node_type == "calloutInfo" else "Warning"
         text = _extract_inline_text(content)
         return f"[{label}] {text}" if text else ""
@@ -53,7 +53,7 @@ def _extract_block_text(node: dict) -> str:
                     lines.append(child_text)
         return "\n".join(f"> {line}" for line in lines) if lines else ""
 
-    if node_type in ("bulletList", "orderedList"):
+    if node_type in {"bulletList", "orderedList"}:
         items = []
         for i, child in enumerate(content):
             if isinstance(child, dict) and child.get("type") == "listItem":

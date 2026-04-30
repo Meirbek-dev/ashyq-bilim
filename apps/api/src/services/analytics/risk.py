@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import operator
 from collections import defaultdict
 from datetime import UTC, date
 
@@ -10,10 +11,10 @@ from src.db.analytics import LearnerRiskSnapshot, TeacherIntervention
 from src.services.analytics.filters import AnalyticsFilters
 from src.services.analytics.queries import (
     AnalyticsContext,
+    assessment_pass_threshold,
     assignment_is_graded,
     assignment_is_reviewable,
     assignment_score,
-    assessment_pass_threshold,
     build_activity_events,
     cohort_names_for_user,
     cohort_user_ids,
@@ -57,7 +58,7 @@ def _top_factor(components: dict[str, float]) -> str | None:
     positive = {key: value for key, value in components.items() if value > 0}
     if not positive:
         return None
-    return max(positive.items(), key=lambda item: item[1])[0]
+    return max(positive.items(), key=operator.itemgetter(1))[0]
 
 
 def _confidence_level(
@@ -132,7 +133,7 @@ def _interventions_by_pair(
     )
     grouped: dict[tuple[int, int], list[TeacherIntervention]] = defaultdict(list)
     for row in rows:
-        grouped[(row.course_id, row.user_id)].append(row)
+        grouped[row.course_id, row.user_id].append(row)
     return dict(grouped)
 
 
@@ -236,7 +237,7 @@ def build_risk_rows(
             continue
         key = (exam.course_id, attempt.user_id)
         exam_seen[key].add(exam.id)
-        if attempt.score is None or attempt.max_score in (None, 0):
+        if attempt.score is None or attempt.max_score in {None, 0}:
             continue
         percentage = (float(attempt.score) / float(attempt.max_score)) * 100
         if percentage < exam_thresholds.get(exam.id or 0, 60):

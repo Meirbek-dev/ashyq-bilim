@@ -594,4 +594,4 @@ def ensure_user_has_default_role(db_session: Session, user_id: int) -> None:
     db_session.commit()
 
 
-## 🔒 RBAC Utils ##
+# 🔒 RBAC Utils ##

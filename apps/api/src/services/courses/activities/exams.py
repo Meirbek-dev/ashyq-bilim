@@ -58,7 +58,7 @@ def _utc_now_iso() -> str:
     return datetime.now(UTC).isoformat()
 
 
-## > Helper Functions
+# > Helper Functions
 
 
 async def is_course_contributor_or_admin(
@@ -81,17 +81,17 @@ async def is_course_contributor_or_admin(
         resource_author
         and (
             resource_author.authorship
-            in (
+            in {
                 ResourceAuthorshipEnum.CREATOR,
                 ResourceAuthorshipEnum.MAINTAINER,
                 ResourceAuthorshipEnum.CONTRIBUTOR,
-            )
+            }
             and resource_author.authorship_status == ResourceAuthorshipStatusEnum.ACTIVE
         )
     )
 
 
-## > Exams CRUD
+# > Exams CRUD
 
 
 async def create_exam(
@@ -394,7 +394,7 @@ async def create_exam_with_activity(
     }
 
 
-## > Questions CRUD
+# > Questions CRUD
 
 
 async def create_question(
@@ -452,11 +452,11 @@ async def create_question(
         )
 
     # Validate that at least one correct answer exists (except for essay/custom)
-    if question_object.question_type in [
+    if question_object.question_type in {
         QuestionTypeEnum.SINGLE_CHOICE,
         QuestionTypeEnum.MULTIPLE_CHOICE,
         QuestionTypeEnum.TRUE_FALSE,
-    ]:
+    }:
         has_correct = any(
             opt.get("is_correct") for opt in question_object.answer_options
         )
@@ -621,7 +621,7 @@ async def delete_question(
     return {"message": "Вопрос успешно удалён"}
 
 
-## > Exam Attempts
+# > Exam Attempts
 
 
 async def start_exam_attempt(
@@ -912,7 +912,7 @@ async def submit_exam_attempt(
                 })
         except (ValueError, AttributeError) as e:
             logger.warning(
-                f"Failed to validate time limit for attempt {attempt_uuid}: {e}"
+                "Failed to validate time limit for attempt %s: %s", attempt_uuid, e
             )
 
     _validate_attempt_answers(attempt, answers)
@@ -1128,11 +1128,11 @@ async def get_attempt_by_uuid(
     if (
         resource_author
         and resource_author.authorship
-        in (
+        in {
             ResourceAuthorshipEnum.CREATOR,
             ResourceAuthorshipEnum.MAINTAINER,
             ResourceAuthorshipEnum.CONTRIBUTOR,
-        )
+        }
         and resource_author.authorship_status == ResourceAuthorshipStatusEnum.ACTIVE
     ):
         return ExamAttemptRead.model_validate(attempt)
@@ -1200,7 +1200,7 @@ async def get_attempt_review_questions(
     ]
 
 
-## > Helper Functions
+# > Helper Functions
 
 
 def check_answer_correctness(question: Question, user_answer: any) -> bool:
@@ -1335,7 +1335,7 @@ async def get_all_exam_attempts(
         .join(User, User.id == ExamAttempt.user_id)
         .where(
             ExamAttempt.exam_id == exam.id,
-            ExamAttempt.is_preview == False,
+            not ExamAttempt.is_preview,
         )
         .order_by(ExamAttempt.started_at.desc())
     )
@@ -1524,12 +1524,12 @@ async def import_questions_csv(
                 errors.append(f"Строка {row_num}: Требуется текст вопроса")
                 continue
 
-            if question_type not in [
+            if question_type not in {
                 "SINGLE_CHOICE",
                 "MULTIPLE_CHOICE",
                 "TRUE_FALSE",
                 "MATCHING",
-            ]:
+            }:
                 errors.append(
                     f"Строка {row_num}: Неверный тип вопроса '{question_type}'"
                 )

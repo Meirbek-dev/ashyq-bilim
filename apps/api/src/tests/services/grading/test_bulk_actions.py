@@ -27,7 +27,7 @@ from src.services.grading import bulk as bulk_service
 from src.services.grading import teacher as teacher_service
 
 
-@pytest.fixture()
+@pytest.fixture
 def db_session() -> Session:
     import_orm_models()
     engine = create_engine(
@@ -40,7 +40,7 @@ def db_session() -> Session:
         yield session
 
 
-@pytest.fixture()
+@pytest.fixture
 def teacher() -> PublicUser:
     return PublicUser(
         id=99,

@@ -17,7 +17,8 @@ def load_migration_module():
     )
     spec = importlib.util.spec_from_file_location("assignment_phase2", migration_path)
     module = importlib.util.module_from_spec(spec)
-    assert spec and spec.loader
+    assert spec
+    assert spec.loader
     spec.loader.exec_module(module)
     return module
 

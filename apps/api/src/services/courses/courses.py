@@ -29,17 +29,17 @@ from src.db.usergroup_resources import UserGroupResource
 from src.db.usergroup_user import UserGroupUser
 from src.db.users import AnonymousUser, PublicUser, User, UserRead
 from src.security.rbac import PermissionChecker
-from src.services.courses.thumbnails import upload_thumbnail
 from src.services.courses._auth import (
+    is_course_owner,
     require_course_permission,
     require_course_read_access,
-    is_course_owner,
 )
+from src.services.courses.thumbnails import upload_thumbnail
 
 
 def _accessible_courses_filter(
     query,
-    current_user: "PublicUser | AnonymousUser",
+    current_user: PublicUser | AnonymousUser,
 ):
     """Apply the standard course-access filter to *query*.
 
@@ -114,7 +114,7 @@ def _apply_course_sort(query, sort_by: str | None):
     return query.order_by(Course.update_date.desc(), Course.id.desc())
 
 
-def _apply_lms_sort(query, current_user: "PublicUser | AnonymousUser"):
+def _apply_lms_sort(query, current_user: PublicUser | AnonymousUser):
     from sqlalchemy import case, func, select
 
     from src.db.trail_runs import TrailRun
@@ -1204,7 +1204,7 @@ async def update_course(
         if resource_author and (
             (
                 resource_author.authorship
-                in (ResourceAuthorshipEnum.CREATOR, ResourceAuthorshipEnum.MAINTAINER)
+                in {ResourceAuthorshipEnum.CREATOR, ResourceAuthorshipEnum.MAINTAINER}
             )
             and resource_author.authorship_status == ResourceAuthorshipStatusEnum.ACTIVE
         ):

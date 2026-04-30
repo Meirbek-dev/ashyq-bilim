@@ -315,7 +315,7 @@ async def get_course_chapters(
         .order_by(Activity.order)
     )
     if not with_unpublished_activities:
-        activity_query = activity_query.where(Activity.published == True)
+        activity_query = activity_query.where(Activity.published)
 
     activities = db_session.exec(activity_query).all()
 

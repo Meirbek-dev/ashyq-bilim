@@ -19,7 +19,7 @@ from src.services.grading import gradebook as gradebook_service
 from src.services.progress import submissions as progress_submissions
 
 
-@pytest.fixture()
+@pytest.fixture
 def db_session() -> Session:
     import_orm_models()
     engine = create_engine(

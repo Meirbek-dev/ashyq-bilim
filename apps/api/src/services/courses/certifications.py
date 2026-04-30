@@ -322,7 +322,9 @@ async def create_certificate_user(
         existing_cert = db_session.exec(check_stmt).first()
         if existing_cert:
             logger.info(
-                f"Certificate already exists for user {user_id} and certification {certification_id}"
+                "Certificate already exists for user %s and certification %s",
+                user_id,
+                certification_id,
             )
             return CertificateUserRead.model_validate(existing_cert)
 
@@ -376,8 +378,10 @@ async def create_certificate_user(
             db_session.add(certificate_user)
             db_session.flush()  # Ensure it's written and constraints are checked
             logger.info(
-                f"Successfully created certificate {user_certification_uuid} for user {user_id} "
-                f"and certification {certification_id}"
+                "Successfully created certificate %s for user %s and certification %s",
+                user_certification_uuid,
+                user_id,
+                certification_id,
             )
 
         except Exception as db_exc:
@@ -394,7 +398,9 @@ async def create_certificate_user(
 
                 if existing_cert:
                     logger.info(
-                        f"Certificate already exists (race condition detected) for user {user_id} and certification {certification_id}"
+                        "Certificate already exists (race condition detected) for user %s and certification %s",
+                        user_id,
+                        certification_id,
                     )
                     return CertificateUserRead.model_validate(existing_cert)
 
@@ -404,7 +410,9 @@ async def create_certificate_user(
         # Explicitly commit the transaction to ensure it's persisted
         db_session.commit()
         logger.info(
-            f"Certificate transaction committed for user {user_id} and certification {certification_id}"
+            "Certificate transaction committed for user %s and certification %s",
+            user_id,
+            certification_id,
         )
 
         return CertificateUserRead.model_validate(certificate_user)
@@ -665,7 +673,11 @@ async def check_course_completion_and_create_certificate(
     else:
         # Course not yet completed
         logger.debug(
-            f"Course {course_id} not completed by user {user_id}: {completed_count}/{total_count} activities finished"
+            "Course %s not completed by user %s: %s/%s activities finished",
+            course_id,
+            user_id,
+            completed_count,
+            total_count,
         )
 
     return False

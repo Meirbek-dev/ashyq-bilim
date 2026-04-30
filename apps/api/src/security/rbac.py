@@ -213,8 +213,7 @@ class PermissionChecker:
 
             for r in resources:
                 for a in actions:
-                    for s in scopes:
-                        expanded.add(f"{r}:{a}:{s}")
+                    expanded.update(f"{r}:{a}:{s}" for s in scopes)
 
         # Scope hierarchy expansion: broader scopes imply narrower ones.
         # "all"      → also implies "platform", "assigned", "own"
@@ -232,8 +231,10 @@ class PermissionChecker:
             parts = perm_str.split(":")
             if len(parts) == 3:
                 res, act, scp = parts
-                for implied_scope in scope_implies.get(scp, []):
-                    hierarchy_expanded.add(f"{res}:{act}:{implied_scope}")
+                hierarchy_expanded.update(
+                    f"{res}:{act}:{implied_scope}"
+                    for implied_scope in scope_implies.get(scp, [])
+                )
 
         return hierarchy_expanded
 

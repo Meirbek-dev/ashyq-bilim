@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import operator
 from collections import Counter, defaultdict
 from datetime import UTC, datetime, timedelta
 
@@ -14,13 +15,13 @@ from src.db.usergroups import UserGroup
 from src.services.analytics.filters import AnalyticsFilters
 from src.services.analytics.queries import (
     AnalyticsContext,
+    assessment_pass_threshold,
     assignment_graded_at,
     assignment_is_graded,
     assignment_is_reviewable,
     assignment_score,
     assignment_submission_status,
     assignment_submitted_at,
-    assessment_pass_threshold,
     cohort_user_ids,
     display_name,
     hours_between,
@@ -328,7 +329,7 @@ def _quality_by_question_from_quiz_attempts(
         scored_attempts.append((score_pct, attempt))
     if len(scored_attempts) < 4:
         return {}
-    ordered = sorted(scored_attempts, key=lambda item: item[0])
+    ordered = sorted(scored_attempts, key=operator.itemgetter(0))
     group_size = max(1, round(len(ordered) * 0.27))
     weak = {id(attempt) for _score, attempt in ordered[:group_size]}
     strong = {id(attempt) for _score, attempt in ordered[-group_size:]}
@@ -381,7 +382,7 @@ def _build_assignment_rows(
     bucket_window: tuple[datetime, datetime] | None,
 ) -> list[AssessmentOutlierRow]:
     eligible_by_course: dict[int, set[int]] = defaultdict(set)
-    for course_id, user_id in snapshots:
+    for course_id, user_id in snapshots.items():
         eligible_by_course[course_id].add(user_id)
 
     submissions_by_assignment: dict[int, list] = defaultdict(list)
@@ -485,7 +486,7 @@ def _build_exam_rows(
     bucket_window: tuple[datetime, datetime] | None,
 ) -> list[AssessmentOutlierRow]:
     eligible_by_course: dict[int, set[int]] = defaultdict(set)
-    for course_id, user_id in snapshots:
+    for course_id, user_id in snapshots.items():
         eligible_by_course[course_id].add(user_id)
 
     attempts_by_exam: dict[int, list] = defaultdict(list)
@@ -577,7 +578,7 @@ def _build_quiz_rows(
     bucket_window: tuple[datetime, datetime] | None,
 ) -> list[AssessmentOutlierRow]:
     eligible_by_course: dict[int, set[int]] = defaultdict(set)
-    for course_id, user_id in snapshots:
+    for course_id, user_id in snapshots.items():
         eligible_by_course[course_id].add(user_id)
 
     attempts_by_activity: dict[int, list] = defaultdict(list)
@@ -658,7 +659,7 @@ def _build_code_rows(
     bucket_window: tuple[datetime, datetime] | None,
 ) -> list[AssessmentOutlierRow]:
     eligible_by_course: dict[int, set[int]] = defaultdict(set)
-    for course_id, user_id in snapshots:
+    for course_id, user_id in snapshots.items():
         eligible_by_course[course_id].add(user_id)
 
     submissions_by_activity: dict[int, list] = defaultdict(list)
@@ -894,9 +895,9 @@ def get_teacher_assessment_detail(
             msg = f"Задание не найдено: {assessment_id}"
             raise ValueError(msg)
         records = [
-            (submission, _assignment)
-            for submission, _assignment in context.assignment_submissions
-            if _assignment.id == assessment_id
+            (submission, assignment_)
+            for submission, assignment_ in context.assignment_submissions
+            if assignment_.id == assessment_id
             and _is_allowed(submission.user_id, allowed_user_ids)
         ]
         eligible = len(eligible_by_course.get(assignment.course_id, set()))
@@ -987,9 +988,9 @@ def get_teacher_assessment_detail(
             msg = f"Экзамен не найден: {assessment_id}"
             raise ValueError(msg)
         records = [
-            (attempt, _exam)
-            for attempt, _exam in context.exam_attempts
-            if _exam.id == assessment_id
+            (attempt, exam_)
+            for attempt, exam_ in context.exam_attempts
+            if exam_.id == assessment_id
             and not attempt.is_preview
             and _is_allowed(attempt.user_id, allowed_user_ids)
         ]
@@ -1013,9 +1014,9 @@ def get_teacher_assessment_detail(
                 ),
                 default=None,
             )
-            last_attempt = sorted(
+            last_attempt = max(
                 attempts, key=lambda item: item.submitted_at or item.started_at or ""
-            )[-1]
+            )
             last_score = (
                 (float(last_attempt.score) / float(last_attempt.max_score)) * 100
                 if last_attempt.score is not None and last_attempt.max_score
@@ -1075,9 +1076,9 @@ def get_teacher_assessment_detail(
             msg = f"Активность теста не найдена: {assessment_id}"
             raise ValueError(msg)
         records = [
-            (attempt, _activity)
-            for attempt, _activity in context.quiz_attempts
-            if _activity.id == assessment_id
+            (attempt, activity_)
+            for attempt, activity_ in context.quiz_attempts
+            if activity_.id == assessment_id
             and _is_allowed(attempt.user_id, allowed_user_ids)
         ]
         eligible = len(eligible_by_course.get(activity.course_id, set()))
@@ -1201,9 +1202,9 @@ def get_teacher_assessment_detail(
             msg = f"Активность задачи по коду не найдена: {assessment_id}"
             raise ValueError(msg)
         records = [
-            (submission, _activity)
-            for submission, _activity in context.code_submissions
-            if _activity.id == assessment_id
+            (submission, activity_)
+            for submission, activity_ in context.code_submissions
+            if activity_.id == assessment_id
             and _is_allowed(submission.user_id, allowed_user_ids)
         ]
         eligible = len(eligible_by_course.get(activity.course_id, set()))

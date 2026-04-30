@@ -52,7 +52,7 @@ def grade_exam_questions(
 
         question_type = question.get("question_type", "SINGLE_CHOICE").upper()
 
-        if question_type in ("SINGLE_CHOICE", "MULTIPLE_CHOICE", "TRUE_FALSE"):
+        if question_type in {"SINGLE_CHOICE", "MULTIPLE_CHOICE", "TRUE_FALSE"}:
             # Convert exam question format to grading format
             quiz_fmt_question = _exam_question_to_quiz_format(question)
             item = _grade_multiple_choice(quiz_fmt_question, user_answer, q_points)

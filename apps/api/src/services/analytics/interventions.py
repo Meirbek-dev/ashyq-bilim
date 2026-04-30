@@ -133,7 +133,7 @@ def intervention_rows_by_learner(
     )
     grouped: dict[tuple[int, int], list[TeacherIntervention]] = defaultdict(list)
     for row in rows:
-        grouped[(row.course_id, row.user_id)].append(row)
+        grouped[row.course_id, row.user_id].append(row)
     return dict(grouped)
 
 

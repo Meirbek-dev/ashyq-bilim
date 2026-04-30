@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import Never
 from unittest.mock import MagicMock
 
 import pytest
@@ -27,7 +28,7 @@ async def test_google_callback_redirects_to_frontend_on_exchange_error(
     frontend_callback = "https://example.test/redirect_from_auth"
     state, _jti = google_oauth._encode_state(frontend_callback)
 
-    async def _fail_exchange(**_kwargs):
+    async def _fail_exchange(**_kwargs) -> Never:
         raise HTTPException(
             status_code=503, detail="Google OAuth service temporarily unavailable"
         )
