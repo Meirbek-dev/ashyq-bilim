@@ -4,6 +4,8 @@
  * Quiz attempts already project to Submission; until the quiz author/attempt
  * surfaces move into the shared shells, review uses the generic submitted
  * answer panel from GradingReviewWorkspace.
+ *
+ * Shell contract: docs/ASSESSMENT_SHELL_CONTRACT.md
  */
 
 import type { ComponentType } from 'react';

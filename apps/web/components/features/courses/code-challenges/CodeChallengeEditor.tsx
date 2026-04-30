@@ -21,7 +21,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 
-import { CodeRunStatusBadge } from './CodeRunStatusBadge';
+import AttemptHistoryList from '@/features/assessments/shared/AttemptHistoryList';
+import type { SubmissionStatus } from '@/features/grading/domain';
 import { LanguageSelector } from './LanguageSelector';
 import type { TestCaseResult } from './TestCaseCard';
 import { TestResultsList } from './TestCaseCard';
@@ -53,13 +54,16 @@ interface CodeChallengeSettings {
 }
 
 interface Submission {
-  uuid: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed' | 'error';
+  uuid?: string;
+  submission_uuid?: string;
+  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'PENDING_JUDGE0' | 'pending' | 'processing' | 'completed' | 'failed' | 'error';
+  submission_status?: SubmissionStatus | null;
   score?: number;
-  max_score: number;
+  max_score?: number;
   language_id: number;
   created_at: string;
   results?: TestCaseResult[];
+  test_results?: { results?: TestCaseResult[] };
 }
 
 interface CodeChallengeEditorProps {
@@ -120,17 +124,19 @@ export function CodeChallengeEditor({
 
   // Handle submission completion
   useEffect(() => {
-    if (activeSubmission?.status === 'completed' || activeSubmission?.status === 'failed') {
+    if (!activeSubmission) return;
+    const status = normalizeCodeRunStatus(activeSubmission?.status);
+    if (status === 'COMPLETED' || status === 'FAILED') {
       setActiveSubmissionId(null);
       setIsSubmitting(false);
-      setTestResults(activeSubmission.results || null);
+      setTestResults(activeSubmission.results || activeSubmission.test_results?.results || null);
       setActiveTab('results');
       refreshSubmissions();
       onSubmissionComplete?.(activeSubmission);
 
-      if (activeSubmission.status === 'completed' && activeSubmission.score === activeSubmission.max_score) {
+      if (status === 'COMPLETED' && activeSubmission.score === (activeSubmission.max_score ?? 100)) {
         toast.success(t('allTestsPassed'));
-      } else if (activeSubmission.status === 'failed') {
+      } else if (status === 'FAILED') {
         toast.error(t('submissionFailed'));
       }
     }
@@ -462,36 +468,20 @@ export function CodeChallengeEditor({
                   {!submissions?.length ? (
                     <p className="text-muted-foreground text-center">{t('noSubmissionsYet')}</p>
                   ) : (
-                    submissions.map((submission, index) => (
-                      <Card
-                        key={`${submission.uuid ?? 'submission'}-${index}`}
-                        className="p-3"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <CodeRunStatusBadge
-                                status={submission.status}
-                                score={submission.score}
-                                maxScore={submission.max_score}
-                              />
-                              <Badge variant="outline">{getLanguageName(submission.language_id)}</Badge>
-                            </div>
-                            <p className="text-muted-foreground text-xs">
-                              {new Date(submission.created_at).toLocaleString()}
-                            </p>
-                          </div>
-                          {submission.score !== undefined && (
-                            <div className="text-right">
-                              <div className="text-lg font-semibold">
-                                {submission.score}/{submission.max_score}
-                              </div>
-                              <div className="text-muted-foreground text-xs">{t('pointsShort')}</div>
-                            </div>
-                          )}
-                        </div>
-                      </Card>
-                    ))
+                    <AttemptHistoryList
+                      compact
+                      title={t('history')}
+                      items={submissions.map((submission, index) => ({
+                        id: submission.submission_uuid ?? submission.uuid ?? index,
+                        label: `Attempt ${submissions.length - index} · ${getLanguageName(submission.language_id)}`,
+                        submittedAt: submission.created_at,
+                        status: submission.submission_status ?? codeRunToSubmissionStatus(submission.status),
+                        scoreLabel:
+                          submission.score !== undefined
+                            ? `${Math.round(submission.score)}/${submission.max_score ?? 100}`
+                            : null,
+                      }))}
+                    />
                   )}
                 </div>
               </ScrollArea>
@@ -504,3 +494,13 @@ export function CodeChallengeEditor({
 }
 
 export default CodeChallengeEditor;
+
+function normalizeCodeRunStatus(status: Submission['status'] | undefined) {
+  return String(status ?? '').toUpperCase();
+}
+
+function codeRunToSubmissionStatus(status: Submission['status']): SubmissionStatus {
+  const normalized = normalizeCodeRunStatus(status);
+  if (normalized === 'COMPLETED' || normalized === 'FAILED') return 'GRADED';
+  return 'PENDING';
+}

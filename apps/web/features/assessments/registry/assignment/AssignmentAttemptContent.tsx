@@ -16,6 +16,7 @@ import { isPublishedToStudent, type Submission } from '@/features/grading/domain
 import { useMySubmission } from '@/hooks/useMySubmission';
 import PageLoading from '@components/Objects/Loaders/PageLoading';
 import { Separator } from '@/components/ui/separator';
+import AttemptHistoryList from '@/features/assessments/shared/AttemptHistoryList';
 import { useAttemptShellControls, type AttemptSaveState } from '@/features/assessments/shared/AttemptShell';
 import StudentResultPanel from '@/features/assignments/student/ResultPanel';
 import TaskAttemptList from '@/features/assignments/student/TaskAttemptList';
@@ -152,9 +153,25 @@ export default function AssignmentAttemptContent({ activityUuid, courseUuid }: K
   const tasks = normalizeAssignmentTasks(bundle.assignment_tasks);
   const resultSubmission = submission ?? draftQuery.data?.submission ?? null;
   const showResult = Boolean(resultSubmission?.status && isPublishedToStudent(resultSubmission.status));
+  const attemptHistory = resultSubmission
+    ? [
+        {
+          id: resultSubmission.submission_uuid,
+          label: 'Latest submission',
+          submittedAt: resultSubmission.submitted_at ?? resultSubmission.updated_at,
+          status: resultSubmission.status,
+          scoreLabel:
+            resultSubmission.final_score !== null && resultSubmission.final_score !== undefined
+              ? `${Math.round(resultSubmission.final_score)}%`
+              : null,
+        },
+      ]
+    : [];
 
   return (
     <div className="space-y-6">
+      {attemptHistory.length ? <AttemptHistoryList items={attemptHistory} /> : null}
+
       <TaskAttemptList
         tasks={tasks}
         answers={answers}

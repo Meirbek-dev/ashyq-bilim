@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
@@ -16,7 +15,6 @@ import { DEFAULT_POLICY_VIEW } from '@/features/assessments/domain/policy';
 import { useAttemptShellControls, type AttemptSaveState } from '@/features/assessments/shared/AttemptShell';
 import { useExamPersistence } from '@/hooks/useExamPersistence';
 import PageLoading from '@components/Objects/Loaders/PageLoading';
-import ExamPreScreen from '@/components/Activities/ExamActivity/ExamPreScreen';
 import ExamQuestionNavigation, {
   ExamQuestionNavigationMobile,
 } from '@/components/Activities/ExamActivity/ExamQuestionNavigation';
@@ -31,19 +29,10 @@ import type {
 } from '@/components/Activities/ExamActivity/state/examTypes';
 import { getOrderedExamQuestions } from '@/components/Activities/ExamActivity/utils/questionOrder';
 import ExamQuestionCard from './ExamQuestionCard';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { Progress } from '@components/ui/progress';
 import type { KindAttemptProps } from '../index';
+import ExamStartPanel from './ExamStartPanel';
+import ExamSubmitDialog from './ExamSubmitDialog';
 
 type TakingState = ReturnType<typeof createInitialTakingState>;
 
@@ -88,7 +77,7 @@ export default function ExamAttemptContent({ activityUuid, courseUuid, vm }: Kin
 
   if (!activeAttempt) {
     return (
-      <ExamPreScreen
+      <ExamStartPanel
         exam={exam}
         questionCount={questions.length}
         userAttempts={attempts}
@@ -368,44 +357,24 @@ function ExamTakingContent({
         canGoPrevious={currentIndex > 0}
       />
 
-      <AlertDialog
+      <ExamSubmitDialog
         open={showConfirmation}
-        onOpenChange={(open) => !open && dispatch({ type: 'CANCEL_SUBMIT' })}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogMedia>
-              <CheckCircle2 className="size-6 text-green-600" />
-            </AlertDialogMedia>
-            <AlertDialogTitle>{t('confirmSubmission')}</AlertDialogTitle>
-            <AlertDialogDescription>{t('confirmSubmissionMessage')}</AlertDialogDescription>
-            <div className="bg-muted rounded-lg border p-4 text-sm">
-              <div className="flex justify-between">
-                <span>{t('totalQuestions')}:</span>
-                <span className="font-semibold">{orderedQuestions.length}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>{t('answered')}:</span>
-                <span className="font-semibold">{answeredCount}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>{t('unanswered')}:</span>
-                <span className="font-semibold">{orderedQuestions.length - answeredCount}</span>
-              </div>
-            </div>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isSubmitting}>{t('reviewQuestions')}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => void handleSubmit(false)}
-              disabled={isSubmitting}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              {isSubmitting ? t('submitting') : t('confirmAndSubmit')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        totalQuestions={orderedQuestions.length}
+        answeredCount={answeredCount}
+        isSubmitting={isSubmitting}
+        labels={{
+          confirmSubmission: t('confirmSubmission'),
+          confirmSubmissionMessage: t('confirmSubmissionMessage'),
+          totalQuestions: t('totalQuestions'),
+          answered: t('answered'),
+          unanswered: t('unanswered'),
+          reviewQuestions: t('reviewQuestions'),
+          submitting: t('submitting'),
+          confirmAndSubmit: t('confirmAndSubmit'),
+        }}
+        onCancel={() => dispatch({ type: 'CANCEL_SUBMIT' })}
+        onSubmit={() => void handleSubmit(false)}
+      />
     </div>
   );
 }

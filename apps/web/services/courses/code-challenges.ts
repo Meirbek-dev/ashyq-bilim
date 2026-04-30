@@ -2,14 +2,23 @@ import { apiFetch } from '@/lib/api-client';
 
 export interface CodeChallengeSettings {
   uuid: string;
-  time_limit_ms: number;
-  memory_limit_kb: number;
+  difficulty?: 'EASY' | 'MEDIUM' | 'HARD';
+  time_limit?: number;
+  memory_limit?: number;
+  time_limit_ms?: number;
+  memory_limit_kb?: number;
   max_submissions?: number;
-  grading_strategy: 'all_or_nothing' | 'partial' | 'weighted';
+  grading_strategy: 'ALL_OR_NOTHING' | 'PARTIAL_CREDIT' | 'BEST_SUBMISSION' | 'LATEST_SUBMISSION';
+  execution_mode?: 'FAST_FEEDBACK' | 'COMPLETE_FEEDBACK';
+  allow_custom_input?: boolean;
+  points?: number;
   allowed_languages: number[];
-  test_cases: TestCase[];
+  visible_tests?: TestCase[];
+  hidden_tests?: TestCase[];
+  test_cases?: TestCase[];
   starter_code?: Record<string, string>;
   solution_code?: Record<string, string>;
+  hints?: { id?: string; order?: number; content: string; xp_penalty: number }[];
 }
 
 export interface TestCase {
@@ -23,12 +32,15 @@ export interface TestCase {
 
 export interface CodeSubmission {
   uuid: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed' | 'error';
+  submission_uuid?: string;
+  submission_status?: 'DRAFT' | 'PENDING' | 'GRADED' | 'PUBLISHED' | 'RETURNED' | null;
+  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'PENDING_JUDGE0' | 'pending' | 'processing' | 'completed' | 'failed' | 'error';
   score?: number;
-  max_score: number;
+  max_score?: number;
   language_id: number;
   created_at: string;
   results?: TestCaseResult[];
+  test_results?: { results?: TestCaseResult[] };
 }
 
 export interface TestCaseResult {

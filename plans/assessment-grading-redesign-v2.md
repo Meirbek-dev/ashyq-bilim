@@ -560,6 +560,8 @@ These are all UI-only and should ship in one commit each.
   `docs/assignment-grading-product-model.md` to cover all four kinds
   with the same vocabulary; add `docs/ASSESSMENT_SHELL_CONTRACT.md`
   (the slot/VM contract); link both from this plan.
+  - Product model: [`docs/assignment-grading-product-model.md`](../docs/assignment-grading-product-model.md)
+  - Shell contract: [`docs/ASSESSMENT_SHELL_CONTRACT.md`](../docs/ASSESSMENT_SHELL_CONTRACT.md)
 
 ---
 

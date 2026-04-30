@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import { loadKindModule, type KindModule } from '@/features/assessments/registry';
 import { useAssessmentStudio } from '@/features/assessments/hooks/useAssessment';
 import type { AssessmentLifecycle } from '@/features/assessments/domain';
+import PolicyInspector from '@/features/assessments/shared/PolicyInspector';
 import { updateActivity } from '@services/courses/activities';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -110,7 +111,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
   const Provider = kindModule?.Provider ?? Fragment;
 
   const hasOutline = Boolean(Outline);
-  const hasInspector = Boolean(Inspector);
+  const hasInspector = true;
 
   const slotProps = { activityUuid, courseUuid };
 
@@ -221,9 +222,16 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
             <main className="min-w-0 border-t lg:border-t-0">
               <Author {...slotProps} />
             </main>
-            {Inspector && (
+            {hasInspector && (
               <aside className="border-t xl:border-t-0 xl:border-l">
-                <Inspector {...slotProps} />
+                {Inspector ? (
+                  <Inspector {...slotProps} />
+                ) : (
+                  <PolicyInspector
+                    policy={studio.policy}
+                    title={`${kindModule?.label ?? 'Assessment'} policy`}
+                  />
+                )}
               </aside>
             )}
           </div>

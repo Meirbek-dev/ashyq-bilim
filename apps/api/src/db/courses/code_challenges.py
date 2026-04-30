@@ -278,12 +278,15 @@ class CodeSubmissionRead(CodeSubmissionBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    uuid: str | None = None
     submission_uuid: str
+    submission_status: str | None = None
     activity_id: int
     user_id: int
     test_results: dict
     created_at: str
     updated_at: str
+    max_score: float = 100.0
     plagiarism_score: float | None = None
 
 

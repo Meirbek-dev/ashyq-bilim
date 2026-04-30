@@ -8,7 +8,6 @@ import { useRouter } from 'next/navigation';
 
 import { courseGradebookQueryOptions } from '@/features/grading/queries/grading.query';
 import {
-  ACTIVITY_PROGRESS_STATE_CLASSES,
   buildGradebookRollups,
   emptyGradebookCell,
   filterGradebookStudents,
@@ -20,15 +19,13 @@ import {
   type CourseGradebookResponse,
   type GradebookFilters,
   type GradebookRollupKind,
-  type GradebookSavedFilterId,
 } from '@/features/grading/domain';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import ProgressCell, { progressStateLabelKey } from './ProgressCell';
 import { cn } from '@/lib/utils';
 
 interface CourseGradebookCommandCenterProps {
@@ -211,50 +208,24 @@ export default function CourseGradebookCommandCenter({ courseUuid }: CourseGrade
                       key={key}
                       className="h-24 align-top"
                     >
-                      <div
-                        role={cell.latest_submission_uuid ? 'button' : undefined}
-                        tabIndex={cell.latest_submission_uuid ? 0 : undefined}
-                        aria-disabled={!cell.latest_submission_uuid}
-                        onClick={() => openCell(cell)}
-                        onKeyDown={(event) => {
-                          if (event.key === 'Enter' || event.key === ' ') openCell(cell);
+                      <ProgressCell
+                        cell={cell}
+                        selected={selected}
+                        actionRequiredLabel={t('actionRequired')}
+                        attemptsLabel={t('attempts', { count: cell.attempt_count })}
+                        lateLabel={t('late')}
+                        selectLabel={t('selectCell')}
+                        stateLabel={t(progressStateLabelKey(cell.state))}
+                        onOpen={() => openCell(cell)}
+                        onSelect={(checked) => {
+                          setSelectedKeys((current) => {
+                            const next = new Set(current);
+                            if (checked) next.add(key);
+                            else next.delete(key);
+                            return next;
+                          });
                         }}
-                        className={cn(
-                          'h-full w-full rounded-md border p-2 text-left transition-colors',
-                          cell.latest_submission_uuid ? 'cursor-pointer hover:bg-muted/60' : 'cursor-default',
-                          ACTIVITY_PROGRESS_STATE_CLASSES[cell.state],
-                          selected && 'ring-ring ring-2',
-                        )}
-                      >
-                        <div className="mb-2 flex items-center justify-between gap-2">
-                          <Checkbox
-                            checked={selected}
-                            onCheckedChange={(checked) => {
-                              setSelectedKeys((current) => {
-                                const next = new Set(current);
-                                if (checked === true) next.add(key);
-                                else next.delete(key);
-                                return next;
-                              });
-                            }}
-                            onClick={(event) => event.stopPropagation()}
-                            aria-label={t('selectCell')}
-                          />
-                          {cell.teacher_action_required ? <Badge variant="warning">{t('actionRequired')}</Badge> : null}
-                        </div>
-                        <div className="truncate text-xs font-semibold">
-                          {t(`states.${formatGradebookStateKey(cell.state)}`)}
-                        </div>
-                        <div className="mt-1 flex items-center gap-2 text-xs">
-                          <span>
-                            {cell.score === null || cell.score === undefined ? '--' : `${Math.round(cell.score)}%`}
-                          </span>
-                          {cell.is_late ? <span className="font-medium text-rose-700">{t('late')}</span> : null}
-                        </div>
-                        <div className="mt-1 text-[11px] opacity-80">
-                          {t('attempts', { count: cell.attempt_count })}
-                        </div>
-                      </div>
+                      />
                     </TableCell>
                   );
                 })}

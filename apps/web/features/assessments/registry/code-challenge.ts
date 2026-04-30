@@ -1,11 +1,12 @@
 /**
  * Phase 1 passthrough registration for TYPE_CODE_CHALLENGE.
  *
- * Author → wraps CodeChallengeConfigEditor (currently mounted inline by ActivityClient).
- *          Phase 3 will move it to the shared StudioShell.
+ * Author → renders registry/code-challenge/CodeChallengeStudio inside the shared Studio shell.
  * Attempt → renders the code challenge attempt content slot.
  * Review → wraps GradingReviewWorkspace.
  *          Phase 2 ensures code challenge submissions route through Submission.
+ *
+ * Shell contract: docs/ASSESSMENT_SHELL_CONTRACT.md
  */
 
 import type { ComponentType } from 'react';

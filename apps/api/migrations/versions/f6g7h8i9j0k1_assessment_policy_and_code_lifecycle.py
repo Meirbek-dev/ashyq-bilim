@@ -1,7 +1,7 @@
-"""Add canonical anti-cheat JSON to assessment policy.
+"""Add assessment anti-cheat policy and code challenge lifecycle.
 
-Revision ID: c3d4e5f6g7h8
-Revises: b2c3d4e5f6g7
+Revision ID: f6g7h8i9j0k1
+Revises: e5f6g7h8i9j0
 Create Date: 2026-04-29
 """
 
@@ -10,8 +10,8 @@ from collections.abc import Sequence
 import sqlalchemy as sa
 from alembic import op
 
-revision: str = "c3d4e5f6g7h8"
-down_revision: str | None = "b2c3d4e5f6g7"
+revision: str = "f6g7h8i9j0k1"
+down_revision: str | None = "e5f6g7h8i9j0"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
@@ -65,6 +65,31 @@ def upgrade() -> None:
           AND contents::jsonb ? 'settings'
     """)
 
+    op.execute("""
+        UPDATE activity
+        SET details = (
+            COALESCE(details::jsonb, '{}'::jsonb)
+            || jsonb_build_object(
+                'lifecycle_status',
+                CASE
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM submission
+                        WHERE submission.activity_id = activity.id
+                    ) THEN 'PUBLISHED'
+                    ELSE 'DRAFT'
+                END
+            )
+        )::json
+        WHERE activity_type = 'TYPE_CODE_CHALLENGE'
+          AND NOT (COALESCE(details::jsonb, '{}'::jsonb) ? 'lifecycle_status')
+    """)
+
 
 def downgrade() -> None:
+    op.execute("""
+        UPDATE activity
+        SET details = (COALESCE(details::jsonb, '{}'::jsonb) - 'lifecycle_status')::json
+        WHERE activity_type = 'TYPE_CODE_CHALLENGE'
+    """)
     op.drop_column("assessment_policy", "anti_cheat_json")

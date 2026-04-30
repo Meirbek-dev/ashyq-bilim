@@ -6,6 +6,8 @@
  * Attempt → renders the exam attempt content slot.
  * Review → wraps GradingReviewWorkspace (same as assignment kind).
  *          Phase 2 wires exam attempts into the Submission table so this works.
+ *
+ * Shell contract: docs/ASSESSMENT_SHELL_CONTRACT.md
  */
 
 import type { ComponentType } from 'react';

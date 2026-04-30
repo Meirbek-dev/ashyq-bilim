@@ -151,6 +151,45 @@ def get_challenge_settings(activity: Activity) -> CodeChallengeSettings:
         return CodeChallengeSettings()
 
 
+def get_canonical_submission_statuses(
+    submission_uuids: list[str],
+    db_session: Session,
+) -> dict[str, str]:
+    """Return user-facing Submission.status values for legacy code rows."""
+    if not submission_uuids:
+        return {}
+    rows = db_session.exec(
+        select(Submission).where(Submission.submission_uuid.in_(submission_uuids))
+    ).all()
+    return {row.submission_uuid: str(row.status) for row in rows}
+
+
+def code_submission_read(
+    submission: CodeSubmission,
+    canonical_status: str | None,
+) -> CodeSubmissionRead:
+    return CodeSubmissionRead.model_validate(submission).model_copy(
+        update={
+            "uuid": submission.submission_uuid,
+            "submission_status": canonical_status,
+            "max_score": 100.0,
+        }
+    )
+
+
+def code_submission_detail(
+    submission: CodeSubmission,
+    canonical_status: str | None,
+) -> CodeSubmissionDetail:
+    return CodeSubmissionDetail.model_validate(submission).model_copy(
+        update={
+            "uuid": submission.submission_uuid,
+            "submission_status": canonical_status,
+            "max_score": 100.0,
+        }
+    )
+
+
 # Endpoints
 
 
@@ -226,6 +265,7 @@ async def get_challenge_settings_endpoint(
 class SettingsUpdateRequest(PydanticStrictBaseModel):
     """Request model for updating challenge settings"""
 
+    difficulty: str | None = None
     allowed_languages: list[int] | None = None
     time_limit: int | None = None  # seconds
     memory_limit: int | None = None  # MB
@@ -237,6 +277,11 @@ class SettingsUpdateRequest(PydanticStrictBaseModel):
     starter_code: dict[str, str] | None = None
     visible_tests: list[dict] | None = None
     hidden_tests: list[dict] | None = None
+    hints: list[dict] | None = None
+    lifecycle_status: str | None = None
+    scheduled_at: str | None = None
+    published_at: str | None = None
+    archived_at: str | None = None
 
     @field_validator("grading_strategy", mode="before")
     @classmethod
@@ -699,8 +744,15 @@ async def get_submission_history(
     )
 
     submissions = db_session.exec(statement).all()
+    canonical_statuses = get_canonical_submission_statuses(
+        [s.submission_uuid for s in submissions],
+        db_session,
+    )
 
-    return [CodeSubmissionRead.model_validate(s) for s in submissions]
+    return [
+        code_submission_read(s, canonical_statuses.get(s.submission_uuid))
+        for s in submissions
+    ]
 
 
 @router.get("/submissions/{submission_uuid}", response_model=CodeSubmissionDetail)
@@ -737,7 +789,14 @@ async def get_submission_detail(
             reason="You can only view your own submissions",
         )
 
-    return CodeSubmissionDetail.model_validate(submission)
+    canonical_statuses = get_canonical_submission_statuses(
+        [submission.submission_uuid],
+        db_session,
+    )
+    return code_submission_detail(
+        submission,
+        canonical_statuses.get(submission.submission_uuid),
+    )
 
 
 @router.get("/{activity_uuid}/analytics/{user_id}", response_model=StudentAnalytics)

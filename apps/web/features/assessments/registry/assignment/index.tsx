@@ -4,6 +4,8 @@
  * Replaces the old assignment-author.tsx passthrough.
  * All three studio slots (Outline, Author, Inspector) are provided,
  * and a Provider wraps them to share state via AssignmentStudioContext.
+ *
+ * Shell contract: docs/ASSESSMENT_SHELL_CONTRACT.md
  */
 
 import type { ComponentType, ReactNode } from 'react';
