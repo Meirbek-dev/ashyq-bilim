@@ -1,6 +1,6 @@
 import type { components } from '@/lib/api/generated/schema';
 
-export type SubmissionStatus = components['schemas']['src__db__grading__submissions__SubmissionStatus'];
+export type SubmissionStatus = components['schemas']['SubmissionStatus'];
 export type AssessmentType = components['schemas']['AssessmentType'];
 export type GradedItem = components['schemas']['GradedItem'];
 export type GradingBreakdown = components['schemas']['GradingBreakdown'];

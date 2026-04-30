@@ -18,7 +18,7 @@
 
 import type { components } from '@/lib/api/generated/schema';
 
-export type SubmissionStatus = components['schemas']['src__db__grading__submissions__SubmissionStatus'];
+export type SubmissionStatus = components['schemas']['SubmissionStatus'];
 
 export const SUBMISSION_STATUS_LABELS: Record<SubmissionStatus, string> = {
   DRAFT: 'Draft',
@@ -54,15 +54,4 @@ export function canPublishGrade(status: SubmissionStatus): boolean {
 
 export function canReturnSubmission(status: SubmissionStatus): boolean {
   return status === 'PENDING' || status === 'GRADED' || status === 'PUBLISHED';
-}
-
-/**
- * Maps legacy ExamAttempt status strings to unified SubmissionStatus.
- * Remove once the exam backend writes Submission rows directly.
- */
-export function submissionStatusFromAttemptStatus(
-  attemptStatus: 'IN_PROGRESS' | 'SUBMITTED' | 'AUTO_SUBMITTED',
-): SubmissionStatus {
-  if (attemptStatus === 'IN_PROGRESS') return 'DRAFT';
-  return 'PENDING';
 }

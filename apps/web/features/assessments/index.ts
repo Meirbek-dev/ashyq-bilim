@@ -4,6 +4,8 @@ export * from './domain';
 // Hooks
 export { useAssessment, useAssessmentStudio, useAssessmentAttempt, useAssessmentReview } from './hooks/useAssessment';
 export type { UseAssessmentOptions, AssessmentViewModel } from './hooks/useAssessment';
+export { useAssessmentSubmission } from './hooks/useAssessmentSubmission';
+export type { AssessmentSaveState } from './hooks/useAssessmentSubmission';
 
 // Registry (loads all kind modules as a side-effect)
 export { resolveKindModule, loadKindModule, getLoadedKindModule, registerKind } from './registry/index';

@@ -10,6 +10,7 @@ def import_orm_models() -> None:
     import src.db.analytics
     import src.db.auth_audit_log
     import src.db.auth_sessions
+    import src.db.assessments
     import src.db.collections
     import src.db.collections_courses
     import src.db.courses.activities

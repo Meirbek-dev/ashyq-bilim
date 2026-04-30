@@ -11,6 +11,7 @@ import type { SubmissionStatus } from './submission-status';
 import type { ReleaseState } from './release';
 import type { NormalizedScore } from './score';
 import type { PolicyView } from './policy';
+import type { AssessmentItem } from './items';
 
 /** The three product surfaces every assessment kind must support. */
 export type AssessmentSurface = 'STUDIO' | 'REVIEW' | 'ATTEMPT';
@@ -27,6 +28,7 @@ export type AssessmentKind = 'TYPE_ASSIGNMENT' | 'TYPE_EXAM' | 'TYPE_CODE_CHALLE
 export interface StudioViewModel {
   surface: 'STUDIO';
   kind: AssessmentKind;
+  assessmentUuid: string;
   activityUuid: string;
   title: string;
   lifecycle: AssessmentLifecycle;
@@ -36,6 +38,7 @@ export interface StudioViewModel {
   canArchive: boolean;
   scheduledAt: string | null;
   policy: PolicyView;
+  items: AssessmentItem[];
   validationIssues: ValidationIssue[];
 }
 
@@ -71,6 +74,7 @@ export interface ReviewQueueItemViewModel {
 export interface AttemptViewModel {
   surface: 'ATTEMPT';
   kind: AssessmentKind;
+  assessmentUuid: string;
   activityUuid: string;
   title: string;
   description: string | null;
@@ -79,6 +83,7 @@ export interface AttemptViewModel {
   releaseState: ReleaseState;
   score: NormalizedScore;
   policy: PolicyView;
+  items: AssessmentItem[];
   /** Student may edit answers. */
   canEdit: boolean;
   /** Student may save a draft. */

@@ -22,39 +22,60 @@ import type { AssessmentLifecycle } from '../domain/lifecycle';
 import { policyFromAssessmentPolicy } from '../domain/policy';
 import type { AssessmentPolicyDTO } from '../domain/policy';
 import type { AssessmentKind, AssessmentSurface, StudioViewModel, AttemptViewModel } from '../domain/view-models';
+import type { AssessmentItem } from '../domain/items';
 
 // ── Internal activity shape (subset of what the API returns) ──────────────────
 
-interface ActivityDetail {
+interface AssessmentDetail {
   id: number;
+  assessment_uuid: string;
+  activity_id: number;
   activity_uuid: string;
-  name: string;
-  activity_type: string;
-  published: boolean;
-  details?: Record<string, unknown> | null;
+  kind: 'ASSIGNMENT' | 'EXAM' | 'CODE_CHALLENGE' | 'QUIZ';
+  title: string;
+  description: string;
+  lifecycle: AssessmentLifecycle;
+  scheduled_at?: string | null;
+  published_at?: string | null;
+  archived_at?: string | null;
+  items: AssessmentItem[];
   assessment_policy?: AssessmentPolicyDTO | null;
 }
 
-function activityDetailQueryOptions(activityUuid: string) {
+interface ReadinessPayload {
+  ok: boolean;
+  issues: { code: string; message: string; item_uuid?: string | null }[];
+}
+
+function assessmentByActivityQueryOptions(activityUuid: string) {
   return queryOptions({
-    queryKey: queryKeys.activities.detail(activityUuid),
-    queryFn: () => apiFetcher(`${getAPIUrl()}activities/${activityUuid}`) as Promise<ActivityDetail>,
+    queryKey: queryKeys.assessments.activity(activityUuid),
+    queryFn: () => apiFetcher(`${getAPIUrl()}assessments/activity/${activityUuid}`) as Promise<AssessmentDetail>,
     enabled: Boolean(activityUuid),
   });
 }
 
-function activityTypeToKind(activityType: string): AssessmentKind | null {
-  switch (activityType) {
-    case 'TYPE_ASSIGNMENT': {
+function readinessQueryOptions(assessmentUuid: string, enabled: boolean) {
+  return queryOptions({
+    queryKey: queryKeys.assessments.readiness(assessmentUuid),
+    queryFn: () => apiFetcher(`${getAPIUrl()}assessments/${assessmentUuid}/readiness`) as Promise<ReadinessPayload>,
+    enabled,
+    retry: false,
+  });
+}
+
+function assessmentTypeToKind(assessmentType: AssessmentDetail['kind']): AssessmentKind | null {
+  switch (assessmentType) {
+    case 'ASSIGNMENT': {
       return 'TYPE_ASSIGNMENT';
     }
-    case 'TYPE_EXAM': {
+    case 'EXAM': {
       return 'TYPE_EXAM';
     }
-    case 'TYPE_CODE_CHALLENGE': {
+    case 'CODE_CHALLENGE': {
       return 'TYPE_CODE_CHALLENGE';
     }
-    case 'TYPE_QUIZ': {
+    case 'QUIZ': {
       return 'TYPE_QUIZ';
     }
     default: {
@@ -93,19 +114,23 @@ export function useAssessment(
   const normalizedUuid = activityUuid?.replace(/^activity_/, '') ?? '';
 
   const {
-    data: activity,
+    data: assessment,
     isLoading,
     error,
   } = useQuery({
-    ...activityDetailQueryOptions(normalizedUuid),
+    ...assessmentByActivityQueryOptions(normalizedUuid),
     enabled: Boolean(normalizedUuid),
   });
 
-  if (isLoading || !activity) {
+  const readiness = useQuery({
+    ...readinessQueryOptions(assessment?.assessment_uuid ?? '', options.surface === 'STUDIO' && Boolean(assessment)),
+  });
+
+  if (isLoading || !assessment) {
     return { vm: null, isLoading, error };
   }
 
-  const kind = activityTypeToKind(activity.activity_type);
+  const kind = assessmentTypeToKind(assessment.kind);
   if (!kind) {
     return { vm: null, isLoading: false, error: null };
   }
@@ -113,25 +138,28 @@ export function useAssessment(
   const { surface } = options;
 
   if (surface === 'STUDIO') {
-    // Phase 1: derive lifecycle from the activity's published flag.
-    // Assignment kind has its own lifecycle via AssignmentStatus; exams use boolean.
-    // Future: load kind-specific metadata (assignment.status, exam.settings, etc.)
-    // to produce a richer StudioViewModel.
-    const lifecycle = lifecycleFromActivity(activity);
+    const lifecycle = assessment.lifecycle;
 
     const vm: StudioViewModel = {
       surface: 'STUDIO',
       kind,
-      activityUuid: activity.activity_uuid,
-      title: activity.name,
+      assessmentUuid: assessment.assessment_uuid,
+      activityUuid: assessment.activity_uuid,
+      title: assessment.title,
       lifecycle,
       isEditable: isAssessmentEditable(lifecycle),
       canPublish: canPublish(lifecycle),
       canSchedule: canSchedule(lifecycle),
       canArchive: canArchive(lifecycle),
-      scheduledAt: null,
-      policy: policyFromAssessmentPolicy(activity.assessment_policy),
-      validationIssues: [],
+      scheduledAt: assessment.scheduled_at ?? null,
+      policy: policyFromAssessmentPolicy(assessment.assessment_policy),
+      items: assessment.items,
+      validationIssues:
+        readiness.data?.issues.map((issue) => ({
+          code: issue.code,
+          message: issue.message,
+          itemUuid: issue.item_uuid ?? undefined,
+        })) ?? [],
     };
     return { vm: { surface: 'STUDIO', vm, kind }, isLoading: false, error: null };
   }
@@ -144,14 +172,16 @@ export function useAssessment(
   const vm: AttemptViewModel = {
     surface: 'ATTEMPT',
     kind,
-    activityUuid: activity.activity_uuid,
-    title: activity.name,
-    description: null,
-    dueAt: null,
+    assessmentUuid: assessment.assessment_uuid,
+    activityUuid: assessment.activity_uuid,
+    title: assessment.title,
+    description: assessment.description || null,
+    dueAt: assessment.assessment_policy?.due_at ?? null,
     submissionStatus: null,
     releaseState: 'HIDDEN',
     score: { percent: null, source: 'none' },
-    policy: policyFromAssessmentPolicy(activity.assessment_policy),
+    policy: policyFromAssessmentPolicy(assessment.assessment_policy),
+    items: assessment.items,
     canEdit: true,
     canSaveDraft: true,
     canSubmit: true,
@@ -159,12 +189,6 @@ export function useAssessment(
     isResultVisible: false,
   };
   return { vm: { surface: 'ATTEMPT', vm, kind }, isLoading: false, error: null };
-}
-
-function lifecycleFromActivity(activity: ActivityDetail): AssessmentLifecycle {
-  const raw = activity.details?.lifecycle_status;
-  if (raw === 'DRAFT' || raw === 'SCHEDULED' || raw === 'PUBLISHED' || raw === 'ARCHIVED') return raw;
-  return activity.published ? 'PUBLISHED' : 'DRAFT';
 }
 
 // ── Convenience selector hooks ─────────────────────────────────────────────────

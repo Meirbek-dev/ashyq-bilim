@@ -17,6 +17,8 @@ class Action(StrEnum):
     EXPORT = "export"
     GRADE = "grade"
     SUBMIT = "submit"
+    AUTHOR = "author"
+    PUBLISH = "publish"
     ENROLL = "enroll"
 
 
@@ -39,6 +41,7 @@ class ResourceType(StrEnum):
     ANALYTICS = "analytics"
     TRAIL = "trail"
     EXAM = "exam"
+    ASSESSMENT = "assessment"
     API_TOKEN = "api_token"
 
 
@@ -88,6 +91,7 @@ SYSTEM_ROLES: dict[str, dict] = {
             "assignment:*:platform",
             "quiz:*:platform",
             "exam:*:platform",
+            "assessment:*:platform",
             "collection:create:platform",
             "collection:read:all",
             "collection:update:own",
@@ -125,6 +129,9 @@ SYSTEM_ROLES: dict[str, dict] = {
             "exam:*:own",
             "exam:read:assigned",
             "exam:grade:own",
+            "assessment:*:own",
+            "assessment:read:assigned",
+            "assessment:grade:own",
             "collection:create:platform",
             "collection:read:all",
             "collection:update:own",
@@ -186,6 +193,8 @@ SYSTEM_ROLES: dict[str, dict] = {
             "quiz:read:assigned",
             "exam:submit:assigned",
             "exam:read:assigned",
+            "assessment:submit:assigned",
+            "assessment:read:assigned",
             "collection:read:all",
             "discussion:create:platform",
             "discussion:read:all",

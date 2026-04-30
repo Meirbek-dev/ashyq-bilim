@@ -427,7 +427,7 @@ export function ChoiceItemReviewDetail({ item, answer }: ItemReviewDetailProps<C
   );
 }
 
-for (const kind of ['CHOICE_SINGLE', 'CHOICE_MULTIPLE', 'TRUE_FALSE', 'MATCHING'] as const) {
+for (const kind of ['CHOICE', 'CHOICE_SINGLE', 'CHOICE_MULTIPLE', 'TRUE_FALSE', 'MATCHING'] as const) {
   registerItemKind({
     kind,
     label: kind.replaceAll('_', ' ').toLowerCase(),

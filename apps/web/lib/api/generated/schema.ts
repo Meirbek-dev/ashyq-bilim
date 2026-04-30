@@ -8048,7 +8048,7 @@ export interface components {
             /** Started At */
             started_at?: string | null;
             /** @default DRAFT */
-            status: components["schemas"]["src__db__grading__submissions__SubmissionStatus"];
+            status: components["schemas"]["SubmissionStatus"];
             /** Submission Uuid */
             submission_uuid: string;
             /** Submitted At */
@@ -9086,7 +9086,7 @@ export interface components {
          * SubmissionStatus
          * @enum {string}
          */
-        src__db__grading__submissions__SubmissionStatus: "DRAFT" | "PENDING" | "GRADED" | "PUBLISHED" | "RETURNED";
+        SubmissionStatus: "DRAFT" | "PENDING" | "GRADED" | "PUBLISHED" | "RETURNED";
     };
     responses: never;
     parameters: never;

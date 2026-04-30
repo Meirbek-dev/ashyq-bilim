@@ -142,6 +142,30 @@ def _get_or_create_draft(
     )
 
 
+def _enforce_assignment_draft_version(
+    draft: Submission,
+    if_match: str | None,
+) -> None:
+    if if_match is None:
+        return
+    raw = if_match.strip().strip('"')
+    try:
+        expected = int(raw)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail="If-Match must be the current numeric submission version",
+        )
+    if draft.version != expected:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "message": "Draft version conflict",
+                "latest": SubmissionRead.model_validate(draft).model_dump(mode="json"),
+            },
+        )
+
+
 def _assignment_due_deadline(assignment: Assignment) -> datetime | None:
     if assignment.due_at is None:
         return None
@@ -209,6 +233,8 @@ async def save_assignment_draft_submission(
     draft_patch: AssignmentDraftPatch,
     current_user: PublicUser,
     db_session: Session,
+    *,
+    if_match: str | None = None,
 ) -> SubmissionRead:
     assignment, activity, course = _get_assignment_context(assignment_uuid, db_session)
     _require_assignment_submit_access(current_user, course, db_session)
@@ -226,7 +252,9 @@ async def save_assignment_draft_submission(
 
     now = datetime.now(UTC)
     draft = _get_or_create_draft(activity.id, current_user.id, db_session, now=now)
+    _enforce_assignment_draft_version(draft, if_match)
     draft.answers_json = _normalize_assignment_answers(draft.answers_json, draft_patch)
+    draft.version += 1
     draft.updated_at = now
 
     db_session.add(draft)
@@ -241,6 +269,8 @@ async def submit_assignment_draft_submission(
     draft_patch: AssignmentDraftPatch | None,
     current_user: PublicUser,
     db_session: Session,
+    *,
+    if_match: str | None = None,
 ) -> SubmissionRead:
     # Legacy URL adapter: keep the assignment-specific route, but project every
     # write through the canonical submission/progress service below.
@@ -258,7 +288,9 @@ async def submit_assignment_draft_submission(
 
     now = datetime.now(UTC)
     draft = _get_or_create_draft(activity.id, current_user.id, db_session, now=now)
+    _enforce_assignment_draft_version(draft, if_match)
     draft.answers_json = _normalize_assignment_answers(draft.answers_json, draft_patch)
+    draft.version += 1
     draft.grading_json = build_assignment_breakdown(
         GradingBreakdown(),
         draft.answers_json,

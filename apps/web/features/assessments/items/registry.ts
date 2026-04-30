@@ -2,6 +2,7 @@ import { createElement } from 'react';
 import type { ComponentType, ReactNode } from 'react';
 
 export type ItemKind =
+  | 'CHOICE'
   | 'CHOICE_SINGLE'
   | 'CHOICE_MULTIPLE'
   | 'TRUE_FALSE'

@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, UploadFile
+from fastapi import APIRouter, Depends, Header, Query, UploadFile
 
 from src.auth.users import get_optional_public_user, get_public_user
 from src.db.courses.assignments import (
@@ -244,10 +244,11 @@ async def api_save_assignment_draft_submission(
     draft_patch: AssignmentDraftPatch,
     current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
     db_session=Depends(get_db_session),
+    if_match: Annotated[str | None, Header(alias="If-Match")] = None,
 ) -> SubmissionRead:
     """Create or update the current user's assignment draft in Submission."""
     return await save_assignment_draft_submission(
-        assignment_uuid, draft_patch, current_user, db_session
+        assignment_uuid, draft_patch, current_user, db_session, if_match=if_match
     )
 
 
@@ -257,10 +258,11 @@ async def api_submit_assignment_draft_submission(
     draft_patch: AssignmentDraftPatch | None = None,
     current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
     db_session=Depends(get_db_session),
+    if_match: Annotated[str | None, Header(alias="If-Match")] = None,
 ) -> SubmissionRead:
     """Submit the current user's assignment draft through the unified Submission model."""
     return await submit_assignment_draft_submission(
-        assignment_uuid, draft_patch, current_user, db_session
+        assignment_uuid, draft_patch, current_user, db_session, if_match=if_match
     )
 
 

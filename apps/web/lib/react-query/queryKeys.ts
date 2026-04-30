@@ -3,6 +3,11 @@ export const queryKeys = {
     detail: (activityUuid: string) => ['activities', 'detail', activityUuid] as const,
     linkPreview: (url: string) => ['activities', 'link-preview', url] as const,
   },
+  assessments: {
+    activity: (activityUuid: string) => ['assessments', 'activity', activityUuid] as const,
+    detail: (assessmentUuid: string) => ['assessments', 'detail', assessmentUuid] as const,
+    readiness: (assessmentUuid: string) => ['assessments', 'readiness', assessmentUuid] as const,
+  },
   assignments: {
     activity: (activityUuid: string) => ['assignments', 'activity', activityUuid] as const,
     detail: (assignmentUuid: string) => ['assignments', 'detail', assignmentUuid] as const,

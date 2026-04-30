@@ -29,6 +29,7 @@ from src.routers.assessments import (
 from src.routers.assessments import (
     exams as assessment_exams,
 )
+from src.routers.assessments import unified as assessment_unified
 from src.routers.courses import (
     certifications,
     chapters,
@@ -116,6 +117,11 @@ v1_router.include_router(
     assessment_code_challenges.router,
     prefix="/assessments/code-challenges",
     tags=["assessment-code-challenges"],
+)
+v1_router.include_router(
+    assessment_unified.router,
+    prefix="/assessments",
+    tags=["assessments"],
 )
 v1_router.include_router(
     _legacy_assessment_redirect("/assignments", "/assessments/assignments"),

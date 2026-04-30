@@ -56,11 +56,3 @@ export function canArchive(lifecycle: AssessmentLifecycle): boolean {
 export function canTransitionLifecycle(from: AssessmentLifecycle, to: AssessmentLifecycle): boolean {
   return LIFECYCLE_ALLOWED_TRANSITIONS[from].includes(to);
 }
-
-/**
- * Converts the legacy exam `published: boolean` shape into the unified lifecycle.
- * Remove once the exam backend is migrated to AssessmentLifecycle.
- */
-export function lifecycleFromExamPublished(published: boolean): AssessmentLifecycle {
-  return published ? 'PUBLISHED' : 'DRAFT';
-}

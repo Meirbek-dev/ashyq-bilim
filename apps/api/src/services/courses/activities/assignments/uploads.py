@@ -84,7 +84,7 @@ async def put_assignment_task_submission_file(
         raise HTTPException(status_code=400, detail="No file provided")
 
     ext = sub_file.filename.split(".")[-1]
-    name_in_disk = f"{assignment_task_uuid}_sub_{current_user.email}_{ULID()}.{ext}"
+    name_in_disk = f"{assignment_task_uuid}_sub_{current_user.user_uuid or current_user.id}_{ULID()}.{ext}"
     await upload_submission_file(
         sub_file,
         name_in_disk,

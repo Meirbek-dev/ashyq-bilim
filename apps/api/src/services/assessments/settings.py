@@ -1,8 +1,8 @@
 """Canonical assessment settings read/write path.
 
 Assessment settings are stored once on Activity.settings and validated through
-the discriminated AssessmentSettings union below. Legacy per-kind columns remain
-compatibility mirrors only.
+the discriminated AssessmentSettings union below. Older per-kind storage is kept
+only for routes that have not moved to the unified assessment resource yet.
 """
 
 from typing import Annotated, Literal, TypeAlias

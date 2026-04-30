@@ -139,7 +139,7 @@ def upgrade() -> None:
 
     op.execute("""
         COMMENT ON COLUMN exam.settings IS
-        'Deprecated compatibility mirror. Canonical assessment settings live on activity.settings.'
+        'Compatibility storage for older exam routes. Canonical assessment settings live on activity.settings.'
     """)
     op.execute("""
         COMMENT ON TABLE quiz_attempt IS

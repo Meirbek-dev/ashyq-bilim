@@ -10,8 +10,8 @@ import type { KindModule } from '@/features/assessments/registry';
 import { useAssessmentStudio } from '@/features/assessments/hooks/useAssessment';
 import type { AssessmentLifecycle } from '@/features/assessments/domain';
 import PolicyInspector from '@/features/assessments/shared/PolicyInspector';
-import { updateActivity } from '@services/courses/activities';
 import { queryKeys } from '@/lib/react-query/queryKeys';
+import { apiFetch } from '@/lib/api-client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -73,22 +73,29 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
   const setLifecycle = (lifecycle: AssessmentLifecycle, nextScheduledAt?: string | null) => {
     startTransition(async () => {
       try {
-        const metadata = await updateActivity(
-          {
-            published: lifecycle === 'PUBLISHED',
-            details: {
-              lifecycle_status: lifecycle,
-              scheduled_at: nextScheduledAt ?? null,
-            },
-          },
-          activityUuid,
-        );
-        if (!metadata.success) {
-          const message = (metadata.data as { detail?: string } | undefined)?.detail ?? 'Failed to update lifecycle';
+        const response = await apiFetch(`assessments/${studio.assessmentUuid}/lifecycle`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: lifecycle,
+            scheduled_at: nextScheduledAt ?? null,
+          }),
+        });
+        if (!response.ok) {
+          const payload = await response.json().catch(() => null);
+          const issues = Array.isArray(payload?.detail?.issues)
+            ? payload.detail.issues.map((issue: { message?: string }) => issue.message).filter(Boolean).join(' ')
+            : '';
+          const message =
+            issues ||
+            (typeof payload?.detail === 'string' ? payload.detail : response.statusText || 'Failed to update lifecycle');
           throw new Error(message);
         }
         await queryClient.invalidateQueries({
-          queryKey: queryKeys.activities.detail(activityUuid.replace(/^activity_/, '')),
+          queryKey: queryKeys.assessments.activity(activityUuid.replace(/^activity_/, '')),
+        });
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.assessments.readiness(studio.assessmentUuid),
         });
         toast.success(`Lifecycle changed to ${LIFECYCLE_LABELS[lifecycle]}`);
       } catch (error) {
@@ -102,9 +109,6 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
   const Outline = kindModule?.Outline;
   const Inspector = kindModule?.Inspector;
   const Provider = kindModule?.Provider ?? Fragment;
-
-  const hasOutline = Boolean(Outline);
-  const hasInspector = true;
 
   const slotProps = { activityUuid, courseUuid };
 
@@ -207,35 +211,26 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
       {Author ? (
         <Provider {...slotProps}>
           <div
-            className={cn(
-              'grid grid-cols-1',
-              hasOutline && !hasInspector && 'lg:grid-cols-[18rem_minmax(0,1fr)]',
-              hasOutline &&
-                hasInspector &&
-                'lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[18rem_minmax(0,1fr)_22rem]',
-              !hasOutline && hasInspector && 'xl:grid-cols-[minmax(0,1fr)_22rem]',
-            )}
+            className={cn('grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_24rem]')}
           >
-            {Outline && (
-              <aside className="border-b lg:border-r lg:border-b-0">
-                <Outline {...slotProps} />
-              </aside>
-            )}
             <main className="min-w-0 border-t lg:border-t-0">
               <Author {...slotProps} />
             </main>
-            {hasInspector && (
-              <aside className="border-t xl:border-t-0 xl:border-l">
-                {Inspector ? (
-                  <Inspector {...slotProps} />
-                ) : (
-                  <PolicyInspector
-                    policy={studio.policy}
-                    title={`${kindModule?.label ?? 'Assessment'} policy`}
-                  />
-                )}
-              </aside>
-            )}
+            <aside className="space-y-4 border-t p-4 xl:border-t-0 xl:border-l">
+              {Outline ? (
+                <section>
+                  <Outline {...slotProps} />
+                </section>
+              ) : null}
+              {Inspector ? (
+                <Inspector {...slotProps} />
+              ) : (
+                <PolicyInspector
+                  policy={studio.policy}
+                  title={`${kindModule?.label ?? 'Assessment'} policy`}
+                />
+              )}
+            </aside>
           </div>
         </Provider>
       ) : (
