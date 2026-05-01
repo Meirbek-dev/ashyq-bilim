@@ -12,6 +12,7 @@ import jsxA11y from 'eslint-plugin-jsx-a11y';
 import next from '@next/eslint-plugin-next';
 import react from 'eslint-plugin-react';
 import pluginQuery from '@tanstack/eslint-plugin-query';
+import reactCompiler from 'eslint-plugin-react-compiler';
 
 /* -------------------------------------------------------------------------- */
 /* Shared rules                                                               */
@@ -22,6 +23,9 @@ const COMMON_RULES = {
   '@next/next/no-img-element': 'off',
   '@next/next/no-sync-scripts': 'off',
   '@next/next/no-page-custom-font': 'off',
+
+  /* React Compiler */
+  'react-compiler/react-compiler': 'error',
 
   /* React */
   'react/prop-types': 'off',
@@ -103,6 +107,7 @@ export default defineConfig(
       '@typescript-eslint': tseslint.plugin,
       react,
       'react-hooks': /** @type {any} */ (reactHooks),
+      'react-compiler': reactCompiler,
       '@next/next': next,
       'unused-imports': unusedImports,
       'jsx-a11y': /** @type {any} */ (jsxA11y),

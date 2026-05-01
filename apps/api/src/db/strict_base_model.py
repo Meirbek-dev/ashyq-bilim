@@ -24,6 +24,7 @@ _PYDANTIC_CONFIG: ConfigDict = ConfigDict(
     validate_default=_dev,
     validate_return=_dev,
     validation_error_cause=_dev,
+    extra="forbid",
 )
 
 _SQLMODEL_CONFIG: ConfigDict = ConfigDict(
@@ -35,6 +36,7 @@ _SQLMODEL_CONFIG: ConfigDict = ConfigDict(
     strict=_dev,
     validate_assignment=_dev,
     validate_default=_dev,
+    extra="forbid",
 )
 
 
