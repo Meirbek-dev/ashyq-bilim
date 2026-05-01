@@ -307,7 +307,7 @@ const DashSidebar = ({ className }: SidebarProps) => {
             <SidebarMenu className={`space-y-1 ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
               {navigationItems.map((item) => (
                 <NavItem
-                  key={item.href}
+                  key={item.title}
                   item={item}
                   isCollapsed={isCollapsed}
                 />

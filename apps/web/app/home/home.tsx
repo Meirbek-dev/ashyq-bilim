@@ -23,9 +23,8 @@ const HomeClient = () => {
           width={230}
           src={logoSrc}
           alt="Ashyk Bilim logo"
-          style={{ height: 'auto' }}
+          style={{ width: '100%', height: 'auto' }}
           loading="eager"
-          className="h-auto w-auto"
         />
       </div>
 

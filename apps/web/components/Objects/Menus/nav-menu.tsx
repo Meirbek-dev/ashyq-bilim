@@ -335,6 +335,7 @@ export default function NavBar() {
                   width={163}
                   height={60}
                   className="h-8 w-auto object-contain"
+                  style={{ width: 'auto', height: 'auto' }}
                 />
               </SheetHeader>
 

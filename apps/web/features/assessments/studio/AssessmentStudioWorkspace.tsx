@@ -108,7 +108,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
   const Author = kindModule?.Author;
   const Outline = kindModule?.Outline;
   const Inspector = kindModule?.Inspector;
-  const Provider = kindModule?.Provider ?? Fragment;
+  const Provider = kindModule?.Provider ?? (({ children }: { children: React.ReactNode }) => <Fragment>{children}</Fragment>);
 
   const slotProps = { activityUuid, courseUuid };
 
@@ -143,6 +143,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
               <Button
                 variant="outline"
                 size="sm"
+                nativeButton={false}
                 render={
                   <Link
                     href={previewHref}

@@ -38,14 +38,18 @@ export interface ItemKindModule<TAuthorValue = any, TAttemptItem = any, TAttempt
   ReviewDetail: ComponentType<ItemReviewDetailProps<TAttemptItem, TAttemptAnswer>>;
 }
 
-const registry = new Map<ItemKind, ItemKindModule<any, any>>();
+function getRegistry(): Map<ItemKind, ItemKindModule<any, any>> {
+  const f = getRegistry as any;
+  if (!f.map) f.map = new Map<ItemKind, ItemKindModule<any, any>>();
+  return f.map;
+}
 
 export function registerItemKind(module: ItemKindModule<any, any>): void {
-  registry.set(module.kind, module);
+  getRegistry().set(module.kind, module);
 }
 
 export function getItemKindModule(kind: ItemKind): ItemKindModule<any, any> {
-  const module = registry.get(kind);
+  const module = getRegistry().get(kind);
   if (!module) {
     throw new Error(`ItemKindRegistry: no module registered for item kind "${kind}"`);
   }
@@ -53,7 +57,7 @@ export function getItemKindModule(kind: ItemKind): ItemKindModule<any, any> {
 }
 
 export function listItemKindModules(): ItemKindModule<any, any>[] {
-  return [...registry.values()];
+  return [...getRegistry().values()];
 }
 
 export function UnsupportedItemAuthor({ value }: ItemAuthorProps): ReactNode {

@@ -110,7 +110,7 @@ export default async function PlatformDashHomePage() {
         <div className="grid w-full max-w-4xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {cards.map((card) => (
             <DashboardCard
-              key={card.href}
+              key={card.title}
               href={card.href}
               icon={card.icon}
               title={card.title}

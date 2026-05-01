@@ -112,7 +112,7 @@ const DashMobileMenu = () => {
 
             return (
               <AppLink
-                key={item.href}
+                key={item.label}
                 href={item.href}
                 aria-label={item.tooltip}
                 aria-current={item.isActive ? 'page' : undefined}

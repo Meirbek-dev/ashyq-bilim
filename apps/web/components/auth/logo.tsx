@@ -17,7 +17,7 @@ const AuthLogo = ({ width = 240 }: AuthLogoProps) => {
         width={width}
         height={Math.round((width * 119.28) / 327.34)}
         priority
-        className="h-auto w-full"
+        style={{ width: '100%', height: 'auto' }}
       />
     </div>
   );

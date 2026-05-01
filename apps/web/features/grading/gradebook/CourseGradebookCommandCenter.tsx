@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -45,22 +45,42 @@ export default function CourseGradebookCommandCenter({ courseUuid }: CourseGrade
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    setFilters({
-      savedFilter: normalizeSavedFilter(searchParams.get('filter')),
-      search: searchParams.get('search') ?? '',
-      activityType: searchParams.get('activityType') ?? 'all',
+    setFilters((prev) => {
+      const nextSavedFilter = normalizeSavedFilter(searchParams.get('filter'));
+      const nextSearch = searchParams.get('search') ?? '';
+      const nextActivityType = searchParams.get('activityType') ?? 'all';
+
+      if (
+        prev.savedFilter === nextSavedFilter &&
+        prev.search === nextSearch &&
+        prev.activityType === nextActivityType
+      ) {
+        return prev;
+      }
+
+      return {
+        savedFilter: nextSavedFilter,
+        search: nextSearch,
+        activityType: nextActivityType,
+      };
     });
   }, [searchParams]);
 
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    setParam(params, 'filter', filters.savedFilter === 'needs_grading' ? '' : filters.savedFilter);
-    setParam(params, 'search', filters.search);
-    setParam(params, 'activityType', filters.activityType === 'all' ? '' : filters.activityType);
-    const next = params.toString();
-    const current = searchParams.toString();
-    if (next !== current) router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
-  }, [filters, pathname, router, searchParams]);
+  const handleFiltersChange = useCallback(
+    (newFilters: GradebookFilters) => {
+      setFilters(newFilters);
+      const params = new URLSearchParams(searchParams.toString());
+      setParam(params, 'filter', newFilters.savedFilter === 'needs_grading' ? '' : newFilters.savedFilter);
+      setParam(params, 'search', newFilters.search);
+      setParam(params, 'activityType', newFilters.activityType === 'all' ? '' : newFilters.activityType);
+      const next = params.toString();
+      const current = searchParams.toString();
+      if (next !== current) {
+        router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+      }
+    },
+    [pathname, router, searchParams]
+  );
 
   const cellMap = useMemo(
     () => new Map((data?.cells ?? []).map((cell) => [gradebookCellKey(cell.user_id, cell.activity_id), cell])),
@@ -121,7 +141,7 @@ export default function CourseGradebookCommandCenter({ courseUuid }: CourseGrade
         filters={filters}
         activityTypes={activityTypes}
         selectedCount={selectedCells.length}
-        onFiltersChange={setFilters}
+        onFiltersChange={handleFiltersChange}
         onExport={() => exportGradebookCsv(data, t)}
         onRefresh={() => void refetch()}
       />
