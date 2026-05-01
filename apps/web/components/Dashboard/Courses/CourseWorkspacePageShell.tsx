@@ -36,6 +36,7 @@ import { Button } from '@/components/ui/button';
 import AppLink from '@/components/ui/AppLink';
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 interface CourseWorkspacePageShellProps {
@@ -55,6 +56,10 @@ function CourseWorkspaceChrome({
   const t = useTranslations('DashPage.CourseManagement.Workspace');
   const course = useCourse();
   const { readiness } = course;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const dirtyGuard = useDirtyGuard({
     interceptInAppNavigation: true,
     message: t('unsavedChangesWarning'),
@@ -181,7 +186,7 @@ function CourseWorkspaceChrome({
               >
                 <Icon className={cn('size-4 shrink-0', isActive && 'text-primary')} />
                 <span className="hidden whitespace-nowrap sm:inline">{stage.label}</span>
-                {stage.key === 'review' && !readiness.readyToPublish && readiness.issues.length > 0 ? (
+                {mounted && stage.key === 'review' && !readiness.readyToPublish && readiness.issues.length > 0 ? (
                   <span className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-semibold">
                     {readiness.issues.length}
                   </span>

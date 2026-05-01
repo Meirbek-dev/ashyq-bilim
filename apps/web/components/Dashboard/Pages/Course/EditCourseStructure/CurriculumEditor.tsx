@@ -295,6 +295,7 @@ const CurriculumEditor = () => {
         </div>
       ) : (
         <DndContext
+          id="curriculum-editor"
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragStart={handleDragStart}
