@@ -1,6 +1,6 @@
 'use server';
 
-import { getResponseMetadata } from '@/lib/api-client';
+import { errorHandling, getResponseMetadata } from '@/lib/api-client';
 import { apiFetch } from '@/lib/api-client';
 import { shouldUseChunkedUpload, uploadFileChunked } from '@services/utils/chunked-upload';
 import type { CustomResponseTyping } from '@/lib/api-client';
@@ -347,7 +347,7 @@ async function fetchActivity(activity_uuid: string): Promise<ActivityReadWithPer
     baseUrl: getAPIUrl(),
     signal: AbortSignal.timeout(10_000),
   });
-  return (await result.json()) as ActivityReadWithPermissions;
+  return (await errorHandling(result)) as ActivityReadWithPermissions;
 }
 
 export async function getActivity(activity_uuid: string, _next?: any) {
