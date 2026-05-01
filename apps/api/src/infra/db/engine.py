@@ -1,5 +1,3 @@
-import logging
-from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -8,7 +6,11 @@ from sqlmodel import Session, create_engine
 from src.db.model_registry import import_orm_models
 from src.infra.settings import AppSettings
 
-logger = logging.getLogger(__name__)
+# Set once from lifespan.  Provides engine access to background tasks (audit
+# writes, fire-and-forget session tracking) that execute outside a request
+# context and therefore cannot reach app.state.  This is not a pool — it is
+# a reference to the single engine the process already owns.
+_bg_engine: Engine | None = None
 
 
 def build_engine(settings: AppSettings) -> Engine:
@@ -24,41 +26,29 @@ def build_engine(settings: AppSettings) -> Engine:
     import_orm_models()
     url = settings.database_config.sql_connection_string
     if url.startswith("sqlite"):
-        engine = create_engine(
+        return create_engine(
             url,
             echo=False,
             connect_args={"check_same_thread": False},
             poolclass=StaticPool,
         )
-    else:
-        engine = create_engine(
-            url,
-            echo=False,
-            pool_pre_ping=True,
-            pool_reset_on_return="rollback",
-            pool_size=10,
-            max_overflow=20,
-            pool_recycle=3600,
-            pool_timeout=30,
-            connect_args={
-                "connect_timeout": 10,
-                "keepalives": 1,
-                "keepalives_idle": 30,
-                "keepalives_interval": 10,
-                "keepalives_count": 5,
-            },
-        )
-
-    # Connection pool monitoring
-    @event.listens_for(engine, "connect")
-    def receive_connect(dbapi_connection, connection_record):
-        logger.info("New DB connection established (pool size: %d)", engine.pool.size())
-
-    @event.listens_for(engine, "checkout")
-    def receive_checkout(dbapi_connection, connection_record, connection_proxy):
-        logger.debug("DB connection checked out from pool")
-
-    return engine
+    return create_engine(
+        url,
+        echo=False,
+        pool_pre_ping=True,
+        pool_reset_on_return="rollback",
+        pool_size=10,
+        max_overflow=20,
+        pool_recycle=3600,
+        pool_timeout=30,
+        connect_args={
+            "connect_timeout": 10,
+            "keepalives": 1,
+            "keepalives_idle": 30,
+            "keepalives_interval": 10,
+            "keepalives_count": 5,
+        },
+    )
 
 
 def build_session_factory(engine: Engine) -> sessionmaker[Session]:

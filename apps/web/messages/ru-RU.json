@@ -53,7 +53,7 @@
       "MakeLongerLabel": "Удлинить",
       "TranslateLabel": "Перевести",
       "WriterLabel": "Писатель",
-      "aiEditorTitle": "Редактор Ashyk Ai",
+      "aiEditorTitle": "Ashyk Ai",
       "aiIconAlt": "Иконка Ashyk Ai",
       "applicationPending": "Заявка участника на рассмотрении",
       "applyToContribute": "Подать заявку на участие",
@@ -3985,7 +3985,7 @@
         "searchEmojis": "Искать эмодзи..."
       },
       "Editor": {
-        "aiEditor": "Редактор Ashyk Ai",
+        "aiEditor": "Ashyk Ai",
         "mobileMessage1": "Редактор доступен только с настольного устройства.",
         "mobileMessage2": "Пожалуйста, переключитесь на настольное устройство для просмотра.",
         "mobileTitle": "Только для настольных ПК",
@@ -4226,7 +4226,7 @@
       "Toolbar": {
         "addColumnRight": "Добавить столбец справа",
         "addRowBelow": "Добавить строку ниже",
-        "aiEditor": "редактор Ashyk Ai",
+        "aiEditor": "Ashyk Ai",
         "aria": {
           "insertInteractiveScenarios": "Вставить интерактивные сценарии"
         },
@@ -8078,7 +8078,7 @@
   },
   "activity": "Активность",
   "additionalSettings": "Дополнительные настройки",
-  "aiEditor": "редактор Ashyk Ai",
+  "aiEditor": "Ashyk Ai",
   "calendar": {
     "monthDropdown": "Месяц",
     "next": "Далее",
