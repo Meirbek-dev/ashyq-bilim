@@ -23,16 +23,16 @@ A non-exhaustive list of concrete issues found while auditing the code:
 
 ### 1.1 Data model: three lifecycles, two submission tables
 
-| Concept                    | Where                                                         | State                                                                                                                |
-| -------------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Assignment lifecycle       | `assignment.status` (`AssignmentStatus` enum)                 | DRAFT/SCHEDULED/PUBLISHED/ARCHIVED                                                                                   |
-| Assignment lifecycle (old) | `assignment.published: bool`                                  | "Keep published col in DB for backward compat; dropped in Phase 7 cleanup" — Phase 7 has not happened                |
-| Exam lifecycle             | `exam.published: bool` **and** `exam.settings.lifecycle_status: str` | both are written to                                                                                          |
-| Code-challenge lifecycle   | `activity.details.lifecycle_status: str`                      | string, no enum, no validator                                                                                        |
-| Activity-level publish     | `activity.published: bool`                                    | mirrored from each kind's lifecycle                                                                                  |
-| Submission (canonical)     | `submission` table, 5-state machine                           | DRAFT/PENDING/GRADED/PUBLISHED/RETURNED                                                                              |
-| Code submission (legacy)   | `code_submission` table                                       | PENDING/PROCESSING/COMPLETED/FAILED/PENDING_JUDGE0 — **different enum, same name**                                   |
-| Exam attempt (legacy)      | `exam_attempt` table                                          | IN_PROGRESS/SUBMITTED/AUTO_SUBMITTED — **backfilled into `submission` on every teacher list call** via `_project_legacy_exam_attempts` |
+| Concept                    | Where                                                                | State                                                                                                                                  |
+| -------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Assignment lifecycle       | `assignment.status` (`AssignmentStatus` enum)                        | DRAFT/SCHEDULED/PUBLISHED/ARCHIVED                                                                                                     |
+| Assignment lifecycle (old) | `assignment.published: bool`                                         | "Keep published col in DB for backward compat; dropped in Phase 7 cleanup" — Phase 7 has not happened                                  |
+| Exam lifecycle             | `exam.published: bool` **and** `exam.settings.lifecycle_status: str` | both are written to                                                                                                                    |
+| Code-challenge lifecycle   | `activity.details.lifecycle_status: str`                             | string, no enum, no validator                                                                                                          |
+| Activity-level publish     | `activity.published: bool`                                           | mirrored from each kind's lifecycle                                                                                                    |
+| Submission (canonical)     | `submission` table, 5-state machine                                  | DRAFT/PENDING/GRADED/PUBLISHED/RETURNED                                                                                                |
+| Code submission (legacy)   | `code_submission` table                                              | PENDING/PROCESSING/COMPLETED/FAILED/PENDING_JUDGE0 — **different enum, same name**                                                     |
+| Exam attempt (legacy)      | `exam_attempt` table                                                 | IN_PROGRESS/SUBMITTED/AUTO_SUBMITTED — **backfilled into `submission` on every teacher list call** via `_project_legacy_exam_attempts` |
 
 The frontend's `useAssessment` hook tries to paper over this:
 
@@ -106,12 +106,12 @@ places and not others depending on which shell wraps the attempt.
 
 ### 1.6 "Quiz" means three different things
 
-| Where                           | Shape                                     |
-| ------------------------------- | ----------------------------------------- |
-| `TYPE_QUIZ` activity            | A quiz block inside an activity           |
-| `BLOCK_QUIZ` block              | The actual storage for a quiz activity    |
-| `AssignmentQuizTaskConfig`      | A quiz embedded inside an assignment task |
-| Exam questions                  | "Quiz-like" questions of a different shape |
+| Where                      | Shape                                      |
+| -------------------------- | ------------------------------------------ |
+| `TYPE_QUIZ` activity       | A quiz block inside an activity            |
+| `BLOCK_QUIZ` block         | The actual storage for a quiz activity     |
+| `AssignmentQuizTaskConfig` | A quiz embedded inside an assignment task  |
+| Exam questions             | "Quiz-like" questions of a different shape |
 
 Multiple-choice is implemented from scratch ≥ 4 times. None of them
 share field names — `question_text` vs `questionText`, `option_id` vs
@@ -307,27 +307,27 @@ each kind picking a different subset of available verbs.
 **Eight verbs per assessment, regardless of kind.** No more
 per-kind routers.
 
-| Verb                                                     | Purpose                                                                                                |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `POST   /assessments`                                    | Create (kind in body, returns assessment + activity)                                                  |
-| `GET    /assessments/{uuid}`                             | Read (teacher view — full)                                                                             |
-| `PATCH  /assessments/{uuid}`                             | Update metadata (title, description, due, policy)                                                      |
-| `POST   /assessments/{uuid}/lifecycle`                   | Transition lifecycle. Body: `{to: 'PUBLISHED' | 'SCHEDULED' | 'DRAFT' | 'ARCHIVED', scheduled_at?}`    |
-| `POST   /assessments/{uuid}/items`                       | Append an item (task/question/test-case)                                                               |
-| `PATCH  /assessments/{uuid}/items/{item_uuid}`           | Update one item                                                                                        |
-| `POST   /assessments/{uuid}/items:reorder`               | Reorder                                                                                                |
-| `DELETE /assessments/{uuid}/items/{item_uuid}`           | Remove                                                                                                 |
+| Verb                                           | Purpose                                              |
+| ---------------------------------------------- | ---------------------------------------------------- |
+| `POST   /assessments`                          | Create (kind in body, returns assessment + activity) |
+| `GET    /assessments/{uuid}`                   | Read (teacher view — full)                           |
+| `PATCH  /assessments/{uuid}`                   | Update metadata (title, description, due, policy)    |
+| `POST   /assessments/{uuid}/lifecycle`         | Transition lifecycle. Body: `{to: 'PUBLISHED'        | 'SCHEDULED' | 'DRAFT' | 'ARCHIVED', scheduled_at?}` |
+| `POST   /assessments/{uuid}/items`             | Append an item (task/question/test-case)             |
+| `PATCH  /assessments/{uuid}/items/{item_uuid}` | Update one item                                      |
+| `POST   /assessments/{uuid}/items:reorder`     | Reorder                                              |
+| `DELETE /assessments/{uuid}/items/{item_uuid}` | Remove                                               |
 
 Plus the existing **submission verbs** (already canonical):
 
-| Verb                                                     | Purpose                              |
-| -------------------------------------------------------- | ------------------------------------ |
-| `POST   /assessments/{uuid}/start`                       | Start an attempt (server timestamp)  |
-| `PATCH  /assessments/{uuid}/draft`                       | Save draft answers                   |
-| `POST   /assessments/{uuid}/submit`                      | Submit                                |
-| `GET    /assessments/{uuid}/me`                          | Read current user's submission(s)    |
-| `GET    /assessments/{uuid}/submissions`                 | Teacher: list submissions             |
-| `PATCH  /grading/submissions/{uuid}` (existing)          | Teacher: grade                        |
+| Verb                                            | Purpose                             |
+| ----------------------------------------------- | ----------------------------------- |
+| `POST   /assessments/{uuid}/start`              | Start an attempt (server timestamp) |
+| `PATCH  /assessments/{uuid}/draft`              | Save draft answers                  |
+| `POST   /assessments/{uuid}/submit`             | Submit                              |
+| `GET    /assessments/{uuid}/me`                 | Read current user's submission(s)   |
+| `GET    /assessments/{uuid}/submissions`        | Teacher: list submissions           |
+| `PATCH  /grading/submissions/{uuid}` (existing) | Teacher: grade                      |
 
 A separate `/uploads` family handles file submissions (see §3.5).
 
@@ -387,12 +387,12 @@ A "Kind" (Assignment / Exam / Code Challenge / Quiz) is still useful
 as a teacher-facing label, but in the new system it is a **preset
 over the same primitives** — not a separate schema:
 
-| Kind            | Default policy                              | Allowed item kinds                  | Default UX                                                      |
-| --------------- | ------------------------------------------- | ----------------------------------- | --------------------------------------------------------------- |
-| Assignment      | manual grading, no time limit, late allowed | OPEN_TEXT, FILE_UPLOAD, FORM, CHOICE | task list view, autosave, submit button                         |
-| Exam            | timed, anti-cheat on, single attempt        | CHOICE, MATCHING, OPEN_TEXT          | one-question-at-a-time, navigation grid, fullscreen + violations |
-| Code Challenge  | auto-graded, multi-attempt, hints allowed   | CODE                                | editor + tests panel + run/submit                               |
-| Quiz            | auto-graded, short, ungated                 | CHOICE, MATCHING                    | scroll all questions, single submit                             |
+| Kind           | Default policy                              | Allowed item kinds                   | Default UX                                                       |
+| -------------- | ------------------------------------------- | ------------------------------------ | ---------------------------------------------------------------- |
+| Assignment     | manual grading, no time limit, late allowed | OPEN_TEXT, FILE_UPLOAD, FORM, CHOICE | task list view, autosave, submit button                          |
+| Exam           | timed, anti-cheat on, single attempt        | CHOICE, MATCHING, OPEN_TEXT          | one-question-at-a-time, navigation grid, fullscreen + violations |
+| Code Challenge | auto-graded, multi-attempt, hints allowed   | CODE                                 | editor + tests panel + run/submit                                |
+| Quiz           | auto-graded, short, ungated                 | CHOICE, MATCHING                     | scroll all questions, single submit                              |
 
 When a teacher picks "Create Exam," we pre-fill the policy and
 restrict the item picker — but it's still one `assessment` row with
@@ -703,22 +703,22 @@ course/activity, not the kind. The current oddity where
 
 Everywhere the UI talks about an assessment's lifecycle, it uses:
 
-| Word        | Meaning                                       |
-| ----------- | --------------------------------------------- |
-| Draft       | Editable, hidden from students                |
-| Scheduled   | Will publish at scheduled time                |
-| Published   | Visible to students                           |
-| Archived    | Read-only, no new submissions                 |
+| Word      | Meaning                        |
+| --------- | ------------------------------ |
+| Draft     | Editable, hidden from students |
+| Scheduled | Will publish at scheduled time |
+| Published | Visible to students            |
+| Archived  | Read-only, no new submissions  |
 
 …and for submissions:
 
-| Word            | Meaning                                       |
-| --------------- | --------------------------------------------- |
-| In progress     | Student is working (server-side: DRAFT)       |
-| Awaiting grade  | Submitted, not yet graded (PENDING)           |
-| Graded          | Teacher graded, not yet released (GRADED)     |
-| Released        | Visible to student (PUBLISHED)                |
-| Returned        | Sent back for revision (RETURNED)             |
+| Word           | Meaning                                   |
+| -------------- | ----------------------------------------- |
+| In progress    | Student is working (server-side: DRAFT)   |
+| Awaiting grade | Submitted, not yet graded (PENDING)       |
+| Graded         | Teacher graded, not yet released (GRADED) |
+| Released       | Visible to student (PUBLISHED)            |
+| Returned       | Sent back for revision (RETURNED)         |
 
 No `published: bool`, no `IN_PROGRESS` vs "In progress" inconsistency,
 no "submitted" + "auto-submitted" leaking out of the database into the
@@ -753,7 +753,7 @@ own** and leaves the system in a working state.
 - Write a one-shot migration: read every `assignment`, `exam`,
   `code_challenge` (`activity.details`) row, write equivalent
   `assessment` + `assessment_item` rows. Verify with a count check
-  + spot diff in CI.
+  - spot diff in CI.
 - Old tables stay; new tables are read-shadow only.
 - Add a feature flag `read_assessments_from_unified_table` (default
   off). When on, all read endpoints serve the new tables.
@@ -853,16 +853,16 @@ unless we change scope:
 
 ## 7. Risk register
 
-| Risk                                                                                  | Mitigation                                                                                                                  |
-| ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Read/write divergence during dual-write window                                        | Shadow-read CI check that compares payloads byte-for-byte; alert on any diff > 0                                            |
-| Frontend type generation rewrites break consumers                                     | Land Phase 4 *before* renaming OpenAPI schemas in Phase 6; use codemod for type-name migration                              |
-| File upload migration leaves old files unreachable                                    | Old paths stay readable via a fallback resolver; new uploads only land in new layout; reaper has a 90-day grace window      |
-| Teachers in the middle of authoring during Phase 3 cut-over                           | Cut-over runs at low-traffic window; in-flight studio sessions get a banner "Saved as draft; reload to continue" with a one-shot reconciliation        |
-| Code-challenge submissions in flight during legacy-table drop                         | Phase 5 only drops the table after telemetry confirms zero reads for ≥ 7 days                                               |
-| Anti-cheat flag rename breaks existing exams                                          | Migration copies all six flags from `exam.settings` into `assessment_policy.anti_cheat_json`, verified per-row in CI         |
-| OCC on student drafts surprises users with 409s                                       | UI handles 409 by merging server state and re-applying local changes; only the version mismatch on conflicting fields shows a "your changes were not saved" banner |
-| The "merge `features/assignments/`" PR is huge and unreviewable                        | Split into one PR per moved file; pre-land a shim re-export so paths can change incrementally                                |
+| Risk                                                            | Mitigation                                                                                                                                                         |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Read/write divergence during dual-write window                  | Shadow-read CI check that compares payloads byte-for-byte; alert on any diff > 0                                                                                   |
+| Frontend type generation rewrites break consumers               | Land Phase 4 *before* renaming OpenAPI schemas in Phase 6; use codemod for type-name migration                                                                     |
+| File upload migration leaves old files unreachable              | Old paths stay readable via a fallback resolver; new uploads only land in new layout; reaper has a 90-day grace window                                             |
+| Teachers in the middle of authoring during Phase 3 cut-over     | Cut-over runs at low-traffic window; in-flight studio sessions get a banner "Saved as draft; reload to continue" with a one-shot reconciliation                    |
+| Code-challenge submissions in flight during legacy-table drop   | Phase 5 only drops the table after telemetry confirms zero reads for ≥ 7 days                                                                                      |
+| Anti-cheat flag rename breaks existing exams                    | Migration copies all six flags from `exam.settings` into `assessment_policy.anti_cheat_json`, verified per-row in CI                                               |
+| OCC on student drafts surprises users with 409s                 | UI handles 409 by merging server state and re-applying local changes; only the version mismatch on conflicting fields shows a "your changes were not saved" banner |
+| The "merge `features/assignments/`" PR is huge and unreviewable | Split into one PR per moved file; pre-land a shim re-export so paths can change incrementally                                                                      |
 
 ---
 
