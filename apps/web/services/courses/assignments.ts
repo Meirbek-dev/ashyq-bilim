@@ -28,11 +28,94 @@ function normalizeAssignmentUuid(assignmentUUID: string) {
   return assignmentUUID.startsWith('assignment_') ? assignmentUUID : `assignment_${assignmentUUID}`;
 }
 
+function lifecycleToPublished(lifecycle?: string | null) {
+  return lifecycle === 'PUBLISHED';
+}
+
+function assessmentToAssignmentRead(data: any): AssignmentRead {
+  return {
+    assignment_uuid: data.assessment_uuid,
+    title: data.title,
+    description: data.description ?? '',
+    due_at: data.assessment_policy?.due_at ?? null,
+    published: lifecycleToPublished(data.lifecycle),
+    status: data.lifecycle,
+    scheduled_publish_at: data.scheduled_at ?? null,
+    published_at: data.published_at ?? null,
+    archived_at: data.archived_at ?? null,
+    weight: data.weight ?? 1,
+    grading_type: data.grading_type ?? 'PERCENTAGE',
+    course_uuid: data.course_uuid ?? null,
+    activity_uuid: data.activity_uuid ?? null,
+    created_at: data.created_at ?? null,
+    updated_at: data.updated_at ?? null,
+  } as AssignmentRead;
+}
+
+function assignmentPatchToAssessmentPatch(body: AssignmentDraftPatch) {
+  return {
+    answers: body.tasks.map((task) => {
+      if (task.content_type === 'file') {
+        return {
+          item_uuid: task.task_uuid,
+          answer: {
+            kind: 'ASSIGNMENT_FILE',
+            content_type: 'file',
+            uploads: task.file_key ? [{ upload_uuid: task.file_key }] : [],
+            file_key: task.file_key ?? null,
+            answer_metadata: task.answer_metadata ?? {},
+          },
+        };
+      }
+
+      if (task.content_type === 'quiz') {
+        return {
+          item_uuid: task.task_uuid,
+          answer: {
+            kind: 'ASSIGNMENT_QUIZ',
+            content_type: 'quiz',
+            quiz_answers: task.quiz_answers ?? null,
+            answer_metadata: task.answer_metadata ?? {},
+          },
+        };
+      }
+
+      if (task.content_type === 'form') {
+        return {
+          item_uuid: task.task_uuid,
+          answer: {
+            kind: 'ASSIGNMENT_FORM',
+            content_type: 'form',
+            form_data: task.form_data ?? null,
+            answer_metadata: task.answer_metadata ?? {},
+          },
+        };
+      }
+
+      return {
+        item_uuid: task.task_uuid,
+        answer: {
+          kind: 'ASSIGNMENT_OTHER',
+          content_type: task.content_type === 'other' ? 'other' : 'text',
+          text_content: task.text_content ?? null,
+          answer_metadata: task.answer_metadata ?? {},
+        },
+      };
+    }),
+  };
+}
+
 export async function updateAssignment(body: AssignmentMutationPayload, assignmentUUID: string) {
-  const result = await apiFetch(`assignments/${assignmentUUID}`, {
-    method: 'PUT',
+  const payload: Record<string, unknown> = {};
+  if (body.title !== undefined) payload.title = body.title;
+  if (body.description !== undefined) payload.description = body.description;
+  if (body.grading_type !== undefined) payload.grading_type = body.grading_type;
+  if (body.due_at !== undefined) payload.policy = { due_at: body.due_at };
+
+  const result = await apiFetch(`assessments/${normalizeAssignmentUuid(assignmentUUID)}`, {
+    method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    body: JSON.stringify(payload),
   });
   const metadata = await getResponseMetadata(result);
 
@@ -45,10 +128,10 @@ export async function updateAssignment(body: AssignmentMutationPayload, assignme
 }
 
 export async function publishAssignment(assignmentUUID: string, scheduledAt?: string | null) {
-  const result = await apiFetch(`assignments/${normalizeAssignmentUuid(assignmentUUID)}/publish`, {
+  const result = await apiFetch(`assessments/${normalizeAssignmentUuid(assignmentUUID)}/lifecycle`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ scheduled_at: scheduledAt ?? null }),
+    body: JSON.stringify({ to: scheduledAt ? 'SCHEDULED' : 'PUBLISHED', scheduled_at: scheduledAt ?? null }),
   });
   const metadata = await getResponseMetadata(result);
 
@@ -57,26 +140,16 @@ export async function publishAssignment(assignmentUUID: string, scheduledAt?: st
     revalidateTag(tags.activities, 'max');
     revalidateTag(tags.courses, 'max');
   }
-
-  return metadata as typeof metadata & { data: AssignmentRead };
+  return metadata.success && metadata.data
+    ? { ...metadata, data: assessmentToAssignmentRead(metadata.data) }
+    : (metadata as typeof metadata & { data: AssignmentRead });
 }
 
 export async function archiveAssignment(assignmentUUID: string) {
-  const result = await apiFetch(`assignments/${normalizeAssignmentUuid(assignmentUUID)}/archive`, { method: 'POST' });
-  const metadata = await getResponseMetadata(result);
-
-  if (metadata.success) {
-    const { revalidateTag } = await import('next/cache');
-    revalidateTag(tags.activities, 'max');
-    revalidateTag(tags.courses, 'max');
-  }
-
-  return metadata as typeof metadata & { data: AssignmentRead };
-}
-
-export async function cancelAssignmentSchedule(assignmentUUID: string) {
-  const result = await apiFetch(`assignments/${normalizeAssignmentUuid(assignmentUUID)}/cancel-schedule`, {
+  const result = await apiFetch(`assessments/${normalizeAssignmentUuid(assignmentUUID)}/lifecycle`, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ to: 'ARCHIVED' }),
   });
   const metadata = await getResponseMetadata(result);
 
@@ -85,8 +158,27 @@ export async function cancelAssignmentSchedule(assignmentUUID: string) {
     revalidateTag(tags.activities, 'max');
     revalidateTag(tags.courses, 'max');
   }
+  return metadata.success && metadata.data
+    ? { ...metadata, data: assessmentToAssignmentRead(metadata.data) }
+    : (metadata as typeof metadata & { data: AssignmentRead });
+}
 
-  return metadata as typeof metadata & { data: AssignmentRead };
+export async function cancelAssignmentSchedule(assignmentUUID: string) {
+  const result = await apiFetch(`assessments/${normalizeAssignmentUuid(assignmentUUID)}/lifecycle`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ to: 'DRAFT' }),
+  });
+  const metadata = await getResponseMetadata(result);
+
+  if (metadata.success) {
+    const { revalidateTag } = await import('next/cache');
+    revalidateTag(tags.activities, 'max');
+    revalidateTag(tags.courses, 'max');
+  }
+  return metadata.success && metadata.data
+    ? { ...metadata, data: assessmentToAssignmentRead(metadata.data) }
+    : (metadata as typeof metadata & { data: AssignmentRead });
 }
 
 export async function getAssignmentFromActivityUUID(activityUUID: string) {
@@ -99,10 +191,7 @@ export async function getAssignmentFromActivityUUID(activityUUID: string) {
 
   return {
     ...metadata,
-    data: {
-      ...metadata.data,
-      assignment_uuid: metadata.data.assessment_uuid,
-    },
+    data: assessmentToAssignmentRead(metadata.data),
   };
 }
 
@@ -133,15 +222,23 @@ export async function deleteAssignmentUsingActivityUUID(activityUUID: string) {
 }
 
 export async function getAssignmentDraftSubmission(assignmentUUID: string) {
-  const result = await apiFetch(`assignments/${normalizeAssignmentUuid(assignmentUUID)}/submissions/me/draft`);
-  return await getResponseMetadata(result);
+  const result = await apiFetch(`assessments/${normalizeAssignmentUuid(assignmentUUID)}/draft`);
+  const metadata = await getResponseMetadata(result);
+  if (!metadata.success || !metadata.data) return metadata;
+  return {
+    ...metadata,
+    data: {
+      ...metadata.data,
+      assignment_uuid: metadata.data.assessment_uuid,
+    },
+  };
 }
 
 export async function saveAssignmentDraftSubmission(assignmentUUID: string, body: AssignmentDraftPatch) {
-  const result = await apiFetch(`assignments/${normalizeAssignmentUuid(assignmentUUID)}/submissions/me/draft`, {
+  const result = await apiFetch(`assessments/${normalizeAssignmentUuid(assignmentUUID)}/draft`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    body: JSON.stringify(assignmentPatchToAssessmentPatch(body)),
   });
   const metadata = await getResponseMetadata(result);
 
@@ -155,10 +252,10 @@ export async function saveAssignmentDraftSubmission(assignmentUUID: string, body
 }
 
 export async function submitAssignmentDraftSubmission(assignmentUUID: string, body?: AssignmentDraftPatch) {
-  const result = await apiFetch(`assignments/${normalizeAssignmentUuid(assignmentUUID)}/submit`, {
+  const result = await apiFetch(`assessments/${normalizeAssignmentUuid(assignmentUUID)}/submit`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body ?? { tasks: [] }),
+    body: JSON.stringify(assignmentPatchToAssessmentPatch(body ?? { tasks: [] })),
   });
   const metadata = await getResponseMetadata(result);
 
@@ -174,7 +271,7 @@ export async function submitAssignmentDraftSubmission(assignmentUUID: string, bo
 // tasks
 
 export async function createAssignmentTask(body: AssignmentTaskMutationPayload, assignmentUUID: string) {
-  const result = await apiFetch(`assignments/${assignmentUUID}/tasks`, {
+  const result = await apiFetch(`assessments/${normalizeAssignmentUuid(assignmentUUID)}/assignment/tasks`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -190,7 +287,7 @@ export async function createAssignmentTask(body: AssignmentTaskMutationPayload, 
 }
 
 export async function getAssignmentTask(assignmentUUID: string, assignmentTaskUUID: string) {
-  const result = await apiFetch(`assignments/${assignmentUUID}/tasks/${assignmentTaskUUID}`);
+  const result = await apiFetch(`assessments/${normalizeAssignmentUuid(assignmentUUID)}/assignment/tasks/${assignmentTaskUUID}`);
   return await getResponseMetadata(result);
 }
 
@@ -201,7 +298,7 @@ export interface UpdateAssignmentTaskParams {
 }
 
 export async function updateAssignmentTask({ body, assignmentTaskUUID, assignmentUUID }: UpdateAssignmentTaskParams) {
-  const result = await apiFetch(`assignments/${assignmentUUID}/tasks/${assignmentTaskUUID}`, {
+  const result = await apiFetch(`assessments/${normalizeAssignmentUuid(assignmentUUID)}/assignment/tasks/${assignmentTaskUUID}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -217,7 +314,9 @@ export async function updateAssignmentTask({ body, assignmentTaskUUID, assignmen
 }
 
 export async function deleteAssignmentTask(assignmentTaskUUID: string, assignmentUUID: string) {
-  const result = await apiFetch(`assignments/${assignmentUUID}/tasks/${assignmentTaskUUID}`, { method: 'DELETE' });
+  const result = await apiFetch(`assessments/${normalizeAssignmentUuid(assignmentUUID)}/assignment/tasks/${assignmentTaskUUID}`, {
+    method: 'DELETE',
+  });
   const metadata = await getResponseMetadata(result);
 
   if (metadata.success) {
@@ -309,17 +408,24 @@ export interface CreateAssignmentWithActivityParams {
 
 export async function createAssignmentWithActivity({
   body,
-  chapterId,
-  activityName,
+  chapterId: _chapterId,
+  activityName: _activityName,
 }: CreateAssignmentWithActivityParams) {
-  const result = await apiFetch(
-    `assignments/with-activity?chapter_id=${chapterId}&activity_name=${encodeURIComponent(activityName)}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    },
-  );
+  const result = await apiFetch('assessments', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      kind: 'ASSIGNMENT',
+      title: body.title,
+      description: body.description ?? '',
+      course_id: body.course_id,
+      chapter_id: body.chapter_id,
+      grading_type: body.grading_type,
+      policy: {
+        due_at: body.due_at ?? null,
+      },
+    }),
+  });
   const metadata = await getResponseMetadata(result);
 
   if (metadata.success) {

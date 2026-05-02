@@ -139,7 +139,6 @@ class Assignment(SQLModelStrictBaseModel, table=True):
         UniqueConstraint("activity_id", name="uq_assignment_activity_id"),
         Index("idx_assignment_activity_id", "activity_id"),
         Index("idx_assignment_status", "status"),
-        Index("idx_assignment_scheduled_publish_at", "scheduled_publish_at"),
     )
 
     model_config = ConfigDict(use_enum_values=True)
@@ -152,29 +151,9 @@ class Assignment(SQLModelStrictBaseModel, table=True):
         default=None,
         sa_column=Column(DateTime(timezone=True), nullable=True),
     )
-    # Lifecycle status — replaces the legacy `published` boolean.
-    # Keep published col in DB for backward compat; dropped in Phase 7 cleanup.
-    published: bool = Field(
-        default=False,
-        sa_column=Column(Boolean, nullable=False, server_default="false"),
-    )
     status: AssignmentStatus = Field(
         default=AssignmentStatus.DRAFT,
         sa_column=Column("status", String, nullable=False, server_default="DRAFT"),
-    )
-    scheduled_publish_at: datetime | None = Field(
-        default=None,
-        sa_column=Column(
-            "scheduled_publish_at", DateTime(timezone=True), nullable=True
-        ),
-    )
-    published_at: datetime | None = Field(
-        default=None,
-        sa_column=Column("published_at", DateTime(timezone=True), nullable=True),
-    )
-    archived_at: datetime | None = Field(
-        default=None,
-        sa_column=Column("archived_at", DateTime(timezone=True), nullable=True),
     )
     # Relative weight of this assignment in the course grade calculation.
     # Default 1.0 = equal weight.  Values above 1.0 make this assignment count

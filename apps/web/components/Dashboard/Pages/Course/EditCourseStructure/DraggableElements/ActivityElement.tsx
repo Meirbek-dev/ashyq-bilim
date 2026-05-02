@@ -28,7 +28,6 @@ import {
   Video,
   X as XIcon,
 } from 'lucide-react';
-import { deleteAssignmentUsingActivityUUID } from '@services/courses/assignments';
 import { useActivityAssignmentUuid } from '@/features/courses/hooks/useCourseQueries';
 import { CourseWorkflowBadge } from '@components/Dashboard/Courses/courseWorkflowUi';
 import { useActivityMutations } from '@/hooks/mutations/useActivityMutations';
@@ -186,13 +185,6 @@ const ActivityElement = ({
     setIsDeletingActivity(true);
     const toastId = toast.loading(t('deletingActivity'));
     try {
-      if (activity.activity_type === 'TYPE_ASSIGNMENT') {
-        try {
-          await deleteAssignmentUsingActivityUUID(activity.activity_uuid);
-        } catch {
-          /* continue */
-        }
-      }
       await deleteActivity(activity.activity_uuid);
       toast.success(t('activityDeletedSuccess'));
       setIsDeleteDialogOpen(false);

@@ -373,8 +373,14 @@ function buildExamQuestions(items: AssessmentItem[]): QuestionData[] {
           id: item.item_uuid,
           question_uuid: item.item_uuid,
           question_text: item.body.prompt,
-          question_type: item.body.multiple ? 'MULTIPLE_CHOICE' : 'SINGLE_CHOICE',
+          question_type:
+            item.body.variant === 'TRUE_FALSE'
+              ? 'TRUE_FALSE'
+              : item.body.multiple
+                ? 'MULTIPLE_CHOICE'
+                : 'SINGLE_CHOICE',
           points: item.max_score,
+          explanation: item.body.explanation ?? undefined,
           answer_options: item.body.options.map((option) => ({
             text: option.text,
             is_correct: option.is_correct,
@@ -392,6 +398,7 @@ function buildExamQuestions(items: AssessmentItem[]): QuestionData[] {
           question_text: item.body.prompt,
           question_type: 'MATCHING',
           points: item.max_score,
+          explanation: item.body.explanation ?? undefined,
           answer_options: item.body.pairs.map((pair, index) => ({
             text: '',
             left: pair.left,

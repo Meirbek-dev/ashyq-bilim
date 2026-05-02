@@ -12,6 +12,10 @@ import { Textarea } from '@/components/ui/textarea';
 import AttemptHistoryList from '@/features/assessments/shared/AttemptHistoryList';
 import { useAttemptShellControls } from '@/features/assessments/shell';
 import { useAssessmentSubmission } from '@/features/assessments/hooks/useAssessmentSubmission';
+import { ChoiceItemAttempt, type ChoiceAttemptItem, type ChoiceAnswer } from '@/features/assessments/items/choice';
+import { FileUploadAttempt, normalizeFileUploadConstraints } from '@/features/assessments/items/file-upload';
+import { FormItemAttempt, normalizeFormItem } from '@/features/assessments/items/form';
+import { OpenTextAttempt, normalizeOpenText } from '@/features/assessments/items/open-text';
 import { getItemKindModule } from '@/features/assessments/items/registry';
 import type { AssessmentItem, ItemAnswer, MatchPair } from '@/features/assessments/domain/items';
 import type { AttemptSaveState } from '@/features/assessments/shell';
@@ -251,6 +255,131 @@ function ItemAttemptRenderer({
           className="min-h-36"
           onChange={(event) => onChange({ kind: 'OPEN_TEXT', text: event.target.value })}
         />
+      </div>
+    );
+  }
+
+  if (item.kind === 'ASSIGNMENT_FILE') {
+    return (
+      <FileUploadAttempt
+        item={{
+          taskUuid: item.item_uuid,
+          assignmentUuid: assessmentUuid,
+          referenceFile: item.body.reference_file,
+          constraints: normalizeFileUploadConstraints({
+            allowed_mime_types: item.body.allowed_mime_types,
+            max_file_size_mb: item.body.max_file_size_mb ?? null,
+            max_files: item.body.max_files,
+          }),
+        }}
+        answer={
+          answer?.kind === 'ASSIGNMENT_FILE'
+            ? { kind: 'FILE_UPLOAD', uploads: answer.uploads }
+            : null
+        }
+        disabled={disabled}
+        onAnswerChange={(nextAnswer) =>
+          onChange({
+            kind: 'ASSIGNMENT_FILE',
+            content_type: 'file',
+            uploads: nextAnswer?.uploads ?? [],
+            file_key: nextAnswer?.uploads?.[0]?.upload_uuid ?? null,
+          })
+        }
+      />
+    );
+  }
+
+  if (item.kind === 'ASSIGNMENT_FORM') {
+    return (
+      <FormItemAttempt
+        item={{ ...normalizeFormItem({ questions: item.body.questions }), taskUuid: item.item_uuid }}
+        answer={answer?.kind === 'ASSIGNMENT_FORM' ? answer : null}
+        disabled={disabled}
+        onAnswerChange={(nextAnswer) =>
+          onChange({
+            kind: 'ASSIGNMENT_FORM',
+            content_type: 'form',
+            form_data: nextAnswer?.form_data ?? { answers: {} },
+          })
+        }
+      />
+    );
+  }
+
+  if (item.kind === 'ASSIGNMENT_OTHER') {
+    return (
+      <OpenTextAttempt
+        item={{
+          ...normalizeOpenText({ body: item.body.body }),
+          taskUuid: item.item_uuid,
+        }}
+        answer={
+          answer?.kind === 'ASSIGNMENT_OTHER'
+            ? { content_type: 'text', text: answer.text_content ?? '' }
+            : null
+        }
+        disabled={disabled}
+        onAnswerChange={(nextAnswer) =>
+          onChange({
+            kind: 'ASSIGNMENT_OTHER',
+            content_type: nextAnswer?.content_type === 'other' ? 'other' : 'text',
+            text_content: nextAnswer?.text ?? '',
+          })
+        }
+      />
+    );
+  }
+
+  if (item.kind === 'ASSIGNMENT_QUIZ') {
+    const normalizedAnswers = answer?.kind === 'ASSIGNMENT_QUIZ' ? answer.quiz_answers?.answers ?? {} : {};
+
+    if (item.body.questions.length === 0) {
+      return <div className="text-muted-foreground rounded-md border border-dashed p-4 text-sm">No quiz questions.</div>;
+    }
+
+    return (
+      <div className="space-y-4">
+        {item.body.questions.map((question, questionIndex) => {
+          const questionId = question.questionUUID || `question_${questionIndex}`;
+          const choiceItem: ChoiceAttemptItem = {
+            id: questionId,
+            kind: 'CHOICE_MULTIPLE',
+            prompt: question.questionText || 'Question',
+            options: question.options.map((option, optionIndex) => ({
+              id: option.optionUUID || `option_${optionIndex}`,
+              text: option.text || 'Option',
+            })),
+          };
+          return (
+            <div
+              key={questionId}
+              className="bg-muted/30 rounded-md border p-4"
+            >
+              <div className="mb-3 flex items-start gap-2">
+                <Badge variant="secondary">Q{questionIndex + 1}</Badge>
+                <p className="font-medium">{choiceItem.prompt}</p>
+              </div>
+              <ChoiceItemAttempt
+                item={choiceItem}
+                answer={normalizedAnswers[questionId] ?? []}
+                disabled={disabled}
+                onAnswerChange={(nextAnswer: ChoiceAnswer) =>
+                  onChange({
+                    kind: 'ASSIGNMENT_QUIZ',
+                    content_type: 'quiz',
+                    quiz_answers: {
+                      answers: {
+                        ...normalizedAnswers,
+                        [questionId]: Array.isArray(nextAnswer) ? nextAnswer.map(String) : [],
+                      },
+                    },
+                  })
+                }
+              />
+            </div>
+          );
+        })}
       </div>
     );
   }

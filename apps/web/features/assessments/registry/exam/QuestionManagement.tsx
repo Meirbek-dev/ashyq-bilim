@@ -61,7 +61,7 @@ export default function QuestionManagement({ examUuid, questions, onQuestionsCha
 
   const handleExportCSV = async () => {
     try {
-      const response = await apiFetch(`exams/${examUuid}/questions/export-csv`, { method: 'GET' });
+      const response = await apiFetch(`assessments/${examUuid}/exam/questions:export-csv`, { method: 'GET' });
 
       if (!response.ok) throw new Error('Failed to export questions');
 
@@ -90,7 +90,7 @@ export default function QuestionManagement({ examUuid, questions, onQuestionsCha
     formData.append('file', file);
 
     try {
-      const response = await apiFetch(`exams/${examUuid}/questions/import-csv`, { method: 'POST', body: formData });
+      const response = await apiFetch(`assessments/${examUuid}/exam/questions:import-csv`, { method: 'POST', body: formData });
 
       if (!response.ok) throw new Error('Failed to import questions');
 
@@ -136,7 +136,7 @@ export default function QuestionManagement({ examUuid, questions, onQuestionsCha
 
     dispatch({ type: 'CONFIRM_DELETE' });
     try {
-      const response = await apiFetch(`exams/questions/${uuid}`, { method: 'DELETE' });
+      const response = await apiFetch(`assessments/${examUuid}/exam/questions/${uuid}`, { method: 'DELETE' });
 
       if (!response.ok) throw new Error('Failed to delete question');
 
@@ -165,7 +165,7 @@ export default function QuestionManagement({ examUuid, questions, onQuestionsCha
     }));
 
     try {
-      const response = await apiFetch(`exams/${examUuid}/questions/reorder`, {
+      const response = await apiFetch(`assessments/${examUuid}/exam/questions:reorder`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(questionOrder),

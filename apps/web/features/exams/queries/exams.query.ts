@@ -5,44 +5,52 @@ import { queryOptions } from '@tanstack/react-query';
 import { getAPIUrl } from '@services/config/config';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 
+function assessmentToExam(assessment: any) {
+  return {
+    ...assessment,
+    exam_uuid: assessment.assessment_uuid,
+    settings: assessment.assessment_policy?.settings_json ?? {},
+  };
+}
+
 export function examActivityQueryOptions(activityUuid: string) {
   return queryOptions({
     queryKey: queryKeys.exams.activity(activityUuid),
-    queryFn: () => apiFetcher(`${getAPIUrl()}exams/activity/${activityUuid}`),
+    queryFn: async () => assessmentToExam(await apiFetcher(`${getAPIUrl()}assessments/activity/${activityUuid}`)),
   });
 }
 
 export function examDetailQueryOptions(examUuid: string) {
   return queryOptions({
     queryKey: queryKeys.exams.detail(examUuid),
-    queryFn: () => apiFetcher(`${getAPIUrl()}exams/${examUuid}`),
+    queryFn: async () => assessmentToExam(await apiFetcher(`${getAPIUrl()}assessments/${examUuid}`)),
   });
 }
 
 export function examQuestionsQueryOptions(examUuid: string) {
   return queryOptions({
     queryKey: queryKeys.exams.questions(examUuid),
-    queryFn: () => apiFetcher(`${getAPIUrl()}exams/${examUuid}/questions`),
+    queryFn: () => apiFetcher(`${getAPIUrl()}assessments/${examUuid}/exam/questions`),
   });
 }
 
 export function examMyAttemptsQueryOptions(examUuid: string) {
   return queryOptions({
     queryKey: queryKeys.exams.myAttempt(examUuid),
-    queryFn: () => apiFetcher(`${getAPIUrl()}exams/${examUuid}/attempts/me`),
+    queryFn: () => apiFetcher(`${getAPIUrl()}assessments/${examUuid}/me`),
   });
 }
 
 export function examAllAttemptsQueryOptions(examUuid: string) {
   return queryOptions({
     queryKey: queryKeys.exams.allAttempts(examUuid),
-    queryFn: () => apiFetcher(`${getAPIUrl()}exams/${examUuid}/attempts/all`),
+    queryFn: () => apiFetcher(`${getAPIUrl()}assessments/${examUuid}/submissions`),
   });
 }
 
 export function examConfigQueryOptions() {
   return queryOptions({
     queryKey: queryKeys.exams.config(),
-    queryFn: () => apiFetcher(`${getAPIUrl()}exams/config`),
+    queryFn: () => apiFetcher(`${getAPIUrl()}assessments/exam/config`),
   });
 }

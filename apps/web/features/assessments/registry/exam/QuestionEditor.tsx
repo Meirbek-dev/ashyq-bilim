@@ -92,7 +92,9 @@ export default function QuestionEditor({ question, examUuid, onSave, onCancel, a
 
     try {
       const isEditing = Boolean(formData.question_uuid);
-      const path = isEditing ? `exams/questions/${formData.question_uuid}` : `exams/${examUuid}/questions`;
+      const path = isEditing
+        ? `assessments/${examUuid}/exam/questions/${formData.question_uuid}`
+        : `assessments/${examUuid}/exam/questions`;
       const response = await apiFetch(path, {
         method: isEditing ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },

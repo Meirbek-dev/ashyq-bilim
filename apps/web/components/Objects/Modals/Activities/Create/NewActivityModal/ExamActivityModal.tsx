@@ -99,6 +99,11 @@ const NewExam = ({ chapterId, course, closeModal }: any) => {
   const onSubmit = async (values: SubmitValues) => {
     const toastLoading = toast.loading(t('creatingExam'));
     try {
+      const courseId = course?.courseStructure?.id;
+      if (typeof courseId !== 'number') {
+        throw new Error('Course metadata is missing for exam creation');
+      }
+
       const settings = {
         time_limit: values.has_time_limit ? values.time_limit : null,
         attempt_limit: 1,
@@ -119,6 +124,7 @@ const NewExam = ({ chapterId, course, closeModal }: any) => {
 
       const data = await createExamMutation.mutateAsync({
         activityName: values.activity_name,
+        courseId,
         chapterId,
         examTitle: values.exam_title,
         examDescription: values.exam_description,

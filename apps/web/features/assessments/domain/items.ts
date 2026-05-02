@@ -1,4 +1,14 @@
-export type UnifiedItemKind = 'CHOICE' | 'OPEN_TEXT' | 'FILE_UPLOAD' | 'FORM' | 'CODE' | 'MATCHING';
+export type UnifiedItemKind =
+  | 'CHOICE'
+  | 'OPEN_TEXT'
+  | 'FILE_UPLOAD'
+  | 'FORM'
+  | 'CODE'
+  | 'MATCHING'
+  | 'ASSIGNMENT_FILE'
+  | 'ASSIGNMENT_QUIZ'
+  | 'ASSIGNMENT_FORM'
+  | 'ASSIGNMENT_OTHER';
 
 export interface ChoiceOption {
   id: string;
@@ -28,7 +38,14 @@ export interface CodeTestCase {
 }
 
 export type ItemBody =
-  | { kind: 'CHOICE'; prompt: string; options: ChoiceOption[]; multiple: boolean }
+  | {
+      kind: 'CHOICE';
+      prompt: string;
+      options: ChoiceOption[];
+      multiple: boolean;
+      variant?: 'SINGLE_CHOICE' | 'MULTIPLE_CHOICE' | 'TRUE_FALSE' | null;
+      explanation?: string | null;
+    }
   | { kind: 'OPEN_TEXT'; prompt: string; min_words?: number | null; rubric?: string | null }
   | { kind: 'FILE_UPLOAD'; prompt: string; max_files: number; max_mb?: number | null; mimes: string[] }
   | { kind: 'FORM'; prompt: string; fields: FormField[] }
@@ -41,7 +58,53 @@ export type ItemBody =
       time_limit_seconds?: number | null;
       memory_limit_mb?: number | null;
     }
-  | { kind: 'MATCHING'; prompt: string; pairs: MatchPair[] };
+  | { kind: 'MATCHING'; prompt: string; pairs: MatchPair[]; explanation?: string | null }
+  | {
+      kind: 'ASSIGNMENT_FILE';
+      description: string;
+      hint: string;
+      reference_file?: string | null;
+      allowed_mime_types: string[];
+      max_file_size_mb?: number | null;
+      max_files: number;
+    }
+  | {
+      kind: 'ASSIGNMENT_QUIZ';
+      description: string;
+      hint: string;
+      questions: {
+        questionUUID: string;
+        questionText: string;
+        options: {
+          optionUUID: string;
+          text: string;
+          fileID?: string;
+          type?: 'text' | 'image' | 'audio' | 'video';
+          assigned_right_answer?: boolean;
+        }[];
+      }[];
+      settings: {
+        max_attempts?: number | null;
+        time_limit_seconds?: number | null;
+        max_score_penalty_per_attempt?: number | null;
+      };
+    }
+  | {
+      kind: 'ASSIGNMENT_FORM';
+      description: string;
+      hint: string;
+      questions: {
+        questionUUID: string;
+        questionText: string;
+        blanks: {
+          blankUUID: string;
+          placeholder: string;
+          correctAnswer?: string;
+          hint?: string;
+        }[];
+      }[];
+    }
+  | { kind: 'ASSIGNMENT_OTHER'; description: string; hint: string; body: Record<string, unknown> };
 
 export type ItemAnswer =
   | { kind: 'CHOICE'; selected: string[] }
@@ -49,7 +112,32 @@ export type ItemAnswer =
   | { kind: 'FILE_UPLOAD'; uploads: { upload_uuid: string; filename?: string }[] }
   | { kind: 'FORM'; values: Record<string, string> }
   | { kind: 'CODE'; language: number; source: string; latest_run?: { passed: number; total: number; score?: number } }
-  | { kind: 'MATCHING'; matches: MatchPair[] };
+  | { kind: 'MATCHING'; matches: MatchPair[] }
+  | {
+      kind: 'ASSIGNMENT_FILE';
+      content_type: 'file';
+      uploads: { upload_uuid: string; filename?: string }[];
+      file_key?: string | null;
+      answer_metadata?: Record<string, unknown>;
+    }
+  | {
+      kind: 'ASSIGNMENT_QUIZ';
+      content_type: 'quiz';
+      quiz_answers?: { answers?: Record<string, string[]> } | null;
+      answer_metadata?: Record<string, unknown>;
+    }
+  | {
+      kind: 'ASSIGNMENT_FORM';
+      content_type: 'form';
+      form_data?: { answers?: Record<string, string> } | null;
+      answer_metadata?: Record<string, unknown>;
+    }
+  | {
+      kind: 'ASSIGNMENT_OTHER';
+      content_type: 'text' | 'other';
+      text_content?: string | null;
+      answer_metadata?: Record<string, unknown>;
+    };
 
 export interface AssessmentItem {
   id: number;
@@ -83,6 +171,18 @@ export function isAnswered(answer: ItemAnswer | null | undefined): boolean {
     }
     case 'MATCHING': {
       return answer.matches.length > 0;
+    }
+    case 'ASSIGNMENT_FILE': {
+      return answer.uploads.length > 0 || Boolean(answer.file_key);
+    }
+    case 'ASSIGNMENT_QUIZ': {
+      return Object.values(answer.quiz_answers?.answers ?? {}).some((value) => Array.isArray(value) && value.length > 0);
+    }
+    case 'ASSIGNMENT_FORM': {
+      return Object.values(answer.form_data?.answers ?? {}).some((value) => value.trim().length > 0);
+    }
+    case 'ASSIGNMENT_OTHER': {
+      return (answer.text_content ?? '').trim().length > 0;
     }
   }
 }
