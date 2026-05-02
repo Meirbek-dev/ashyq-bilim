@@ -1,4 +1,4 @@
-import type { AssignmentTaskRead, AssignmentTaskType } from '@/features/assignments/domain';
+import type { AssignmentTaskRead, AssignmentTaskType } from '../models';
 import type { ReactNode } from 'react';
 
 export interface AssignmentTaskEditorValue {

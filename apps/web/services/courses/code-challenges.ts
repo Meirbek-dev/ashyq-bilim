@@ -1,4 +1,5 @@
 import { apiFetch } from '@/lib/api-client';
+import type { Submission as GradingSubmission, SubmissionStatus as CanonicalSubmissionStatus } from '@/features/grading/domain';
 
 const CODE_CHALLENGE_API_BASE = 'assessments/code-challenges';
 
@@ -55,6 +56,20 @@ export interface CodeSubmission {
   test_results?: { results?: TestCaseResult[] };
 }
 
+interface CanonicalRunRecord {
+  language_id?: number;
+  details?: TestCaseResult[];
+}
+
+interface CanonicalMetadata {
+  judge0_state?: string;
+  latest_run?: CanonicalRunRecord | null;
+}
+
+interface CanonicalAnswers {
+  language_id?: number;
+}
+
 export interface CodeChallengeDraft {
   id: number;
   submission_uuid: string;
@@ -77,6 +92,40 @@ export interface TestCaseResult {
 export interface Judge0Language {
   id: number;
   name: string;
+}
+
+function normalizeJudge0State(
+  judge0State: unknown,
+  submissionStatus: CanonicalSubmissionStatus,
+): CodeSubmission['status'] {
+  if (typeof judge0State === 'string' && judge0State.length > 0) {
+    return judge0State.toUpperCase() as CodeSubmission['status'];
+  }
+  if (submissionStatus === 'DRAFT' || submissionStatus === 'PENDING') return 'PENDING';
+  return 'COMPLETED';
+}
+
+export function mapCanonicalCodeSubmission(raw: GradingSubmission): CodeSubmission {
+  const metadata = (raw.metadata_json ?? {}) as CanonicalMetadata;
+  const answers = (raw.answers_json ?? {}) as CanonicalAnswers;
+  const results = Array.isArray(metadata.latest_run?.details) ? metadata.latest_run.details : undefined;
+  return {
+    uuid: raw.submission_uuid,
+    submission_uuid: raw.submission_uuid,
+    submission_status: raw.status,
+    status: normalizeJudge0State(metadata.judge0_state, raw.status),
+    score: typeof raw.final_score === 'number' ? raw.final_score : raw.auto_score ?? undefined,
+    max_score: 100,
+    language_id:
+      typeof answers.language_id === 'number'
+        ? answers.language_id
+        : typeof metadata.latest_run?.language_id === 'number'
+          ? metadata.latest_run.language_id
+          : 0,
+    created_at: raw.created_at,
+    results,
+    test_results: results ? { results } : undefined,
+  };
 }
 
 export async function getLanguages(): Promise<Judge0Language[]> {
@@ -205,7 +254,7 @@ export async function getSubmission(submissionUuid: string): Promise<CodeSubmiss
     throw new Error('Failed to fetch submission');
   }
 
-  return response.json();
+  return mapCanonicalCodeSubmission((await response.json()) as GradingSubmission);
 }
 
 export async function getSubmissions(activityUuid: string): Promise<CodeSubmission[]> {
@@ -215,7 +264,7 @@ export async function getSubmissions(activityUuid: string): Promise<CodeSubmissi
     throw new Error('Failed to fetch submissions');
   }
 
-  return response.json();
+  return ((await response.json()) as GradingSubmission[]).map(mapCanonicalCodeSubmission);
 }
 
 export async function getLeaderboard(

@@ -2,7 +2,7 @@
 
 import * as v from 'valibot';
 
-import type { AssignmentTaskType } from '@/features/assignments/domain';
+import type { AssignmentTaskType } from '../models';
 import { ChoiceItemAuthor } from '@/features/assessments/items/choice';
 import type { ChoiceAuthorValue } from '@/features/assessments/items/choice';
 import { FileUploadConstraintsEditor, normalizeFileUploadConstraints } from '@/features/assessments/items/file-upload';

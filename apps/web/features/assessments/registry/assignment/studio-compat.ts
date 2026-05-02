@@ -1,21 +1,21 @@
 export {
   getAssignmentTotalPoints,
-  normalizeAssignmentTasks,
   pointsToPercent,
-} from '@/features/assignments/domain';
+} from './scoring';
+export { normalizeAssignmentTasks } from './view-models';
 export type {
   AssignmentRead,
   AssignmentTaskRead,
   AssignmentTaskType,
-} from '@/features/assignments/domain';
+} from './models';
 export {
   useAssignmentByActivity,
   useAssignmentDetail,
   useAssignmentTasks,
-} from '@/features/assignments/hooks/useAssignments';
-export { getTaskTypeEditor } from '@/features/assignments/studio/task-editors/registry';
+} from './hooks';
+export { getTaskTypeEditor } from './task-editors/registry';
 export {
   patchEditorValue,
   taskToEditorValue,
-} from '@/features/assignments/studio/task-editors/types';
-export type { AssignmentTaskEditorValue } from '@/features/assignments/studio/task-editors/types';
+} from './task-editors/types';
+export type { AssignmentTaskEditorValue } from './task-editors/types';

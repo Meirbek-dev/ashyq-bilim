@@ -15,7 +15,6 @@ from sqlmodel import Session, func, select
 from ulid import ULID
 
 from src.auth.users import get_optional_public_user, get_public_user
-from src.db.assessments import Assessment
 from src.db.courses.activities import (
     Activity,
     ActivityCreate,
@@ -28,8 +27,6 @@ from src.db.courses.code_challenges import (
     CodeChallengeSettings,
     CodeSubmission,
     CodeSubmissionCreate,
-    CodeSubmissionDetail,
-    CodeSubmissionRead,
     CustomTestResponse,
     ExecutionMode,
     GradingStrategy,
@@ -91,14 +88,6 @@ router = APIRouter()
 
 # Initialize Judge0 service
 judge0_service = Judge0Service()
-
-
-def _assessment_uuid_for_activity(activity_id: int, db_session: Session) -> str | None:
-    """Return the canonical assessment_uuid for an activity, or None if not found."""
-    assessment = db_session.exec(
-        select(Assessment).where(Assessment.activity_id == activity_id)
-    ).first()
-    return assessment.assessment_uuid if assessment else None
 
 
 # Helper functions
@@ -175,45 +164,6 @@ def get_challenge_settings(
         return CodeChallengeSettings()
 
 
-def get_canonical_submission_statuses(
-    submission_uuids: list[str],
-    db_session: Session,
-) -> dict[str, str]:
-    """Return user-facing Submission.status values for legacy code rows."""
-    if not submission_uuids:
-        return {}
-    rows = db_session.exec(
-        select(Submission).where(Submission.submission_uuid.in_(submission_uuids))
-    ).all()
-    return {row.submission_uuid: str(row.status) for row in rows}
-
-
-def code_submission_read(
-    submission: CodeSubmission,
-    canonical_status: str | None,
-) -> CodeSubmissionRead:
-    return CodeSubmissionRead.model_validate(submission).model_copy(
-        update={
-            "uuid": submission.submission_uuid,
-            "submission_status": canonical_status,
-            "max_score": 100.0,
-        }
-    )
-
-
-def code_submission_detail(
-    submission: CodeSubmission,
-    canonical_status: str | None,
-) -> CodeSubmissionDetail:
-    return CodeSubmissionDetail.model_validate(submission).model_copy(
-        update={
-            "uuid": submission.submission_uuid,
-            "submission_status": canonical_status,
-            "max_score": 100.0,
-        }
-    )
-
-
 def _get_canonical_code_submission(
     submission_uuid: str,
     db_session: Session,
@@ -229,12 +179,14 @@ def _set_canonical_code_submission_pending(
     submission_uuid: str,
     language_id: int,
     language_name: str,
+    source_code: str,
     submitted_at: datetime,
 ) -> None:
     canonical_submission.status = GradingSubmissionStatus.PENDING
     canonical_submission.answers_json = {
         "language_id": language_id,
         "language_name": language_name,
+        "source_code": source_code,
         "code_submission_uuid": submission_uuid,
     }
     canonical_submission.metadata_json = {
@@ -621,6 +573,7 @@ async def submit_code_challenge(
         submission_uuid=submission_uuid,
         language_id=submission.language_id,
         language_name=language_name,
+        source_code=submission.source_code,
         submitted_at=submitted_at,
     )
 
@@ -973,7 +926,7 @@ async def run_custom_test(
     return result
 
 
-@router.get("/{activity_uuid}/submissions", response_model=list[CodeSubmissionRead])
+@router.get("/{activity_uuid}/submissions", response_model=list[SubmissionRead])
 async def get_submission_history(
     activity_uuid: str,
     current_user: Annotated[PublicUser, Depends(get_public_user)],
@@ -987,37 +940,31 @@ async def get_submission_history(
     await check_challenge_access(activity, current_user, db_session)
 
     statement = (
-        select(CodeSubmission)
+        select(Submission)
         .where(
-            CodeSubmission.activity_id == activity.id,
-            CodeSubmission.user_id == current_user.id,
+            Submission.activity_id == activity.id,
+            Submission.user_id == current_user.id,
+            Submission.assessment_type == AssessmentType.CODE_CHALLENGE,
         )
-        .order_by(CodeSubmission.created_at.desc())
+        .order_by(Submission.created_at.desc())
         .offset(offset)
         .limit(limit)
     )
 
     submissions = db_session.exec(statement).all()
-    canonical_statuses = get_canonical_submission_statuses(
-        [s.submission_uuid for s in submissions],
-        db_session,
-    )
-
-    return [
-        code_submission_read(s, canonical_statuses.get(s.submission_uuid))
-        for s in submissions
-    ]
+    return [SubmissionRead.model_validate(submission) for submission in submissions]
 
 
-@router.get("/submissions/{submission_uuid}", response_model=CodeSubmissionDetail)
+@router.get("/submissions/{submission_uuid}", response_model=SubmissionRead)
 async def get_submission_detail(
     submission_uuid: str,
     current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ):
-    """Get detailed submission including source code"""
-    statement = select(CodeSubmission).where(
-        CodeSubmission.submission_uuid == submission_uuid
+    """Get canonical submission detail for a code challenge."""
+    statement = select(Submission).where(
+        Submission.submission_uuid == submission_uuid,
+        Submission.assessment_type == AssessmentType.CODE_CHALLENGE,
     )
     submission = db_session.exec(statement).first()
 
@@ -1043,14 +990,7 @@ async def get_submission_detail(
             reason="You can only view your own submissions",
         )
 
-    canonical_statuses = get_canonical_submission_statuses(
-        [submission.submission_uuid],
-        db_session,
-    )
-    return code_submission_detail(
-        submission,
-        canonical_statuses.get(submission.submission_uuid),
-    )
+    return SubmissionRead.model_validate(submission)
 
 
 @router.get("/{activity_uuid}/analytics/{user_id}", response_model=StudentAnalytics)

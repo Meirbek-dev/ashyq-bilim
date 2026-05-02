@@ -4,6 +4,8 @@ import { apiFetch } from '@/lib/api-client';
 import { getAPIUrl } from '@services/config/config';
 import { queryOptions } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/react-query/queryKeys';
+import { mapCanonicalCodeSubmission, type CodeSubmission } from '@/services/courses/code-challenges';
+import type { Submission as GradingSubmission } from '@/features/grading/domain';
 
 async function fetchCodeChallengeJson<T>(url: string): Promise<T | null> {
   const response = await apiFetch(url);
@@ -25,7 +27,10 @@ export function codeChallengeSettingsQueryOptions<TSettings = unknown>(activityU
 export function codeChallengeSubmissionsQueryOptions<TSubmission = unknown>(activityUuid: string) {
   return queryOptions({
     queryKey: queryKeys.codeChallenges.submissions(activityUuid),
-    queryFn: () => fetchCodeChallengeJson<TSubmission[]>(`${getAPIUrl()}code-challenges/${activityUuid}/submissions`),
+    queryFn: async () => {
+      const raw = await fetchCodeChallengeJson<GradingSubmission[]>(`${getAPIUrl()}code-challenges/${activityUuid}/submissions`);
+      return raw ? raw.map(mapCanonicalCodeSubmission) : null;
+    },
     refetchOnWindowFocus: false,
   });
 }
@@ -33,7 +38,10 @@ export function codeChallengeSubmissionsQueryOptions<TSubmission = unknown>(acti
 export function codeChallengeSubmissionQueryOptions<TSubmission = unknown>(submissionUuid: string) {
   return queryOptions({
     queryKey: queryKeys.codeChallenges.submission(submissionUuid),
-    queryFn: () => fetchCodeChallengeJson<TSubmission>(`${getAPIUrl()}code-challenges/submissions/${submissionUuid}`),
+    queryFn: async () => {
+      const raw = await fetchCodeChallengeJson<GradingSubmission>(`${getAPIUrl()}code-challenges/submissions/${submissionUuid}`);
+      return raw ? mapCanonicalCodeSubmission(raw) : null;
+    },
     refetchOnWindowFocus: false,
   });
 }

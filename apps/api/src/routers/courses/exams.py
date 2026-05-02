@@ -4,14 +4,12 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile
 from sqlmodel import Session, select
-from ulid import ULID
 
 from src.auth.users import get_optional_public_user, get_public_user
 from src.db.assessments import Assessment
 from src.db.courses.exams import (
     AttemptStatusEnum,
     Exam,
-    ExamAttempt,
     ExamAttemptRead,
     ExamCreate,
     ExamCreateWithActivity,
@@ -25,7 +23,7 @@ from src.db.courses.exams import (
 )
 from src.db.courses.courses import Course
 from src.db.grading.submissions import AssessmentType, Submission, SubmissionStatus
-from src.db.users import AnonymousUser, PublicUser
+from src.db.users import AnonymousUser, PublicUser, User
 from src.infra.db.session import get_db_session
 from src.services.assessments.core import start_assessment
 from src.services.courses.activities.exams import (
@@ -35,9 +33,6 @@ from src.services.courses.activities.exams import (
     delete_exam,
     delete_question,
     export_questions_csv,
-    get_all_exam_attempts,
-    get_attempt_review_questions,
-    get_user_attempts,
     import_questions_csv,
     is_course_contributor_or_admin,
     read_exam,
@@ -120,6 +115,14 @@ def _submission_submitted_at_iso(submission: Submission) -> str | None:
     return submission.submitted_at.isoformat() if submission.submitted_at else None
 
 
+def _submission_creation_date_iso(submission: Submission) -> str:
+    return submission.created_at.isoformat()
+
+
+def _submission_update_date_iso(submission: Submission) -> str:
+    return submission.updated_at.isoformat()
+
+
 def _submitted_exam_answers(submission: Submission) -> dict[str, object]:
     payload = submission.answers_json if isinstance(submission.answers_json, dict) else {}
     answers = payload.get("submitted_answers", {})
@@ -149,7 +152,15 @@ def _question_order_from_submission(submission: Submission) -> list[int] | None:
 def _attempt_uuid_from_submission(submission: Submission) -> str | None:
     meta = submission.metadata_json if isinstance(submission.metadata_json, dict) else {}
     attempt_uuid = meta.get("attempt_uuid")
-    return attempt_uuid if isinstance(attempt_uuid, str) and attempt_uuid else None
+    if isinstance(attempt_uuid, str) and attempt_uuid:
+        return attempt_uuid
+
+    submission_uuid = submission.submission_uuid
+    if submission_uuid.startswith("submission_attempt_"):
+        return submission_uuid.removeprefix("submission_")
+    if submission_uuid.startswith("submission_"):
+        return f"attempt_{submission_uuid.removeprefix('submission_')}"
+    return None
 
 
 def _is_auto_submitted(submission: Submission) -> bool:
@@ -186,21 +197,6 @@ def _legacy_score_from_submission(submission: Submission, max_score: int) -> int
     return int(round((float(percent) / 100.0) * max_score))
 
 
-def _find_exam_attempt_mirror(submission: Submission, db_session: Session) -> ExamAttempt | None:
-    meta = submission.metadata_json if isinstance(submission.metadata_json, dict) else {}
-    attempt_id = meta.get("exam_attempt_id")
-    if isinstance(attempt_id, int):
-        attempt = db_session.get(ExamAttempt, attempt_id)
-        if attempt is not None:
-            return attempt
-    attempt_uuid = meta.get("attempt_uuid")
-    if isinstance(attempt_uuid, str) and attempt_uuid:
-        return db_session.exec(
-            select(ExamAttempt).where(ExamAttempt.attempt_uuid == attempt_uuid)
-        ).first()
-    return None
-
-
 def _find_exam_draft_submission(
     exam: Exam,
     user_id: int,
@@ -218,6 +214,41 @@ def _find_exam_draft_submission(
     for draft in drafts:
         if _attempt_uuid_from_submission(draft) == attempt_uuid:
             return draft
+    return None
+
+
+def _find_exam_submission_by_attempt_uuid(
+    attempt_uuid: str,
+    db_session: Session,
+    *,
+    exam: Exam | None = None,
+    user_id: int | None = None,
+) -> Submission | None:
+    candidate_submission_uuids = {
+        f"submission_{attempt_uuid}",
+    }
+    if attempt_uuid.startswith("attempt_"):
+        candidate_submission_uuids.add(
+            f"submission_{attempt_uuid.removeprefix('attempt_')}"
+        )
+
+    query = select(Submission).where(Submission.assessment_type == AssessmentType.EXAM)
+    if exam is not None:
+        query = query.where(Submission.activity_id == exam.activity_id)
+    if user_id is not None:
+        query = query.where(Submission.user_id == user_id)
+
+    direct = db_session.exec(
+        query.where(Submission.submission_uuid.in_(candidate_submission_uuids))
+    ).all()
+    for submission in direct:
+        if _attempt_uuid_from_submission(submission) == attempt_uuid:
+            return submission
+
+    scoped = db_session.exec(query.order_by(Submission.created_at.desc())).all()
+    for submission in scoped:
+        if _attempt_uuid_from_submission(submission) == attempt_uuid:
+            return submission
     return None
 
 
@@ -239,62 +270,107 @@ def _touch_exam_submission_metadata(
     }
 
 
-def _sync_exam_attempt_mirror(
+def _resolve_submission_question_order(
+    submission: Submission,
+    exam: Exam,
+    db_session: Session,
+) -> list[int]:
+    question_order = _question_order_from_submission(submission)
+    if question_order:
+        return question_order
+    return _build_exam_question_order(exam, db_session)
+
+
+def _build_attempt_read_from_submission(
     exam: Exam,
     submission: Submission,
     db_session: Session,
     *,
-    question_order: list[int],
     answers: dict[str, object] | None = None,
     violations: list[dict[str, object]] | None = None,
-    is_preview: bool = False,
-) -> ExamAttempt:
-    attempt = _find_exam_attempt_mirror(submission, db_session)
-    if attempt is None:
-        attempt = ExamAttempt(
-            attempt_uuid=_attempt_uuid_from_submission(submission) or f"attempt_{ULID()}",
-            exam_id=exam.id,
-            user_id=submission.user_id,
-            question_order=question_order,
-            answers={},
-            violations=[],
-            is_preview=is_preview,
-            started_at=_submission_started_at_iso(submission) or "",
-            creation_date=submission.created_at.isoformat(),
-            update_date=submission.updated_at.isoformat(),
-        )
-        db_session.add(attempt)
-        db_session.flush()
-
+) -> ExamAttemptRead:
+    question_order = _resolve_submission_question_order(submission, exam, db_session)
     max_score = _max_score_for_question_order(question_order, db_session)
-    attempt.question_order = question_order
-    attempt.answers = answers if isinstance(answers, dict) else _submitted_exam_answers(submission)
-    attempt.violations = violations if isinstance(violations, list) else _exam_violations(submission)
-    attempt.status = _legacy_attempt_status(submission)
-    attempt.score = _legacy_score_from_submission(submission, max_score)
-    attempt.max_score = max_score
-    attempt.is_preview = is_preview
-    attempt.started_at = _submission_started_at_iso(submission) or attempt.started_at
-    attempt.submitted_at = _submission_submitted_at_iso(submission)
-    attempt.update_date = submission.updated_at.isoformat()
-    if not attempt.creation_date:
-        attempt.creation_date = submission.created_at.isoformat()
-
-    db_session.add(attempt)
-    _touch_exam_submission_metadata(
-        submission,
-        attempt_uuid=attempt.attempt_uuid,
+    return ExamAttemptRead(
+        id=submission.id or 0,
+        attempt_uuid=_attempt_uuid_from_submission(submission) or submission.submission_uuid,
+        exam_id=exam.id,
+        user_id=submission.user_id,
+        status=_legacy_attempt_status(submission),
+        score=_legacy_score_from_submission(submission, max_score),
+        max_score=max_score,
+        answers=answers if isinstance(answers, dict) else _submitted_exam_answers(submission),
         question_order=question_order,
-        violations=attempt.violations or [],
-        auto_submitted=attempt.status == AttemptStatusEnum.AUTO_SUBMITTED,
+        violations=violations if isinstance(violations, list) else _exam_violations(submission),
+        is_preview=False,
+        started_at=_submission_started_at_iso(submission),
+        submitted_at=_submission_submitted_at_iso(submission),
+        creation_date=_submission_creation_date_iso(submission),
+        update_date=_submission_update_date_iso(submission),
     )
-    submission.metadata_json = {
-        **(submission.metadata_json if isinstance(submission.metadata_json, dict) else {}),
-        "exam_attempt_id": attempt.id,
+
+
+def _attempt_duration_seconds(submission: Submission) -> int | None:
+    if submission.started_at is None or submission.submitted_at is None:
+        return None
+    started_at = submission.started_at if submission.started_at.tzinfo else submission.started_at.replace(tzinfo=UTC)
+    submitted_at = submission.submitted_at if submission.submitted_at.tzinfo else submission.submitted_at.replace(tzinfo=UTC)
+    return max(0, int((submitted_at - started_at).total_seconds()))
+
+
+def _teacher_attempt_row(
+    submission: Submission,
+    exam: Exam,
+    user: User,
+    db_session: Session,
+) -> dict[str, object]:
+    attempt = _build_attempt_read_from_submission(exam, submission, db_session)
+    duration_seconds = _attempt_duration_seconds(submission)
+    return {
+        "attempt_uuid": attempt.attempt_uuid,
+        "user_id": user.id,
+        "user_name": (
+            f"{getattr(user, 'first_name', '')} {getattr(user, 'middle_name', '')} {getattr(user, 'last_name', '')}".replace(
+                "  ", " "
+            ).strip()
+        )
+        or user.username,
+        "user_email": user.email,
+        "started_at": attempt.started_at,
+        "finished_at": attempt.submitted_at,
+        "duration_minutes": int(duration_seconds / 60) if duration_seconds is not None else None,
+        "duration_seconds": duration_seconds,
+        "status": attempt.status,
+        "score": attempt.score,
+        "max_score": attempt.max_score,
+        "percentage": round(
+            (attempt.score / attempt.max_score * 100)
+            if attempt.score is not None and attempt.max_score and attempt.max_score > 0
+            else 0,
+            1,
+        ),
+        "violations": attempt.violations,
+        "violation_count": len(attempt.violations) if attempt.violations else 0,
     }
-    db_session.add(submission)
-    db_session.flush()
-    return attempt
+
+
+def _review_questions_for_submission(
+    submission: Submission,
+    exam: Exam,
+    db_session: Session,
+) -> list[QuestionRead]:
+    question_order = _resolve_submission_question_order(submission, exam, db_session)
+    if not question_order:
+        return []
+    questions = db_session.exec(
+        select(Question).where(Question.id.in_(question_order))
+    ).all()
+    questions_by_id = {question.id: question for question in questions}
+    return [
+        QuestionRead.model_validate(questions_by_id[question_id])
+        for question_id in question_order
+        if question_id in questions_by_id
+    ]
 
 
 def _append_violation(
@@ -347,6 +423,34 @@ async def _should_use_legacy_exam_flow(
 ) -> bool:
     course = _get_exam_course_or_404(exam, db_session)
     return await is_course_contributor_or_admin(current_user.id, course, db_session)
+
+
+async def _require_exam_review_access(
+    submission: Submission,
+    exam: Exam,
+    current_user: PublicUser,
+    db_session: Session,
+) -> None:
+    course = _get_exam_course_or_404(exam, db_session)
+    is_owner = submission.user_id == current_user.id
+    is_teacher = await is_course_contributor_or_admin(
+        current_user.id, course, db_session
+    ) or bool(course.creator_id and course.creator_id == current_user.id)
+    if not is_owner and not is_teacher:
+        raise HTTPException(
+            status_code=403, detail="Доступ к просмотру этой попытки запрещён"
+        )
+
+    if is_teacher:
+        return
+
+    settings = exam.settings if isinstance(exam.settings, dict) else {}
+    if submission.status == SubmissionStatus.DRAFT:
+        raise HTTPException(status_code=400, detail="Попытка ещё не отправлена")
+    if not settings.get("allow_result_review", False):
+        raise HTTPException(status_code=403, detail="Result review is disabled")
+    if not settings.get("show_correct_answers", False):
+        raise HTTPException(status_code=403, detail="Correct answer review is disabled")
 
 
 # Public endpoint to expose exam input limits to frontends
@@ -522,16 +626,17 @@ async def api_start_exam_attempt(
             raise HTTPException(status_code=404, detail="Submission draft not found")
 
         question_order = _question_order_from_submission(submission) or _build_exam_question_order(exam, db_session)
-        attempt = _sync_exam_attempt_mirror(
-            exam,
+        _touch_exam_submission_metadata(
             submission,
-            db_session,
+            attempt_uuid=_attempt_uuid_from_submission(submission) or submission.submission_uuid,
             question_order=question_order,
-            is_preview=False,
+            violations=_exam_violations(submission),
+            auto_submitted=False,
         )
+        db_session.add(submission)
         db_session.commit()
-        db_session.refresh(attempt)
-        return ExamAttemptRead.model_validate(attempt)
+        db_session.refresh(submission)
+        return _build_attempt_read_from_submission(exam, submission, db_session)
     return await start_exam_attempt(request, exam_uuid, current_user, db_session)
 
 
@@ -603,18 +708,23 @@ async def api_submit_exam_attempt(
         if canonical_submission is None:
             raise HTTPException(status_code=404, detail="Submitted exam not found")
 
-        attempt = _sync_exam_attempt_mirror(
+        _touch_exam_submission_metadata(
+            canonical_submission,
+            attempt_uuid=attempt_uuid,
+            question_order=question_order,
+            violations=next_violations,
+            auto_submitted=auto_submitted,
+        )
+        db_session.add(canonical_submission)
+        db_session.commit()
+        db_session.refresh(canonical_submission)
+        return _build_attempt_read_from_submission(
             exam,
             canonical_submission,
             db_session,
-            question_order=question_order,
             answers=answers,
             violations=next_violations,
-            is_preview=False,
         )
-        db_session.commit()
-        db_session.refresh(attempt)
-        return ExamAttemptRead.model_validate(attempt)
     body = await request.json()
     answers = body if isinstance(body, dict) else {}
     return await submit_exam_attempt(
@@ -704,31 +814,34 @@ async def api_record_violation(
             ).first()
             if canonical_submission is None:
                 raise HTTPException(status_code=404, detail="Submitted exam not found")
-            attempt = _sync_exam_attempt_mirror(
+            _touch_exam_submission_metadata(
+                canonical_submission,
+                attempt_uuid=attempt_uuid,
+                question_order=question_order,
+                violations=next_violations,
+                auto_submitted=True,
+            )
+            db_session.add(canonical_submission)
+            db_session.commit()
+            db_session.refresh(canonical_submission)
+            return _build_attempt_read_from_submission(
                 exam,
                 canonical_submission,
                 db_session,
-                question_order=question_order,
                 answers=next_answers,
                 violations=next_violations,
-                is_preview=False,
             )
-            db_session.commit()
-            db_session.refresh(attempt)
-            return ExamAttemptRead.model_validate(attempt)
 
-        attempt = _sync_exam_attempt_mirror(
+        db_session.add(submission)
+        db_session.commit()
+        db_session.refresh(submission)
+        return _build_attempt_read_from_submission(
             exam,
             submission,
             db_session,
-            question_order=question_order,
             answers=next_answers,
             violations=next_violations,
-            is_preview=False,
         )
-        db_session.commit()
-        db_session.refresh(attempt)
-        return ExamAttemptRead.model_validate(attempt)
     return await record_violation(
         request, attempt_uuid, violation_type, current_user, db_session, answers
     )
@@ -741,6 +854,30 @@ async def api_get_my_attempts(
     current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> list[ExamAttemptRead]:
+    assessment_uuid = _assessment_uuid_for_exam(exam_uuid, db_session)
+    if assessment_uuid:
+        exam = _get_exam_or_404(exam_uuid, db_session)
+        if await _should_use_legacy_exam_flow(exam, current_user, db_session):
+            from src.services.courses.activities.exams import get_user_attempts
+
+            return await get_user_attempts(request, exam_uuid, current_user, db_session)
+
+        submissions = db_session.exec(
+            select(Submission)
+            .where(
+                Submission.activity_id == exam.activity_id,
+                Submission.user_id == current_user.id,
+                Submission.assessment_type == AssessmentType.EXAM,
+            )
+            .order_by(Submission.created_at.desc())
+        ).all()
+        return [
+            _build_attempt_read_from_submission(exam, submission, db_session)
+            for submission in submissions
+        ]
+
+    from src.services.courses.activities.exams import get_user_attempts
+
     return await get_user_attempts(request, exam_uuid, current_user, db_session)
 
 
@@ -757,6 +894,16 @@ async def api_get_attempt_by_uuid(
     - Students can only access their own attempts
     - Teachers/admins can access any attempt for exams they manage
     """
+    submission = _find_exam_submission_by_attempt_uuid(attempt_uuid, db_session)
+    if submission is not None:
+        exam = db_session.exec(
+            select(Exam).where(Exam.activity_id == submission.activity_id)
+        ).first()
+        if exam is None:
+            raise HTTPException(status_code=404, detail="Тест не найден")
+        await _require_exam_review_access(submission, exam, current_user, db_session)
+        return _build_attempt_read_from_submission(exam, submission, db_session)
+
     from src.services.courses.activities.exams import get_attempt_by_uuid
 
     return await get_attempt_by_uuid(request, attempt_uuid, current_user, db_session)
@@ -769,6 +916,18 @@ async def api_get_attempt_review_questions(
     current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> list[QuestionRead]:
+    submission = _find_exam_submission_by_attempt_uuid(attempt_uuid, db_session)
+    if submission is not None:
+        exam = db_session.exec(
+            select(Exam).where(Exam.activity_id == submission.activity_id)
+        ).first()
+        if exam is None:
+            raise HTTPException(status_code=404, detail="Тест не найден")
+        await _require_exam_review_access(submission, exam, current_user, db_session)
+        return _review_questions_for_submission(submission, exam, db_session)
+
+    from src.services.courses.activities.exams import get_attempt_review_questions
+
     return await get_attempt_review_questions(
         request, attempt_uuid, current_user, db_session
     )
@@ -782,6 +941,33 @@ async def api_get_all_attempts(
     db_session: Annotated[Session, Depends(get_db_session)],
 ) -> list[dict]:
     """Get all exam attempts for teacher results dashboard"""
+    assessment_uuid = _assessment_uuid_for_exam(exam_uuid, db_session)
+    if assessment_uuid:
+        exam = _get_exam_or_404(exam_uuid, db_session)
+        course = _get_exam_course_or_404(exam, db_session)
+        is_contributor = await is_course_contributor_or_admin(
+            current_user.id, course, db_session
+        )
+        is_course_creator = bool(course.creator_id and course.creator_id == current_user.id)
+        if not is_contributor and not is_course_creator:
+            raise HTTPException(status_code=403, detail="Доступ запрещён")
+
+        rows = db_session.exec(
+            select(Submission, User)
+            .join(User, User.id == Submission.user_id)
+            .where(
+                Submission.activity_id == exam.activity_id,
+                Submission.assessment_type == AssessmentType.EXAM,
+            )
+            .order_by(Submission.started_at.desc(), Submission.created_at.desc())
+        ).all()
+        return [
+            _teacher_attempt_row(submission, exam, user, db_session)
+            for submission, user in rows
+        ]
+
+    from src.services.courses.activities.exams import get_all_exam_attempts
+
     return await get_all_exam_attempts(request, exam_uuid, current_user, db_session)
 
 
