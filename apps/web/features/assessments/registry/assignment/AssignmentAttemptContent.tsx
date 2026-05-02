@@ -213,21 +213,23 @@ function ItemAttemptRenderer({
   assessmentUuid: string;
   onChange: (answer: ItemAnswer) => void;
 }) {
-  if (item.kind === 'CHOICE') {
-    const choiceModule = getItemKindModule(item.body.multiple ? 'CHOICE_MULTIPLE' : 'CHOICE_SINGLE');
+  const body = item.body;
+
+  if (body.kind === 'CHOICE') {
+    const choiceModule = getItemKindModule(body.multiple ? 'CHOICE_MULTIPLE' : 'CHOICE_SINGLE');
     const ChoiceAttempt = choiceModule.Attempt;
     const choiceItem = {
       id: item.item_uuid,
-      kind: item.body.multiple ? 'CHOICE_MULTIPLE' : 'CHOICE_SINGLE',
-      prompt: item.body.prompt,
+      kind: body.multiple ? 'CHOICE_MULTIPLE' : 'CHOICE_SINGLE',
+      prompt: body.prompt,
       points: item.max_score,
-      options: item.body.options.map((option) => ({
+      options: body.options.map((option) => ({
         id: option.id,
         text: option.text,
         isCorrect: option.is_correct,
       })),
     };
-    const choiceAnswer = item.body.multiple ? answer?.kind === 'CHOICE' ? answer.selected : [] : answer?.kind === 'CHOICE' ? (answer.selected[0] ?? null) : null;
+    const choiceAnswer = body.multiple ? answer?.kind === 'CHOICE' ? answer.selected : [] : answer?.kind === 'CHOICE' ? (answer.selected[0] ?? null) : null;
     return (
       <ChoiceAttempt
         item={choiceItem}
@@ -245,10 +247,10 @@ function ItemAttemptRenderer({
     );
   }
 
-  if (item.kind === 'OPEN_TEXT') {
+  if (body.kind === 'OPEN_TEXT') {
     return (
       <div className="space-y-3">
-        {item.body.prompt ? <p className="text-sm">{item.body.prompt}</p> : null}
+        {body.prompt ? <p className="text-sm">{body.prompt}</p> : null}
         <Textarea
           value={answer?.kind === 'OPEN_TEXT' ? answer.text : ''}
           disabled={disabled}
@@ -259,17 +261,17 @@ function ItemAttemptRenderer({
     );
   }
 
-  if (item.kind === 'ASSIGNMENT_FILE') {
+  if (body.kind === 'ASSIGNMENT_FILE') {
     return (
       <FileUploadAttempt
         item={{
           taskUuid: item.item_uuid,
           assignmentUuid: assessmentUuid,
-          referenceFile: item.body.reference_file,
+          referenceFile: body.reference_file,
           constraints: normalizeFileUploadConstraints({
-            allowed_mime_types: item.body.allowed_mime_types,
-            max_file_size_mb: item.body.max_file_size_mb ?? null,
-            max_files: item.body.max_files,
+            allowed_mime_types: body.allowed_mime_types,
+            max_file_size_mb: body.max_file_size_mb ?? null,
+            max_files: body.max_files,
           }),
         }}
         answer={
@@ -290,11 +292,15 @@ function ItemAttemptRenderer({
     );
   }
 
-  if (item.kind === 'ASSIGNMENT_FORM') {
+  if (body.kind === 'ASSIGNMENT_FORM') {
     return (
       <FormItemAttempt
-        item={{ ...normalizeFormItem({ questions: item.body.questions }), taskUuid: item.item_uuid }}
-        answer={answer?.kind === 'ASSIGNMENT_FORM' ? answer : null}
+        item={{ ...normalizeFormItem({ questions: body.questions }), taskUuid: item.item_uuid }}
+        answer={
+          answer?.kind === 'ASSIGNMENT_FORM'
+            ? { content_type: 'form', form_data: answer.form_data ?? { answers: {} } }
+            : null
+        }
         disabled={disabled}
         onAnswerChange={(nextAnswer) =>
           onChange({
@@ -307,11 +313,11 @@ function ItemAttemptRenderer({
     );
   }
 
-  if (item.kind === 'ASSIGNMENT_OTHER') {
+  if (body.kind === 'ASSIGNMENT_OTHER') {
     return (
       <OpenTextAttempt
         item={{
-          ...normalizeOpenText({ body: item.body.body }),
+          ...normalizeOpenText({ body: body.body }),
           taskUuid: item.item_uuid,
         }}
         answer={
@@ -323,7 +329,7 @@ function ItemAttemptRenderer({
         onAnswerChange={(nextAnswer) =>
           onChange({
             kind: 'ASSIGNMENT_OTHER',
-            content_type: nextAnswer?.content_type === 'other' ? 'other' : 'text',
+            content_type: 'text',
             text_content: nextAnswer?.text ?? '',
           })
         }
@@ -331,16 +337,16 @@ function ItemAttemptRenderer({
     );
   }
 
-  if (item.kind === 'ASSIGNMENT_QUIZ') {
+  if (body.kind === 'ASSIGNMENT_QUIZ') {
     const normalizedAnswers = answer?.kind === 'ASSIGNMENT_QUIZ' ? answer.quiz_answers?.answers ?? {} : {};
 
-    if (item.body.questions.length === 0) {
+    if (body.questions.length === 0) {
       return <div className="text-muted-foreground rounded-md border border-dashed p-4 text-sm">No quiz questions.</div>;
     }
 
     return (
       <div className="space-y-4">
-        {item.body.questions.map((question, questionIndex) => {
+        {body.questions.map((question, questionIndex) => {
           const questionId = question.questionUUID || `question_${questionIndex}`;
           const choiceItem: ChoiceAttemptItem = {
             id: questionId,
@@ -384,7 +390,7 @@ function ItemAttemptRenderer({
     );
   }
 
-  if (item.kind === 'FILE_UPLOAD') {
+  if (body.kind === 'FILE_UPLOAD') {
     const uploadModule = getItemKindModule('FILE_UPLOAD');
     const FileUploadAttempt = uploadModule.Attempt;
     return (
@@ -394,9 +400,9 @@ function ItemAttemptRenderer({
           assignmentUuid: assessmentUuid,
           constraints: {
             kind: 'FILE_UPLOAD',
-            allowed_mime_types: item.body.mimes,
-            max_file_size_mb: item.body.max_mb ?? null,
-            max_files: item.body.max_files,
+            allowed_mime_types: body.mimes,
+            max_file_size_mb: body.max_mb ?? null,
+            max_files: body.max_files,
           },
         }}
         answer={answer?.kind === 'FILE_UPLOAD' ? answer : null}
@@ -411,12 +417,12 @@ function ItemAttemptRenderer({
     );
   }
 
-  if (item.kind === 'FORM') {
+  if (body.kind === 'FORM') {
     const currentValues = answer?.kind === 'FORM' ? answer.values : {};
     return (
       <div className="space-y-4">
-        {item.body.prompt ? <p className="text-sm">{item.body.prompt}</p> : null}
-        {item.body.fields.map((field, fieldIndex) => (
+        {body.prompt ? <p className="text-sm">{body.prompt}</p> : null}
+        {body.fields.map((field, fieldIndex) => (
           <div
             key={field.id}
             className="space-y-2"
@@ -464,8 +470,8 @@ function ItemAttemptRenderer({
     );
   }
 
-  if (item.kind === 'MATCHING') {
-    const rightOptions = item.body.pairs.map((pair) => pair.right);
+  if (body.kind === 'MATCHING') {
+    const rightOptions = body.pairs.map((pair) => pair.right);
     const currentMatches = new Map<string, string>(
       answer?.kind === 'MATCHING' ? answer.matches.map((pair) => [pair.left, pair.right]) : [],
     );
@@ -487,8 +493,8 @@ function ItemAttemptRenderer({
 
     return (
       <div className="space-y-3">
-        {item.body.prompt ? <p className="text-sm">{item.body.prompt}</p> : null}
-        {item.body.pairs.map((pair, pairIndex) => (
+        {body.prompt ? <p className="text-sm">{body.prompt}</p> : null}
+        {body.pairs.map((pair, pairIndex) => (
           <div
             key={`${pair.left}-${pairIndex}`}
             className="bg-background flex flex-col gap-3 rounded-md border p-3 sm:flex-row sm:items-center"
@@ -516,11 +522,11 @@ function ItemAttemptRenderer({
     );
   }
 
-  if (item.kind === 'CODE') {
-    const currentAnswer = answer?.kind === 'CODE' ? answer : { kind: 'CODE' as const, language: item.body.languages[0] ?? 71, source: '' };
+  if (body.kind === 'CODE') {
+    const currentAnswer = answer?.kind === 'CODE' ? answer : { kind: 'CODE' as const, language: body.languages[0] ?? 71, source: '', latest_run: undefined };
     return (
       <div className="space-y-4">
-        {item.body.prompt ? <p className="text-sm">{item.body.prompt}</p> : null}
+        {body.prompt ? <p className="text-sm">{body.prompt}</p> : null}
         <div className="space-y-2">
           <Label htmlFor={`${item.item_uuid}-language`}>Language</Label>
           <NativeSelect
@@ -536,7 +542,7 @@ function ItemAttemptRenderer({
               })
             }
           >
-            {item.body.languages.map((language) => (
+            {body.languages.map((language) => (
               <NativeSelectOption
                 key={language}
                 value={String(language)}

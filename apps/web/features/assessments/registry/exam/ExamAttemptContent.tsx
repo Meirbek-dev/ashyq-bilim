@@ -366,51 +366,50 @@ function ExamTakingContent({
 }
 
 function buildExamQuestions(items: AssessmentItem[]): QuestionData[] {
-  return items.flatMap((item) => {
-    if (item.kind === 'CHOICE') {
-      return [
-        {
-          id: item.item_uuid,
-          question_uuid: item.item_uuid,
-          question_text: item.body.prompt,
-          question_type:
-            item.body.variant === 'TRUE_FALSE'
-              ? 'TRUE_FALSE'
-              : item.body.multiple
-                ? 'MULTIPLE_CHOICE'
-                : 'SINGLE_CHOICE',
-          points: item.max_score,
-          explanation: item.body.explanation ?? undefined,
-          answer_options: item.body.options.map((option) => ({
-            text: option.text,
-            is_correct: option.is_correct,
-            option_id: option.id,
-          })),
-        },
-      ];
+  return items.reduce<QuestionData[]>((questions, item) => {
+    const body = item.body;
+
+    if (body.kind === 'CHOICE') {
+      questions.push({
+        id: item.item_uuid,
+        question_uuid: item.item_uuid,
+        question_text: body.prompt,
+        question_type:
+          body.variant === 'TRUE_FALSE'
+            ? 'TRUE_FALSE'
+            : body.multiple
+              ? 'MULTIPLE_CHOICE'
+              : 'SINGLE_CHOICE',
+        points: item.max_score,
+        explanation: body.explanation ?? undefined,
+        answer_options: body.options.map((option) => ({
+          text: option.text,
+          is_correct: option.is_correct,
+          option_id: option.id,
+        })),
+      });
+      return questions;
     }
 
-    if (item.kind === 'MATCHING') {
-      return [
-        {
-          id: item.item_uuid,
-          question_uuid: item.item_uuid,
-          question_text: item.body.prompt,
-          question_type: 'MATCHING',
-          points: item.max_score,
-          explanation: item.body.explanation ?? undefined,
-          answer_options: item.body.pairs.map((pair, index) => ({
-            text: '',
-            left: pair.left,
-            right: pair.right,
-            option_id: String(index),
-          })),
-        },
-      ];
+    if (body.kind === 'MATCHING') {
+      questions.push({
+        id: item.item_uuid,
+        question_uuid: item.item_uuid,
+        question_text: body.prompt,
+        question_type: 'MATCHING',
+        points: item.max_score,
+        explanation: body.explanation ?? undefined,
+        answer_options: body.pairs.map((pair, index) => ({
+          text: '',
+          left: pair.left,
+          right: pair.right,
+          option_id: String(index),
+        })),
+      });
     }
 
-    return [];
-  });
+    return questions;
+  }, []);
 }
 
 function toExamAnswer(question: QuestionData, answer: ItemAnswer): unknown {

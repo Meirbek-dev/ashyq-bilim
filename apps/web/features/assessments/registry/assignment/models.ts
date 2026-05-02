@@ -76,7 +76,7 @@ export function assessmentToAssignmentRead(assessment: AssessmentReadLike): Assi
 }
 
 export function assessmentItemToAssignmentTask(item: AssessmentItem): AssignmentTaskRead | null {
-  if (item.kind === 'ASSIGNMENT_FILE') {
+  if (item.body.kind === 'ASSIGNMENT_FILE') {
     return {
       id: item.id,
       assignment_task_uuid: item.item_uuid,
@@ -96,7 +96,7 @@ export function assessmentItemToAssignmentTask(item: AssessmentItem): Assignment
     };
   }
 
-  if (item.kind === 'ASSIGNMENT_QUIZ') {
+  if (item.body.kind === 'ASSIGNMENT_QUIZ') {
     return {
       id: item.id,
       assignment_task_uuid: item.item_uuid,
@@ -114,7 +114,7 @@ export function assessmentItemToAssignmentTask(item: AssessmentItem): Assignment
     };
   }
 
-  if (item.kind === 'ASSIGNMENT_FORM') {
+  if (item.body.kind === 'ASSIGNMENT_FORM') {
     return {
       id: item.id,
       assignment_task_uuid: item.item_uuid,
@@ -131,7 +131,7 @@ export function assessmentItemToAssignmentTask(item: AssessmentItem): Assignment
     };
   }
 
-  if (item.kind === 'ASSIGNMENT_OTHER') {
+  if (item.body.kind === 'ASSIGNMENT_OTHER') {
     return {
       id: item.id,
       assignment_task_uuid: item.item_uuid,

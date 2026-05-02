@@ -7,14 +7,7 @@
  *   - Exam.published: boolean — must migrate to this enum
  *   - Code-challenge (no lifecycle today) — starts at DRAFT
  */
-
-import type { components } from '@/lib/api/generated/schema';
-
-/**
- * Canonical lifecycle enum. Mirrors AssignmentStatus from the OpenAPI schema.
- * Exams and code challenges will adopt this once their backends are updated.
- */
-export type AssessmentLifecycle = components['schemas']['AssignmentStatus'];
+export type AssessmentLifecycle = 'DRAFT' | 'SCHEDULED' | 'PUBLISHED' | 'ARCHIVED';
 
 export const LIFECYCLE_LABELS: Record<AssessmentLifecycle, string> = {
   DRAFT: 'Draft',
@@ -54,5 +47,5 @@ export function canArchive(lifecycle: AssessmentLifecycle): boolean {
 }
 
 export function canTransitionLifecycle(from: AssessmentLifecycle, to: AssessmentLifecycle): boolean {
-  return LIFECYCLE_ALLOWED_TRANSITIONS[from].includes(to);
+  return (LIFECYCLE_ALLOWED_TRANSITIONS[from] ?? []).includes(to);
 }

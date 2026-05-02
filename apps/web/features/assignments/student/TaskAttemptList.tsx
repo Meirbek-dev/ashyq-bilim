@@ -141,9 +141,23 @@ function AssignmentTaskAttempt({
         referenceFile: task.reference_file,
         constraints: normalizeFileUploadConstraints(task.contents),
       }}
-      answer={answer as { content_type?: 'file'; file_key?: string | null } | null}
+      answer={
+        answer
+          ? {
+              kind: 'FILE_UPLOAD',
+              uploads: answer.uploads ?? (answer.file_key ? [{ upload_uuid: answer.file_key }] : []),
+            }
+          : null
+      }
       disabled={disabled}
-      onAnswerChange={(nextAnswer) => onAnswerChange(nextAnswer as AssignmentTaskAnswer)}
+      onAnswerChange={(nextAnswer) =>
+        onAnswerChange({
+          task_uuid: task.assignment_task_uuid,
+          content_type: 'file',
+          uploads: nextAnswer?.uploads ?? [],
+          file_key: nextAnswer?.uploads?.[0]?.upload_uuid ?? null,
+        })
+      }
     />
   );
 }

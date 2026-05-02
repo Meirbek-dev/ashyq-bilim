@@ -37,7 +37,7 @@ export const ASSIGNMENT_ALLOWED_TRANSITIONS: Record<AssignmentStatus, Assignment
 };
 
 export function canTransitionAssignment(from: AssignmentStatus, to: AssignmentStatus): boolean {
-  return ASSIGNMENT_ALLOWED_TRANSITIONS[from].includes(to);
+  return (ASSIGNMENT_ALLOWED_TRANSITIONS[from] ?? []).includes(to);
 }
 
 export function isAssignmentEditable(status: AssignmentStatus): boolean {
