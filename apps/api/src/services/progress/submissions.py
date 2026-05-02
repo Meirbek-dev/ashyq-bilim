@@ -401,9 +401,94 @@ def sync_exam_attempt(
     return submission
 
 
+def sync_code_challenge_submission(
+    code_sub: object,
+    db_session: Session,
+    *,
+    commit: bool = True,
+) -> Submission:
+    """Mirror a legacy CodeSubmission row into the canonical Submission table.
+
+    Builds a typed ``SubmissionMetadata`` / ``CodeRunRecord`` payload so the
+    unified grading UI can read run-level details without touching the legacy
+    ``code_submission`` table.
+    """
+    from datetime import UTC
+
+    from src.db.courses.code_challenges import SubmissionStatus as LegacyStatus
+    from src.db.grading.submissions import SubmissionMetadata, CodeRunRecord
+
+    sub_uuid: str = getattr(code_sub, "submission_uuid", "")
+    activity_id: int = getattr(code_sub, "activity_id", 0)
+    user_id: int = getattr(code_sub, "user_id", 0)
+    legacy_status_val = getattr(code_sub, "status", LegacyStatus.PENDING)
+    legacy_status = (
+        LegacyStatus(legacy_status_val)
+        if not isinstance(legacy_status_val, LegacyStatus)
+        else legacy_status_val
+    )
+
+    if legacy_status in {LegacyStatus.PENDING, LegacyStatus.PROCESSING, LegacyStatus.PENDING_JUDGE0}:
+        canonical_status = SubmissionStatus.PENDING
+    elif legacy_status == LegacyStatus.FAILED:
+        canonical_status = SubmissionStatus.GRADED  # treat as graded with 0 score
+    else:
+        canonical_status = SubmissionStatus.GRADED
+
+    test_results_raw: dict = getattr(code_sub, "test_results", {}) or {}
+    raw_results: list[dict] = test_results_raw.get("results", [])
+
+    run_record = CodeRunRecord(
+        run_id=sub_uuid,
+        language_id=getattr(code_sub, "language_id", 0),
+        status=str(legacy_status_val),
+        passed=getattr(code_sub, "passed_tests", 0),
+        total=getattr(code_sub, "total_tests", 0),
+        score=float(getattr(code_sub, "score", 0.0)),
+        time=(getattr(code_sub, "execution_time_ms", None) or 0) / 1000.0 or None,
+        memory=int(getattr(code_sub, "memory_kb", None) or 0) or None,
+        details=raw_results,
+    )
+
+    submission = _get_or_create_mirror_submission(
+        submission_uuid=sub_uuid,
+        activity_id=activity_id,
+        user_id=user_id,
+        assessment_type=AssessmentType.CODE_CHALLENGE,
+        db_session=db_session,
+    )
+
+    # Preserve existing metadata; upsert the latest run
+    existing_meta = SubmissionMetadata.model_validate(
+        submission.metadata_json or {}
+    ) if submission.metadata_json else SubmissionMetadata()
+    # Replace matching run by run_id if already present, else append
+    runs = [r for r in existing_meta.runs if r.run_id != run_record.run_id]
+    runs.append(run_record)
+    updated_meta = existing_meta.model_copy(
+        update={"latest_run": run_record, "runs": runs}
+    )
+
+    submission.status = canonical_status
+    submission.answers_json = {
+        "language_id": getattr(code_sub, "language_id", 0),
+        "language_name": getattr(code_sub, "language_name", ""),
+    }
+    submission.metadata_json = updated_meta.model_dump()
+    submission.auto_score = float(getattr(code_sub, "score", 0.0))
+    submission.final_score = (
+        float(code_sub.score)
+        if canonical_status == SubmissionStatus.GRADED
+        else None
+    )
+
+    _save_mirror_submission(submission, db_session, commit=commit)
+    return submission
+
+
 def sync_exam_policy(exam: object, db_session: Session, *, commit: bool = True) -> None:
     """Ensure an AssessmentPolicy exists for the given exam."""
-    # We use object as type for exam to avoid circular imports, 
+    # We use object as type for exam to avoid circular imports,
     # but we expect it to have an activity_id.
     activity_id = getattr(exam, "activity_id", None)
     if activity_id is None:

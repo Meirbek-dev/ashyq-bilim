@@ -2,8 +2,9 @@
 
 from datetime import UTC, datetime
 from enum import StrEnum
+from typing import Annotated, Literal
 
-from pydantic import ConfigDict, field_validator
+from pydantic import ConfigDict, Field as PydanticField, TypeAdapter, field_validator
 from sqlalchemy import (
     JSON,
     Boolean,
@@ -20,7 +21,39 @@ from sqlalchemy import (
 from sqlmodel import Field
 
 from src.db.grading.submissions import AssessmentType
-from src.db.strict_base_model import SQLModelStrictBaseModel
+from src.db.strict_base_model import PydanticStrictBaseModel, SQLModelStrictBaseModel
+
+
+# ── Late policy discriminated union ────────────────────────────────────────────
+
+
+class LatePolicyNone(PydanticStrictBaseModel):
+    """No late penalty — submissions accepted without penalty regardless of due date."""
+
+    kind: Literal["NONE"] = "NONE"
+
+
+class LatePolicyPenalty(PydanticStrictBaseModel):
+    """Percentage deducted per day, up to a maximum number of days."""
+
+    kind: Literal["PENALTY"] = "PENALTY"
+    percent_per_day: float = PydanticField(ge=0, le=100)
+    max_days: int = PydanticField(ge=1)
+
+
+class LatePolicyCutoff(PydanticStrictBaseModel):
+    """Submissions are rejected after this cutoff timestamp."""
+
+    kind: Literal["CUTOFF"] = "CUTOFF"
+    cutoff_at: datetime
+
+
+type LatePolicy = Annotated[
+    LatePolicyNone | LatePolicyPenalty | LatePolicyCutoff,
+    PydanticField(discriminator="kind"),
+]
+
+LATE_POLICY_ADAPTER: TypeAdapter[LatePolicy] = TypeAdapter(LatePolicy)
 
 
 class AssessmentGradingMode(StrEnum):

@@ -87,5 +87,6 @@ export function UnsupportedItemReview({ answer }: ItemReviewDetailProps): ReactN
 import './choice';
 import './file-upload';
 import './form';
+import './matching';
 import './open-text';
 import './code';

@@ -40,6 +40,13 @@ class Upload(SQLModelStrictBaseModel, table=True):
         default=UploadStatus.CREATED,
         sa_column=Column("status", String, nullable=False, server_default="CREATED"),
     )
+    # Number of Submission rows that reference this upload via answers_json.
+    # Incremented on submission save; drives the orphan reaper (nightly cron
+    # deletes FINALIZED rows where referenced_count=0 and finalized_at < now-24h).
+    referenced_count: int = SQLField(
+        default=0,
+        sa_column=Column("referenced_count", Integer, nullable=False, server_default="0"),
+    )
     expires_at: datetime = SQLField(
         default_factory=lambda: datetime.now(UTC) + timedelta(hours=24),
         sa_column=Column(DateTime(timezone=True), nullable=False),

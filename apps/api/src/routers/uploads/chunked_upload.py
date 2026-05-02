@@ -84,15 +84,18 @@ def _owned_upload(upload_id: str, user_id: int, db_session: Session) -> Upload:
     return upload
 
 
-def _upload_key(upload: Upload, sha256: str) -> tuple[str, str]:
+def _upload_key(upload: Upload, sha256: str, user_uuid: str) -> str:
+    """Return the PII-free object-storage key for a finalised upload.
+
+    Format: uploads/{user_uuid}/{yyyy}/{mm}/{upload_id}/{sha256}.{ext}
+    The user's email is never embedded in the key.
+    """
     suffix = Path(upload.filename).suffix.lower()
     if not suffix:
         suffix = ".bin"
     year = upload.created_at.strftime("%Y")
     month = upload.created_at.strftime("%m")
-    directory = f"uploads/{year}/{month}/{upload.upload_id}"
-    filename = f"{sha256}{suffix}"
-    return directory, filename
+    return f"uploads/{user_uuid}/{year}/{month}/{upload.upload_id}/{sha256}{suffix}"
 
 
 @router.post("", response_model=UploadCreateResponse)
@@ -170,14 +173,16 @@ async def finalize_assessment_upload(
     if sha256.lower() != payload.sha256.lower():
         raise HTTPException(status_code=422, detail="Upload sha256 mismatch")
 
-    directory, filename = _upload_key(upload, sha256)
     user_uuid = current_user.user_uuid or str(current_user.id)
+    key = _upload_key(upload, sha256, user_uuid)
+    # Split key into directory + filename for the upload_content helper
+    key_parts = key.rsplit("/", 1)
     await upload_content(
-        directory=directory,
+        directory=key_parts[0],
         type_of_dir="users",
         uuid=user_uuid,
         file_binary=content,
-        file_and_format=filename,
+        file_and_format=key_parts[1],
         allowed_formats=None,
     )
 
@@ -185,7 +190,7 @@ async def finalize_assessment_upload(
     upload.sha256 = sha256
     upload.content_type = payload.content_type or upload.content_type
     upload.size = len(content)
-    upload.key = f"users/{user_uuid}/{directory}/{filename}"
+    upload.key = key
     upload.finalized_at = datetime.now(UTC)
     upload.updated_at = upload.finalized_at
     db_session.add(upload)
@@ -193,6 +198,49 @@ async def finalize_assessment_upload(
     db_session.refresh(upload)
     temp_path.unlink(missing_ok=True)
     return UploadRead.model_validate(upload)
+
+
+@router.delete("/{upload_id}", status_code=204)
+async def delete_assessment_upload(
+    upload_id: str,
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
+    db_session: Annotated[Session, Depends(get_db_session)],
+) -> None:
+    """Cancel and delete an upload that has not yet been referenced by a submission."""
+    upload = _owned_upload(upload_id, current_user.id, db_session)
+    if upload.referenced_count > 0:
+        raise HTTPException(
+            status_code=409,
+            detail="Upload is referenced by a submission and cannot be deleted",
+        )
+    upload.status = UploadStatus.CANCELLED
+    upload.updated_at = datetime.now(UTC)
+    db_session.add(upload)
+    db_session.commit()
+
+
+class UploadUrlResponse(PydanticStrictBaseModel):
+    upload_id: str
+    get_url: str
+    expires_at: datetime
+
+
+@router.get("/{upload_id}/url", response_model=UploadUrlResponse)
+async def get_assessment_upload_url(
+    upload_id: str,
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
+    db_session: Annotated[Session, Depends(get_db_session)],
+    request: Request,
+) -> UploadUrlResponse:
+    """Return a short-lived signed URL to read a finalised upload."""
+    upload = _owned_upload(upload_id, current_user.id, db_session)
+    if upload.status != UploadStatus.FINALIZED:
+        raise HTTPException(status_code=409, detail="Upload is not finalised")
+    # In development / without a real object-store, return the finalize URL as a
+    # placeholder.  In production this would be replaced with a presigned S3 GET URL.
+    get_url = str(request.url_for("put_assessment_upload_bytes", upload_id=upload_id))
+    expires_at = datetime.now(UTC) + timedelta(hours=1)
+    return UploadUrlResponse(upload_id=upload_id, get_url=get_url, expires_at=expires_at)
 
 
 @router.post("/initiate", response_model=ChunkedUploadInitiateResponse)

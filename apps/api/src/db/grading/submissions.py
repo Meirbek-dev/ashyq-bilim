@@ -23,6 +23,56 @@ from sqlmodel import Field as SQLField
 from src.db.strict_base_model import PydanticStrictBaseModel, SQLModelStrictBaseModel
 
 
+# ── Submission metadata sub-shapes ────────────────────────────────────────────
+
+
+class CodeRunRecord(PydanticStrictBaseModel):
+    """Result of a single Judge0 run (non-finalising)."""
+
+    run_id: str
+    language_id: int
+    status: str = ""
+    passed: int = 0
+    total: int = 0
+    score: float | None = None
+    stdout: str | None = None
+    stderr: str | None = None
+    time: float | None = None
+    memory: int | None = None
+    details: list[dict] = Field(default_factory=list)
+    created_at: datetime | None = None
+
+
+class AntiCheatViolation(PydanticStrictBaseModel):
+    """A single anti-cheat event logged during an attempt."""
+
+    kind: str  # e.g. "TAB_SWITCH", "COPY_PASTE", "FULLSCREEN_EXIT"
+    occurred_at: datetime
+    count: int = 1
+
+
+class PlagiarismScore(PydanticStrictBaseModel):
+    """Plagiarism detection result for a CODE submission."""
+
+    score: float  # 0–1 similarity score
+    checked_at: datetime
+    flagged: bool = False
+    details: dict = Field(default_factory=dict)
+
+
+class SubmissionMetadata(PydanticStrictBaseModel):
+    """Typed sub-shapes carved out of Submission.metadata_json."""
+
+    # Latest visible-test run result (overwritten on each Run click; never finalised)
+    latest_run: CodeRunRecord | None = None
+    # Full run history (append-only; populated on Submit for CODE kind)
+    runs: list[CodeRunRecord] = Field(default_factory=list)
+    # Anti-cheat events logged during the attempt
+    violations: list[AntiCheatViolation] = Field(default_factory=list)
+    # Plagiarism detection outcome (populated post-submit by background task)
+    plagiarism: PlagiarismScore | None = None
+
+
 class SubmissionStatus(StrEnum):
     DRAFT = "DRAFT"  # student is working, not yet submitted
     PENDING = "PENDING"  # submitted, awaiting teacher grading
