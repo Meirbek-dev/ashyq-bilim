@@ -15,6 +15,7 @@ from src.db.assessments import Assessment
 from src.db.courses.activities import Activity, ActivityTypeEnum
 from src.db.courses.blocks import Block, BlockTypeEnum
 from src.db.courses.courses import Course
+from src.db.courses.exams import AttemptStatusEnum, Exam, ExamAttempt
 from src.db.courses.quiz import QuizAttempt
 from src.db.grading.progress import (
     ActivityProgress,
@@ -343,6 +344,58 @@ def sync_quiz_attempt(
     submission.graded_at = None if manual_review else _coerce_datetime(attempt.end_ts)
     submission.created_at = _coerce_datetime(attempt.creation_date) or datetime.now(UTC)
     submission.updated_at = _coerce_datetime(attempt.update_date) or datetime.now(UTC)
+
+    _save_mirror_submission(submission, db_session, commit=commit)
+    return submission
+
+
+def sync_exam_attempt(
+    attempt: ExamAttempt,
+    db_session: Session,
+    *,
+    commit: bool = True,
+) -> Submission:
+    exam = db_session.get(Exam, attempt.exam_id)
+    if not exam:
+        raise ValueError(f"Exam {attempt.exam_id} not found")
+
+    status_val = _enum_value(attempt.status)
+    if status_val == AttemptStatusEnum.IN_PROGRESS.value:
+        status = SubmissionStatus.DRAFT
+    elif status_val in {
+        AttemptStatusEnum.SUBMITTED.value,
+        AttemptStatusEnum.AUTO_SUBMITTED.value,
+    }:
+        status = SubmissionStatus.GRADED
+    else:
+        status = SubmissionStatus.DRAFT
+
+    submission = _get_or_create_mirror_submission(
+        submission_uuid=f"submission_{attempt.attempt_uuid}",
+        activity_id=exam.activity_id,
+        user_id=attempt.user_id,
+        assessment_type=AssessmentType.EXAM,
+        db_session=db_session,
+    )
+
+    submission.status = status
+    submission.answers_json = attempt.answers or {}
+    submission.metadata_json = {
+        **(submission.metadata_json or {}),
+        "exam_attempt_id": attempt.id,
+        "attempt_uuid": attempt.attempt_uuid,
+    }
+    submission.auto_score = float(attempt.score or 0)
+    submission.final_score = (
+        float(attempt.score) if attempt.score is not None else None
+    )
+    submission.started_at = _coerce_datetime(attempt.started_at)
+    submission.submitted_at = _coerce_datetime(attempt.submitted_at)
+    submission.graded_at = (
+        _coerce_datetime(attempt.submitted_at)
+        if status == SubmissionStatus.GRADED
+        else None
+    )
 
     _save_mirror_submission(submission, db_session, commit=commit)
     return submission

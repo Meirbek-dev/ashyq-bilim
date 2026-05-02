@@ -189,7 +189,12 @@ async def read_exam_from_activity_uuid(
     db_session: Session,
 ) -> ExamRead:
     """Read an exam by activity UUID"""
-    statement = select(Activity).where(Activity.activity_uuid == activity_uuid)
+    normalized_uuid = (
+        activity_uuid
+        if activity_uuid.startswith("activity_")
+        else f"activity_{activity_uuid}"
+    )
+    statement = select(Activity).where(Activity.activity_uuid == normalized_uuid)
     activity = db_session.exec(statement).first()
 
     if not activity:

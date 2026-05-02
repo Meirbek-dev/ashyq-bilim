@@ -31,7 +31,7 @@ _PYDANTIC_CONFIG: ConfigDict = ConfigDict(
     # 2. Catch mutations to nested Pydantic models (Heavy performance hit, perfect for dev)
     revalidate_instances="always" if _dev else "never",
     # 3. Catch unresolvable ForwardRefs and schema bugs at import time, not runtime
-    defer_build=not _dev,
+    defer_build=False,
 )
 
 _SQLMODEL_CONFIG: ConfigDict = ConfigDict(
@@ -44,7 +44,7 @@ _SQLMODEL_CONFIG: ConfigDict = ConfigDict(
     validate_default=_dev,
     # Catch stray kwargs passed into DB models before they hit SQLAlchemy
     # extra="forbid" if _dev else "ignore",
-    defer_build=not _dev,
+    defer_build=False,
 )
 
 
