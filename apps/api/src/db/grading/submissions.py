@@ -63,6 +63,8 @@ class PlagiarismScore(PydanticStrictBaseModel):
 class SubmissionMetadata(PydanticStrictBaseModel):
     """Typed sub-shapes carved out of Submission.metadata_json."""
 
+    model_config = ConfigDict(extra="allow")
+
     # Latest visible-test run result (overwritten on each Run click; never finalised)
     latest_run: CodeRunRecord | None = None
     # Full run history (append-only; populated on Submit for CODE kind)
@@ -71,6 +73,30 @@ class SubmissionMetadata(PydanticStrictBaseModel):
     violations: list[AntiCheatViolation] = Field(default_factory=list)
     # Plagiarism detection outcome (populated post-submit by background task)
     plagiarism: PlagiarismScore | None = None
+
+
+def normalize_submission_metadata(value: object) -> dict[str, Any]:
+    """Validate typed metadata sub-shapes while preserving compatibility keys."""
+
+    if isinstance(value, SubmissionMetadata):
+        return value.model_dump(mode="json", exclude_none=True)
+    if isinstance(value, dict):
+        return SubmissionMetadata.model_validate(value).model_dump(
+            mode="json",
+            exclude_none=True,
+        )
+    return SubmissionMetadata().model_dump(mode="json", exclude_none=True)
+
+
+def merge_submission_metadata(
+    existing: object,
+    **updates: object,
+) -> dict[str, Any]:
+    merged = {
+        **normalize_submission_metadata(existing),
+        **{key: value for key, value in updates.items() if value is not None},
+    }
+    return normalize_submission_metadata(merged)
 
 
 class SubmissionStatus(StrEnum):
@@ -249,6 +275,11 @@ class SubmissionRead(SubmissionBase):
             return GradingBreakdown(**v) if v else GradingBreakdown()
         return v
 
+    @field_validator("metadata_json", mode="before")
+    @classmethod
+    def coerce_metadata_json(cls, value: object) -> object:
+        return normalize_submission_metadata(value)
+
 
 class SubmissionUpdate(SQLModelStrictBaseModel):
     """Partial update model for a submission (teacher grading)."""
@@ -394,6 +425,11 @@ class Submission(SubmissionBase, table=True):
         default=1,
         sa_column=Column("version", Integer, nullable=False, server_default="1"),
     )
+
+    @field_validator("metadata_json", mode="before")
+    @classmethod
+    def validate_metadata_json(cls, value: object) -> object:
+        return normalize_submission_metadata(value)
 
 
 # ── Paginated response ────────────────────────────────────────────────────────

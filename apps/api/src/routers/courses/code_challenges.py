@@ -44,8 +44,11 @@ from src.db.courses.code_challenges import (
 from src.db.courses.courses import Course
 from src.db.grading.submissions import (
     AssessmentType,
+    CodeRunRecord,
     Submission,
     SubmissionRead,
+    merge_submission_metadata,
+    normalize_submission_metadata,
 )
 from src.db.grading.submissions import (
     SubmissionStatus as GradingSubmissionStatus,
@@ -189,16 +192,12 @@ def _set_canonical_code_submission_pending(
         "source_code": source_code,
         "code_submission_uuid": submission_uuid,
     }
-    canonical_submission.metadata_json = {
-        **(
-            canonical_submission.metadata_json
-            if isinstance(canonical_submission.metadata_json, dict)
-            else {}
-        ),
-        "code_submission_uuid": submission_uuid,
-        "ledger_table": "code_submission",
-        "judge0_state": SubmissionStatus.PENDING,
-    }
+    canonical_submission.metadata_json = merge_submission_metadata(
+        canonical_submission.metadata_json,
+        code_submission_uuid=submission_uuid,
+        ledger_table="code_submission",
+        judge0_state=SubmissionStatus.PENDING,
+    )
     canonical_submission.submitted_at = submitted_at
     canonical_submission.updated_at = submitted_at
 
@@ -229,16 +228,11 @@ def _set_canonical_code_submission_state(
     if grading_json is not None:
         canonical_submission.grading_json = grading_json
 
-    merged_meta = (
-        canonical_submission.metadata_json
-        if isinstance(canonical_submission.metadata_json, dict)
-        else {}
-    )
-    canonical_submission.metadata_json = {
-        **merged_meta,
-        "judge0_state": judge0_state,
+    canonical_submission.metadata_json = merge_submission_metadata(
+        canonical_submission.metadata_json,
+        judge0_state=judge0_state,
         **(metadata_update or {}),
-    }
+    )
     canonical_submission.updated_at = now
     if graded:
         canonical_submission.graded_at = now
@@ -266,21 +260,17 @@ def _finalize_canonical_code_submission(
     if canonical_submission is None:
         return None
 
-    run_record = {
-        "run_id": submission.submission_uuid,
-        "language_id": language_id,
-        "status": SubmissionStatus.COMPLETED,
-        "score": score,
-        "passed": passed_tests,
-        "total": len(test_cases),
-        "details": [result.model_dump() for result in results],
-        "created_at": datetime.now(UTC).isoformat(),
-    }
-    existing_meta = (
-        canonical_submission.metadata_json
-        if isinstance(canonical_submission.metadata_json, dict)
-        else {}
-    )
+    run_record = CodeRunRecord(
+        run_id=submission.submission_uuid,
+        language_id=language_id,
+        status=SubmissionStatus.COMPLETED,
+        score=score,
+        passed=passed_tests,
+        total=len(test_cases),
+        details=[result.model_dump() for result in results],
+        created_at=datetime.now(UTC),
+    ).model_dump(mode="json", exclude_none=True)
+    existing_meta = normalize_submission_metadata(canonical_submission.metadata_json)
     runs = existing_meta.get("runs", [])
     if not isinstance(runs, list):
         runs = []
@@ -593,14 +583,10 @@ async def submit_code_challenge(
     db_session.add(canonical_submission)
     db_session.add(code_submission)
     db_session.flush()
-    canonical_submission.metadata_json = {
-        **(
-            canonical_submission.metadata_json
-            if isinstance(canonical_submission.metadata_json, dict)
-            else {}
-        ),
-        "code_submission_id": code_submission.id,
-    }
+    canonical_submission.metadata_json = merge_submission_metadata(
+        canonical_submission.metadata_json,
+        code_submission_id=code_submission.id,
+    )
     db_session.commit()
     db_session.refresh(code_submission)
     progress_submissions.sync_code_challenge_submission(code_submission, db_session)

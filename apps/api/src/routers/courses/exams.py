@@ -22,7 +22,12 @@ from src.db.courses.exams import (
     QuestionUpdate,
 )
 from src.db.courses.courses import Course
-from src.db.grading.submissions import AssessmentType, Submission, SubmissionStatus
+from src.db.grading.submissions import (
+    AssessmentType,
+    Submission,
+    SubmissionStatus,
+    merge_submission_metadata,
+)
 from src.db.users import AnonymousUser, PublicUser, User
 from src.infra.db.session import get_db_session
 from src.services.assessments.core import start_assessment
@@ -260,14 +265,13 @@ def _touch_exam_submission_metadata(
     violations: list[dict[str, object]],
     auto_submitted: bool,
 ) -> None:
-    meta = submission.metadata_json if isinstance(submission.metadata_json, dict) else {}
-    submission.metadata_json = {
-        **meta,
-        "attempt_uuid": attempt_uuid,
-        "question_order": question_order,
-        "violations": violations,
-        "auto_submitted": auto_submitted,
-    }
+    submission.metadata_json = merge_submission_metadata(
+        submission.metadata_json,
+        attempt_uuid=attempt_uuid,
+        question_order=question_order,
+        violations=violations,
+        auto_submitted=auto_submitted,
+    )
 
 
 def _resolve_submission_question_order(
@@ -792,10 +796,10 @@ async def api_record_violation(
         settings = load_activity_settings(exam.activity_id, AssessmentType.EXAM, db_session)
         threshold = exam.settings.get("violation_threshold") if isinstance(exam.settings, dict) else None
         if isinstance(threshold, int) and threshold > 0 and len(next_violations) >= threshold:
-            submission.metadata_json = {
-                **(submission.metadata_json if isinstance(submission.metadata_json, dict) else {}),
-                "auto_submitted": True,
-            }
+            submission.metadata_json = merge_submission_metadata(
+                submission.metadata_json,
+                auto_submitted=True,
+            )
             db_session.add(submission)
             db_session.flush()
             canonical = await submit_assessment_pipeline(

@@ -24,6 +24,52 @@ export type TeacherAction = components['schemas']['TeacherAction'];
 
 export type ReleaseState = 'HIDDEN' | 'AWAITING_RELEASE' | 'VISIBLE' | 'RETURNED_FOR_REVISION';
 
+export interface CodeRunRecord {
+  run_id: string;
+  language_id: number;
+  status?: string;
+  passed?: number;
+  total?: number;
+  score?: number | null;
+  stdout?: string | null;
+  stderr?: string | null;
+  time?: number | null;
+  memory?: number | null;
+  details?: unknown[];
+  created_at?: string | null;
+}
+
+export interface AntiCheatViolation {
+  kind: string;
+  occurred_at: string;
+  count?: number;
+}
+
+export interface PlagiarismScore {
+  score: number;
+  checked_at: string;
+  flagged?: boolean;
+  details?: Record<string, unknown>;
+}
+
+export interface SubmissionMetadata {
+  latest_run?: CodeRunRecord | null;
+  runs?: CodeRunRecord[];
+  violations?: AntiCheatViolation[];
+  plagiarism?: PlagiarismScore | null;
+  [key: string]: unknown;
+}
+
+export function getSubmissionMetadata(submission: Pick<Submission, 'metadata_json'>): SubmissionMetadata {
+  const raw = submission.metadata_json;
+  return raw && typeof raw === 'object' ? (raw as SubmissionMetadata) : {};
+}
+
+export function getSubmissionViolations(submission: Pick<Submission, 'metadata_json'>): AntiCheatViolation[] {
+  const violations = getSubmissionMetadata(submission).violations;
+  return Array.isArray(violations) ? violations : [];
+}
+
 export interface SubmissionReviewViewModel {
   surface: 'SUBMISSION_REVIEW';
   submission: Submission;

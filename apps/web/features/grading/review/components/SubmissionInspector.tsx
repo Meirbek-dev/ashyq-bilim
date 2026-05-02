@@ -3,7 +3,7 @@
 import type { ComponentType } from 'react';
 import { LoaderCircle, ShieldAlert } from 'lucide-react';
 
-import { getSubmissionDisplayName } from '@/features/grading/domain';
+import { getSubmissionDisplayName, getSubmissionViolations } from '@/features/grading/domain';
 import type { Submission } from '@/features/grading/domain';
 import SubmissionStatusBadge from '@/features/assessments/shared/components/SubmissionStatusBadge';
 import type { KindReviewDetailProps } from '@/features/assessments/registry';
@@ -109,14 +109,11 @@ export default function SubmissionInspector({
 }
 
 function getViolationCount(submission: Submission): number {
-  const meta = submission.metadata_json as Record<string, unknown> | null | undefined;
-  const violations = meta?.violations;
-  return Array.isArray(violations) ? violations.length : 0;
+  return getSubmissionViolations(submission).length;
 }
 
 function ViolationLog({ submission }: { submission: Submission }) {
-  const meta = submission.metadata_json as Record<string, unknown> | null | undefined;
-  const violations: unknown[] = Array.isArray(meta?.violations) ? (meta.violations as unknown[]) : [];
+  const violations = getSubmissionViolations(submission);
 
   if (violations.length === 0) {
     return (
@@ -134,10 +131,9 @@ function ViolationLog({ submission }: { submission: Submission }) {
       </div>
       <ul className="space-y-2 text-xs">
         {violations.map((v, idx) => {
-          const vObj = typeof v === 'object' && v !== null ? (v as Record<string, unknown>) : {};
-          const kind = String(vObj.kind ?? vObj.type ?? 'UNKNOWN');
-          const occurredAt = String(vObj.occurred_at ?? vObj.timestamp ?? '');
-          const count = vObj.count ? Number(vObj.count) : null;
+          const kind = String(v.kind ?? 'UNKNOWN');
+          const occurredAt = String(v.occurred_at ?? '');
+          const count = typeof v.count === 'number' ? v.count : null;
           return (
             <li
               key={idx}
