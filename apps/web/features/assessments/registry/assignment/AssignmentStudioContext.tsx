@@ -16,7 +16,6 @@ import type { KindAuthorProps } from '../index';
 import ErrorUI from '@/components/Objects/Elements/Error/Error';
 import PageLoading from '@components/Objects/Loaders/PageLoading';
 import {
-  normalizeAssignmentTasks,
   useAssignmentByActivity,
   useAssignmentDetail,
   useAssignmentTasks,

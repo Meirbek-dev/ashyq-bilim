@@ -87,12 +87,8 @@ export function ThemeProvider({ children, defaultThemeName = DEFAULT_THEME_NAME,
         root.style.setProperty('--y', `${coords.y}px`);
       }
 
-      root.dataset.themeTransition = '';
-      const transition = document.startViewTransition(() => {
+      document.startViewTransition(() => {
         setMode(nextMode);
-      });
-      transition.finished.then(() => {
-        delete root.dataset.themeTransition;
       });
     },
     [mode, setMode],
