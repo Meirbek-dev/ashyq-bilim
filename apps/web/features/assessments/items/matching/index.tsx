@@ -23,8 +23,7 @@ export interface MatchingBody {
 
 export interface MatchingAnswer {
   kind: 'MATCHING';
-  /** Each entry maps left_id (the `left` string) to a right_id (the `right` string). */
-  matches: { left_id: string; right_id: string }[];
+  matches: { left: string; right: string }[];
 }
 
 // ── Author ────────────────────────────────────────────────────────────────────
@@ -117,15 +116,15 @@ export function MatchingItemAttempt({
   const currentMatches: Record<string, string> = {};
   if (answer?.matches) {
     for (const m of answer.matches) {
-      currentMatches[m.left_id] = m.right_id;
+      currentMatches[m.left] = m.right;
     }
   }
 
   const updateMatch = (leftId: string, rightId: string) => {
-    const existing = answer?.matches?.filter((m) => m.left_id !== leftId) ?? [];
+    const existing = answer?.matches?.filter((m) => m.left !== leftId) ?? [];
     const next: MatchingAnswer = {
       kind: 'MATCHING',
-      matches: rightId ? [...existing, { left_id: leftId, right_id: rightId }] : existing,
+      matches: rightId ? [...existing, { left: leftId, right: rightId }] : existing,
     };
     onAnswerChange(next);
   };
@@ -181,7 +180,7 @@ export function MatchingItemReview({ item, answer }: ItemReviewDetailProps<Match
   const matchMap: Record<string, string> = {};
   if (answer?.matches) {
     for (const m of answer.matches) {
-      matchMap[m.left_id] = m.right_id;
+      matchMap[m.left] = m.right;
     }
   }
 

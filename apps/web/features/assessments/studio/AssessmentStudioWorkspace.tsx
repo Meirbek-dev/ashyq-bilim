@@ -96,7 +96,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
   }
 
   const { vm: studio } = vm;
-  const previewHref = `/course/${courseUuid.replace('course_', '')}/activity/${activityUuid.replace('activity_', '')}`;
+  const previewHref = `/assessments/${studio.assessmentUuid}`;
   const hasIssues = studio.validationIssues.length > 0;
 
   const setLifecycle = (lifecycle: AssessmentLifecycle, nextScheduledAt?: string | null) => {
@@ -213,17 +213,19 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
                 open={scheduleOpen}
                 onOpenChange={setScheduleOpen}
               >
-                <PopoverTrigger asChild>
-                  <Button
-                    size="sm"
-                    variant="default"
-                    disabled={isPending || studio.lifecycle === 'ARCHIVED'}
-                    className="rounded-l-none border-l border-l-white/20 px-2"
-                    aria-label="Schedule options"
-                  >
-                    <ChevronDown className="size-4" />
-                  </Button>
-                </PopoverTrigger>
+                <PopoverTrigger
+                  render={
+                    <Button
+                      size="sm"
+                      variant="default"
+                      disabled={isPending || studio.lifecycle === 'ARCHIVED'}
+                      className="rounded-l-none border-l border-l-white/20 px-2"
+                      aria-label="Schedule options"
+                    >
+                      <ChevronDown className="size-4" />
+                    </Button>
+                  }
+                />
                 <PopoverContent
                   align="end"
                   className="w-64 space-y-3 p-3"
@@ -264,15 +266,17 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
 
             {/* Overflow: archive */}
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  aria-label="More options"
-                >
-                  <MoreHorizontal className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    aria-label="More options"
+                  >
+                    <MoreHorizontal className="size-4" />
+                  </Button>
+                }
+              />
               <DropdownMenuContent align="end">
                 <DropdownMenuSeparator />
                 <DropdownMenuItem

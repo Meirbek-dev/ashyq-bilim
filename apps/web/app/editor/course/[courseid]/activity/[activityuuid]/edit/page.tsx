@@ -1,10 +1,6 @@
-import EditorOptionsProvider from '@components/Contexts/Editor/EditorContext';
-import { getActivity } from '@services/courses/activities';
-import EditorWrapper from '@editor/EditorWrapper';
+import { redirect } from 'next/navigation';
 import { getCourseMetadata } from '@services/courses/courses';
-import { getPlatform } from '@/services/platform/platform';
 import { getTranslations } from 'next-intl/server';
-import { jetBrainsMono } from '@/lib/fonts';
 import { connection } from 'next/server';
 import type { Metadata } from 'next';
 
@@ -30,26 +26,7 @@ const EditActivity = async (props: { params: Promise<{ courseid: string; activit
   await connection();
   const params = await props.params;
   const { activityuuid, courseid } = params;
-
-  const [courseInfo, activity] = await Promise.all([
-    getCourseMetadata(courseid, undefined, true),
-    getActivity(activityuuid),
-  ]);
-
-  const platform = await getPlatform();
-
-  return (
-    <div className={jetBrainsMono.variable}>
-      <EditorOptionsProvider options={{ isEditable: true, mode: 'authoring' }}>
-        <EditorWrapper
-          platform={platform}
-          course={courseInfo}
-          activity={activity}
-          content={typeof activity.content === 'string' ? JSON.parse(activity.content) : activity.content}
-        />
-      </EditorOptionsProvider>
-    </div>
-  );
+  redirect(`/dash/courses/${courseid}/activity/${activityuuid}/studio`);
 };
 
 export default EditActivity;

@@ -3,10 +3,14 @@
 import type { ComponentType } from 'react';
 import { LoaderCircle, ShieldAlert } from 'lucide-react';
 
-import { getSubmissionDisplayName, getSubmissionViolations } from '@/features/grading/domain';
+import { getSubmissionDisplayName } from '@/features/grading/domain';
 import type { Submission } from '@/features/grading/domain';
+import { getSubmissionViolations } from '@/features/grading/domain/types';
 import SubmissionStatusBadge from '@/features/assessments/shared/components/SubmissionStatusBadge';
 import type { KindReviewDetailProps } from '@/features/assessments/registry';
+import { useAssessmentAttempt } from '@/features/assessments/hooks/useAssessment';
+import type { AssessmentItem, ItemAnswer } from '@/features/assessments/domain/items';
+import { renderCanonicalReviewAnswer } from '@/features/assessments/shared/canonical-item-rendering';
 import { useGradingPanel } from '@/hooks/useGradingPanel';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -92,7 +96,10 @@ export default function SubmissionInspector({
                 activityUuid={activityUuid}
               />
             ) : (
-              <SubmittedAnswers submission={current} />
+              <SubmittedAnswers
+                submission={current}
+                activityUuid={activityUuid}
+              />
             )}
           </TabsContent>
 
@@ -106,6 +113,13 @@ export default function SubmissionInspector({
       </div>
     </main>
   );
+}
+
+export function getCanonicalAnswersByItem(submission: Submission): Record<string, ItemAnswer> {
+  const answers = submission.answers_json;
+  if (!answers || typeof answers !== 'object') return {};
+  const answerMap = 'answers' in answers ? answers.answers : null;
+  return answerMap && typeof answerMap === 'object' ? (answerMap as Record<string, ItemAnswer>) : {};
 }
 
 function getViolationCount(submission: Submission): number {
@@ -185,9 +199,30 @@ function AttemptHistory({ submission }: { submission: Submission }) {
   );
 }
 
-function SubmittedAnswers({ submission }: { submission: Submission }) {
-  const tasks = submission.answers_json?.tasks;
-  const items = Array.isArray(tasks) ? tasks : [];
+export function SubmittedAnswers({
+  submission,
+  activityUuid,
+  answersByItem,
+}: {
+  submission: Submission;
+  activityUuid?: string;
+  answersByItem?: Record<string, ItemAnswer>;
+}) {
+  const { vm } = useAssessmentAttempt(activityUuid ?? null);
+  const items = vm?.surface === 'ATTEMPT' ? vm.vm.items : [];
+  const canonicalAnswers = answersByItem ?? getCanonicalAnswersByItem(submission);
+
+  if (items.length === 0) {
+    return (
+      <section className="space-y-3">
+        <h3 className="text-sm font-semibold">Submitted work</h3>
+        <div className="text-muted-foreground rounded-lg border border-dashed p-6 text-sm">
+          No canonical item projection is available for this submission yet.
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="space-y-3">
       <h3 className="text-sm font-semibold">Submitted work</h3>
@@ -196,20 +231,19 @@ function SubmittedAnswers({ submission }: { submission: Submission }) {
           No answer payload was recorded.
         </div>
       ) : (
-        items.map((item, index) => (
+        items.map((item: AssessmentItem, index) => (
           <div
-            key={typeof item === 'object' && item !== null && 'task_uuid' in item ? String(item.task_uuid) : index}
+            key={item.item_uuid ?? index}
             className="bg-card rounded-lg border p-4"
           >
             <div className="mb-2 flex items-center justify-between gap-3">
-              <Badge variant="secondary">Task {index + 1}</Badge>
-              {typeof item === 'object' && item !== null && 'content_type' in item ? (
-                <Badge variant="outline">{String(item.content_type)}</Badge>
-              ) : null}
+              <Badge variant="secondary">Item {index + 1}</Badge>
+              <Badge variant="outline">{item.kind}</Badge>
             </div>
-            <pre className="bg-muted max-h-80 overflow-auto rounded-md p-3 text-xs">
-              {JSON.stringify(item, null, 2)}
-            </pre>
+            <p className="mb-3 text-sm font-medium">
+              {item.title || ('prompt' in item.body ? item.body.prompt : `Item ${index + 1}`)}
+            </p>
+            {renderCanonicalReviewAnswer(item, canonicalAnswers[item.item_uuid])}
           </div>
         ))
       )}

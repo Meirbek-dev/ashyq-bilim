@@ -3,6 +3,7 @@ import type {
   Submission as GradingSubmission,
   SubmissionStatus as CanonicalSubmissionStatus,
 } from '@/features/grading/domain';
+import type { AssessmentItem, ItemAnswer } from '@/features/assessments/domain/items';
 
 export interface CodeChallengeSettings {
   uuid: string;
@@ -76,6 +77,18 @@ interface CanonicalAnswers {
   language_id?: number;
 }
 
+interface CanonicalSubmissionRead {
+  submission_uuid: string;
+  created_at: string;
+  status: 'DRAFT' | 'PENDING' | 'GRADED' | 'PUBLISHED' | 'RETURNED';
+  final_score?: number | null;
+  auto_score?: number | null;
+  answers_json?: { answers?: Record<string, ItemAnswer> } | Record<string, unknown> | null;
+  metadata_json?: Record<string, unknown> | null;
+}
+
+type CanonicalCodeAnswer = Extract<ItemAnswer, { kind: 'CODE' }>;
+
 export interface CodeChallengeDraft {
   id: number;
   submission_uuid: string;
@@ -129,13 +142,7 @@ interface CodeAssessmentRead {
   assessment_policy?: {
     settings_json?: Record<string, unknown>;
   } | null;
-  items?: {
-    item_uuid: string;
-    kind: string;
-    title: string;
-    max_score: number;
-    body: CodeAssessmentItemBody;
-  }[];
+  items?: AssessmentItem[];
 }
 
 const CODE_RUN_UNAVAILABLE_ERROR =
@@ -176,7 +183,7 @@ async function loadCodeAssessment(activityUuid: string): Promise<CodeAssessmentR
 
 function getCodeAssessmentItem(assessment: CodeAssessmentRead | null): CodeAssessmentItem | null {
   const item = assessment?.items?.find((entry) => entry.kind === 'CODE');
-  return item ?? null;
+  return (item as CodeAssessmentItem | undefined) ?? null;
 }
 
 function toReadableTestCase(test: TestCase): TestCase {
@@ -339,7 +346,8 @@ function normalizeJudge0State(
 
 export function mapCanonicalCodeSubmission(raw: GradingSubmission): CodeSubmission {
   const metadata = (raw.metadata_json ?? {}) as CanonicalMetadata;
-  const answers = (raw.answers_json ?? {}) as CanonicalAnswers;
+  const answerMap = (raw.answers_json?.answers ?? {}) as Record<string, CanonicalCodeAnswer>;
+  const firstCodeAnswer = Object.values(answerMap).find((answer) => answer?.kind === 'CODE');
   const results = Array.isArray(metadata.latest_run?.details) ? metadata.latest_run.details : undefined;
   return {
     uuid: raw.submission_uuid,
@@ -349,8 +357,8 @@ export function mapCanonicalCodeSubmission(raw: GradingSubmission): CodeSubmissi
     score: typeof raw.final_score === 'number' ? raw.final_score : (raw.auto_score ?? undefined),
     max_score: 100,
     language_id:
-      typeof answers.language_id === 'number'
-        ? answers.language_id
+      typeof firstCodeAnswer?.language === 'number'
+        ? firstCodeAnswer.language
         : typeof metadata.latest_run?.language_id === 'number'
           ? metadata.latest_run.language_id
           : 0,
@@ -512,5 +520,5 @@ export async function getSubmissions(activityUuid: string): Promise<CodeSubmissi
     throw new Error('Failed to fetch submissions');
   }
 
-  return ((await response.json()) as GradingSubmission[]).map(mapCanonicalCodeSubmission);
+  return ((await response.json()) as CanonicalSubmissionRead[] as unknown as GradingSubmission[]).map(mapCanonicalCodeSubmission);
 }

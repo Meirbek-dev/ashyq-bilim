@@ -74,73 +74,113 @@ export function assessmentToAssignmentRead(assessment: AssessmentReadLike): Assi
 }
 
 export function assessmentItemToAssignmentTask(item: AssessmentItem): AssignmentTaskRead | null {
-  if (item.body.kind === 'ASSIGNMENT_FILE') {
+  if (item.body.kind === 'FILE_UPLOAD') {
     return {
       id: item.id,
       assignment_task_uuid: item.item_uuid,
       assignment_type: 'FILE_SUBMISSION',
       title: item.title,
-      description: item.body.description,
-      hint: item.body.hint,
-      reference_file: item.body.reference_file,
+      description: item.body.prompt,
+      hint: null,
+      reference_file: null,
       max_grade_value: item.max_score,
       contents: {
         kind: 'FILE_SUBMISSION',
-        allowed_mime_types: item.body.allowed_mime_types,
-        max_file_size_mb: item.body.max_file_size_mb,
+        allowed_mime_types: item.body.mimes,
+        max_file_size_mb: item.body.max_mb,
         max_files: item.body.max_files,
       },
       order: item.order,
     };
   }
 
-  if (item.body.kind === 'ASSIGNMENT_QUIZ') {
+  if (item.body.kind === 'CHOICE' || item.body.kind === 'MATCHING') {
     return {
       id: item.id,
       assignment_task_uuid: item.item_uuid,
       assignment_type: 'QUIZ',
       title: item.title,
-      description: item.body.description,
-      hint: item.body.hint,
+      description: item.body.prompt,
+      hint: null,
       max_grade_value: item.max_score,
       contents: {
         kind: 'QUIZ',
-        questions: item.body.questions,
-        settings: item.body.settings,
+        questions:
+          item.body.kind === 'CHOICE'
+            ? [
+                {
+                  questionUUID: item.item_uuid,
+                  questionText: item.body.prompt,
+                  options: item.body.options.map((option) => ({
+                    optionUUID: option.id,
+                    text: option.text,
+                    fileID: '',
+                    type: 'text' as const,
+                    assigned_right_answer: option.is_correct,
+                  })),
+                },
+              ]
+            : [
+                {
+                  questionUUID: item.item_uuid,
+                  questionText: item.body.prompt,
+                  options: item.body.pairs.map((pair, index) => ({
+                    optionUUID: `${item.item_uuid}_${index}`,
+                    text: `${pair.left} -> ${pair.right}`,
+                    fileID: '',
+                    type: 'text' as const,
+                    assigned_right_answer: true,
+                  })),
+                },
+              ],
+        settings: {},
       },
       order: item.order,
     };
   }
 
-  if (item.body.kind === 'ASSIGNMENT_FORM') {
+  if (item.body.kind === 'FORM') {
     return {
       id: item.id,
       assignment_task_uuid: item.item_uuid,
       assignment_type: 'FORM',
       title: item.title,
-      description: item.body.description,
-      hint: item.body.hint,
+      description: item.body.prompt,
+      hint: null,
       max_grade_value: item.max_score,
       contents: {
         kind: 'FORM',
-        questions: item.body.questions,
+        questions: [
+          {
+            questionUUID: item.item_uuid,
+            questionText: item.body.prompt,
+            blanks: item.body.fields.map((field) => ({
+              blankUUID: field.id,
+              placeholder: field.label,
+              hint: undefined,
+            })),
+          },
+        ],
       },
       order: item.order,
     };
   }
 
-  if (item.body.kind === 'ASSIGNMENT_OTHER') {
+  if (item.body.kind === 'OPEN_TEXT' || item.body.kind === 'CODE') {
     return {
       id: item.id,
       assignment_task_uuid: item.item_uuid,
       assignment_type: 'OTHER',
       title: item.title,
-      description: item.body.description,
-      hint: item.body.hint,
+      description: item.body.prompt,
+      hint: null,
       max_grade_value: item.max_score,
       contents: {
         kind: 'OTHER',
-        body: item.body.body,
+        body:
+          item.body.kind === 'OPEN_TEXT'
+            ? { prompt: item.body.prompt }
+            : { prompt: item.body.prompt, languages: item.body.languages },
       },
       order: item.order,
     };

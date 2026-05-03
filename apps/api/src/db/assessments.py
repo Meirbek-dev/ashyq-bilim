@@ -14,6 +14,7 @@ from sqlalchemy import JSON, Column, DateTime, Float, ForeignKey, Index, Integer
 from sqlmodel import Field as SQLField
 
 from src.db.courses.activities import ActivityAssessmentPolicyRead
+from src.db.grading.progress import LatePolicy, LatePolicyNone
 from src.db.grading.submissions import AssessmentType, SubmissionRead
 from src.db.strict_base_model import PydanticStrictBaseModel, SQLModelStrictBaseModel
 
@@ -32,10 +33,6 @@ class ItemKind(StrEnum):
     FORM = "FORM"
     CODE = "CODE"
     MATCHING = "MATCHING"
-    ASSIGNMENT_FILE = "ASSIGNMENT_FILE"
-    ASSIGNMENT_QUIZ = "ASSIGNMENT_QUIZ"
-    ASSIGNMENT_FORM = "ASSIGNMENT_FORM"
-    ASSIGNMENT_OTHER = "ASSIGNMENT_OTHER"
 
 
 class AssessmentGradingType(StrEnum):
@@ -120,82 +117,13 @@ class MatchingItemBody(PydanticStrictBaseModel):
     explanation: str | None = None
 
 
-class AssignmentFileItemBody(PydanticStrictBaseModel):
-    kind: Literal["ASSIGNMENT_FILE"] = "ASSIGNMENT_FILE"
-    description: str = ""
-    hint: str = ""
-    reference_file: str | None = None
-    allowed_mime_types: list[str] = Field(default_factory=list)
-    max_file_size_mb: int | None = None
-    max_files: int = 1
-
-
-class AssignmentQuizOption(PydanticStrictBaseModel):
-    optionUUID: str
-    text: str = ""
-    fileID: str = ""
-    type: Literal["text", "image", "audio", "video"] = "text"
-    assigned_right_answer: bool = False
-
-
-class AssignmentQuizQuestion(PydanticStrictBaseModel):
-    questionUUID: str
-    questionText: str = ""
-    options: list[AssignmentQuizOption] = Field(default_factory=list)
-
-
-class AssignmentQuizSettings(PydanticStrictBaseModel):
-    max_attempts: int | None = None
-    time_limit_seconds: int | None = None
-    max_score_penalty_per_attempt: float | None = None
-
-
-class AssignmentQuizItemBody(PydanticStrictBaseModel):
-    kind: Literal["ASSIGNMENT_QUIZ"] = "ASSIGNMENT_QUIZ"
-    description: str = ""
-    hint: str = ""
-    questions: list[AssignmentQuizQuestion] = Field(default_factory=list)
-    settings: AssignmentQuizSettings = Field(default_factory=AssignmentQuizSettings)
-
-
-class AssignmentFormBlank(PydanticStrictBaseModel):
-    blankUUID: str
-    placeholder: str = ""
-    correctAnswer: str = ""
-    hint: str = ""
-
-
-class AssignmentFormQuestion(PydanticStrictBaseModel):
-    questionUUID: str
-    questionText: str = ""
-    blanks: list[AssignmentFormBlank] = Field(default_factory=list)
-
-
-class AssignmentFormItemBody(PydanticStrictBaseModel):
-    kind: Literal["ASSIGNMENT_FORM"] = "ASSIGNMENT_FORM"
-    description: str = ""
-    hint: str = ""
-    questions: list[AssignmentFormQuestion] = Field(default_factory=list)
-
-
-class AssignmentOtherItemBody(PydanticStrictBaseModel):
-    kind: Literal["ASSIGNMENT_OTHER"] = "ASSIGNMENT_OTHER"
-    description: str = ""
-    hint: str = ""
-    body: dict[str, object] = Field(default_factory=dict)
-
-
 type ItemBody = Annotated[
     ChoiceItemBody
     | OpenTextItemBody
     | FileUploadItemBody
     | FormItemBody
     | CodeItemBody
-    | MatchingItemBody
-    | AssignmentFileItemBody
-    | AssignmentQuizItemBody
-    | AssignmentFormItemBody
-    | AssignmentOtherItemBody,
+    | MatchingItemBody,
     Field(discriminator="kind"),
 ]
 
@@ -254,46 +182,13 @@ class MatchingItemAnswer(PydanticStrictBaseModel):
     matches: list[MatchingAnswerPair] = Field(default_factory=list)
 
 
-class AssignmentFileItemAnswer(PydanticStrictBaseModel):
-    kind: Literal["ASSIGNMENT_FILE"] = "ASSIGNMENT_FILE"
-    content_type: Literal["file"] = "file"
-    uploads: list[FileUploadReference] = Field(default_factory=list)
-    file_key: str | None = None
-    answer_metadata: dict[str, object] = Field(default_factory=dict)
-
-
-class AssignmentQuizItemAnswer(PydanticStrictBaseModel):
-    kind: Literal["ASSIGNMENT_QUIZ"] = "ASSIGNMENT_QUIZ"
-    content_type: Literal["quiz"] = "quiz"
-    quiz_answers: dict[str, object] | None = None
-    answer_metadata: dict[str, object] = Field(default_factory=dict)
-
-
-class AssignmentFormItemAnswer(PydanticStrictBaseModel):
-    kind: Literal["ASSIGNMENT_FORM"] = "ASSIGNMENT_FORM"
-    content_type: Literal["form"] = "form"
-    form_data: dict[str, object] | None = None
-    answer_metadata: dict[str, object] = Field(default_factory=dict)
-
-
-class AssignmentOtherItemAnswer(PydanticStrictBaseModel):
-    kind: Literal["ASSIGNMENT_OTHER"] = "ASSIGNMENT_OTHER"
-    content_type: Literal["text", "other"] = "text"
-    text_content: str | None = None
-    answer_metadata: dict[str, object] = Field(default_factory=dict)
-
-
 type ItemAnswer = Annotated[
     ChoiceItemAnswer
     | OpenTextItemAnswer
     | FileUploadItemAnswer
     | FormItemAnswer
     | CodeItemAnswer
-    | MatchingItemAnswer
-    | AssignmentFileItemAnswer
-    | AssignmentQuizItemAnswer
-    | AssignmentFormItemAnswer
-    | AssignmentOtherItemAnswer,
+    | MatchingItemAnswer,
     Field(discriminator="kind"),
 ]
 
@@ -453,9 +348,16 @@ class AssessmentPolicyPatch(PydanticStrictBaseModel):
     time_limit_seconds: int | None = None
     due_at: datetime | None = None
     allow_late: bool | None = None
-    late_policy_json: dict[str, object] | None = None
+    late_policy: LatePolicy | None = None
     anti_cheat_json: dict[str, object] | None = None
     settings_json: dict[str, object] | None = None
+
+    @field_validator("late_policy", mode="before")
+    @classmethod
+    def validate_late_policy(cls, value: object) -> object:
+        if value is None:
+            return None
+        return LatePolicyNone() if value == {} else value
 
 
 class AssessmentCreate(PydanticStrictBaseModel):

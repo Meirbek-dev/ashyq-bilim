@@ -8,7 +8,7 @@ import { apiFetch } from '@/lib/api-client';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 import type { ItemAnswer } from '../domain/items';
 
-interface SubmissionRead {
+export interface AssessmentSubmissionRead {
   submission_uuid: string;
   created_at: string;
   answers_json: { answers?: Record<string, ItemAnswer> } | Record<string, unknown>;
@@ -17,6 +17,7 @@ interface SubmissionRead {
   updated_at: string;
   submitted_at?: string | null;
   final_score?: number | null;
+  auto_score?: number | null;
   grading_json?: {
     feedback?: string;
   } | null;
@@ -24,7 +25,7 @@ interface SubmissionRead {
 
 interface DraftRead {
   assessment_uuid: string;
-  submission: SubmissionRead | null;
+  submission: AssessmentSubmissionRead | null;
 }
 
 interface SubmitOptions {
@@ -33,7 +34,7 @@ interface SubmitOptions {
 
 export type AssessmentSaveState = 'idle' | 'dirty' | 'saving' | 'saved' | 'conflict' | 'error';
 
-function answersFromSubmission(submission: SubmissionRead | null | undefined): Record<string, ItemAnswer> {
+function answersFromSubmission(submission: AssessmentSubmissionRead | null | undefined): Record<string, ItemAnswer> {
   const answers = submission?.answers_json?.answers;
   return answers && typeof answers === 'object' ? (answers as Record<string, ItemAnswer>) : {};
 }
@@ -70,7 +71,7 @@ export function useAssessmentSubmission(assessmentUuid: string | null | undefine
         queryKey: queryKeys.assessments.draft(assessmentUuid),
         queryFn: async () => {
           const response = await apiFetch(`assessments/${assessmentUuid}/draft`);
-          return (await readJsonOrThrow(response)) as DraftRead;
+           return (await readJsonOrThrow(response)) as DraftRead;
         },
       }),
     [assessmentUuid],
@@ -86,7 +87,7 @@ export function useAssessmentSubmission(assessmentUuid: string | null | undefine
     enabled: Boolean(assessmentUuid),
     queryFn: async () => {
       const response = await apiFetch(`assessments/${assessmentUuid}/me`);
-      return (await readJsonOrThrow(response)) as SubmissionRead[];
+       return (await readJsonOrThrow(response)) as AssessmentSubmissionRead[];
     },
   });
 
@@ -107,7 +108,7 @@ export function useAssessmentSubmission(assessmentUuid: string | null | undefine
           answers: Object.entries(answers).map(([item_uuid, answer]) => ({ item_uuid, answer })),
         }),
       });
-      return (await readJsonOrThrow(response)) as SubmissionRead;
+      return (await readJsonOrThrow(response)) as AssessmentSubmissionRead;
     },
     onMutate: () => setSaveState('saving'),
     onSuccess: async () => {
@@ -119,7 +120,7 @@ export function useAssessmentSubmission(assessmentUuid: string | null | undefine
     },
     onError: (error: Error & { status?: number; payload?: any }) => {
       if (error.status === 409) {
-        const latest = error.payload?.detail?.latest as SubmissionRead | undefined;
+         const latest = error.payload?.detail?.latest as AssessmentSubmissionRead | undefined;
         if (latest) setLocalAnswers(answersFromSubmission(latest));
         setSaveState('conflict');
         toast.error('Your draft changed in another tab. Review the latest saved version.');
@@ -154,7 +155,7 @@ export function useAssessmentSubmission(assessmentUuid: string | null | undefine
           answers: Object.entries(answers).map(([item_uuid, answer]) => ({ item_uuid, answer })),
         }),
       });
-      return (await readJsonOrThrow(response)) as SubmissionRead;
+      return (await readJsonOrThrow(response)) as AssessmentSubmissionRead;
     },
     onSuccess: async () => {
       setSaveState('saved');

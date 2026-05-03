@@ -45,6 +45,7 @@ from src.db.grading.progress import (
     AssessmentCompletionRule,
     AssessmentGradingMode,
     AssessmentPolicy,
+    LatePolicyNone,
 )
 from src.db.grading.submissions import (
     AssessmentType,
@@ -970,7 +971,7 @@ def _get_or_create_policy(
             max_attempts=1 if kind == AssessmentType.EXAM else None,
             time_limit_seconds=3600 if kind == AssessmentType.EXAM else None,
             allow_late=kind != AssessmentType.EXAM,
-            late_policy_json={},
+            late_policy_json=LatePolicyNone().model_dump(mode="json"),
             anti_cheat_json=_default_anti_cheat(kind),
             settings_json={},
             created_at=now,
@@ -980,6 +981,9 @@ def _get_or_create_policy(
 
     if patch is not None:
         for field, value in patch.model_dump(exclude_unset=True).items():
+            if field == "late_policy":
+                setattr(policy, "late_policy_json", value)
+                continue
             setattr(policy, field, value)
     policy.updated_at = now
     db_session.add(policy)
@@ -1068,25 +1072,8 @@ def _normalize_answer_patch(
             mismatched.append(entry.item_uuid)
             continue
         answer_payload = answer.model_dump(mode="json")
-        if str(answer.kind) in {
-            ItemKind.FILE_UPLOAD.value,
-            ItemKind.ASSIGNMENT_FILE.value,
-        }:
+        if str(answer.kind) == ItemKind.FILE_UPLOAD.value:
             _validate_file_upload_answer(answer_payload, item, current_user, db_session)
-            uploads = (
-                answer_payload.get("uploads")
-                if isinstance(answer_payload.get("uploads"), list)
-                else []
-            )
-            if uploads and not answer_payload.get("file_key"):
-                first_upload = uploads[0] if isinstance(uploads[0], dict) else None
-                upload_uuid = (
-                    first_upload.get("upload_uuid")
-                    if isinstance(first_upload, dict)
-                    else None
-                )
-                if isinstance(upload_uuid, str) and upload_uuid:
-                    answer_payload["file_key"] = upload_uuid
         normalized[entry.item_uuid] = answer_payload
 
     if invalid or mismatched:
@@ -1129,7 +1116,7 @@ def _validate_file_upload_answer(
             raise HTTPException(status_code=400, detail="Invalid file upload answer")
         upload_id = file_ref.get("upload_uuid")
         upload = db_session.exec(
-            select(Upload).where(Upload.upload_id == upload_id)
+            select(Upload).where(Upload.upload_uuid == upload_id)
         ).first()
         if (
             upload is None
@@ -1155,8 +1142,8 @@ def _validate_file_upload_answer(
             )
         if (
             max_bytes is not None
-            and upload.size is not None
-            and upload.size > max_bytes
+            and upload.size_bytes is not None
+            and upload.size_bytes > max_bytes
         ):
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -1333,33 +1320,6 @@ def _item_readiness_issues(item: AssessmentItem) -> list[ReadinessIssue]:
                 item_uuid=item.item_uuid,
             )
         )
-    elif body.kind == "ASSIGNMENT_FILE":
-        if body.max_files < 1:
-            issues.append(
-                ReadinessIssue(
-                    code="assignment.file.max_files_invalid",
-                    message="Assignment file tasks must allow at least one file.",
-                    item_uuid=item.item_uuid,
-                )
-            )
-    elif body.kind == "ASSIGNMENT_QUIZ":
-        if not body.questions:
-            issues.append(
-                ReadinessIssue(
-                    code="assignment.quiz.questions_missing",
-                    message="Assignment quiz tasks need at least one question.",
-                    item_uuid=item.item_uuid,
-                )
-            )
-    elif body.kind == "ASSIGNMENT_FORM":
-        if not body.questions:
-            issues.append(
-                ReadinessIssue(
-                    code="assignment.form.questions_missing",
-                    message="Assignment form tasks need at least one question.",
-                    item_uuid=item.item_uuid,
-                )
-            )
     return issues
 
 
@@ -1390,7 +1350,7 @@ def _build_policy_read(
         max_attempts=policy.max_attempts,
         time_limit_seconds=policy.time_limit_seconds,
         due_at=policy.due_at,
-        late_policy_json=policy.late_policy_json,
+        late_policy=policy.late_policy_json,
         anti_cheat_json=policy.anti_cheat_json,
         settings_json=policy.settings_json,
     )

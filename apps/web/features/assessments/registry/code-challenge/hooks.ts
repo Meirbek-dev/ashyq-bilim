@@ -50,14 +50,14 @@ export function useCodeChallengeSettings<TSettings = unknown>(activityUuid: stri
 }
 
 export function useCodeChallengeSubmissions(activityUuid: string | null | undefined) {
-  return useQuery<CodeSubmission[] | null>(codeChallengeSubmissionsHookOptions(activityUuid));
+  return useQuery(codeChallengeSubmissionsHookOptions(activityUuid));
 }
 
 export function useCodeChallengeSubmission(
   submissionUuid: string | null,
   options?: { refetchInterval?: number | false },
 ) {
-  return useQuery<CodeSubmission | null>(codeChallengeSubmissionHookOptions(submissionUuid, options));
+  return useQuery(codeChallengeSubmissionHookOptions(submissionUuid, options));
 }
 
 export function useRunCustomTest(activityUuid: string) {

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { CodeItemAttempt, CodeItemLoading, useCodeSubmitControl } from '@/features/assessments/items/code';
 import { useCodeChallengeSettings } from './hooks';
 import { useAttemptShellControls } from '@/features/assessments/shell';
-import { startCodeChallenge } from '@/services/courses/code-challenges';
+import { apiFetch } from '@/lib/api-client';
 import type { KindAttemptProps } from '../index';
 
 interface CodeChallengeTestCase {
@@ -59,10 +59,12 @@ export default function CodeChallengeAttemptContent({ activityUuid, vm }: KindAt
     if (!isConfigured || startedRef.current === normalizedActivityUuid) return;
 
     startedRef.current = normalizedActivityUuid;
-    void startCodeChallenge(normalizedActivityUuid).catch(() => {
+    if (!vm?.assessmentUuid) return;
+
+    void apiFetch(`assessments/${vm.assessmentUuid}/start`, { method: 'POST' }).catch(() => {
       startedRef.current = null;
     });
-  }, [isConfigured, normalizedActivityUuid]);
+  }, [isConfigured, normalizedActivityUuid, vm?.assessmentUuid]);
 
   if (isLoading) {
     return <CodeItemLoading />;

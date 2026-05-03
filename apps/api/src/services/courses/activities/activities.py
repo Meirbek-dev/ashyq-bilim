@@ -158,7 +158,7 @@ def _get_activity_policy_read(
         max_attempts=policy.max_attempts,
         time_limit_seconds=policy.time_limit_seconds,
         due_at=policy.due_at,
-        late_policy_json=policy.late_policy_json,
+        late_policy=policy.late_policy_json,
         anti_cheat_json=policy.anti_cheat_json,
         settings_json=policy.settings_json,
     )

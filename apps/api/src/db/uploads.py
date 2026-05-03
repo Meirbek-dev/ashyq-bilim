@@ -27,15 +27,15 @@ class Upload(SQLModelStrictBaseModel, table=True):
     )
 
     id: int | None = SQLField(default=None, primary_key=True)
-    upload_id: str
+    upload_uuid: str
     user_id: int = SQLField(
         sa_column=Column(Integer, ForeignKey("user.id", ondelete="CASCADE"))
     )
     filename: str = ""
     content_type: str = ""
-    size: int | None = None
+    size_bytes: int | None = None
     sha256: str | None = None
-    key: str | None = None
+    storage_key: str | None = None
     status: UploadStatus = SQLField(
         default=UploadStatus.CREATED,
         sa_column=Column("status", String, nullable=False, server_default="CREATED"),
@@ -78,7 +78,7 @@ class UploadCreate(PydanticStrictBaseModel):
 
 
 class UploadCreateResponse(PydanticStrictBaseModel):
-    upload_id: str
+    upload_uuid: str
     put_url: str
     expires_at: datetime
 
@@ -91,12 +91,12 @@ class UploadFinalize(PydanticStrictBaseModel):
 class UploadRead(PydanticStrictBaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    upload_id: str
+    upload_uuid: str
     filename: str
     content_type: str
-    size: int | None = None
+    size_bytes: int | None = None
     sha256: str | None = None
-    key: str | None = None
+    storage_key: str | None = None
     status: UploadStatus
     expires_at: datetime
     finalized_at: datetime | None = None

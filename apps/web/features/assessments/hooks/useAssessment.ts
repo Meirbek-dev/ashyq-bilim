@@ -21,6 +21,7 @@ import { isAssessmentEditable, canPublish, canSchedule, canArchive } from '../do
 import type { AssessmentLifecycle } from '../domain/lifecycle';
 import { policyFromAssessmentPolicy } from '../domain/policy';
 import type { AssessmentPolicyDTO } from '../domain/policy';
+import { assessmentTypeToKind } from '../domain/view-models';
 import type { AssessmentKind, AssessmentSurface, StudioViewModel, AttemptViewModel } from '../domain/view-models';
 import type { AssessmentItem } from '../domain/items';
 
@@ -62,26 +63,6 @@ function readinessQueryOptions(assessmentUuid: string, enabled: boolean) {
     enabled,
     retry: false,
   });
-}
-
-function assessmentTypeToKind(assessmentType: AssessmentDetail['kind']): AssessmentKind | null {
-  switch (assessmentType) {
-    case 'ASSIGNMENT': {
-      return 'TYPE_ASSIGNMENT';
-    }
-    case 'EXAM': {
-      return 'TYPE_EXAM';
-    }
-    case 'CODE_CHALLENGE': {
-      return 'TYPE_CODE_CHALLENGE';
-    }
-    case 'QUIZ': {
-      return 'TYPE_QUIZ';
-    }
-    default: {
-      return null;
-    }
-  }
 }
 
 // ── Public hook ───────────────────────────────────────────────────────────────

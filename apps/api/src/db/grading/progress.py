@@ -206,6 +206,13 @@ class AssessmentPolicy(SQLModelStrictBaseModel, table=True):
             return AssessmentCompletionRule(value)
         return value
 
+    @field_validator("late_policy_json", mode="before")
+    @classmethod
+    def validate_late_policy_json(cls, value: object) -> dict[str, object]:
+        if value in (None, ""):
+            return LatePolicyNone().model_dump(mode="json")
+        return LATE_POLICY_ADAPTER.validate_python(value).model_dump(mode="json")
+
 
 class ActivityProgress(SQLModelStrictBaseModel, table=True):
     """Canonical current state for one learner on one course activity."""

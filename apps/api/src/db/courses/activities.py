@@ -14,6 +14,7 @@ from sqlalchemy import (
 )
 from sqlmodel import Field
 
+from src.db.grading.progress import LatePolicy, LatePolicyNone
 from src.db.strict_base_model import SQLModelStrictBaseModel
 
 
@@ -209,7 +210,7 @@ class ActivityAssessmentPolicyRead(SQLModelStrictBaseModel):
     max_attempts: int | None = None
     time_limit_seconds: int | None = None
     due_at: datetime | None = None
-    late_policy_json: dict[str, object] = Field(default_factory=dict)
+    late_policy: LatePolicy = Field(default_factory=LatePolicyNone)
     anti_cheat_json: dict[str, object] = Field(default_factory=dict)
     settings_json: dict[str, object] = Field(default_factory=dict)
 
