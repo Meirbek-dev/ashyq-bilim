@@ -80,7 +80,11 @@ async function createExamWithActivityRequest(
     }),
   });
 
-  const payload = (await response.json().catch(() => ({}))) as { detail?: string; assessment_uuid?: string; activity_uuid?: string };
+  const payload = (await response.json().catch(() => ({}))) as {
+    detail?: string;
+    assessment_uuid?: string;
+    activity_uuid?: string;
+  };
 
   if (!response.ok) {
     throw new Error(payload.detail || 'Failed to create exam');

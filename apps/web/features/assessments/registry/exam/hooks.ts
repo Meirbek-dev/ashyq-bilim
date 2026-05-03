@@ -1,7 +1,7 @@
 'use client';
 
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createExamWithActivityMutationOptions, updateExamSettingsMutationOptions } from '../mutations/exams.mutation';
+import { createExamWithActivityMutationOptions, updateExamSettingsMutationOptions } from './mutations';
 import {
   examActivityQueryOptions,
   examAllAttemptsQueryOptions,
@@ -9,7 +9,7 @@ import {
   examDetailQueryOptions,
   examMyAttemptsQueryOptions,
   examQuestionsQueryOptions,
-} from '../queries/exams.query';
+} from './queries';
 
 function examActivityHookOptions(activityUuid: string | null | undefined) {
   const normalizedActivityUuid = activityUuid ?? '';

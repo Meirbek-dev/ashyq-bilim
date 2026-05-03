@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 
 import PageLoading from '@components/Objects/Loaders/PageLoading';
-import { useExamActivity, useExamQuestions } from '@/features/exams/hooks/useExam';
+import { useExamActivity, useExamQuestions } from './exam/hooks';
 import type { KindAuthorProps } from './index';
 import QuestionManagement from './exam/QuestionManagement';
 

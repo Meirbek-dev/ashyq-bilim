@@ -16,7 +16,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { LoaderCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { examActivityQueryOptions, examQuestionsQueryOptions } from '@/features/exams/queries/exams.query';
+import { examActivityQueryOptions, examQuestionsQueryOptions } from './exam/queries';
 import type { KindReviewDetailProps } from './index';
 
 interface ExamQuestion {

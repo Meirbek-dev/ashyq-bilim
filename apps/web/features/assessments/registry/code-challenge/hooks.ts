@@ -7,12 +7,12 @@ import {
   runCustomTestMutationOptions,
   saveCodeChallengeSettingsMutationOptions,
   submitCodeChallengeMutationOptions,
-} from '../mutations/code-challenges.mutation';
+} from './mutations';
 import {
   codeChallengeSettingsQueryOptions,
   codeChallengeSubmissionQueryOptions,
   codeChallengeSubmissionsQueryOptions,
-} from '../queries/code-challenges.query';
+} from './queries';
 
 function codeChallengeSettingsHookOptions<TSettings = unknown>(activityUuid: string | null | undefined) {
   const normalizedActivityUuid = activityUuid ?? '';

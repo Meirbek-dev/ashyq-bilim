@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 
 import { CodeItemAttempt, CodeItemLoading, useCodeSubmitControl } from '@/features/assessments/items/code';
-import { useCodeChallengeSettings } from '@/features/code-challenges/hooks/useCodeChallenge';
+import { useCodeChallengeSettings } from './hooks';
 import { useAttemptShellControls } from '@/features/assessments/shell';
 import { startCodeChallenge } from '@/services/courses/code-challenges';
 import type { KindAttemptProps } from '../index';
