@@ -3,7 +3,22 @@
 import { getResponseMetadata } from '@/lib/api-client';
 import { apiFetch } from '@/lib/api-client';
 import { tags } from '@/lib/cacheTags';
-import type { AssignmentDraftPatch, AssignmentRead } from '@/features/assignments/domain';
+import type { AssignmentRead } from '@/features/assessments/registry/assignment/models';
+
+interface AssignmentTaskPatchAnswer {
+  task_uuid: string;
+  content_type: 'file' | 'text' | 'form' | 'quiz' | 'other';
+  file_key?: string | null;
+  uploads?: { upload_uuid: string; filename?: string }[];
+  text_content?: string | null;
+  form_data?: { answers?: Record<string, string> } | null;
+  quiz_answers?: { answers?: Record<string, string[]> } | null;
+  answer_metadata?: Record<string, unknown>;
+}
+
+export interface AssignmentDraftPatch {
+  tasks: AssignmentTaskPatchAnswer[];
+}
 
 export type AssignmentType = 'QUIZ' | 'FILE_SUBMISSION' | 'FORM' | 'OTHER';
 
@@ -195,32 +210,6 @@ export async function getAssignmentFromActivityUUID(activityUUID: string) {
   };
 }
 
-export async function deleteAssignment(assignmentUUID: string) {
-  const result = await apiFetch(`assignments/${assignmentUUID}`, { method: 'DELETE' });
-  const metadata = await getResponseMetadata(result);
-
-  if (metadata.success) {
-    const { revalidateTag } = await import('next/cache');
-    revalidateTag(tags.activities, 'max');
-    revalidateTag(tags.courses, 'max');
-  }
-
-  return metadata;
-}
-
-export async function deleteAssignmentUsingActivityUUID(activityUUID: string) {
-  const result = await apiFetch(`assignments/activity/${activityUUID}`, { method: 'DELETE' });
-  const metadata = await getResponseMetadata(result);
-
-  if (metadata.success) {
-    const { revalidateTag } = await import('next/cache');
-    revalidateTag(tags.activities, 'max');
-    revalidateTag(tags.courses, 'max');
-  }
-
-  return metadata;
-}
-
 export async function getAssignmentDraftSubmission(assignmentUUID: string) {
   const result = await apiFetch(`assessments/${normalizeAssignmentUuid(assignmentUUID)}/draft`);
   const metadata = await getResponseMetadata(result);
@@ -325,68 +314,6 @@ export async function deleteAssignmentTask(assignmentTaskUUID: string, assignmen
   }
 
   return metadata;
-}
-
-export interface UpdateReferenceFileParams {
-  file: Blob | File;
-  assignmentTaskUUID: string;
-  assignmentUUID: string;
-}
-
-export async function updateReferenceFile({ file, assignmentTaskUUID, assignmentUUID }: UpdateReferenceFileParams) {
-  const formData = new FormData();
-  if (file) {
-    formData.append('reference_file', file);
-  }
-  const result = await apiFetch(`assignments/${assignmentUUID}/tasks/${assignmentTaskUUID}/ref_file`, {
-    method: 'POST',
-    body: formData,
-  });
-  const metadata = await getResponseMetadata(result);
-
-  if (metadata.success) {
-    const { revalidateTag } = await import('next/cache');
-    revalidateTag(tags.activities, 'max');
-  }
-
-  return metadata;
-}
-
-export interface UpdateSubFileParams {
-  file: Blob | File;
-  assignmentTaskUUID: string;
-  assignmentUUID: string;
-}
-
-export async function updateSubFile({ file, assignmentTaskUUID, assignmentUUID }: UpdateSubFileParams) {
-  const formData = new FormData();
-  if (file) {
-    formData.append('sub_file', file);
-  }
-  const result = await apiFetch(`assignments/${assignmentUUID}/tasks/${assignmentTaskUUID}/sub_file`, {
-    method: 'POST',
-    body: formData,
-  });
-  const metadata = await getResponseMetadata(result);
-
-  if (metadata.success) {
-    const { revalidateTag } = await import('next/cache');
-    revalidateTag(tags.activities, 'max');
-  }
-
-  return metadata;
-}
-
-export async function getAssignmentsFromACourse(courseUUID: string) {
-  const result = await apiFetch(`assignments/course/${courseUUID}`);
-  return await getResponseMetadata(result);
-}
-
-export async function getAssignmentsFromCourses(courseUUIDs: string[]) {
-  const params = new URLSearchParams();
-  for (const uuid of courseUUIDs) params.append('course_uuids', uuid);
-  const result = await apiFetch(`assignments/courses?${params.toString()}`);
-  return await getResponseMetadata(result);
 }
 
 /** Body shape for POST /assignments/with-activity (creation only). */
