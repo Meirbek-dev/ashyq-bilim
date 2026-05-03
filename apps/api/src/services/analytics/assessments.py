@@ -843,16 +843,14 @@ def get_teacher_assessment_detail(
     # Resolve course_id with a targeted query before loading the full analytics context
     # so we only pull data for the one course that hosts this assessment.
     scoped_course_id: int | None = None
-    if assessment_type == "assignment":
+    if assessment_type in {"assignment", "exam"}:
         row = db_session.exec(
-            select(Assignment).where(Assignment.id == assessment_id)
+            select(Assessment).where(Assessment.id == assessment_id)
         ).first()
-        if row and row.course_id in scope.course_ids:
-            scoped_course_id = row.course_id
-    elif assessment_type == "exam":
-        row = db_session.exec(select(Exam).where(Exam.id == assessment_id)).first()
-        if row and row.course_id in scope.course_ids:
-            scoped_course_id = row.course_id
+        if row is not None:
+            activity = db_session.get(Activity, row.activity_id)
+            if activity and activity.course_id in scope.course_ids:
+                scoped_course_id = activity.course_id
     else:
         # Quiz and code_challenge assessments are Activity rows with a course_id field
         row = db_session.exec(

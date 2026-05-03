@@ -4889,10 +4889,7 @@ export interface components {
             /** Time Limit Seconds */
             time_limit_seconds?: number | null;
         };
-        /**
-         * AssignmentTaskCreate
-         * @description Input for creating a new task — contents validated against task type.
-         */
+        /** AssignmentTaskCreate */
         AssignmentTaskCreate: {
             assignment_type: components["schemas"]["AssignmentTaskTypeEnum"];
             /** Contents */
@@ -4913,10 +4910,7 @@ export interface components {
             /** Title */
             title: string;
         };
-        /**
-         * AssignmentTaskRead
-         * @description Output model for reading an assignment task.
-         */
+        /** AssignmentTaskRead */
         AssignmentTaskRead: {
             /** Assignment Task Uuid */
             assignment_task_uuid: string;
@@ -4955,13 +4949,7 @@ export interface components {
          * @enum {string}
          */
         AssignmentTaskTypeEnum: "FILE_SUBMISSION" | "QUIZ" | "FORM" | "OTHER";
-        /**
-         * AssignmentTaskUpdate
-         * @description Partial update for an existing task.
-         *
-         *     ``order`` is intentionally absent — use the dedicated reorder endpoint.
-         *     ``contents`` is validated against ``assignment_type`` when both are present.
-         */
+        /** AssignmentTaskUpdate */
         AssignmentTaskUpdate: {
             assignment_type?: components["schemas"]["AssignmentTaskTypeEnum"] | null;
             /** Contents */
@@ -7243,17 +7231,12 @@ export interface components {
             /** Xp To Next Level */
             xp_to_next_level: number;
         };
-        /**
-         * QuestionCreate
-         * @description Model for creating a question
-         */
+        /** QuestionCreate */
         QuestionCreate: {
             /** Answer Options */
             answer_options?: {
                 [key: string]: unknown;
             }[];
-            /** Exam Id */
-            exam_id?: number | null;
             /** Explanation */
             explanation?: string | null;
             /**
@@ -7292,10 +7275,7 @@ export interface components {
             /** Weak Correct Pct */
             weak_correct_pct?: number | null;
         };
-        /**
-         * QuestionRead
-         * @description Model for reading a question (full data for teachers)
-         */
+        /** QuestionRead */
         QuestionRead: {
             /** Answer Options */
             answer_options?: {
@@ -7303,8 +7283,6 @@ export interface components {
             }[];
             /** Creation Date */
             creation_date?: string | null;
-            /** Exam Id */
-            exam_id?: number | null;
             /** Explanation */
             explanation?: string | null;
             /** Id */
@@ -7332,10 +7310,7 @@ export interface components {
          * @enum {string}
          */
         QuestionTypeEnum: "SINGLE_CHOICE" | "MULTIPLE_CHOICE" | "TRUE_FALSE" | "MATCHING";
-        /**
-         * QuestionUpdate
-         * @description Model for updating a question
-         */
+        /** QuestionUpdate */
         QuestionUpdate: {
             /** Answer Options */
             answer_options?: {

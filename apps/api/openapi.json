@@ -2643,7 +2643,6 @@
         "type": "object"
       },
       "AssignmentTaskCreate": {
-        "description": "Input for creating a new task — contents validated against task type.",
         "properties": {
           "assignment_type": {
             "$ref": "#/components/schemas/AssignmentTaskTypeEnum"
@@ -2692,7 +2691,6 @@
         "type": "object"
       },
       "AssignmentTaskRead": {
-        "description": "Output model for reading an assignment task.",
         "properties": {
           "assignment_task_uuid": {
             "title": "Assignment Task Uuid",
@@ -2790,7 +2788,6 @@
         "type": "string"
       },
       "AssignmentTaskUpdate": {
-        "description": "Partial update for an existing task.\n\n``order`` is intentionally absent — use the dedicated reorder endpoint.\n``contents`` is validated against ``assignment_type`` when both are present.",
         "properties": {
           "assignment_type": {
             "anyOf": [
@@ -8901,7 +8898,6 @@
         "type": "object"
       },
       "QuestionCreate": {
-        "description": "Model for creating a question",
         "properties": {
           "answer_options": {
             "items": {
@@ -8910,17 +8906,6 @@
             },
             "title": "Answer Options",
             "type": "array"
-          },
-          "exam_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Exam Id"
           },
           "explanation": {
             "anyOf": [
@@ -9037,7 +9022,6 @@
         "type": "object"
       },
       "QuestionRead": {
-        "description": "Model for reading a question (full data for teachers)",
         "properties": {
           "answer_options": {
             "items": {
@@ -9057,17 +9041,6 @@
               }
             ],
             "title": "Creation Date"
-          },
-          "exam_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Exam Id"
           },
           "explanation": {
             "anyOf": [
@@ -9137,7 +9110,6 @@
         "type": "string"
       },
       "QuestionUpdate": {
-        "description": "Model for updating a question",
         "properties": {
           "answer_options": {
             "anyOf": [

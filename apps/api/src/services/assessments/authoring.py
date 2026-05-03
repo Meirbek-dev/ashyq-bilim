@@ -27,21 +27,19 @@ from src.db.assessments import (
     MatchPair,
     MatchingItemBody,
 )
-from src.db.courses.assignments import (
+from src.db.assessment_contracts import (
     AssignmentRead,
     AssignmentStatus,
     AssignmentTaskCreate,
     AssignmentTaskRead,
     AssignmentTaskTypeEnum,
     AssignmentTaskUpdate,
-    GradingTypeEnum,
-)
-from src.db.courses.exams import (
     QUESTION_LIMIT_MIN,
     TIME_LIMIT_MAX,
     TIME_LIMIT_MIN,
     VIOLATION_THRESHOLD_MAX,
     VIOLATION_THRESHOLD_MIN,
+    GradingTypeEnum,
     QuestionCreate,
     QuestionRead,
     QuestionTypeEnum,

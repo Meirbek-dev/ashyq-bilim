@@ -24,6 +24,14 @@ from src.db.assessments import (
     AssessmentReadItem,
     AssessmentUpdate,
 )
+from src.db.assessment_contracts import (
+    AssignmentTaskCreate,
+    AssignmentTaskRead,
+    AssignmentTaskUpdate,
+    QuestionCreate,
+    QuestionRead,
+    QuestionUpdate,
+)
 from src.db.grading.submissions import SubmissionListResponse, SubmissionRead
 from src.db.users import AnonymousUser, PublicUser
 from src.infra.db.session import get_db_session
@@ -60,8 +68,6 @@ from src.services.assessments.authoring import (
     update_assignment_task,
     update_exam_question,
 )
-from src.db.courses.assignments import AssignmentTaskCreate, AssignmentTaskRead, AssignmentTaskUpdate
-from src.db.courses.exams import QuestionCreate, QuestionRead, QuestionUpdate
 
 router = APIRouter()
 

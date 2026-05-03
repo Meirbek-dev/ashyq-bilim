@@ -13,12 +13,12 @@ from sqlmodel import Session, select
 
 from src.db.courses.activities import Activity, ActivityTypeEnum
 from src.db.courses.blocks import Block, BlockTypeEnum
-from src.db.courses.code_challenges import (
+from src.db.assessment_contracts import (
     CodeChallengeSettings,
     ExecutionMode,
     GradingStrategy,
+    AccessModeEnum,
 )
-from src.db.courses.exams import AccessModeEnum
 from src.db.courses.quiz import QuizSettings
 from src.db.strict_base_model import PydanticStrictBaseModel
 
