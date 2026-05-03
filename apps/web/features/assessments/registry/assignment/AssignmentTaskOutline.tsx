@@ -10,8 +10,10 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 import { useAssignmentStudioContext } from './AssignmentStudioContext';
-import { getTaskTypeEditor, pointsToPercent, taskToEditorValue } from './studio-compat';
-import type { AssignmentTaskRead, AssignmentTaskType } from './studio-compat';
+import type { AssignmentTaskRead, AssignmentTaskType } from './models';
+import { pointsToPercent } from './scoring';
+import { getTaskTypeEditor } from './task-editors/registry';
+import { taskToEditorValue } from './task-editors/types';
 
 const TASK_ICONS: Record<AssignmentTaskType, ElementType> = {
   FILE_SUBMISSION: FileUp,

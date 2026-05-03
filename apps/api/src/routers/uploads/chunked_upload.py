@@ -1,4 +1,4 @@
-"""Upload endpoints for assessment files and legacy chunked uploads."""
+"""Upload endpoints for assessment files and chunked uploads."""
 
 import hashlib
 from datetime import UTC, datetime, timedelta

@@ -75,7 +75,7 @@ class SubmissionMetadata(PydanticStrictBaseModel):
 
 
 def normalize_submission_metadata(value: object) -> dict[str, Any]:
-    """Validate typed metadata sub-shapes while preserving compatibility keys."""
+    """Validate typed metadata sub-shapes while preserving unrecognized keys."""
 
     if isinstance(value, SubmissionMetadata):
         return value.model_dump(mode="json", exclude_none=True)

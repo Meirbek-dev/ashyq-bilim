@@ -1,4 +1,4 @@
-"""Backward-compatible grading dispatcher facade."""
+"""Grading dispatcher facade."""
 
 from src.db.grading.submissions import AssessmentType
 from src.services.grading.registry import GraderRegistry, GradingResult

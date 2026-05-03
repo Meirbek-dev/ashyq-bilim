@@ -75,7 +75,6 @@ def assessment_to_assignment_read(assessment: dict[str, object]) -> AssignmentRe
         "title": assessment.get("title", ""),
         "description": assessment.get("description", ""),
         "due_at": policy.get("due_at"),
-        "published": lifecycle == AssignmentStatus.PUBLISHED.value,
         "status": lifecycle,
         "scheduled_publish_at": assessment.get("scheduled_at"),
         "published_at": assessment.get("published_at"),

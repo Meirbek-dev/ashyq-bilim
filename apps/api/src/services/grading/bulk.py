@@ -68,7 +68,7 @@ def get_bulk_action(
         )
     PermissionChecker(db_session).require(
         current_user.id,
-        "assignment:read",
+        "assessment:read",
         resource_owner_id=activity.creator_id,
     )
     return action
@@ -101,7 +101,7 @@ def create_deadline_extension_action(
         )
     PermissionChecker(db_session).require(
         current_user.id,
-        "assignment:grade",
+        "assessment:grade",
         resource_owner_id=activity.creator_id,
     )
 

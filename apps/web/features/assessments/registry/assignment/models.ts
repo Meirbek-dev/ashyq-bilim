@@ -8,7 +8,6 @@ export interface AssignmentRead {
   title: string;
   description: string;
   due_at?: string | null;
-  published: boolean;
   status: AssignmentStatus;
   scheduled_publish_at?: string | null;
   published_at?: string | null;
@@ -61,7 +60,6 @@ export function assessmentToAssignmentRead(assessment: AssessmentReadLike): Assi
     title: assessment.title,
     description: assessment.description ?? '',
     due_at: assessment.assessment_policy?.due_at ?? null,
-    published: assessment.lifecycle === 'PUBLISHED',
     status: assessment.lifecycle,
     scheduled_publish_at: assessment.scheduled_at ?? null,
     published_at: assessment.published_at ?? null,

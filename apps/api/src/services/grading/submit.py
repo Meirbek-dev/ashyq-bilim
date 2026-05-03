@@ -40,10 +40,10 @@ logger = logging.getLogger(__name__)
 
 # Per-type submit permission
 _SUBMIT_PERMISSION: dict[AssessmentType, str] = {
-    AssessmentType.QUIZ: "quiz:submit",
-    AssessmentType.EXAM: "exam:submit",
-    AssessmentType.ASSIGNMENT: "assignment:submit",
-    AssessmentType.CODE_CHALLENGE: "assignment:submit",
+    AssessmentType.QUIZ: "assessment:submit",
+    AssessmentType.EXAM: "assessment:submit",
+    AssessmentType.ASSIGNMENT: "assessment:submit",
+    AssessmentType.CODE_CHALLENGE: "assessment:submit",
 }
 
 # Per-type XP source

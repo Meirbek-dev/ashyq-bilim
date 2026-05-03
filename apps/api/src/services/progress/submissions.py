@@ -319,7 +319,7 @@ def sync_quiz_attempt(
         for item in (attempt.grading_result or {}).get("per_question", [])
     )
     status = SubmissionStatus.PENDING if manual_review else SubmissionStatus.GRADED
-    submission = _get_or_create_mirror_submission(
+    submission = _get_or_create_progress_submission(
         submission_uuid=f"submission_{attempt.attempt_uuid}",
         activity_id=attempt.activity_id,
         user_id=attempt.user_id,
@@ -344,7 +344,7 @@ def sync_quiz_attempt(
     submission.created_at = _coerce_datetime(attempt.creation_date) or datetime.now(UTC)
     submission.updated_at = _coerce_datetime(attempt.update_date) or datetime.now(UTC)
 
-    _save_mirror_submission(submission, db_session, commit=commit)
+    _save_progress_submission(submission, db_session, commit=commit)
     return submission
 
 
@@ -361,7 +361,7 @@ def _record_submission_change(submission: Submission, db_session: Session) -> No
     db_session.refresh(submission)
 
 
-def _save_mirror_submission(
+def _save_progress_submission(
     submission: Submission,
     db_session: Session,
     *,
@@ -626,7 +626,7 @@ def _attach_policy(submission: Submission, db_session: Session) -> None:
         submission.assessment_policy_id = policy.id
 
 
-def _get_or_create_mirror_submission(
+def _get_or_create_progress_submission(
     *,
     submission_uuid: str,
     activity_id: int,

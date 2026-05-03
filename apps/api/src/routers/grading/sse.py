@@ -46,7 +46,7 @@ def _get_streamable_submission(
         )
     PermissionChecker(db_session).require(
         current_user.id,
-        "assignment:read",
+        "assessment:read",
         resource_owner_id=activity.creator_id,
     )
     return submission

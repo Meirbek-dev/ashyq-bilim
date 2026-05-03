@@ -101,7 +101,6 @@ class AssignmentRead(SQLModelStrictBaseModel):
     title: str
     description: str
     due_at: datetime | None = None
-    published: bool
     status: AssignmentStatus
     scheduled_publish_at: datetime | None = None
     published_at: datetime | None = None

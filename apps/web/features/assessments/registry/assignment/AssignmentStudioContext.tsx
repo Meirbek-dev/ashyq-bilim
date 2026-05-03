@@ -20,8 +20,9 @@ import {
   useAssignmentByActivity,
   useAssignmentDetail,
   useAssignmentTasks,
-} from './studio-compat';
-import type { AssignmentRead, AssignmentTaskRead } from './studio-compat';
+} from './hooks';
+import type { AssignmentRead, AssignmentTaskRead } from './models';
+import { normalizeAssignmentTasks } from './view-models';
 
 // ── Context shape ─────────────────────────────────────────────────────────────
 

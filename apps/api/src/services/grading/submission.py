@@ -84,10 +84,10 @@ _STUDENT_TRANSITIONS: dict[SubmissionStatus, frozenset[SubmissionStatus]] = {
 }
 
 _SUBMIT_PERMISSION: dict[AssessmentType, str] = {
-    AssessmentType.QUIZ: "quiz:submit",
-    AssessmentType.EXAM: "exam:submit",
-    AssessmentType.ASSIGNMENT: "assignment:submit",
-    AssessmentType.CODE_CHALLENGE: "assignment:submit",
+    AssessmentType.QUIZ: "assessment:submit",
+    AssessmentType.EXAM: "assessment:submit",
+    AssessmentType.ASSIGNMENT: "assessment:submit",
+    AssessmentType.CODE_CHALLENGE: "assessment:submit",
 }
 
 

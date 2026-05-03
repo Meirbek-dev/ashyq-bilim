@@ -119,7 +119,7 @@ async def get_submissions_for_activity(
     checker = PermissionChecker(db_session)
     checker.require(
         current_user.id,
-        "assignment:read",
+        "assessment:read",
         resource_owner_id=activity.creator_id,
     )
 
@@ -203,7 +203,7 @@ async def get_submission_stats(
 
     checker = PermissionChecker(db_session)
     checker.require(
-        current_user.id, "assignment:read", resource_owner_id=activity.creator_id
+        current_user.id, "assessment:read", resource_owner_id=activity.creator_id
     )
 
     # Query 1: status counts (excludes DRAFTs)
@@ -271,7 +271,7 @@ async def get_submission_for_teacher(
     """
     Fetch a single submission with full answers and grading breakdown.
 
-    Requires assignment:read permission scoped to the activity's creator,
+    Requires assessment:read permission scoped to the activity's creator,
     preventing cross-activity and cross-course data leakage.
     """
     submission = db_session.exec(
@@ -293,7 +293,7 @@ async def get_submission_for_teacher(
     checker = PermissionChecker(db_session)
     checker.require(
         current_user.id,
-        "assignment:read",
+        "assessment:read",
         resource_owner_id=activity.creator_id,
     )
 
@@ -328,7 +328,7 @@ def export_grades_csv(
 
     checker = PermissionChecker(db_session)
     checker.require(
-        current_user.id, "assignment:read", resource_owner_id=activity.creator_id
+        current_user.id, "assessment:read", resource_owner_id=activity.creator_id
     )
 
     buf = io.StringIO()
@@ -417,7 +417,7 @@ async def save_grade(
     checker = PermissionChecker(db_session)
     checker.require(
         current_user.id,
-        "assignment:grade",
+        "assessment:grade",
         resource_owner_id=activity.creator_id,
     )
 
@@ -480,7 +480,7 @@ async def batch_grade_submissions(
         submission, activity = row
         if not checker.check(
             current_user.id,
-            "assignment:grade",
+            "assessment:grade",
             resource_owner_id=activity.creator_id,
         ):
             results.append(
@@ -735,7 +735,7 @@ async def bulk_publish_grades(
 
     checker = PermissionChecker(db_session)
     checker.require(
-        current_user.id, "assignment:grade", resource_owner_id=activity.creator_id
+        current_user.id, "assessment:grade", resource_owner_id=activity.creator_id
     )
 
     # All graded submissions for this activity

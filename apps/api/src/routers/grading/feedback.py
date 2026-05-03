@@ -52,7 +52,7 @@ def _require_teacher(
 ) -> None:
     PermissionChecker(db_session).require(
         current_user.id,
-        "assignment:grade",
+        "assessment:grade",
         resource_owner_id=activity.creator_id,
     )
 
@@ -67,7 +67,7 @@ def _can_read_feedback(
         return True
     return PermissionChecker(db_session).check(
         current_user.id,
-        "assignment:read",
+        "assessment:read",
         resource_owner_id=activity.creator_id,
     )
 
