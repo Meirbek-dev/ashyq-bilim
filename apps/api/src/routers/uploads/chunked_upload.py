@@ -248,10 +248,10 @@ async def get_assessment_upload_url(
 async def initiate_chunked_upload(
     directory: Annotated[str, Form()],
     type_of_dir: Annotated[str, Form()],
-    uuid: Annotated[str, Form()],
     filename: Annotated[str, Form()],
     total_chunks: Annotated[int, Form()],
     file_size: Annotated[int, Form()],
+    uuid: Annotated[str | None, Form()] = None,
     current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
 ):
     """

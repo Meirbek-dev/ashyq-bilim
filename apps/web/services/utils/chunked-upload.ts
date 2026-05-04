@@ -106,7 +106,7 @@ export async function uploadFileChunked(options: ChunkedUploadOptions): Promise<
       );
     }
 
-    const { upload_id } = await initiateResponse.json();
+    const { upload_uuid: upload_id } = await initiateResponse.json();
     console.log(`Upload initiated with ID: ${upload_id}`);
 
     // Step 2: Upload chunks sequentially

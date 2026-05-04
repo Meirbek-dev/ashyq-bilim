@@ -187,6 +187,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
             <Button
               variant="ghost"
               size="sm"
+              nativeButton={false}
               render={
                 <Link
                   href={previewHref}
@@ -214,6 +215,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
                 onOpenChange={setScheduleOpen}
               >
                 <PopoverTrigger
+                  nativeButton={false}
                   render={
                     <Button
                       size="sm"
@@ -267,6 +269,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
             {/* Overflow: archive */}
             <DropdownMenu>
               <DropdownMenuTrigger
+                nativeButton={false}
                 render={
                   <Button
                     variant="outline"
