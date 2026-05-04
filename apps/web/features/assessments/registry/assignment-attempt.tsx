@@ -11,7 +11,8 @@ import { useAssessmentSubmission } from '@/features/assessments/hooks/useAssessm
 import type { AssessmentItem, ItemAnswer } from '@/features/assessments/domain/items';
 import type { AttemptSaveState } from '@/features/assessments/shell';
 import { renderCanonicalAttemptItem } from '@/features/assessments/shared/canonical-item-rendering';
-import type { KindAttemptProps } from '../index';
+import type { KindAttemptProps } from './index';
+
 export default function AssignmentAttemptContent({ vm }: KindAttemptProps) {
   const assessmentUuid = vm?.assessmentUuid ?? null;
   const submissionState = useAssessmentSubmission(assessmentUuid);

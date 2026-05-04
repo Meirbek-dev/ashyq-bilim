@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 
 import { CodeChallengeEditor } from '@/components/features/courses/code-challenges';
-import { useCodeChallengeSettings } from '@/features/assessments/registry/code-challenge/hooks';
+import { useCodeChallengeSettings } from '@/features/assessments/hooks/code-challenge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 

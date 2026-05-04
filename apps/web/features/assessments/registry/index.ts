@@ -125,7 +125,7 @@ export async function loadKindModule(kind: AssessmentKind): Promise<KindModule> 
 
 // Register all built-in kinds eagerly so they are ready at import time.
 // Each kind file self-registers via a side-effect import.
-import './assignment/index';
+import './assignment';
 import './exam';
 import './code-challenge';
 import './quiz';

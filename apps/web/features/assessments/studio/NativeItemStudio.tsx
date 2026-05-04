@@ -38,8 +38,8 @@ import {
   FileUploadConstraintsEditor,
   type FileUploadConstraints,
 } from '@/features/assessments/items/file-upload';
-import SaveStateBadge from '@/features/assessments/registry/assignment/SaveStateBadge';
-import type { SaveState } from '@/features/assessments/registry/assignment/SaveStateBadge';
+import SaveStateBadge from '@/features/assessments/shared/SaveStateBadge';
+import type { SaveState } from '@/features/assessments/shared/SaveStateBadge';
 import ErrorUI from '@/components/Objects/Elements/Error/Error';
 import PageLoading from '@components/Objects/Loaders/PageLoading';
 import { Alert, AlertDescription } from '@/components/ui/alert';

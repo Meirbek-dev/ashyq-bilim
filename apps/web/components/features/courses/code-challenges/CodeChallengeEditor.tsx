@@ -9,7 +9,7 @@ import {
   useRunCodeChallengeTests,
   useRunCustomTest,
   useSubmitCodeChallenge,
-} from '@/features/assessments/registry/code-challenge/hooks';
+} from '@/features/assessments/hooks/code-challenge';
 
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';

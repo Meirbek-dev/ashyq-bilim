@@ -3,11 +3,26 @@
 import { getResponseMetadata } from '@/lib/api-client';
 import { apiFetch } from '@/lib/api-client';
 import { tags } from '@/lib/cacheTags';
-import {
-  assessmentItemToAssignmentTask,
-  type AssignmentRead,
-} from '@/features/assessments/registry/assignment/models';
 import type { AssessmentItem } from '@/features/assessments/domain/items';
+
+export type AssignmentStatus = 'DRAFT' | 'SCHEDULED' | 'PUBLISHED' | 'ARCHIVED';
+
+export interface AssignmentRead {
+  assignment_uuid: string;
+  title: string;
+  description: string;
+  due_at?: string | null;
+  status: AssignmentStatus;
+  scheduled_publish_at?: string | null;
+  published_at?: string | null;
+  archived_at?: string | null;
+  weight: number;
+  grading_type: 'NUMERIC' | 'PERCENTAGE';
+  course_uuid?: string | null;
+  activity_uuid?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
 
 interface AssignmentTaskPatchAnswer {
   task_uuid: string;
@@ -116,7 +131,7 @@ function assignmentPatchToAssessmentPatch(body: AssignmentDraftPatch) {
 }
 
 function toAssignmentTask(data: unknown) {
-  return assessmentItemToAssignmentTask(data as AssessmentItem);
+  return data as AssessmentItem;
 }
 
 function normalizeTaskType(type?: AssignmentType | null) {

@@ -2,7 +2,7 @@
 
 import { valibotResolver } from '@hookform/resolvers/valibot';
 import { Controller, useForm, useWatch } from 'react-hook-form';
-import { useCreateExamWithActivity, useExamConfig } from '@/features/assessments/registry/exam/hooks';
+import { useCreateExamWithActivity, useExamConfig } from '@/features/assessments/hooks/exam';
 import { useTranslations } from 'next-intl';
 import { cleanActivityUuid, cleanCourseUuid } from '@/lib/course-management';
 import { useEffect } from 'react';
