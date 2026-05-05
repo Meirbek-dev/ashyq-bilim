@@ -22,7 +22,6 @@ from src.db.assessments import (
 from src.db.courses.activities import Activity, ActivitySubTypeEnum, ActivityTypeEnum
 from src.db.courses.chapters import Chapter
 from src.db.courses.courses import Course, ThumbnailType
-from src.db.courses.quiz import QuizAttempt
 from src.db.grading.bulk_actions import BulkAction, BulkActionStatus, BulkActionType
 from src.db.grading.entries import GradingEntry
 from src.db.grading.progress import (
@@ -43,9 +42,13 @@ from src.infra.db.session import get_db_session
 from src.infra.settings import get_settings
 from src.routers import analytics as analytics_router_module
 from src.routers.analytics import router
-from src.services.analytics.queries import AnalyticsContext, AssessmentAnalyticsRow
 from src.services.analytics.overview import _build_grading_slo_alerts
-from src.services.analytics.schemas import GradingBacklogItem, TeacherWorkloadSummary, WorkloadAgingBuckets
+from src.services.analytics.queries import AnalyticsContext, AssessmentAnalyticsRow
+from src.services.analytics.schemas import (
+    GradingBacklogItem,
+    TeacherWorkloadSummary,
+    WorkloadAgingBuckets,
+)
 from src.services.analytics.scope import TeacherAnalyticsScope
 
 
@@ -64,7 +67,6 @@ def db_session_factory_fixture():
             Submission.__table__,
             GradingEntry.__table__,
             BulkAction.__table__,
-            QuizAttempt.__table__,
         ],
     )
     factory = build_session_factory(engine)
@@ -74,7 +76,6 @@ def db_session_factory_fixture():
         SQLModel.metadata.drop_all(
             engine,
             tables=[
-                QuizAttempt.__table__,
                 BulkAction.__table__,
                 GradingEntry.__table__,
                 Submission.__table__,
@@ -331,7 +332,7 @@ def _make_context_for_assignment(session, assessment_id: int) -> AnalyticsContex
         ],
         exams=[],
         exam_attempts=[],
-        quiz_attempts=[],
+        quiz_submissions=[],
         quiz_question_stats=[],
         code_submissions=[],
         users_by_id=users_by_id,
@@ -343,7 +344,7 @@ def _make_context_for_assignment(session, assessment_id: int) -> AnalyticsContex
 def _make_context_for_quiz(session) -> AnalyticsContext:
     course = session.get(Course, 1)
     activity = session.get(Activity, 1)
-    quiz_attempt = session.get(QuizAttempt, 1)
+    quiz_submission = session.get(Submission, 1)
     users = session.exec(select(User)).scalars().all()
     users_by_id = {user.id: user for user in users if user.id is not None}
     return AnalyticsContext(
@@ -362,7 +363,7 @@ def _make_context_for_quiz(session) -> AnalyticsContext:
         assignment_submissions=[],
         exams=[],
         exam_attempts=[],
-        quiz_attempts=[(quiz_attempt, activity)],
+        quiz_submissions=[(quiz_submission, activity)],
         quiz_question_stats=[],
         code_submissions=[],
         users_by_id=users_by_id,
@@ -558,7 +559,7 @@ def test_assignment_detail_endpoint_returns_operational_fields(
     ]
 
 
-def test_quiz_detail_endpoint_reports_legacy_cutover_state(
+def test_quiz_detail_endpoint_uses_canonical_submission_rows(
     api_client: TestClient,
     db_session_factory,
     monkeypatch: pytest.MonkeyPatch,
@@ -584,36 +585,41 @@ def test_quiz_detail_endpoint_reports_legacy_cutover_state(
                 attempt_number=1,
                 final_score=88.0,
                 answers_json={},
-                grading_json={},
-                metadata_json={},
+                grading_json={
+                    "items": [
+                        {
+                            "item_id": "q1",
+                            "item_text": "Question 1",
+                            "score": 88.0,
+                            "max_score": 100.0,
+                            "correct": True,
+                            "feedback": "Correct",
+                            "needs_manual_review": False,
+                            "user_answer": ["a"],
+                            "correct_answer": ["a"],
+                        }
+                    ],
+                    "needs_manual_review": False,
+                    "auto_graded": True,
+                    "feedback": "",
+                },
+                metadata_json={
+                    "attempt_uuid": "quiz_attempt_1",
+                    "duration_seconds": 1800,
+                    "violation_count": 2,
+                    "violations": [
+                        {
+                            "kind": "TAB_SWITCH",
+                                "occurred_at": "2026-05-05T09:00:00Z",
+                            "count": 2,
+                        }
+                    ],
+                },
                 submitted_at=datetime(2026, 5, 5, 9, 0, tzinfo=UTC),
                 graded_at=datetime(2026, 5, 5, 9, 0, tzinfo=UTC),
+                started_at=datetime(2026, 5, 5, 8, 30, tzinfo=UTC),
                 created_at=datetime(2026, 5, 5, 9, 0, tzinfo=UTC),
                 updated_at=datetime(2026, 5, 5, 9, 0, tzinfo=UTC),
-            )
-        )
-        session.add(
-            QuizAttempt(
-                id=1,
-                user_id=2,
-                activity_id=activity.id,
-                attempt_uuid="quiz_attempt_1",
-                attempt_number=1,
-                start_ts=datetime(2026, 5, 5, 8, 30, tzinfo=UTC),
-                end_ts=datetime(2026, 5, 5, 9, 0, tzinfo=UTC),
-                duration_seconds=1800,
-                score=8.0,
-                max_score=10.0,
-                max_attempts=1,
-                time_limit_seconds=1800,
-                max_score_penalty_per_attempt=0.0,
-                violation_count=2,
-                violations={"TAB_SWITCH": 2},
-                answers={},
-                grading_result={"items": []},
-                idempotency_key="quiz-key",
-                creation_date="2026-05-05T08:30:00Z",
-                update_date="2026-05-05T09:00:00Z",
             )
         )
         session.commit()
@@ -635,17 +641,15 @@ def test_quiz_detail_endpoint_reports_legacy_cutover_state(
     assert payload["diagnostics"]["suspicious_attempts"] == 1
     assert payload["slo"]["status"] == "not_applicable"
     assert payload["migration"] == {
-        "is_canonical": False,
-        "legacy_sources": ["quiz_attempt"],
-        "legacy_row_count": 1,
+        "is_canonical": True,
+        "legacy_sources": [],
+        "legacy_row_count": 0,
         "canonical_row_count": 1,
-        "cutover_ready": False,
-        "compatibility_mode": "dual_write",
-        "note": "Quiz analytics detail still reads QuizAttempt compatibility rows and cannot cut over yet.",
+        "cutover_ready": True,
+        "compatibility_mode": "canonical",
+        "note": "Assessment analytics detail is backed by canonical submission and grading records.",
     }
-    assert payload["support"]["cutover_blockers"] == [
-        "Quiz analytics detail still reads QuizAttempt compatibility rows and cannot cut over yet."
-    ]
+    assert payload["support"]["cutover_blockers"] == []
     assert payload["cohort_analytics"][0]["cohort_name"] == "Alpha Cohort"
     assert payload["audit_history"] == []
 
@@ -678,4 +682,5 @@ def test_overview_grading_slo_alerts_surface_breached_assignments() -> None:
     assert alerts[0].type == "grading_slo"
     assert alerts[0].severity == "critical"
     assert alerts[0].assessment_id == 7
+    assert alerts[0].href == "/dash/analytics/assessments/assignment/7"
     assert "72-hour grading target" in alerts[0].body

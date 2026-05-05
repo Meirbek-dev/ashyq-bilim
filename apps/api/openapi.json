@@ -1016,6 +1016,17 @@
             ],
             "title": "Course Id"
           },
+          "href": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Href"
+          },
           "id": {
             "title": "Id",
             "type": "string"
@@ -2013,11 +2024,7 @@
             "type": "integer"
           },
           "compatibility_mode": {
-            "enum": [
-              "canonical",
-              "dual_write",
-              "legacy_only"
-            ],
+            "const": "canonical",
             "title": "Compatibility Mode",
             "type": "string"
           },

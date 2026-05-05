@@ -4074,6 +4074,8 @@ export interface components {
             body: string;
             /** Course Id */
             course_id?: number | null;
+            /** Href */
+            href?: string | null;
             /** Id */
             id: string;
             /** Learner Count */
@@ -4487,9 +4489,9 @@ export interface components {
             canonical_row_count: number;
             /**
              * Compatibility Mode
-             * @enum {string}
+             * @constant
              */
-            compatibility_mode: "canonical" | "dual_write" | "legacy_only";
+            compatibility_mode: "canonical";
             /** Cutover Ready */
             cutover_ready: boolean;
             /** Is Canonical */

@@ -77,6 +77,16 @@ export default function TeacherOverview({
     return serialized ? `${pathname}?${serialized}` : pathname;
   };
 
+  const resolveAlertHref = (href?: string | null) => {
+    if (!href) {
+      return undefined;
+    }
+    if (href.startsWith('/dash/analytics/')) {
+      return href;
+    }
+    return href;
+  };
+
   function formatFreshness(seconds: number): string {
     if (seconds <= 0) return t('freshness.live');
     if (seconds < 60) return t('freshness.seconds', { seconds });
@@ -357,31 +367,52 @@ export default function TeacherOverview({
         </CardHeader>
         <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {data.alerts.length ? (
-            data.alerts.map((alert) => (
-              <div
-                key={alert.id}
-                className="bg-muted rounded-lg border p-4"
-              >
-                <div className="mb-2 flex items-center gap-2">
-                  <Badge
-                    variant={
-                      alert.severity === 'critical'
-                        ? 'destructive'
-                        : alert.severity === 'warning'
-                          ? 'warning'
-                          : 'outline'
-                    }
+            data.alerts.map((alert) => {
+              const alertCard = (
+                <>
+                  <div className="mb-2 flex items-center gap-2">
+                    <Badge
+                      variant={
+                        alert.severity === 'critical'
+                          ? 'destructive'
+                          : alert.severity === 'warning'
+                            ? 'warning'
+                            : 'outline'
+                      }
+                    >
+                      {getAnalyticsSeverityLabel(t, alert.severity)}
+                    </Badge>
+                    <span className="text-muted-foreground text-xs tracking-wider uppercase">
+                      {getAnalyticsAlertTypeLabel(t, alert.type)}
+                    </span>
+                  </div>
+                  <div className="text-foreground font-medium">{alert.title}</div>
+                  <div className="text-muted-foreground mt-2 text-sm leading-6">{alert.body}</div>
+                </>
+              );
+              const alertHref = resolveAlertHref(alert.href);
+
+              if (alertHref) {
+                return (
+                  <Link
+                    key={alert.id}
+                    href={alertHref}
+                    className="bg-muted hover:bg-muted/80 rounded-lg border p-4 transition-colors"
                   >
-                    {getAnalyticsSeverityLabel(t, alert.severity)}
-                  </Badge>
-                  <span className="text-muted-foreground text-xs tracking-wider uppercase">
-                    {getAnalyticsAlertTypeLabel(t, alert.type)}
-                  </span>
+                    {alertCard}
+                  </Link>
+                );
+              }
+
+              return (
+                <div
+                  key={alert.id}
+                  className="bg-muted rounded-lg border p-4"
+                >
+                  {alertCard}
                 </div>
-                <div className="text-foreground font-medium">{alert.title}</div>
-                <div className="text-muted-foreground mt-2 text-sm leading-6">{alert.body}</div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <div className="text-muted-foreground text-sm">{t('overview.alertsEmpty')}</div>
           )}

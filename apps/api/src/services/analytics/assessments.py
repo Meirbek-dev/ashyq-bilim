@@ -1724,10 +1724,10 @@ def get_teacher_assessment_detail(
             and _is_allowed(submission.user_id, allowed_user_ids)
         ]
         eligible = len(eligible_by_course.get(activity.course_id, set()))
-        quiz_attempts_by_user: dict[int, list[Submission]] = defaultdict(list)
+        quiz_submissions_by_user: dict[int, list[Submission]] = defaultdict(list)
         quiz_scores: list[float] = []
         for submission, _activity in records:
-            quiz_attempts_by_user[submission.user_id].append(submission)
+            quiz_submissions_by_user[submission.user_id].append(submission)
             if (score := assignment_score(submission)) is not None:
                 quiz_scores.append(score)
         submitted_users = {
@@ -1773,16 +1773,16 @@ def get_teacher_assessment_detail(
             if row.accuracy_pct is not None and row.accuracy_pct < 80
         ]
         learner_rows = []
-        for user_id, attempts in quiz_attempts_by_user.items():
-            quiz_attempt_list: list[Submission] = list(attempts)
+        for user_id, attempts in quiz_submissions_by_user.items():
+            quiz_submission_list: list[Submission] = list(attempts)
             ordered_attempts = sorted(
-                quiz_attempt_list,
+                quiz_submission_list,
                 key=lambda item: item.submitted_at or item.updated_at or item.created_at or item.started_at,
             )
             best_score = max(
                 (
                     score
-                    for item in quiz_attempt_list
+                    for item in quiz_submission_list
                     if (score := assignment_score(item)) is not None
                 ),
                 default=None,
@@ -1793,7 +1793,7 @@ def get_teacher_assessment_detail(
                 AssessmentLearnerRow(
                     user_id=user_id,
                     user_display_name=display_name(context.users_by_id.get(user_id)),
-                    attempts=len(quiz_attempt_list),
+                    attempts=len(quiz_submission_list),
                     best_score=round(best_score, 2) if best_score is not None else None,
                     last_score=round(last_score, 2) if last_score is not None else None,
                     submitted_at=to_iso(assignment_submitted_at(last_attempt)),
@@ -1910,18 +1910,18 @@ def get_teacher_assessment_detail(
                 ),
                 median_score=median_or_none(quiz_scores),
                 avg_attempts=round(
-                    sum(len(items) for items in quiz_attempts_by_user.values())
-                    / len(quiz_attempts_by_user),
+                    sum(len(items) for items in quiz_submissions_by_user.values())
+                    / len(quiz_submissions_by_user),
                     2,
                 )
-                if quiz_attempts_by_user
+                if quiz_submissions_by_user
                 else None,
                 grading_latency_hours_p50=percentile(latencies, 0.5),
                 grading_latency_hours_p90=percentile(latencies, 0.9),
             ),
             score_distribution=_score_distribution(quiz_scores),
             attempt_distribution=_attempt_distribution({
-                user_id: len(items) for user_id, items in quiz_attempts_by_user.items()
+                user_id: len(items) for user_id, items in quiz_submissions_by_user.items()
             }),
             question_breakdown=sorted(
                 question_breakdown, key=lambda row: row.accuracy_pct or 100

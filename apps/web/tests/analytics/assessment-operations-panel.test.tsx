@@ -84,13 +84,13 @@ function createDetail(overrides: Partial<TeacherAssessmentDetailResponse> = {}):
       note: 'Backlog is approaching the release target for manual grading.',
     },
     migration: {
-      is_canonical: false,
-      legacy_sources: ['quiz_attempt'],
-      legacy_row_count: 8,
+      is_canonical: true,
+      legacy_sources: [],
+      legacy_row_count: 0,
       canonical_row_count: 18,
-      cutover_ready: false,
-      compatibility_mode: 'dual_write',
-      note: 'Quiz analytics detail still reads QuizAttempt compatibility rows and cannot cut over yet.',
+      cutover_ready: true,
+      compatibility_mode: 'canonical',
+      note: 'Assessment analytics detail is backed by canonical submission and grading records.',
     },
     support: {
       analytics_mode: 'live',
@@ -99,7 +99,7 @@ function createDetail(overrides: Partial<TeacherAssessmentDetailResponse> = {}):
       scoped_cohort_count: 2,
       cohort_filter_applied: false,
       audit_event_count: 1,
-      cutover_blockers: ['Quiz analytics detail still reads QuizAttempt compatibility rows and cannot cut over yet.'],
+      cutover_blockers: [],
       alerts: [
         {
           code: 'grading_slo_breached',
@@ -107,7 +107,7 @@ function createDetail(overrides: Partial<TeacherAssessmentDetailResponse> = {}):
           summary: 'Grading latency is outside the current service target.',
         },
       ],
-      note: 'Support follow-up is recommended for the active alerts and cutover blockers.',
+      note: 'Support follow-up is recommended for the active alerts.',
     },
     cohort_analytics: [
       {
@@ -160,17 +160,18 @@ describe('AssessmentOperationsPanel', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Backlog is approaching the release target for manual grading.')).toBeInTheDocument();
     expect(
-      screen.getAllByText('Quiz analytics detail still reads QuizAttempt compatibility rows and cannot cut over yet.'),
-    ).toHaveLength(2);
-    expect(screen.getByText('Support follow-up is recommended for the active alerts and cutover blockers.')).toBeInTheDocument();
+      screen.getByText('Assessment analytics detail is backed by canonical submission and grading records.'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Support follow-up is recommended for the active alerts.')).toBeInTheDocument();
     expect(screen.getByText('Grading latency is outside the current service target.')).toBeInTheDocument();
     expect(screen.getByText('Alpha Cohort')).toBeInTheDocument();
     expect(screen.getByText('Awaiting teacher grading')).toBeInTheDocument();
     expect(screen.getByText('Question 1')).toBeInTheDocument();
     expect(screen.getByText('Release Grades for 8 learners')).toBeInTheDocument();
     expect(screen.getByText('Teacher Analytics')).toBeInTheDocument();
-    expect(screen.getByText('quiz_attempt')).toBeInTheDocument();
+    expect(screen.getByText('atRisk.na')).toBeInTheDocument();
     expect(screen.getByText('pages.assessmentOpsAuditRowCount')).toBeInTheDocument();
+    expect(screen.getByText('pages.assessmentSupportBlockersEmpty')).toBeInTheDocument();
   });
 
   it('shows the empty audit state when no operational events are available', () => {

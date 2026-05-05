@@ -6850,8 +6850,6 @@
       "assessmentOpsMigrationLegacyRows": "Legacy rows",
       "assessmentOpsMigrationLegacySources": "Legacy sources",
       "assessmentOpsMigrationModeCanonical": "Canonical",
-      "assessmentOpsMigrationModeDualWrite": "Dual write",
-      "assessmentOpsMigrationModeLegacyOnly": "Legacy only",
       "assessmentOpsAuditTitle": "Audit history",
       "assessmentOpsAuditEmpty": "No operational audit events are available for the current scope.",
       "assessmentOpsAuditFilteredEmpty": "No audit events match the current filters.",

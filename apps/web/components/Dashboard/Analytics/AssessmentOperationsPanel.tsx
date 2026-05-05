@@ -50,16 +50,15 @@ function getSloBadgeVariant(status: TeacherAssessmentDetailResponse['slo']['stat
   }
 }
 
-function getMigrationBadgeVariant(mode: TeacherAssessmentDetailResponse['migration']['compatibility_mode']) {
+function getMigrationBadgeVariant(
+  mode: TeacherAssessmentDetailResponse['migration']['compatibility_mode'],
+): 'success' | 'warning' | 'destructive' | 'outline' {
   switch (mode) {
     case 'canonical': {
       return 'success';
     }
-    case 'dual_write': {
-      return 'warning';
-    }
     default: {
-      return 'destructive';
+      return 'success';
     }
   }
 }
@@ -123,8 +122,6 @@ export default function AssessmentOperationsPanel({ detail }: AssessmentOperatio
 
   const migrationLabels: Record<TeacherAssessmentDetailResponse['migration']['compatibility_mode'], string> = {
     canonical: t('pages.assessmentOpsMigrationModeCanonical'),
-    dual_write: t('pages.assessmentOpsMigrationModeDualWrite'),
-    legacy_only: t('pages.assessmentOpsMigrationModeLegacyOnly'),
   };
 
   const signalLabels: Record<TeacherAssessmentDetailResponse['item_analytics'][number]['signal'], string> = {

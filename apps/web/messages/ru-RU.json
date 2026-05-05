@@ -6876,8 +6876,6 @@
       "assessmentOpsMigrationLegacyRows": "Legacy строки",
       "assessmentOpsMigrationLegacySources": "Legacy источники",
       "assessmentOpsMigrationModeCanonical": "Canonical",
-      "assessmentOpsMigrationModeDualWrite": "Dual write",
-      "assessmentOpsMigrationModeLegacyOnly": "Legacy only",
       "assessmentOpsAuditTitle": "История аудита",
       "assessmentOpsAuditEmpty": "Для текущего scope нет операционных событий аудита.",
       "assessmentOpsAuditFilteredEmpty": "По текущим фильтрам события аудита не найдены.",
