@@ -310,7 +310,17 @@
         "titleRequired": "Title is required"
       },
       "visibleTestCases": "Visible Test Cases",
-      "visibleTestCasesDescription": "Test cases students can see and run against"
+      "visibleTestCasesDescription": "Test cases students can see and run against",
+      "hintsPanel": {
+        "title": "Hints",
+        "description": "Optional help students can reveal during the attempt.",
+        "addHint": "Add hint",
+        "empty": "No hints configured.",
+        "hintNumber": "Hint #{number}",
+        "content": "Content",
+        "contentPlaceholder": "Explain one useful direction without giving away the full solution.",
+        "xpPenalty": "XP penalty"
+      }
     },
     "DocumentPdf": {
       "viewerTitle": "PDF Document Viewer"
@@ -979,6 +989,17 @@
     "Breadcrumb": {
       "label": "Breadcrumb",
       "more": "More"
+    },
+    "AiChat": {
+      "placeholder": "Ask Ashyk Ai…",
+      "sendMessage": "Send message",
+      "stopGeneration": "Stop generation"
+    },
+    "Spinner": {
+      "loading": "Loading"
+    },
+    "Video": {
+      "youtubePlayer": "YouTube video player"
     },
     "DashboardAnalytics": {
       "adminAnalyticsPanel": {
@@ -4277,6 +4298,8 @@
         "image": "Image",
         "infoCallout": "Info Callout",
         "insert": "Insert",
+        "insertBlock": "Insert block",
+        "insertBlockHint": "Click to insert block, or type /",
         "insertGroups": {
           "callouts": "Callouts",
           "interactive": "Interactive",
@@ -4294,6 +4317,7 @@
           "orderedList": "Ordered List"
         },
         "mathEquation": "Math Equation (LaTeX)",
+        "editorToolbar": "Editor toolbar",
         "plainText": "Plain text",
         "slashBlocks": "Blocks",
         "slashEmbedDescription": "Embed {label}",
@@ -6971,6 +6995,95 @@
           "form": "Form",
           "file": "File"
         }
+      },
+      "Review": {
+        "submissionList": {
+          "searchLearner": "Search learner",
+          "statusFilter": "Status filter",
+          "sort": "Sort",
+          "filters": {
+            "all": "All",
+            "needsGrading": "Needs grading"
+          },
+          "sorting": {
+            "submitted": "Submitted",
+            "score": "Score",
+            "attempt": "Attempt"
+          },
+          "totals": {
+            "submissions": "{count} submissions",
+            "selected": "{count} selected"
+          },
+          "loading": "Loading",
+          "empty": "No submissions found.",
+          "selectSubmission": "Select {name}",
+          "attemptNumber": "Attempt #{number}",
+          "late": "Late",
+          "action": "Action",
+          "unsubmitted": "Unsubmitted"
+        },
+        "bulkActions": {
+          "selectedCount": "{count} selected",
+          "hiddenCount": "{count} hidden",
+          "visibleCount": "{count} visible",
+          "running": "Running bulk action",
+          "publishSelected": "Publish selected",
+          "returnSelected": "Return selected",
+          "releaseHidden": "Release hidden grades",
+          "reasonPlaceholder": "Reason",
+          "extend": "Extend",
+          "export": "Export",
+          "lastResult": "Last result: {detail}",
+          "cancel": "Cancel",
+          "confirmPublish": "Confirm publish",
+          "confirmReturn": "Confirm return",
+          "queueExtension": "Queue extension",
+          "releaseGrades": "Release grades",
+          "toasts": {
+            "needsSavedScores": "Selected submissions need saved scores first.",
+            "published": "Selected grades published",
+            "returned": "Selected submissions returned",
+            "bulkActionFailed": "Bulk action failed",
+            "deadlineQueued": "Deadline extension queued",
+            "extendFailed": "Failed to extend deadline",
+            "hiddenReleased": "Hidden grades released",
+            "releaseFailed": "Failed to release hidden grades"
+          },
+          "summaries": {
+            "publishFinished": "Bulk publish finished",
+            "returnFinished": "Bulk return finished",
+            "resultDetail": "Succeeded: {succeeded}. Failed: {failed}.",
+            "deadlineQueued": "Deadline extension queued",
+            "deadlineDetail": "Learners targeted: {count}. {reason}",
+            "releaseFinished": "Grade release finished",
+            "releaseDetail": "Newly visible: {published}. Already visible: {alreadyVisible}."
+          },
+          "preview": {
+            "selectedSubmissions": "Selected submissions",
+            "gradeReady": "Grade-ready",
+            "hiddenFromStudent": "Hidden from student",
+            "alreadyVisible": "Already visible",
+            "learners": "Learners",
+            "newDueDate": "New due date",
+            "reason": "Reason",
+            "notSet": "Not set",
+            "noReason": "No reason provided",
+            "selectedHiddenSubmissions": "Selected hidden submissions",
+            "releaseHiddenDescription": "This applies the activity-level grade release action and updates any graded submissions that are still hidden."
+          },
+          "dialogs": {
+            "publishTitle": "Publish selected grades",
+            "publishDescription": "Review the exact impact before making grades visible to students.",
+            "returnTitle": "Return selected submissions",
+            "returnDescription": "This will move selected submissions into the returned-for-revision state.",
+            "extendTitle": "Extend deadlines",
+            "extendDescription": "Queue a deadline extension for the selected learners.",
+            "releaseTitle": "Release hidden grades",
+            "releaseDescription": "Make currently hidden graded submissions visible to students for this activity.",
+            "defaultTitle": "Bulk action",
+            "defaultDescription": "Confirm the selected bulk action."
+          }
+        }
       }
     },
     "Assessments": {
@@ -7563,6 +7676,106 @@
           "tasks": "Tasks",
           "title": "Assignments",
           "submissionsTitle": "Student Submissions"
+        }
+      },
+      "Studio": {
+        "loading": "Loading studio",
+        "unavailable": "Studio is unavailable for this activity.",
+        "lifecycle": {
+          "draft": "Draft",
+          "scheduled": "Scheduled",
+          "published": "Published",
+          "archived": "Archived"
+        },
+        "lifecycleChanged": "Lifecycle changed to {state}",
+        "updateLifecycleFailed": "Failed to update lifecycle",
+        "breadcrumb": {
+          "curriculum": "Curriculum",
+          "studio": "Studio"
+        },
+        "issueCount": "{count} issues",
+        "preview": "Preview",
+        "scheduleOptions": "Schedule options",
+        "schedulePublication": "Schedule publication",
+        "schedule": "Schedule",
+        "saveAsDraft": "Save as draft",
+        "moreOptions": "More options",
+        "archive": "Archive",
+        "hideInspector": "Hide inspector",
+        "showInspector": "Show inspector"
+      },
+      "Items": {
+        "Choice": {
+          "prompt": "Prompt",
+          "type": "Type",
+          "trueLabel": "True",
+          "falseLabel": "False",
+          "kinds": {
+            "single": "Single choice",
+            "multiple": "Multiple choice",
+            "trueFalse": "True/false",
+            "matching": "Matching"
+          },
+          "toggleCorrectAnswer": "Toggle correct answer",
+          "optionPlaceholder": "Option {label}",
+          "addOption": "Add option",
+          "matching": {
+            "left": "Left",
+            "right": "Right",
+            "addPair": "Add pair"
+          }
+        },
+        "FileUpload": {
+          "maxFiles": "Max files",
+          "maxSizeMb": "Max size, MB",
+          "noLimit": "No limit",
+          "allowedMimeTypes": "Allowed MIME types",
+          "mimePlaceholder": "application/pdf, image/png",
+          "referenceFile": "Reference file",
+          "currentFile": "Current file",
+          "verifiedBeforeAttach": "File is verified before it is attached to this draft.",
+          "uploadedFile": "Uploaded file",
+          "noFileRecorded": "No file recorded",
+          "toasts": {
+            "attached": "File attached to this draft."
+          },
+          "errors": {
+            "fileTooLarge": "File exceeds {size} MB",
+            "fileTypeNotAllowed": "File type is not allowed for this item",
+            "uploadCreate": "Upload could not be created",
+            "uploadFailed": "Upload failed",
+            "uploadFinalizeFailed": "Upload finalize failed"
+          }
+        },
+        "Form": {
+          "title": "Form item",
+          "description": "Create fill-in fields with optional correct answers.",
+          "questionBadge": "Q{number}",
+          "questionPlaceholder": "Question or prompt",
+          "fieldLabelPlaceholder": "Student field label",
+          "correctAnswerPlaceholder": "Correct answer",
+          "hintPlaceholder": "Hint",
+          "addBlank": "Add blank",
+          "addQuestion": "Add question",
+          "noFields": "No form fields.",
+          "promptFallback": "Prompt",
+          "answerLabel": "Answer {number}"
+        },
+        "Matching": {
+          "title": "Matching item",
+          "description": "Students drag or select the right-side value that matches each left-side term.",
+          "leftLabel": "Left (term)",
+          "rightLabel": "Right (match)",
+          "termPlaceholder": "Term {number}",
+          "matchPlaceholder": "Match {number}",
+          "removePair": "Remove pair",
+          "addPair": "Add pair"
+        },
+        "OpenText": {
+          "title": "Open text item",
+          "description": "Prompt for a manually graded written response.",
+          "promptPlaceholder": "Prompt",
+          "noTextRecorded": "No text recorded"
         }
       },
       "Review": {

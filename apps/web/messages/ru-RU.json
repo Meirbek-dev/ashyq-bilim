@@ -311,7 +311,17 @@
         "titleRequired": "Требуется название"
       },
       "visibleTestCases": "Видимые тестовые сценарии",
-      "visibleTestCasesDescription": "Тесты, которые студенты могут видеть и запускать"
+      "visibleTestCasesDescription": "Тесты, которые студенты могут видеть и запускать",
+      "hintsPanel": {
+        "title": "Подсказки",
+        "description": "Необязательная помощь, которую студенты могут открыть во время попытки.",
+        "addHint": "Добавить подсказку",
+        "empty": "Подсказки не настроены.",
+        "hintNumber": "Подсказка #{number}",
+        "content": "Содержимое",
+        "contentPlaceholder": "Опишите полезное направление, не раскрывая полное решение.",
+        "xpPenalty": "Штраф XP"
+      }
     },
     "DocumentPdf": {
       "viewerTitle": "PDF Document Viewer"
@@ -981,6 +991,17 @@
     "Breadcrumb": {
       "label": "Навигация",
       "more": "Ещё"
+    },
+    "AiChat": {
+      "placeholder": "Спросите Ashyk Ai…",
+      "sendMessage": "Отправить сообщение",
+      "stopGeneration": "Остановить генерацию"
+    },
+    "Spinner": {
+      "loading": "Загрузка"
+    },
+    "Video": {
+      "youtubePlayer": "YouTube видеоплеер"
     },
     "DashboardAnalytics": {
       "adminAnalyticsPanel": {
@@ -4288,6 +4309,8 @@
         "image": "Изображение",
         "infoCallout": "Информационная выноска",
         "insert": "Вставить",
+        "insertBlock": "Вставить блок",
+        "insertBlockHint": "Нажмите, чтобы вставить блок, или введите /",
         "insertGroups": {
           "callouts": "Выноски",
           "interactive": "Интерактивные",
@@ -4305,6 +4328,7 @@
           "orderedList": "Нумерованный список"
         },
         "mathEquation": "Математическое уравнение (LaTeX)",
+        "editorToolbar": "Панель инструментов редактора",
         "plainText": "Обычный текст",
         "slashBlocks": "Блоки",
         "slashEmbedDescription": "Встроить {label}",
@@ -6996,6 +7020,95 @@
           "quiz": "Тест",
           "form": "Форма",
           "file": "Файл"
+        }
+      },
+      "Review": {
+        "submissionList": {
+          "searchLearner": "Поиск студента",
+          "statusFilter": "Фильтр статуса",
+          "sort": "Сортировка",
+          "filters": {
+            "all": "Все",
+            "needsGrading": "Требует проверки"
+          },
+          "sorting": {
+            "submitted": "Отправлено",
+            "score": "Оценка",
+            "attempt": "Попытка"
+          },
+          "totals": {
+            "submissions": "{count} работ",
+            "selected": "{count} выбрано"
+          },
+          "loading": "Загрузка",
+          "empty": "Работы не найдены.",
+          "selectSubmission": "Выбрать {name}",
+          "attemptNumber": "Попытка #{number}",
+          "late": "Просрочено",
+          "action": "Действие",
+          "unsubmitted": "Не отправлено"
+        },
+        "bulkActions": {
+          "selectedCount": "{count} выбрано",
+          "hiddenCount": "{count} скрыто",
+          "visibleCount": "{count} видно",
+          "running": "Выполняется массовое действие",
+          "publishSelected": "Опубликовать выбранное",
+          "returnSelected": "Вернуть выбранное",
+          "releaseHidden": "Открыть скрытые оценки",
+          "reasonPlaceholder": "Причина",
+          "extend": "Продлить",
+          "export": "Экспорт",
+          "lastResult": "Последний результат: {detail}",
+          "cancel": "Отмена",
+          "confirmPublish": "Подтвердить публикацию",
+          "confirmReturn": "Подтвердить возврат",
+          "queueExtension": "Поставить продление в очередь",
+          "releaseGrades": "Открыть оценки",
+          "toasts": {
+            "needsSavedScores": "Для выбранных работ сначала нужны сохранённые оценки.",
+            "published": "Выбранные оценки опубликованы",
+            "returned": "Выбранные работы возвращены",
+            "bulkActionFailed": "Массовое действие не удалось",
+            "deadlineQueued": "Продление срока поставлено в очередь",
+            "extendFailed": "Не удалось продлить срок",
+            "hiddenReleased": "Скрытые оценки опубликованы",
+            "releaseFailed": "Не удалось открыть скрытые оценки"
+          },
+          "summaries": {
+            "publishFinished": "Массовая публикация завершена",
+            "returnFinished": "Массовый возврат завершён",
+            "resultDetail": "Успешно: {succeeded}. Ошибок: {failed}.",
+            "deadlineQueued": "Продление срока поставлено в очередь",
+            "deadlineDetail": "Затронуто учащихся: {count}. {reason}",
+            "releaseFinished": "Публикация оценок завершена",
+            "releaseDetail": "Новых видимых: {published}. Уже видимых: {alreadyVisible}."
+          },
+          "preview": {
+            "selectedSubmissions": "Выбранные работы",
+            "gradeReady": "Готово к оценке",
+            "hiddenFromStudent": "Скрыто от студента",
+            "alreadyVisible": "Уже видно",
+            "learners": "Студенты",
+            "newDueDate": "Новый срок",
+            "reason": "Причина",
+            "notSet": "Не задано",
+            "noReason": "Причина не указана",
+            "selectedHiddenSubmissions": "Выбранные скрытые работы",
+            "releaseHiddenDescription": "Это применит действие публикации оценок на уровне задания и откроет все уже проверенные, но ещё скрытые работы."
+          },
+          "dialogs": {
+            "publishTitle": "Опубликовать выбранные оценки",
+            "publishDescription": "Проверьте влияние перед тем, как сделать оценки видимыми студентам.",
+            "returnTitle": "Вернуть выбранные работы",
+            "returnDescription": "Это переведёт выбранные работы в состояние возврата на доработку.",
+            "extendTitle": "Продлить сроки",
+            "extendDescription": "Поставьте в очередь продление срока для выбранных студентов.",
+            "releaseTitle": "Открыть скрытые оценки",
+            "releaseDescription": "Сделать скрытые проверенные работы видимыми для студентов по этому заданию.",
+            "defaultTitle": "Массовое действие",
+            "defaultDescription": "Подтвердите выбранное массовое действие."
+          }
         }
       }
     },

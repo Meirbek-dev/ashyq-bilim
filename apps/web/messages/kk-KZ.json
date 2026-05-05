@@ -311,7 +311,17 @@
         "titleRequired": "Тақырып міндетті"
       },
       "visibleTestCases": "Көрінетін сынақ жағдайлары",
-      "visibleTestCasesDescription": "Оқушылар көре алатын және орындай алатын тесттер"
+      "visibleTestCasesDescription": "Оқушылар көре алатын және орындай алатын тесттер",
+      "hintsPanel": {
+        "title": "Кеңестер",
+        "description": "Студенттер әрекет кезінде аша алатын қосымша көмек.",
+        "addHint": "Кеңес қосу",
+        "empty": "Кеңестер бапталмаған.",
+        "hintNumber": "Кеңес №{number}",
+        "content": "Мазмұн",
+        "contentPlaceholder": "Шешімді толық ашпай, пайдалы бір бағытты түсіндіріңіз.",
+        "xpPenalty": "XP айыбы"
+      }
     },
     "DocumentPdf": {
       "viewerTitle": "PDF құжаттарды қарау құралы"
@@ -980,6 +990,17 @@
     "Breadcrumb": {
       "label": "Навигация",
       "more": "Көбірек"
+    },
+    "AiChat": {
+      "placeholder": "Ashyk Ai-дан сұраңыз…",
+      "sendMessage": "Хабар жіберу",
+      "stopGeneration": "Генерацияны тоқтату"
+    },
+    "Spinner": {
+      "loading": "Жүктелуде"
+    },
+    "Video": {
+      "youtubePlayer": "YouTube бейне ойнатқышы"
     },
     "DashboardAnalytics": {
       "adminAnalyticsPanel": {
@@ -4284,6 +4305,8 @@
         "image": "Сурет",
         "infoCallout": "Ақпараттық шығару",
         "insert": "Кірістіру",
+        "insertBlock": "Блокты кірістіру",
+        "insertBlockHint": "Блокты кірістіру үшін басыңыз немесе / теріңіз",
         "insertGroups": {
           "callouts": "Ескертпелер",
           "interactive": "Интерактивті",
@@ -4301,6 +4324,7 @@
           "orderedList": "Нөмірленген тізім"
         },
         "mathEquation": "Математикалық теңдеу (LaTeX)",
+        "editorToolbar": "Редактор құралдар тақтасы",
         "plainText": "Қарапайым мәтін",
         "slashBlocks": "Блоктар",
         "slashEmbedDescription": "{label} енгізу",
@@ -6992,6 +7016,95 @@
           "form": "Форма",
           "file": "Файл"
         }
+      },
+      "Review": {
+        "submissionList": {
+          "searchLearner": "Білім алушыны іздеу",
+          "statusFilter": "Мәртебе сүзгісі",
+          "sort": "Сұрыптау",
+          "filters": {
+            "all": "Барлығы",
+            "needsGrading": "Тексеру керек"
+          },
+          "sorting": {
+            "submitted": "Тапсырылған",
+            "score": "Баға",
+            "attempt": "Әрекет"
+          },
+          "totals": {
+            "submissions": "{count} жұмыс",
+            "selected": "{count} таңдалды"
+          },
+          "loading": "Жүктелуде",
+          "empty": "Жіберілген жұмыстар табылмады.",
+          "selectSubmission": "{name} таңдау",
+          "attemptNumber": "Әрекет №{number}",
+          "late": "Кеш",
+          "action": "Әрекет",
+          "unsubmitted": "Тапсырылмаған"
+        },
+        "bulkActions": {
+          "selectedCount": "{count} таңдалды",
+          "hiddenCount": "{count} жасырын",
+          "visibleCount": "{count} көрінеді",
+          "running": "Жаппай әрекет орындалуда",
+          "publishSelected": "Таңдалғанын жариялау",
+          "returnSelected": "Таңдалғанын қайтару",
+          "releaseHidden": "Жасырын бағаларды жариялау",
+          "reasonPlaceholder": "Себебі",
+          "extend": "Ұзарту",
+          "export": "Экспорт",
+          "lastResult": "Соңғы нәтиже: {detail}",
+          "cancel": "Болдырмау",
+          "confirmPublish": "Жариялауды растау",
+          "confirmReturn": "Қайтаруды растау",
+          "queueExtension": "Ұзартуды кезекке қою",
+          "releaseGrades": "Бағаларды жариялау",
+          "toasts": {
+            "needsSavedScores": "Таңдалған жұмыстарда алдымен сақталған бағалар болуы керек.",
+            "published": "Таңдалған бағалар жарияланды",
+            "returned": "Таңдалған жұмыстар қайтарылды",
+            "bulkActionFailed": "Жаппай әрекет сәтсіз аяқталды",
+            "deadlineQueued": "Мерзімді ұзарту кезекке қойылды",
+            "extendFailed": "Мерзімді ұзарту сәтсіз аяқталды",
+            "hiddenReleased": "Жасырын бағалар жарияланды",
+            "releaseFailed": "Жасырын бағаларды жариялау сәтсіз аяқталды"
+          },
+          "summaries": {
+            "publishFinished": "Жаппай жариялау аяқталды",
+            "returnFinished": "Жаппай қайтару аяқталды",
+            "resultDetail": "Сәтті: {succeeded}. Сәтсіз: {failed}.",
+            "deadlineQueued": "Мерзімді ұзарту кезекке қойылды",
+            "deadlineDetail": "Қамтылған білім алушылар: {count}. {reason}",
+            "releaseFinished": "Бағаларды жариялау аяқталды",
+            "releaseDetail": "Жаңадан көрінгені: {published}. Бұрыннан көрінгені: {alreadyVisible}."
+          },
+          "preview": {
+            "selectedSubmissions": "Таңдалған жұмыстар",
+            "gradeReady": "Бағалауға дайын",
+            "hiddenFromStudent": "Студенттен жасырылған",
+            "alreadyVisible": "Бұрыннан көрінеді",
+            "learners": "Білім алушылар",
+            "newDueDate": "Жаңа мерзім",
+            "reason": "Себебі",
+            "notSet": "Орнатылмаған",
+            "noReason": "Себеп көрсетілмеген",
+            "selectedHiddenSubmissions": "Таңдалған жасырын жұмыстар",
+            "releaseHiddenDescription": "Бұл әрекет тапсырма деңгейіндегі бағаларды жариялап, әлі жасырын тұрған бағаланған жұмыстарды көрсетеді."
+          },
+          "dialogs": {
+            "publishTitle": "Таңдалған бағаларды жариялау",
+            "publishDescription": "Бағаларды студенттерге көрсетпес бұрын әсерін тексеріңіз.",
+            "returnTitle": "Таңдалған жұмыстарды қайтару",
+            "returnDescription": "Бұл таңдалған жұмыстарды түзетуге қайтарылған күйге ауыстырады.",
+            "extendTitle": "Мерзімдерді ұзарту",
+            "extendDescription": "Таңдалған білім алушылар үшін мерзімді ұзартуды кезекке қойыңыз.",
+            "releaseTitle": "Жасырын бағаларды жариялау",
+            "releaseDescription": "Осы әрекет үшін жасырын тұрған бағаланған жұмыстарды студенттерге көрінетін етіңіз.",
+            "defaultTitle": "Жаппай әрекет",
+            "defaultDescription": "Таңдалған жаппай әрекетті растаңыз."
+          }
+        }
       }
     },
     "Assessments": {
@@ -7584,6 +7697,106 @@
           "tasks": "Тапсырмалар",
           "title": "Тапсырмалар",
           "submissionsTitle": "Студенттердің жұмыстары"
+        }
+      },
+      "Studio": {
+        "loading": "Студия жүктелуде",
+        "unavailable": "Бұл әрекет үшін студия қолжетімсіз.",
+        "lifecycle": {
+          "draft": "Нобай",
+          "scheduled": "Жоспарланған",
+          "published": "Жарияланған",
+          "archived": "Мұрағатталған"
+        },
+        "lifecycleChanged": "Кезең {state} күйіне ауысты",
+        "updateLifecycleFailed": "Кезеңді жаңарту сәтсіз аяқталды",
+        "breadcrumb": {
+          "curriculum": "Оқу жоспары",
+          "studio": "Студия"
+        },
+        "issueCount": "{count} мәселе",
+        "preview": "Алдын ала қарау",
+        "scheduleOptions": "Жоспарлау параметрлері",
+        "schedulePublication": "Жариялауды жоспарлау",
+        "schedule": "Жоспарлау",
+        "saveAsDraft": "Нобай ретінде сақтау",
+        "moreOptions": "Қосымша параметрлер",
+        "archive": "Мұрағаттау",
+        "hideInspector": "Инспекторды жасыру",
+        "showInspector": "Инспекторды көрсету"
+      },
+      "Items": {
+        "Choice": {
+          "prompt": "Нұсқау",
+          "type": "Түрі",
+          "trueLabel": "Дұрыс",
+          "falseLabel": "Қате",
+          "kinds": {
+            "single": "Бір жауап",
+            "multiple": "Көп жауап",
+            "trueFalse": "Дұрыс/қате",
+            "matching": "Сәйкестендіру"
+          },
+          "toggleCorrectAnswer": "Дұрыс жауапты ауыстыру",
+          "optionPlaceholder": "Нұсқа {label}",
+          "addOption": "Нұсқа қосу",
+          "matching": {
+            "left": "Сол жақ",
+            "right": "Оң жақ",
+            "addPair": "Жұп қосу"
+          }
+        },
+        "FileUpload": {
+          "maxFiles": "Ең көп файл",
+          "maxSizeMb": "Ең үлкен өлшем, МБ",
+          "noLimit": "Шектеусіз",
+          "allowedMimeTypes": "Рұқсат етілген MIME түрлері",
+          "mimePlaceholder": "application/pdf, image/png",
+          "referenceFile": "Анықтамалық файл",
+          "currentFile": "Ағымдағы файл",
+          "verifiedBeforeAttach": "Файл осы нобайға тіркелмес бұрын тексеріледі.",
+          "uploadedFile": "Жүктелген файл",
+          "noFileRecorded": "Файл тіркелмеген",
+          "toasts": {
+            "attached": "Файл осы нобайға тіркелді."
+          },
+          "errors": {
+            "fileTooLarge": "Файл {size} МБ-тан асады",
+            "fileTypeNotAllowed": "Бұл элемент үшін файл түріне рұқсат жоқ",
+            "uploadCreate": "Жүктеуді бастау мүмкін болмады",
+            "uploadFailed": "Жүктеу сәтсіз аяқталды",
+            "uploadFinalizeFailed": "Жүктеуді аяқтау сәтсіз аяқталды"
+          }
+        },
+        "Form": {
+          "title": "Форма элементі",
+          "description": "Дұрыс жауаптары бар бос орындарды жасаңыз.",
+          "questionBadge": "С{number}",
+          "questionPlaceholder": "Сұрақ немесе нұсқау",
+          "fieldLabelPlaceholder": "Студент өрісінің атауы",
+          "correctAnswerPlaceholder": "Дұрыс жауап",
+          "hintPlaceholder": "Кеңес",
+          "addBlank": "Бос орын қосу",
+          "addQuestion": "Сұрақ қосу",
+          "noFields": "Форма өрістері жоқ.",
+          "promptFallback": "Нұсқау",
+          "answerLabel": "Жауап {number}"
+        },
+        "Matching": {
+          "title": "Сәйкестендіру элементі",
+          "description": "Студенттер сол жақтағы ұғымға сай оң жақтағы мәнді таңдайды немесе сүйрейді.",
+          "leftLabel": "Сол жақ (ұғым)",
+          "rightLabel": "Оң жақ (сәйкес)",
+          "termPlaceholder": "Термин {number}",
+          "matchPlaceholder": "Сәйкес {number}",
+          "removePair": "Жұпты жою",
+          "addPair": "Жұп қосу"
+        },
+        "OpenText": {
+          "title": "Ашық мәтін элементі",
+          "description": "Қолмен бағаланатын жазбаша жауапқа арналған нұсқау.",
+          "promptPlaceholder": "Нұсқау",
+          "noTextRecorded": "Мәтін тіркелмеген"
         }
       },
       "Review": {
