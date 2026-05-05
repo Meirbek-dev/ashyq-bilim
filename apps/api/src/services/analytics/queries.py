@@ -528,9 +528,9 @@ def load_analytics_context(
                 Submission.started_at >= activity_start
             )
         exam_attempts = [
-            (submission, assessments_by_activity[submission.activity_id])
-            for submission in db_session.exec(exam_attempt_stmt).all()
-            if submission.activity_id in assessments_by_activity
+            (sub, assessments_by_activity[sub.activity_id])
+            for row in db_session.exec(exam_attempt_stmt).all()
+            if (sub := _unwrap_model(row, Submission)).activity_id in assessments_by_activity
         ]
 
     activity_ids = [activity.id for activity in activities if activity.id is not None]

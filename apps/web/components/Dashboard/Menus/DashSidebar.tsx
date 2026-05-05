@@ -88,7 +88,7 @@ const SidebarSkeleton = () => (
 const useNavigationItems = () => {
   const pathname = usePathname();
   const t = useTranslations('SidebarMenu');
-  const { canSeePlatform, canSeeCourses, canSeeAssignments, canSeeAnalytics, canSeeUsers, canSeeAdmin } =
+  const { canSeePlatform, canSeeCourses, canSeeAnalytics, canSeeUsers, canSeeAdmin } =
     useNavigationPermissions();
 
   return [
@@ -106,17 +106,6 @@ const useNavigationItems = () => {
             href: '/dash/courses',
             icon: BookCopy,
             tooltip: t('tooltips.courses'),
-            isActive: pathname.startsWith('/dash/courses'),
-          },
-        ]
-      : []),
-    ...(canSeeAssignments
-      ? [
-          {
-            title: t('tooltips.assignments'),
-            href: '/dash/courses',
-            icon: Backpack,
-            tooltip: t('tooltips.assignments'),
             isActive: pathname.startsWith('/dash/courses'),
           },
         ]
