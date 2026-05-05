@@ -7432,6 +7432,30 @@
         }
       },
       "Studio": {
+        "loading": "Студия жүктелуде",
+        "unavailable": "Бұл әрекет үшін студия қолжетімсіз.",
+        "lifecycle": {
+          "draft": "Нобай",
+          "scheduled": "Жоспарланған",
+          "published": "Жарияланған",
+          "archived": "Мұрағатталған"
+        },
+        "lifecycleChanged": "Кезең {state} күйіне ауысты",
+        "updateLifecycleFailed": "Кезеңді жаңарту сәтсіз аяқталды",
+        "breadcrumb": {
+          "curriculum": "Оқу жоспары",
+          "studio": "Студия"
+        },
+        "issueCount": "{count} мәселе",
+        "preview": "Алдын ала қарау",
+        "scheduleOptions": "Жоспарлау параметрлері",
+        "schedulePublication": "Жариялауды жоспарлау",
+        "schedule": "Жоспарлау",
+        "saveAsDraft": "Нобай ретінде сақтау",
+        "moreOptions": "Қосымша параметрлер",
+        "archive": "Мұрағаттау",
+        "hideInspector": "Инспекторды жасыру",
+        "showInspector": "Инспекторды көрсету",
         "Assignment": {
           "AssignmentPage": {
             "assignmentTools": "Тапсырмаларға арналған құралдар",
@@ -7698,32 +7722,6 @@
           "title": "Тапсырмалар",
           "submissionsTitle": "Студенттердің жұмыстары"
         }
-      },
-      "Studio": {
-        "loading": "Студия жүктелуде",
-        "unavailable": "Бұл әрекет үшін студия қолжетімсіз.",
-        "lifecycle": {
-          "draft": "Нобай",
-          "scheduled": "Жоспарланған",
-          "published": "Жарияланған",
-          "archived": "Мұрағатталған"
-        },
-        "lifecycleChanged": "Кезең {state} күйіне ауысты",
-        "updateLifecycleFailed": "Кезеңді жаңарту сәтсіз аяқталды",
-        "breadcrumb": {
-          "curriculum": "Оқу жоспары",
-          "studio": "Студия"
-        },
-        "issueCount": "{count} мәселе",
-        "preview": "Алдын ала қарау",
-        "scheduleOptions": "Жоспарлау параметрлері",
-        "schedulePublication": "Жариялауды жоспарлау",
-        "schedule": "Жоспарлау",
-        "saveAsDraft": "Нобай ретінде сақтау",
-        "moreOptions": "Қосымша параметрлер",
-        "archive": "Мұрағаттау",
-        "hideInspector": "Инспекторды жасыру",
-        "showInspector": "Инспекторды көрсету"
       },
       "Items": {
         "Choice": {

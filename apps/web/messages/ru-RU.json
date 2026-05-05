@@ -7704,6 +7704,106 @@
           "submissionsTitle": "Работы студентов"
         }
       },
+      "Studio": {
+        "loading": "Загрузка студии",
+        "unavailable": "Студия недоступна для этой активности.",
+        "lifecycle": {
+          "draft": "Черновик",
+          "scheduled": "Запланировано",
+          "published": "Опубликовано",
+          "archived": "В архиве"
+        },
+        "lifecycleChanged": "Этап изменён на {state}",
+        "updateLifecycleFailed": "Не удалось обновить этап",
+        "breadcrumb": {
+          "curriculum": "Учебный план",
+          "studio": "Студия"
+        },
+        "issueCount": "{count} проблем",
+        "preview": "Предпросмотр",
+        "scheduleOptions": "Параметры планирования",
+        "schedulePublication": "Запланировать публикацию",
+        "schedule": "Запланировать",
+        "saveAsDraft": "Сохранить как черновик",
+        "moreOptions": "Дополнительные параметры",
+        "archive": "Архивировать",
+        "hideInspector": "Скрыть инспектор",
+        "showInspector": "Показать инспектор"
+      },
+      "Items": {
+        "Choice": {
+          "prompt": "Формулировка",
+          "type": "Тип",
+          "trueLabel": "Верно",
+          "falseLabel": "Неверно",
+          "kinds": {
+            "single": "Один вариант",
+            "multiple": "Несколько вариантов",
+            "trueFalse": "Верно/неверно",
+            "matching": "Сопоставление"
+          },
+          "toggleCorrectAnswer": "Переключить правильный ответ",
+          "optionPlaceholder": "Вариант {label}",
+          "addOption": "Добавить вариант",
+          "matching": {
+            "left": "Левая часть",
+            "right": "Правая часть",
+            "addPair": "Добавить пару"
+          }
+        },
+        "FileUpload": {
+          "maxFiles": "Макс. файлов",
+          "maxSizeMb": "Макс. размер, МБ",
+          "noLimit": "Без ограничений",
+          "allowedMimeTypes": "Разрешённые MIME-типы",
+          "mimePlaceholder": "application/pdf, image/png",
+          "referenceFile": "Справочный файл",
+          "currentFile": "Текущий файл",
+          "verifiedBeforeAttach": "Файл проверяется перед прикреплением к этому черновику.",
+          "uploadedFile": "Загруженный файл",
+          "noFileRecorded": "Файл не зафиксирован",
+          "toasts": {
+            "attached": "Файл прикреплён к этому черновику."
+          },
+          "errors": {
+            "fileTooLarge": "Файл превышает {size} МБ",
+            "fileTypeNotAllowed": "Тип файла недопустим для этого элемента",
+            "uploadCreate": "Не удалось создать загрузку",
+            "uploadFailed": "Загрузка не удалась",
+            "uploadFinalizeFailed": "Не удалось завершить загрузку"
+          }
+        },
+        "Form": {
+          "title": "Элемент формы",
+          "description": "Создавайте поля с пропусками и необязательными правильными ответами.",
+          "questionBadge": "В{number}",
+          "questionPlaceholder": "Вопрос или инструкция",
+          "fieldLabelPlaceholder": "Название поля для студента",
+          "correctAnswerPlaceholder": "Правильный ответ",
+          "hintPlaceholder": "Подсказка",
+          "addBlank": "Добавить пропуск",
+          "addQuestion": "Добавить вопрос",
+          "noFields": "Полей формы нет.",
+          "promptFallback": "Инструкция",
+          "answerLabel": "Ответ {number}"
+        },
+        "Matching": {
+          "title": "Элемент сопоставления",
+          "description": "Студенты перетаскивают или выбирают значение справа, соответствующее термину слева.",
+          "leftLabel": "Слева (термин)",
+          "rightLabel": "Справа (соответствие)",
+          "termPlaceholder": "Термин {number}",
+          "matchPlaceholder": "Соответствие {number}",
+          "removePair": "Удалить пару",
+          "addPair": "Добавить пару"
+        },
+        "OpenText": {
+          "title": "Элемент с открытым ответом",
+          "description": "Инструкция для письменного ответа, который проверяется вручную.",
+          "promptPlaceholder": "Инструкция",
+          "noTextRecorded": "Текст не сохранён"
+        }
+      },
       "Review": {
         "Gradebook": {
           "title": "Прогресс курса",
