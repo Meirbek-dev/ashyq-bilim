@@ -6873,8 +6873,6 @@
       "assessmentOpsMigrationCutoverReady": "Готово к cutover",
       "assessmentOpsMigrationCutoverBlocked": "Cutover заблокирован",
       "assessmentOpsMigrationCanonicalRows": "Канонические строки",
-      "assessmentOpsMigrationLegacyRows": "Legacy строки",
-      "assessmentOpsMigrationLegacySources": "Legacy источники",
       "assessmentOpsMigrationModeCanonical": "Canonical",
       "assessmentOpsAuditTitle": "История аудита",
       "assessmentOpsAuditEmpty": "Для текущего scope нет операционных событий аудита.",

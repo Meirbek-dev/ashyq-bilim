@@ -85,8 +85,6 @@ function createDetail(overrides: Partial<TeacherAssessmentDetailResponse> = {}):
     },
     migration: {
       is_canonical: true,
-      legacy_sources: [],
-      legacy_row_count: 0,
       canonical_row_count: 18,
       cutover_ready: true,
       compatibility_mode: 'canonical',
@@ -169,7 +167,6 @@ describe('AssessmentOperationsPanel', () => {
     expect(screen.getByText('Question 1')).toBeInTheDocument();
     expect(screen.getByText('Release Grades for 8 learners')).toBeInTheDocument();
     expect(screen.getByText('Teacher Analytics')).toBeInTheDocument();
-    expect(screen.getByText('atRisk.na')).toBeInTheDocument();
     expect(screen.getByText('pages.assessmentOpsAuditRowCount')).toBeInTheDocument();
     expect(screen.getByText('pages.assessmentSupportBlockersEmpty')).toBeInTheDocument();
   });
@@ -181,8 +178,6 @@ describe('AssessmentOperationsPanel', () => {
           audit_history: [],
           migration: {
             is_canonical: true,
-            legacy_sources: [],
-            legacy_row_count: 0,
             canonical_row_count: 18,
             cutover_ready: true,
             compatibility_mode: 'canonical',

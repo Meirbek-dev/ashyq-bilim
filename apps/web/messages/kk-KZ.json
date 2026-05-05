@@ -6868,8 +6868,6 @@
       "assessmentOpsMigrationCutoverReady": "Cutover дайын",
       "assessmentOpsMigrationCutoverBlocked": "Cutover бұғатталған",
       "assessmentOpsMigrationCanonicalRows": "Canonical жолдар",
-      "assessmentOpsMigrationLegacyRows": "Legacy жолдар",
-      "assessmentOpsMigrationLegacySources": "Legacy көздері",
       "assessmentOpsMigrationModeCanonical": "Canonical",
       "assessmentOpsAuditTitle": "Аудит тарихы",
       "assessmentOpsAuditEmpty": "Ағымдағы scope үшін операциялық аудит оқиғалары жоқ.",

@@ -662,8 +662,6 @@ def _build_migration_status(
     )
     return AssessmentMigrationStatus(
         is_canonical=True,
-        legacy_sources=[],
-        legacy_row_count=0,
         canonical_row_count=canonical_row_count,
         cutover_ready=True,
         compatibility_mode="canonical",
@@ -848,6 +846,7 @@ def _build_support_diagnostics(
     eligible_user_ids: set[int],
     cohort_filter_ids: set[int] | None,
 ) -> AssessmentSupportDiagnostics:
+    _ = assessment_type
     scoped_cohort_ids: set[int] = set()
     for user_id in eligible_user_ids:
         cohort_ids = set(context.cohort_ids_by_user.get(user_id, set()))

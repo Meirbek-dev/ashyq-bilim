@@ -642,8 +642,6 @@ def test_quiz_detail_endpoint_uses_canonical_submission_rows(
     assert payload["slo"]["status"] == "not_applicable"
     assert payload["migration"] == {
         "is_canonical": True,
-        "legacy_sources": [],
-        "legacy_row_count": 0,
         "canonical_row_count": 1,
         "cutover_ready": True,
         "compatibility_mode": "canonical",

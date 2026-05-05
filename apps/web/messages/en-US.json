@@ -6847,8 +6847,6 @@
       "assessmentOpsMigrationCutoverReady": "Cutover ready",
       "assessmentOpsMigrationCutoverBlocked": "Cutover blocked",
       "assessmentOpsMigrationCanonicalRows": "Canonical rows",
-      "assessmentOpsMigrationLegacyRows": "Legacy rows",
-      "assessmentOpsMigrationLegacySources": "Legacy sources",
       "assessmentOpsMigrationModeCanonical": "Canonical",
       "assessmentOpsAuditTitle": "Audit history",
       "assessmentOpsAuditEmpty": "No operational audit events are available for the current scope.",

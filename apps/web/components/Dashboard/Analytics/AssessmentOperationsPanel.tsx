@@ -351,37 +351,12 @@ export default function AssessmentOperationsPanel({ detail }: AssessmentOperatio
             <p className="text-sm text-slate-500">{detail.migration.note}</p>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3">
               <div className="rounded-2xl border border-slate-200 p-4">
                 <div className="text-xs tracking-wide text-slate-500 uppercase">
                   {t('pages.assessmentOpsMigrationCanonicalRows')}
                 </div>
                 <div className="mt-2 text-2xl font-semibold">{detail.migration.canonical_row_count}</div>
-              </div>
-              <div className="rounded-2xl border border-slate-200 p-4">
-                <div className="text-xs tracking-wide text-slate-500 uppercase">
-                  {t('pages.assessmentOpsMigrationLegacyRows')}
-                </div>
-                <div className="mt-2 text-2xl font-semibold">{detail.migration.legacy_row_count}</div>
-              </div>
-            </div>
-            <div>
-              <div className="text-xs font-medium tracking-wide text-slate-500 uppercase">
-                {t('pages.assessmentOpsMigrationLegacySources')}
-              </div>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {detail.migration.legacy_sources.length ? (
-                  detail.migration.legacy_sources.map((source) => (
-                    <Badge
-                      key={source}
-                      variant="outline"
-                    >
-                      {source}
-                    </Badge>
-                  ))
-                ) : (
-                  <span className="text-sm text-slate-500">{t('atRisk.na')}</span>
-                )}
               </div>
             </div>
           </CardContent>

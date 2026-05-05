@@ -574,8 +574,6 @@ class AssessmentSloSnapshot(PydanticStrictBaseModel):
 
 class AssessmentMigrationStatus(PydanticStrictBaseModel):
     is_canonical: bool
-    legacy_sources: list[str]
-    legacy_row_count: int = 0
     canonical_row_count: int = 0
     cutover_ready: bool
     compatibility_mode: Literal["canonical"]

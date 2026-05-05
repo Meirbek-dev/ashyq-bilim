@@ -4496,13 +4496,6 @@ export interface components {
             cutover_ready: boolean;
             /** Is Canonical */
             is_canonical: boolean;
-            /**
-             * Legacy Row Count
-             * @default 0
-             */
-            legacy_row_count: number;
-            /** Legacy Sources */
-            legacy_sources: string[];
             /** Note */
             note: string;
         };
