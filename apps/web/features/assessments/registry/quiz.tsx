@@ -22,11 +22,17 @@ registerKind('TYPE_QUIZ', async () => {
   ]);
 
   const OutlineSlot: ComponentType<KindAuthorProps> = (_props) => (
-    <NativeItemOutline allowedKinds={['CHOICE', 'MATCHING']} itemNoun="Question" />
+    <NativeItemOutline
+      allowedKinds={['CHOICE', 'MATCHING']}
+      itemNoun="Question"
+    />
   );
 
   const AuthorSlot: ComponentType<KindAuthorProps> = (_props) => (
-    <NativeItemAuthor mode="assignment" itemNoun="Question" />
+    <NativeItemAuthor
+      mode="assignment"
+      itemNoun="Question"
+    />
   );
 
   const ReviewPassthrough: ComponentType<KindReviewProps> = ({ activityId, submissionUuid, title }) => {

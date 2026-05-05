@@ -370,7 +370,9 @@ def _quality_by_question_from_quiz_attempts(
 
 
 def _submission_has_suspicion(submission: Submission) -> bool:
-    metadata = submission.metadata_json if isinstance(submission.metadata_json, dict) else {}
+    metadata = (
+        submission.metadata_json if isinstance(submission.metadata_json, dict) else {}
+    )
     violations = metadata.get("violations")
     plagiarism = metadata.get("plagiarism")
     return (isinstance(violations, list) and len(violations) > 0) or (
@@ -405,7 +407,9 @@ def _build_submission_diagnostics(
     manual_grading_required: bool,
     note: str | None = None,
 ) -> AssessmentDiagnosticsSnapshot:
-    status_counts = Counter(assignment_submission_status(submission) for submission in submissions)
+    status_counts = Counter(
+        assignment_submission_status(submission) for submission in submissions
+    )
     stale_backlog = sum(
         1
         for submission in submissions
@@ -439,7 +443,9 @@ def _build_quiz_diagnostics(attempts: list[object]) -> AssessmentDiagnosticsSnap
     return AssessmentDiagnosticsSnapshot(
         manual_grading_required=False,
         total_attempt_records=len(attempts),
-        draft_attempts=sum(1 for attempt in attempts if not getattr(attempt, "end_ts", None)),
+        draft_attempts=sum(
+            1 for attempt in attempts if not getattr(attempt, "end_ts", None)
+        ),
         awaiting_grading=0,
         graded_not_released=0,
         returned_for_resubmission=0,
@@ -447,12 +453,15 @@ def _build_quiz_diagnostics(attempts: list[object]) -> AssessmentDiagnosticsSnap
         late_submissions=0,
         stale_backlog=0,
         suspicious_attempts=sum(
-            1 for attempt in attempts if int(getattr(attempt, "violation_count", 0) or 0) > 0
+            1
+            for attempt in attempts
+            if int(getattr(attempt, "violation_count", 0) or 0) > 0
         ),
         missing_scores=sum(
             1
             for attempt in attempts
-            if getattr(attempt, "end_ts", None) and getattr(attempt, "max_score", None) is None
+            if getattr(attempt, "end_ts", None)
+            and getattr(attempt, "max_score", None) is None
         ),
         note="Quiz analytics still depend on legacy attempt compatibility rows.",
     )
@@ -477,9 +486,13 @@ def _build_slo_snapshot(
     observed_p50 = percentile(latencies, 0.5)
     observed_p90 = percentile(latencies, 0.9)
     overdue_backlog = diagnostics.stale_backlog
-    if overdue_backlog > 0 or (observed_p90 is not None and observed_p90 > target_hours):
+    if overdue_backlog > 0 or (
+        observed_p90 is not None and observed_p90 > target_hours
+    ):
         status = "breached"
-    elif diagnostics.awaiting_grading > 0 or (observed_p50 is not None and observed_p50 > 48):
+    elif diagnostics.awaiting_grading > 0 or (
+        observed_p50 is not None and observed_p50 > 48
+    ):
         status = "warning"
     else:
         status = "healthy"
@@ -502,14 +515,15 @@ def _build_slo_snapshot(
     )
 
 
-def _resolve_actor_names(
-    db_session: Session, actor_ids: set[int]
-) -> dict[int, str]:
+def _resolve_actor_names(db_session: Session, actor_ids: set[int]) -> dict[int, str]:
     if not actor_ids:
         return {}
-    users = db_session.exec(
-        select(User).where(User.id.in_(sorted(actor_ids)))
-    ).scalars().all()
+    users = (
+        db_session
+        .exec(select(User).where(User.id.in_(sorted(actor_ids))))
+        .scalars()
+        .all()
+    )
     return {user.id: display_name(user) for user in users if user.id is not None}
 
 
@@ -520,20 +534,30 @@ def _load_audit_history(
     submission_ids: list[int],
     allowed_user_ids: set[int] | None,
 ) -> list[AssessmentAuditEventRow]:
-    entries = db_session.exec(
-        select(GradingEntry)
-        .where(GradingEntry.submission_id.in_(submission_ids or [-1]))
-        .order_by(GradingEntry.created_at.desc())
-    ).scalars().all()
-    actions = db_session.exec(
-        select(BulkAction)
-        .where(BulkAction.activity_id == activity_id)
-        .order_by(BulkAction.created_at.desc())
-    ).scalars().all()
+    entries = (
+        db_session
+        .exec(
+            select(GradingEntry)
+            .where(GradingEntry.submission_id.in_(submission_ids or [-1]))
+            .order_by(GradingEntry.created_at.desc())
+        )
+        .scalars()
+        .all()
+    )
+    actions = (
+        db_session
+        .exec(
+            select(BulkAction)
+            .where(BulkAction.activity_id == activity_id)
+            .order_by(BulkAction.created_at.desc())
+        )
+        .scalars()
+        .all()
+    )
 
     visible_actions: list[BulkAction] = []
     for action in actions:
-        targets = set(int(user_id) for user_id in action.target_user_ids or [])
+        targets = {int(user_id) for user_id in action.target_user_ids or []}
         if allowed_user_ids is None or not targets or targets & allowed_user_ids:
             visible_actions.append(action)
 
@@ -551,27 +575,25 @@ def _load_audit_history(
     for entry in entries:
         published = entry.published_at is not None
         occurred_at = entry.published_at or entry.created_at
-        sortable_events.append(
-            (
-                occurred_at,
-                AssessmentAuditEventRow(
-                    id=f"grading-entry-{entry.id}",
-                    source="grading_entry",
-                    action="publish_grade" if published else "save_grade",
-                    actor_user_id=entry.graded_by,
-                    actor_display_name=actor_names.get(entry.graded_by or -1),
-                    occurred_at=to_iso(occurred_at) or "",
-                    status="published" if published else "draft_saved",
-                    summary=(
-                        f"Published {entry.final_score:.1f}%"
-                        if published
-                        else f"Saved draft grade {entry.final_score:.1f}%"
-                    ),
-                    affected_count=1,
-                    submission_id=entry.submission_id,
+        sortable_events.append((
+            occurred_at,
+            AssessmentAuditEventRow(
+                id=f"grading-entry-{entry.id}",
+                source="grading_entry",
+                action="publish_grade" if published else "save_grade",
+                actor_user_id=entry.graded_by,
+                actor_display_name=actor_names.get(entry.graded_by or -1),
+                occurred_at=to_iso(occurred_at) or "",
+                status="published" if published else "draft_saved",
+                summary=(
+                    f"Published {entry.final_score:.1f}%"
+                    if published
+                    else f"Saved draft grade {entry.final_score:.1f}%"
                 ),
-            )
-        )
+                affected_count=1,
+                submission_id=entry.submission_id,
+            ),
+        ))
 
     for action in visible_actions:
         occurred_at = action.completed_at or action.created_at
@@ -581,29 +603,29 @@ def _load_audit_history(
             else str(action.action_type)
         )
         action_status_value = (
-            action.status.value if hasattr(action.status, "value") else str(action.status)
+            action.status.value
+            if hasattr(action.status, "value")
+            else str(action.status)
         )
         action_name = action_type_value.lower()
-        sortable_events.append(
-            (
-                occurred_at,
-                AssessmentAuditEventRow(
-                    id=f"bulk-action-{action.id}",
-                    source="bulk_action",
-                    action=action_name,
-                    actor_user_id=action.performed_by,
-                    actor_display_name=actor_names.get(action.performed_by),
-                    occurred_at=to_iso(occurred_at) or "",
-                    status=action_status_value.lower(),
-                    summary=(
-                        f"{action_type_value.replace('_', ' ').title()} for {action.affected_count} learners"
-                    ),
-                    affected_count=action.affected_count,
+        sortable_events.append((
+            occurred_at,
+            AssessmentAuditEventRow(
+                id=f"bulk-action-{action.id}",
+                source="bulk_action",
+                action=action_name,
+                actor_user_id=action.performed_by,
+                actor_display_name=actor_names.get(action.performed_by),
+                occurred_at=to_iso(occurred_at) or "",
+                status=action_status_value.lower(),
+                summary=(
+                    f"{action_type_value.replace('_', ' ').title()} for {action.affected_count} learners"
                 ),
-            )
-        )
+                affected_count=action.affected_count,
+            ),
+        ))
 
-    sortable_events.sort(key=lambda item: item[0], reverse=True)
+    sortable_events.sort(key=operator.itemgetter(0), reverse=True)
     return [event for _occurred_at, event in sortable_events[:20]]
 
 
@@ -637,7 +659,9 @@ def _build_migration_status(
             assessment_type=SubmissionAssessmentType.QUIZ,
         )
         compatibility_mode = (
-            "dual_write" if canonical_row_count > 0 and legacy_row_count > 0 else "legacy_only"
+            "dual_write"
+            if canonical_row_count > 0 and legacy_row_count > 0
+            else "legacy_only"
         )
         return AssessmentMigrationStatus(
             is_canonical=False,
@@ -1352,7 +1376,9 @@ def get_teacher_assessment_detail(
         audit_history = _load_audit_history(
             db_session,
             activity_id=exam.activity_id,
-            submission_ids=[attempt.id for attempt in submissions if attempt.id is not None],
+            submission_ids=[
+                attempt.id for attempt in submissions if attempt.id is not None
+            ],
             allowed_user_ids=allowed_user_ids,
         )
         slo = _build_slo_snapshot(diagnostics, latencies)
@@ -1390,8 +1416,7 @@ def get_teacher_assessment_detail(
             ),
             score_distribution=_score_distribution(exam_scores),
             attempt_distribution=_attempt_distribution({
-                user_id: len(items)
-                for user_id, items in exam_attempts_by_user.items()
+                user_id: len(items) for user_id, items in exam_attempts_by_user.items()
             }),
             question_breakdown=None,
             common_failures=[],
@@ -1495,15 +1520,20 @@ def get_teacher_assessment_detail(
             )
         canonical_quiz_submissions = [
             submission
-            for submission in db_session.exec(
+            for submission in db_session
+            .exec(
                 select(Submission).where(
                     Submission.activity_id == activity.id,
                     Submission.assessment_type == SubmissionAssessmentType.QUIZ,
                 )
-            ).scalars().all()
+            )
+            .scalars()
+            .all()
             if allowed_user_ids is None or submission.user_id in allowed_user_ids
         ]
-        diagnostics = _build_quiz_diagnostics([attempt for attempt, _activity in records])
+        diagnostics = _build_quiz_diagnostics([
+            attempt for attempt, _activity in records
+        ])
         audit_history = _load_audit_history(
             db_session,
             activity_id=activity.id,
@@ -1550,8 +1580,7 @@ def get_teacher_assessment_detail(
             ),
             score_distribution=_score_distribution(quiz_scores),
             attempt_distribution=_attempt_distribution({
-                user_id: len(items)
-                for user_id, items in quiz_attempts_by_user.items()
+                user_id: len(items) for user_id, items in quiz_attempts_by_user.items()
             }),
             question_breakdown=sorted(
                 question_breakdown, key=lambda row: row.accuracy_pct or 100
@@ -1676,8 +1705,7 @@ def get_teacher_assessment_detail(
             ),
             score_distribution=_score_distribution(code_scores),
             attempt_distribution=_attempt_distribution({
-                user_id: len(items)
-                for user_id, items in code_attempts_by_user.items()
+                user_id: len(items) for user_id, items in code_attempts_by_user.items()
             }),
             question_breakdown=None,
             common_failures=common_failures,

@@ -198,7 +198,8 @@ export default function AssessmentLayout({ activityUuid, courseUuid, vm: supplie
               <AlertTriangle className="size-4" />
               <AlertTitle>Connection lost</AlertTitle>
               <AlertDescription>
-                Keep working. Your in-progress answers stay in this browser and will save again after the connection returns.
+                Keep working. Your in-progress answers stay in this browser and will save again after the connection
+                returns.
               </AlertDescription>
             </Alert>
           ) : null}
@@ -251,11 +252,7 @@ function RecoveryDialog({ recovery }: { recovery: AttemptRecoveryState | null })
   );
 }
 
-function ConflictDialog({
-  conflict,
-}: {
-  conflict: import('./AssessmentActionBar').AttemptConflictState | null;
-}) {
+function ConflictDialog({ conflict }: { conflict: import('./AssessmentActionBar').AttemptConflictState | null }) {
   return (
     <AlertDialog open={Boolean(conflict?.open)}>
       <AlertDialogContent>
@@ -271,8 +268,9 @@ function ConflictDialog({
           </AlertDialogDescription>
           {conflict ? (
             <AlertDialogDescription>
-              Your local draft has {conflict.localAnswerCount} answered item{conflict.localAnswerCount === 1 ? '' : 's'}.
-              The latest server draft has {conflict.serverAnswerCount} answered item{conflict.serverAnswerCount === 1 ? '' : 's'}.
+              Your local draft has {conflict.localAnswerCount} answered item{conflict.localAnswerCount === 1 ? '' : 's'}
+              . The latest server draft has {conflict.serverAnswerCount} answered item
+              {conflict.serverAnswerCount === 1 ? '' : 's'}.
             </AlertDialogDescription>
           ) : null}
         </AlertDialogHeader>

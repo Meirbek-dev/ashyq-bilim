@@ -165,7 +165,9 @@ export default function ReviewBulkActionBar({
         </Badge>
       ) : null}
       {lastSummary ? (
-        <Badge variant={lastSummary.tone === 'warning' ? 'warning' : lastSummary.tone === 'success' ? 'success' : 'outline'}>
+        <Badge
+          variant={lastSummary.tone === 'warning' ? 'warning' : lastSummary.tone === 'success' ? 'success' : 'outline'}
+        >
           {lastSummary.label}
         </Badge>
       ) : null}
@@ -243,25 +245,53 @@ export default function ReviewBulkActionBar({
           <div className="space-y-3 text-sm">
             {pendingAction === 'publish-selected' || pendingAction === 'return-selected' ? (
               <>
-                <PreviewRow label="Selected submissions" value={String(submissions.length)} />
-                <PreviewRow label="Grade-ready" value={String(gradeable.length)} />
-                <PreviewRow label="Hidden from student" value={String(releaseSummary.hidden)} />
-                <PreviewRow label="Already visible" value={String(releaseSummary.visible)} />
+                <PreviewRow
+                  label="Selected submissions"
+                  value={String(submissions.length)}
+                />
+                <PreviewRow
+                  label="Grade-ready"
+                  value={String(gradeable.length)}
+                />
+                <PreviewRow
+                  label="Hidden from student"
+                  value={String(releaseSummary.hidden)}
+                />
+                <PreviewRow
+                  label="Already visible"
+                  value={String(releaseSummary.visible)}
+                />
               </>
             ) : null}
             {pendingAction === 'extend-deadline' ? (
               <>
-                <PreviewRow label="Learners" value={String(userUuids.length)} />
-                <PreviewRow label="New due date" value={deadlineLocal || 'Not set'} />
-                <PreviewRow label="Reason" value={reason || 'No reason provided'} />
+                <PreviewRow
+                  label="Learners"
+                  value={String(userUuids.length)}
+                />
+                <PreviewRow
+                  label="New due date"
+                  value={deadlineLocal || 'Not set'}
+                />
+                <PreviewRow
+                  label="Reason"
+                  value={reason || 'No reason provided'}
+                />
               </>
             ) : null}
             {pendingAction === 'release-hidden' ? (
               <>
-                <PreviewRow label="Selected hidden submissions" value={String(releaseSummary.hidden)} />
-                <PreviewRow label="Already visible" value={String(releaseSummary.visible)} />
+                <PreviewRow
+                  label="Selected hidden submissions"
+                  value={String(releaseSummary.hidden)}
+                />
+                <PreviewRow
+                  label="Already visible"
+                  value={String(releaseSummary.visible)}
+                />
                 <p className="text-muted-foreground text-xs">
-                  This applies the activity-level grade release action and updates any graded submissions that are still hidden.
+                  This applies the activity-level grade release action and updates any graded submissions that are still
+                  hidden.
                 </p>
               </>
             ) : null}
@@ -274,8 +304,12 @@ export default function ReviewBulkActionBar({
             >
               Cancel
             </Button>
-            {pendingAction === 'publish-selected' ? <Button onClick={() => bulkUpdate('PUBLISHED')}>Confirm publish</Button> : null}
-            {pendingAction === 'return-selected' ? <Button onClick={() => bulkUpdate('RETURNED')}>Confirm return</Button> : null}
+            {pendingAction === 'publish-selected' ? (
+              <Button onClick={() => bulkUpdate('PUBLISHED')}>Confirm publish</Button>
+            ) : null}
+            {pendingAction === 'return-selected' ? (
+              <Button onClick={() => bulkUpdate('RETURNED')}>Confirm return</Button>
+            ) : null}
             {pendingAction === 'extend-deadline' ? <Button onClick={applyDeadline}>Queue extension</Button> : null}
             {pendingAction === 'release-hidden' ? <Button onClick={releaseHiddenGrades}>Release grades</Button> : null}
           </DialogFooter>
@@ -296,30 +330,40 @@ function PreviewRow({ label, value }: { label: string; value: string }) {
 
 function getDialogTitle(action: PendingAction): string {
   switch (action) {
-    case 'publish-selected':
+    case 'publish-selected': {
       return 'Publish selected grades';
-    case 'return-selected':
+    }
+    case 'return-selected': {
       return 'Return selected submissions';
-    case 'extend-deadline':
+    }
+    case 'extend-deadline': {
       return 'Extend deadlines';
-    case 'release-hidden':
+    }
+    case 'release-hidden': {
       return 'Release hidden grades';
-    default:
+    }
+    default: {
       return 'Bulk action';
+    }
   }
 }
 
 function getDialogDescription(action: PendingAction): string {
   switch (action) {
-    case 'publish-selected':
+    case 'publish-selected': {
       return 'Review the exact impact before making grades visible to students.';
-    case 'return-selected':
+    }
+    case 'return-selected': {
       return 'This will move selected submissions into the returned-for-revision state.';
-    case 'extend-deadline':
+    }
+    case 'extend-deadline': {
       return 'Queue a deadline extension for the selected learners.';
-    case 'release-hidden':
+    }
+    case 'release-hidden': {
       return 'Make currently hidden graded submissions visible to students for this activity.';
-    default:
+    }
+    default: {
       return 'Confirm the selected bulk action.';
+    }
   }
 }

@@ -275,7 +275,11 @@ export default function GradeForm({
           <RotateCcw className="size-4" />
           Return for revision
         </Button>
-        {!canPublishNow ? <p className="text-muted-foreground text-xs">Save as graded first before publishing student-visible results.</p> : null}
+        {!canPublishNow ? (
+          <p className="text-muted-foreground text-xs">
+            Save as graded first before publishing student-visible results.
+          </p>
+        ) : null}
       </div>
 
       {/* ── Keyboard legend ────────────────────────────────────────────── */}

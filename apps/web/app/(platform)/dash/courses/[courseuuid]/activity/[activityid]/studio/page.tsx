@@ -11,7 +11,10 @@ export default async function PlatformAssessmentStudioPage(props: {
 }) {
   const { courseuuid, activityid } = await props.params;
 
-  const [activity, course] = await Promise.all([getActivity(activityid), getCourseMetadata(courseuuid, undefined, true)]);
+  const [activity, course] = await Promise.all([
+    getActivity(activityid),
+    getCourseMetadata(courseuuid, undefined, true),
+  ]);
 
   const isAssessment = ASSESSABLE_TYPES.has(activity.activity_type ?? '');
 
@@ -38,7 +41,8 @@ export default async function PlatformAssessmentStudioPage(props: {
       </div>
     ) : (
       <div className="text-muted-foreground rounded-md border border-dashed p-6 text-sm">
-        Studio is not yet available for {activity.activity_type?.replace('TYPE_', '').toLowerCase() || 'this'} activities.
+        Studio is not yet available for {activity.activity_type?.replace('TYPE_', '').toLowerCase() || 'this'}{' '}
+        activities.
       </div>
     ),
   });

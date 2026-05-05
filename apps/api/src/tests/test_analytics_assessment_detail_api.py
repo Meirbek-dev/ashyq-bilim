@@ -1,8 +1,8 @@
 # pyright: reportMissingImports=false
 
-from datetime import UTC, datetime, timedelta
 import pathlib
 import sys
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi import FastAPI
@@ -111,7 +111,9 @@ def teacher_user_fixture() -> PublicUser:
 
 
 @pytest.fixture(name="api_client")
-def api_client_fixture(db_session_factory, teacher_user, monkeypatch: pytest.MonkeyPatch):
+def api_client_fixture(
+    db_session_factory, teacher_user, monkeypatch: pytest.MonkeyPatch
+):
     app = FastAPI()
     app.include_router(router, prefix="/analytics")
 
@@ -133,7 +135,9 @@ def api_client_fixture(db_session_factory, teacher_user, monkeypatch: pytest.Mon
             has_platform_scope=False,
         )
 
-    monkeypatch.setattr(analytics_router_module, "_assessment_scope_for", fake_scope_for)
+    monkeypatch.setattr(
+        analytics_router_module, "_assessment_scope_for", fake_scope_for
+    )
     return TestClient(app)
 
 
@@ -210,7 +214,13 @@ def _seed_users(session) -> dict[str, User]:
     return users
 
 
-def _seed_course_stack(session, *, name: str, activity_type: ActivityTypeEnum, activity_sub_type: ActivitySubTypeEnum):
+def _seed_course_stack(
+    session,
+    *,
+    name: str,
+    activity_type: ActivityTypeEnum,
+    activity_sub_type: ActivitySubTypeEnum,
+):
     course = Course(
         id=1,
         name=name,
@@ -287,7 +297,9 @@ def _make_context_for_assignment(session, assessment_id: int) -> AnalyticsContex
     course = session.get(Course, 1)
     activity = session.get(Activity, 1)
     assessment = session.get(Assessment, assessment_id)
-    submissions = [session.get(Submission, submission_id) for submission_id in [1, 2, 3, 4]]
+    submissions = [
+        session.get(Submission, submission_id) for submission_id in [1, 2, 3, 4]
+    ]
     users = session.exec(select(User)).scalars().all()
     users_by_id = {user.id: user for user in users if user.id is not None}
     assignment_row = AssessmentAnalyticsRow(
@@ -311,7 +323,9 @@ def _make_context_for_assignment(session, assessment_id: int) -> AnalyticsContex
         certificates=[],
         assignments=[assignment_row],
         assignment_submissions=[
-            (submission, assignment_row) for submission in submissions if submission is not None
+            (submission, assignment_row)
+            for submission in submissions
+            if submission is not None
         ],
         exams=[],
         exam_attempts=[],
@@ -387,87 +401,85 @@ def test_assignment_detail_endpoint_returns_operational_fields(
         session.flush()
 
         now = datetime(2026, 5, 5, 12, 0, tzinfo=UTC)
-        session.add_all(
-            [
-                Submission(
-                    id=1,
-                    submission_uuid="submission_pending",
-                    assessment_type=AssessmentType.ASSIGNMENT,
-                    activity_id=activity.id,
-                    assessment_policy_id=policy.id,
-                    user_id=2,
-                    status=SubmissionStatus.PENDING,
-                    attempt_number=1,
-                    is_late=True,
-                    answers_json={},
-                    grading_json={},
-                    metadata_json={
-                        "violations": [
-                            {
-                                "kind": "TAB_SWITCH",
-                                "occurred_at": now.isoformat(),
-                                "count": 1,
-                            }
-                        ]
-                    },
-                    submitted_at=now - timedelta(hours=80),
-                    created_at=now - timedelta(hours=82),
-                    updated_at=now - timedelta(hours=79),
-                ),
-                Submission(
-                    id=2,
-                    submission_uuid="submission_graded",
-                    assessment_type=AssessmentType.ASSIGNMENT,
-                    activity_id=activity.id,
-                    assessment_policy_id=policy.id,
-                    user_id=3,
-                    status=SubmissionStatus.GRADED,
-                    attempt_number=1,
-                    final_score=74.0,
-                    answers_json={},
-                    grading_json={},
-                    metadata_json={},
-                    submitted_at=now - timedelta(hours=30),
-                    graded_at=now - timedelta(hours=20),
-                    created_at=now - timedelta(hours=31),
-                    updated_at=now - timedelta(hours=20),
-                ),
-                Submission(
-                    id=3,
-                    submission_uuid="submission_returned",
-                    assessment_type=AssessmentType.ASSIGNMENT,
-                    activity_id=activity.id,
-                    assessment_policy_id=policy.id,
-                    user_id=4,
-                    status=SubmissionStatus.RETURNED,
-                    attempt_number=1,
-                    answers_json={},
-                    grading_json={},
-                    metadata_json={},
-                    submitted_at=now - timedelta(hours=12),
-                    created_at=now - timedelta(hours=13),
-                    updated_at=now - timedelta(hours=11),
-                ),
-                Submission(
-                    id=4,
-                    submission_uuid="submission_published",
-                    assessment_type=AssessmentType.ASSIGNMENT,
-                    activity_id=activity.id,
-                    assessment_policy_id=policy.id,
-                    user_id=5,
-                    status=SubmissionStatus.PUBLISHED,
-                    attempt_number=1,
-                    final_score=91.0,
-                    answers_json={},
-                    grading_json={},
-                    metadata_json={},
-                    submitted_at=now - timedelta(hours=24),
-                    graded_at=now - timedelta(hours=12),
-                    created_at=now - timedelta(hours=25),
-                    updated_at=now - timedelta(hours=12),
-                ),
-            ]
-        )
+        session.add_all([
+            Submission(
+                id=1,
+                submission_uuid="submission_pending",
+                assessment_type=AssessmentType.ASSIGNMENT,
+                activity_id=activity.id,
+                assessment_policy_id=policy.id,
+                user_id=2,
+                status=SubmissionStatus.PENDING,
+                attempt_number=1,
+                is_late=True,
+                answers_json={},
+                grading_json={},
+                metadata_json={
+                    "violations": [
+                        {
+                            "kind": "TAB_SWITCH",
+                            "occurred_at": now.isoformat(),
+                            "count": 1,
+                        }
+                    ]
+                },
+                submitted_at=now - timedelta(hours=80),
+                created_at=now - timedelta(hours=82),
+                updated_at=now - timedelta(hours=79),
+            ),
+            Submission(
+                id=2,
+                submission_uuid="submission_graded",
+                assessment_type=AssessmentType.ASSIGNMENT,
+                activity_id=activity.id,
+                assessment_policy_id=policy.id,
+                user_id=3,
+                status=SubmissionStatus.GRADED,
+                attempt_number=1,
+                final_score=74.0,
+                answers_json={},
+                grading_json={},
+                metadata_json={},
+                submitted_at=now - timedelta(hours=30),
+                graded_at=now - timedelta(hours=20),
+                created_at=now - timedelta(hours=31),
+                updated_at=now - timedelta(hours=20),
+            ),
+            Submission(
+                id=3,
+                submission_uuid="submission_returned",
+                assessment_type=AssessmentType.ASSIGNMENT,
+                activity_id=activity.id,
+                assessment_policy_id=policy.id,
+                user_id=4,
+                status=SubmissionStatus.RETURNED,
+                attempt_number=1,
+                answers_json={},
+                grading_json={},
+                metadata_json={},
+                submitted_at=now - timedelta(hours=12),
+                created_at=now - timedelta(hours=13),
+                updated_at=now - timedelta(hours=11),
+            ),
+            Submission(
+                id=4,
+                submission_uuid="submission_published",
+                assessment_type=AssessmentType.ASSIGNMENT,
+                activity_id=activity.id,
+                assessment_policy_id=policy.id,
+                user_id=5,
+                status=SubmissionStatus.PUBLISHED,
+                attempt_number=1,
+                final_score=91.0,
+                answers_json={},
+                grading_json={},
+                metadata_json={},
+                submitted_at=now - timedelta(hours=24),
+                graded_at=now - timedelta(hours=12),
+                created_at=now - timedelta(hours=25),
+                updated_at=now - timedelta(hours=12),
+            ),
+        ])
         session.flush()
 
         session.add(

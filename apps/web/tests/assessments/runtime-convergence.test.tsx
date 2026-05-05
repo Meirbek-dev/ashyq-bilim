@@ -227,7 +227,13 @@ describe('assessment runtime convergence', () => {
       conflict: null,
     });
 
-    renderWithClient(<AssignmentAttemptContent courseUuid="course_runtime" activityUuid="activity_runtime" vm={createAttemptVm()} />);
+    renderWithClient(
+      <AssignmentAttemptContent
+        courseUuid="course_runtime"
+        activityUuid="activity_runtime"
+        vm={createAttemptVm()}
+      />,
+    );
 
     expect(screen.getByText('Ready to revise')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Start revision' })).toBeInTheDocument();

@@ -129,7 +129,9 @@ def grade_canonical_code_item(
         return auto_score, breakdown
 
     item_score = latest_run.get("score")
-    normalized_score = float(item_score) if isinstance(item_score, (int, float)) else auto_score
+    normalized_score = (
+        float(item_score) if isinstance(item_score, (int, float)) else auto_score
+    )
     item_breakdown = GradingBreakdown(
         items=[
             GradedItem(
@@ -137,7 +139,9 @@ def grade_canonical_code_item(
                 item_text=item.title or item.body.prompt,
                 score=normalized_score,
                 max_score=100.0,
-                correct=(latest_run.get("passed") == latest_run.get("total")) if latest_run.get("total") else None,
+                correct=(latest_run.get("passed") == latest_run.get("total"))
+                if latest_run.get("total")
+                else None,
                 feedback="",
                 user_answer=_serialize_code_answer(raw_answer),
             )

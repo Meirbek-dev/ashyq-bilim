@@ -22,14 +22,17 @@ from src.db.courses.activities import Activity
 from src.db.gamification import XPSource
 from src.db.grading.entries import GradingEntry
 from src.db.grading.overrides import StudentPolicyOverride
-from src.db.grading.progress import AssessmentPolicy, GradeReleaseMode
+from src.db.grading.progress import (
+    LATE_POLICY_ADAPTER,
+    AssessmentPolicy,
+    GradeReleaseMode,
+)
 from src.db.grading.submissions import (
     AssessmentType,
     Submission,
     SubmissionRead,
     SubmissionStatus,
 )
-from src.db.grading.progress import LATE_POLICY_ADAPTER
 from src.db.users import PublicUser
 from src.security.rbac import PermissionChecker
 from src.services.gamification.service import award_xp as _gamification_award_xp
@@ -181,9 +184,7 @@ async def submit_assessment(
         exam_answers,
         test_results,
         code_strategy,
-    ) = _parse_answers(
-        assessment_type, answers_payload
-    )
+    ) = _parse_answers(assessment_type, answers_payload)
 
     result = grade_submission(
         assessment_type=assessment_type,

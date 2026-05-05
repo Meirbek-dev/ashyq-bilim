@@ -407,7 +407,9 @@ def upgrade() -> None:
         ).all()
         for row in assignment_rows:
             if not row.assignment_task_uuid:
-                raise RuntimeError("Assignment task row is missing assignment_task_uuid")
+                raise RuntimeError(
+                    "Assignment task row is missing assignment_task_uuid"
+                )
             assessment = assessments.get(("ASSIGNMENT", int(row.activity_id)))
             if assessment is None:
                 msg = f"Missing canonical assessment for assignment activity {row.activity_id}"
@@ -446,10 +448,14 @@ def upgrade() -> None:
                 exam_table.c.activity_id,
             )
             .select_from(
-                question_table.join(exam_table, question_table.c.exam_id == exam_table.c.id)
+                question_table.join(
+                    exam_table, question_table.c.exam_id == exam_table.c.id
+                )
             )
             .order_by(
-                exam_table.c.activity_id, question_table.c.order_index, question_table.c.id
+                exam_table.c.activity_id,
+                question_table.c.order_index,
+                question_table.c.id,
             )
         ).all()
         for row in question_rows:
@@ -457,7 +463,9 @@ def upgrade() -> None:
                 raise RuntimeError("Question row is missing question_uuid")
             assessment = assessments.get(("EXAM", int(row.activity_id)))
             if assessment is None:
-                msg = f"Missing canonical assessment for exam activity {row.activity_id}"
+                msg = (
+                    f"Missing canonical assessment for exam activity {row.activity_id}"
+                )
                 raise RuntimeError(msg)
             if row.question_uuid in existing_item_uuids:
                 continue
@@ -531,7 +539,9 @@ def upgrade() -> None:
                 continue
             assessment = assessments.get(("EXAM", int(row.activity_id)))
             if assessment is None:
-                msg = f"Missing canonical assessment for exam activity {row.activity_id}"
+                msg = (
+                    f"Missing canonical assessment for exam activity {row.activity_id}"
+                )
                 raise RuntimeError(msg)
             status_value = str(row.status or "")
             canonical_status = (
@@ -657,7 +667,12 @@ def upgrade() -> None:
     if submissions_to_insert:
         bind.execute(sa.insert(submission_table), submissions_to_insert)
 
-    for table_name in ("code_submission", "exam_attempt", "question", "assignment_task"):
+    for table_name in (
+        "code_submission",
+        "exam_attempt",
+        "question",
+        "assignment_task",
+    ):
         if _table_exists(bind, table_name):
             op.drop_table(table_name)
 

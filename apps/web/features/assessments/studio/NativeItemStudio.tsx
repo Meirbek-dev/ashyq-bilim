@@ -14,16 +14,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useTransition,
-} from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 
 import { apiFetch, apiFetcher } from '@/lib/api-client';
@@ -43,10 +34,8 @@ import {
 import type { ValidationIssue } from '@/features/assessments/domain/view-models';
 import { ChoiceItemAuthor } from '@/features/assessments/items/choice';
 import type { ChoiceAuthorValue } from '@/features/assessments/items/choice';
-import {
-  FileUploadConstraintsEditor,
-  type FileUploadConstraints,
-} from '@/features/assessments/items/file-upload';
+import { FileUploadConstraintsEditor } from '@/features/assessments/items/file-upload';
+import type { FileUploadConstraints } from '@/features/assessments/items/file-upload';
 import SaveStateBadge from '@/features/assessments/shared/SaveStateBadge';
 import type { SaveState } from '@/features/assessments/shared/SaveStateBadge';
 import ErrorUI from '@/components/Objects/Elements/Error/Error';
@@ -87,7 +76,7 @@ interface AssessmentStudioDetail {
 }
 
 interface StudioReadinessPayload {
-  issues: Array<{ code: string; message: string; item_uuid?: string | null }>;
+  issues: { code: string; message: string; item_uuid?: string | null }[];
 }
 
 interface AssessmentStudioContextValue {
@@ -123,7 +112,11 @@ const KIND_LABELS: Record<SupportedStudioItemKind, string> = {
 export function NativeItemStudioProvider({ activityUuid, children }: KindAuthorProps & { children: React.ReactNode }) {
   const normalizedActivityUuid = activityUuid.replace(/^activity_/, '');
   const queryClient = useQueryClient();
-  const { data: assessment, isLoading, error } = useQuery({
+  const {
+    data: assessment,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: queryKeys.assessments.activity(normalizedActivityUuid),
     queryFn: () =>
       apiFetcher(`${getAPIUrl()}assessments/activity/${normalizedActivityUuid}`) as Promise<AssessmentStudioDetail>,
@@ -134,7 +127,9 @@ export function NativeItemStudioProvider({ activityUuid, children }: KindAuthorP
   const readinessQuery = useQuery({
     queryKey: queryKeys.assessments.readiness(assessment?.assessment_uuid ?? ''),
     queryFn: () =>
-      apiFetcher(`${getAPIUrl()}assessments/${assessment?.assessment_uuid}/readiness`) as Promise<StudioReadinessPayload>,
+      apiFetcher(
+        `${getAPIUrl()}assessments/${assessment?.assessment_uuid}/readiness`,
+      ) as Promise<StudioReadinessPayload>,
     enabled: Boolean(assessment?.assessment_uuid),
     retry: false,
   });
@@ -206,8 +201,16 @@ export function NativeItemOutline({
   allowedKinds: SupportedStudioItemKind[];
   itemNoun: string;
 }) {
-  const { assessment, items, selectedItemUuid, setSelectedItemUuid, refresh, isEditable, totalPoints, validationIssues } =
-    useAssessmentStudioContext();
+  const {
+    assessment,
+    items,
+    selectedItemUuid,
+    setSelectedItemUuid,
+    refresh,
+    isEditable,
+    totalPoints,
+    validationIssues,
+  } = useAssessmentStudioContext();
   const [isCreating, startTransition] = useTransition();
 
   const createItem = (kind: SupportedStudioItemKind) => {
@@ -344,8 +347,16 @@ interface AssessmentEditorState {
 type EditableItem = Pick<AssessmentItem, 'item_uuid' | 'kind' | 'title' | 'max_score' | 'body'>;
 
 export function NativeItemAuthor({ mode, itemNoun }: NativeItemAuthorProps) {
-  const { assessment, items, selectedItemUuid, setSelectedItemUuid, refresh, isEditable, totalPoints, validationIssues } =
-    useAssessmentStudioContext();
+  const {
+    assessment,
+    items,
+    selectedItemUuid,
+    setSelectedItemUuid,
+    refresh,
+    isEditable,
+    totalPoints,
+    validationIssues,
+  } = useAssessmentStudioContext();
   const item = items.find((candidate) => candidate.item_uuid === selectedItemUuid) ?? items[0] ?? null;
   const [assessmentState, setAssessmentState] = useState<AssessmentEditorState>(() =>
     toAssessmentEditorState(assessment),
@@ -370,7 +381,11 @@ export function NativeItemAuthor({ mode, itemNoun }: NativeItemAuthorProps) {
     setItemState(nextItem);
     lastSavedItemRef.current = nextItem ? serializeItemState(nextItem) : '';
     setItemSaveState('idle');
-  }, [item?.item_uuid, item?.updated_at]);
+  }, [
+	item?.item_uuid,
+	item?.updated_at,
+	item
+]);
 
   const saveAssessment = useCallback(
     async (nextState: AssessmentEditorState) => {
@@ -535,7 +550,9 @@ export function NativeItemAuthor({ mode, itemNoun }: NativeItemAuthorProps) {
           <div className="max-w-sm text-center">
             <BookOpen className="text-muted-foreground mx-auto size-10" />
             <h2 className="mt-3 text-lg font-semibold">No {itemNoun.toLowerCase()} selected</h2>
-            <p className="text-muted-foreground mt-1 text-sm">Create or select a {itemNoun.toLowerCase()} from the outline.</p>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Create or select a {itemNoun.toLowerCase()} from the outline.
+            </p>
           </div>
         </div>
       ) : (
@@ -543,13 +560,16 @@ export function NativeItemAuthor({ mode, itemNoun }: NativeItemAuthorProps) {
           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline">{KIND_LABELS[itemState.kind as SupportedStudioItemKind] ?? itemState.kind}</Badge>
+                <Badge variant="outline">
+                  {KIND_LABELS[itemState.kind as SupportedStudioItemKind] ?? itemState.kind}
+                </Badge>
                 <SaveStateBadge state={itemSaveState} />
                 {!isEditable ? <Badge variant="secondary">Read only</Badge> : null}
               </div>
               <h2 className="mt-2 text-xl font-semibold">{itemState.title || `Untitled ${itemNoun.toLowerCase()}`}</h2>
               <p className="text-muted-foreground text-sm">
-                {itemState.max_score || 0} pts · {totalPoints > 0 ? Math.round((itemState.max_score / totalPoints) * 100) : 0}% weight
+                {itemState.max_score || 0} pts ·{' '}
+                {totalPoints > 0 ? Math.round((itemState.max_score / totalPoints) * 100) : 0}% weight
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -596,11 +616,14 @@ export function NativeItemAuthor({ mode, itemNoun }: NativeItemAuthorProps) {
                   value={itemState.title}
                   disabled={!isEditable}
                   aria-invalid={itemMetadataIssues.some((issue) => issue.field === 'title')}
-                  className={cn(itemMetadataIssues.some((issue) => issue.field === 'title') && 'border-amber-500 focus-visible:ring-amber-500/40')}
+                  className={cn(
+                    itemMetadataIssues.some((issue) => issue.field === 'title') &&
+                      'border-amber-500 focus-visible:ring-amber-500/40',
+                  )}
                   onChange={(event) => setItemState({ ...itemState, title: event.target.value })}
                 />
               </div>
-              <div className="space-y-2 max-w-48">
+              <div className="max-w-48 space-y-2">
                 <Label htmlFor="native-item-points">Points</Label>
                 <Input
                   id="native-item-points"
@@ -610,7 +633,10 @@ export function NativeItemAuthor({ mode, itemNoun }: NativeItemAuthorProps) {
                   value={itemState.max_score}
                   disabled={!isEditable}
                   aria-invalid={itemMetadataIssues.some((issue) => issue.field === 'max_score')}
-                  className={cn(itemMetadataIssues.some((issue) => issue.field === 'max_score') && 'border-amber-500 focus-visible:ring-amber-500/40')}
+                  className={cn(
+                    itemMetadataIssues.some((issue) => issue.field === 'max_score') &&
+                      'border-amber-500 focus-visible:ring-amber-500/40',
+                  )}
                   onChange={(event) =>
                     setItemState({
                       ...itemState,
@@ -652,7 +678,7 @@ function AssessmentMetadataForm({
   mode: StudioMode;
   state: AssessmentEditorState;
   disabled: boolean;
-  issues: Array<ReturnType<typeof classifyValidationIssue>>;
+  issues: ReturnType<typeof classifyValidationIssue>[];
   onChange: (nextState: AssessmentEditorState) => void;
 }) {
   const hasIssue = (field: string) => issues.some((issue) => issue.field === field);
@@ -704,7 +730,9 @@ function AssessmentMetadataForm({
               value={state.gradingType}
               disabled={disabled}
               className="w-full"
-              onChange={(event) => onChange({ ...state, gradingType: event.target.value as AssessmentEditorState['gradingType'] })}
+              onChange={(event) =>
+                onChange({ ...state, gradingType: event.target.value as AssessmentEditorState['gradingType'] })
+              }
             >
               <NativeSelectOption value="NUMERIC">Numeric</NativeSelectOption>
               <NativeSelectOption value="PERCENTAGE">Percentage</NativeSelectOption>
@@ -846,7 +874,7 @@ function NativeItemBodyEditor({
 }: {
   item: EditableItem;
   disabled: boolean;
-  issues: Array<ReturnType<typeof classifyValidationIssue>>;
+  issues: ReturnType<typeof classifyValidationIssue>[];
   onChange: (nextItem: EditableItem) => void;
 }) {
   const hasIssue = (code: string) => issues.some((issue) => issue.code === code);
@@ -854,7 +882,16 @@ function NativeItemBodyEditor({
   if (item.body.kind === 'CHOICE' || item.body.kind === 'MATCHING') {
     return (
       <div className="space-y-3">
-        {(hasIssue('item.prompt_missing') || hasIssue('choice.options_missing') || hasIssue('choice.option_text_missing') || hasIssue('choice.option_duplicate') || hasIssue('choice.correct_missing') || hasIssue('choice.too_many_correct') || hasIssue('matching.pairs_missing') || hasIssue('matching.pair_value_missing') || hasIssue('matching.left_duplicate') || hasIssue('matching.right_duplicate')) ? (
+        {hasIssue('item.prompt_missing') ||
+        hasIssue('choice.options_missing') ||
+        hasIssue('choice.option_text_missing') ||
+        hasIssue('choice.option_duplicate') ||
+        hasIssue('choice.correct_missing') ||
+        hasIssue('choice.too_many_correct') ||
+        hasIssue('matching.pairs_missing') ||
+        hasIssue('matching.pair_value_missing') ||
+        hasIssue('matching.left_duplicate') ||
+        hasIssue('matching.right_duplicate') ? (
           <InlineIssueList issues={issues} />
         ) : null}
         <ChoiceItemAuthor
@@ -867,7 +904,7 @@ function NativeItemBodyEditor({
   }
 
   if (item.body.kind === 'OPEN_TEXT') {
-    const body = item.body;
+    const {body} = item;
     return (
       <div className="space-y-4">
         <div className="space-y-2">
@@ -878,7 +915,9 @@ function NativeItemBodyEditor({
             disabled={disabled}
             className="min-h-32"
             aria-invalid={hasIssue('item.prompt_missing')}
-            onChange={(event) => onChange({ ...item, body: { ...body, kind: 'OPEN_TEXT', prompt: event.target.value } })}
+            onChange={(event) =>
+              onChange({ ...item, body: { ...body, kind: 'OPEN_TEXT', prompt: event.target.value } })
+            }
           />
         </div>
         <div className="grid gap-4 md:grid-cols-[12rem_1fr]">
@@ -910,7 +949,9 @@ function NativeItemBodyEditor({
               value={body.rubric ?? ''}
               disabled={disabled}
               className="min-h-24"
-              onChange={(event) => onChange({ ...item, body: { ...body, kind: 'OPEN_TEXT', rubric: event.target.value || null } })}
+              onChange={(event) =>
+                onChange({ ...item, body: { ...body, kind: 'OPEN_TEXT', rubric: event.target.value || null } })
+              }
             />
           </div>
         </div>
@@ -920,7 +961,7 @@ function NativeItemBodyEditor({
   }
 
   if (item.body.kind === 'FILE_UPLOAD') {
-    const body = item.body;
+    const {body} = item;
     const constraints: FileUploadConstraints = {
       kind: 'FILE_UPLOAD',
       allowed_mime_types: body.mimes,
@@ -938,7 +979,9 @@ function NativeItemBodyEditor({
             disabled={disabled}
             className="min-h-24"
             aria-invalid={hasIssue('item.prompt_missing')}
-            onChange={(event) => onChange({ ...item, body: { ...body, kind: 'FILE_UPLOAD', prompt: event.target.value } })}
+            onChange={(event) =>
+              onChange({ ...item, body: { ...body, kind: 'FILE_UPLOAD', prompt: event.target.value } })
+            }
           />
         </div>
         {issues.length > 0 ? <InlineIssueList issues={issues} /> : null}
@@ -963,7 +1006,7 @@ function NativeItemBodyEditor({
   }
 
   if (item.body.kind === 'FORM') {
-    const body = item.body;
+    const {body} = item;
     return (
       <div className="space-y-4">
         <div className="space-y-2">
@@ -1235,17 +1278,17 @@ function toAssessmentEditorState(assessment: AssessmentStudioDetail): Assessment
         ? String(assessment.assessment_policy.max_attempts)
         : typeof settings.max_attempts === 'number'
           ? String(settings.max_attempts)
-        : typeof settings.attempt_limit === 'number'
-          ? String(settings.attempt_limit)
-          : '1',
+          : typeof settings.attempt_limit === 'number'
+            ? String(settings.attempt_limit)
+            : '1',
     timeLimitMinutes:
       typeof assessment.assessment_policy?.time_limit_seconds === 'number'
         ? String(Math.max(1, Math.ceil(assessment.assessment_policy.time_limit_seconds / 60)))
         : typeof settings.time_limit_seconds === 'number'
           ? String(Math.max(1, Math.ceil(settings.time_limit_seconds / 60)))
-        : typeof settings.time_limit === 'number'
-          ? String(settings.time_limit)
-          : '',
+          : typeof settings.time_limit === 'number'
+            ? String(settings.time_limit)
+            : '',
     copyPasteProtection: antiCheat.copy_paste_protection === true || settings.copy_paste_protection === true,
     tabSwitchDetection: antiCheat.tab_switch_detection === true || settings.tab_switch_detection === true,
     devtoolsDetection: antiCheat.devtools_detection === true || settings.devtools_detection === true,
@@ -1289,8 +1332,7 @@ function toChoiceAuthorValue(body: Extract<EditableItem['body'], { kind: 'CHOICE
   }
 
   return {
-    kind:
-      body.variant === 'TRUE_FALSE' ? 'TRUE_FALSE' : body.multiple ? 'CHOICE_MULTIPLE' : 'CHOICE_SINGLE',
+    kind: body.variant === 'TRUE_FALSE' ? 'TRUE_FALSE' : body.multiple ? 'CHOICE_MULTIPLE' : 'CHOICE_SINGLE',
     prompt: body.prompt,
     options: body.options.map((option) => ({
       id: option.id,
@@ -1308,7 +1350,7 @@ function fromChoiceAuthorValue(item: EditableItem, value: ChoiceAuthorValue): Pi
         kind: 'MATCHING',
         prompt: value.prompt,
         pairs: value.pairs.map((pair) => ({ left: pair.left, right: pair.right })),
-        explanation: item.body.kind === 'MATCHING' ? item.body.explanation ?? null : null,
+        explanation: item.body.kind === 'MATCHING' ? (item.body.explanation ?? null) : null,
       },
     };
   }
@@ -1330,16 +1372,12 @@ function fromChoiceAuthorValue(item: EditableItem, value: ChoiceAuthorValue): Pi
           : value.kind === 'CHOICE_MULTIPLE'
             ? 'MULTIPLE_CHOICE'
             : 'SINGLE_CHOICE',
-      explanation: item.body.kind === 'CHOICE' ? item.body.explanation ?? null : null,
+      explanation: item.body.kind === 'CHOICE' ? (item.body.explanation ?? null) : null,
     },
   };
 }
 
-function InlineIssueList({
-  issues,
-}: {
-  issues: Array<ReturnType<typeof classifyValidationIssue>>;
-}) {
+function InlineIssueList({ issues }: { issues: ReturnType<typeof classifyValidationIssue>[] }) {
   if (issues.length === 0) return null;
 
   return (
@@ -1368,13 +1406,25 @@ function getAssessmentEditorIssues(mode: StudioMode, state: AssessmentEditorStat
 
   if (mode === 'exam') {
     if (state.maxAttempts && Number(state.maxAttempts) < 1) {
-      issues.push({ code: 'policy.max_attempts_invalid', message: 'Attempt limit must be at least 1.', field: 'maxAttempts' });
+      issues.push({
+        code: 'policy.max_attempts_invalid',
+        message: 'Attempt limit must be at least 1.',
+        field: 'maxAttempts',
+      });
     }
     if (state.timeLimitMinutes && Number(state.timeLimitMinutes) < 1) {
-      issues.push({ code: 'policy.time_limit_invalid', message: 'Time limit must be greater than zero.', field: 'timeLimitMinutes' });
+      issues.push({
+        code: 'policy.time_limit_invalid',
+        message: 'Time limit must be greater than zero.',
+        field: 'timeLimitMinutes',
+      });
     }
     if (state.violationThreshold && Number(state.violationThreshold) < 1) {
-      issues.push({ code: 'policy.violation_threshold_invalid', message: 'Violation threshold must be at least 1.', field: 'violationThreshold' });
+      issues.push({
+        code: 'policy.violation_threshold_invalid',
+        message: 'Violation threshold must be at least 1.',
+        field: 'violationThreshold',
+      });
     }
   }
 

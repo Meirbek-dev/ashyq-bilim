@@ -145,8 +145,7 @@ interface CodeAssessmentRead {
   items?: AssessmentItem[];
 }
 
-const CODE_RUN_UNAVAILABLE_ERROR =
-  'Code challenge test runs are not mounted on the unified assessment API yet.';
+const CODE_RUN_UNAVAILABLE_ERROR = 'Code challenge test runs are not mounted on the unified assessment API yet.';
 
 function decodeLegacyEditorPayload(value: string) {
   const normalized = value.trim();
@@ -210,7 +209,10 @@ function toStoredTestCase(test: TestCase, isVisible: boolean): TestCase {
   };
 }
 
-function toCodeChallengeSettings(assessment: CodeAssessmentRead, codeItem: CodeAssessmentItem | null): CodeChallengeSettings {
+function toCodeChallengeSettings(
+  assessment: CodeAssessmentRead,
+  codeItem: CodeAssessmentItem | null,
+): CodeChallengeSettings {
   const settings = assessment.assessment_policy?.settings_json ?? {};
   const body = codeItem?.body;
   const bodyTests = Array.isArray(body?.tests) ? body.tests : [];
@@ -222,16 +224,18 @@ function toCodeChallengeSettings(assessment: CodeAssessmentRead, codeItem: CodeA
   const hiddenTests = bodyTests.length
     ? bodyTests.filter((test) => !test.is_visible).map(toReadableTestCase)
     : settingsHiddenTests;
-  const timeLimit = typeof body?.time_limit_seconds === 'number'
-    ? body.time_limit_seconds
-    : typeof settings.time_limit === 'number'
-      ? Number(settings.time_limit)
-      : 5;
-  const memoryLimit = typeof body?.memory_limit_mb === 'number'
-    ? body.memory_limit_mb
-    : typeof settings.memory_limit === 'number'
-      ? Number(settings.memory_limit)
-      : 256;
+  const timeLimit =
+    typeof body?.time_limit_seconds === 'number'
+      ? body.time_limit_seconds
+      : typeof settings.time_limit === 'number'
+        ? Number(settings.time_limit)
+        : 5;
+  const memoryLimit =
+    typeof body?.memory_limit_mb === 'number'
+      ? body.memory_limit_mb
+      : typeof settings.memory_limit === 'number'
+        ? Number(settings.memory_limit)
+        : 256;
 
   return {
     uuid: assessment.assessment_uuid,
@@ -245,8 +249,7 @@ function toCodeChallengeSettings(assessment: CodeAssessmentRead, codeItem: CodeA
       (settings.grading_strategy as CodeChallengeSettings['grading_strategy'] | undefined) ?? 'PARTIAL_CREDIT',
     execution_mode:
       (settings.execution_mode as CodeChallengeSettings['execution_mode'] | undefined) ?? 'COMPLETE_FEEDBACK',
-    allow_custom_input:
-      typeof settings.allow_custom_input === 'boolean' ? settings.allow_custom_input : true,
+    allow_custom_input: typeof settings.allow_custom_input === 'boolean' ? settings.allow_custom_input : true,
     points: typeof codeItem?.max_score === 'number' ? codeItem.max_score : Number(settings.points ?? 100),
     allowed_languages: Array.isArray(body?.languages)
       ? body.languages
@@ -256,7 +259,7 @@ function toCodeChallengeSettings(assessment: CodeAssessmentRead, codeItem: CodeA
     visible_tests: visibleTests,
     hidden_tests: hiddenTests,
     test_cases: [...visibleTests, ...hiddenTests],
-    starter_code: body?.starter_code ?? ((settings.starter_code as Record<string, string> | undefined) ?? {}),
+    starter_code: body?.starter_code ?? (settings.starter_code as Record<string, string> | undefined) ?? {},
     solution_code:
       (settings.solution_code as Record<string, string> | undefined) ??
       (typeof settings.reference_solution === 'string' ? { solution: settings.reference_solution } : undefined),
@@ -289,13 +292,9 @@ function toCodeItemBody(
       ...hiddenTests.map((test) => toStoredTestCase(test, false)),
     ],
     time_limit_seconds:
-      typeof settings.time_limit === 'number'
-        ? settings.time_limit
-        : (existingBody?.time_limit_seconds ?? null),
+      typeof settings.time_limit === 'number' ? settings.time_limit : (existingBody?.time_limit_seconds ?? null),
     memory_limit_mb:
-      typeof settings.memory_limit === 'number'
-        ? settings.memory_limit
-        : (existingBody?.memory_limit_mb ?? null),
+      typeof settings.memory_limit === 'number' ? settings.memory_limit : (existingBody?.memory_limit_mb ?? null),
   };
 }
 
@@ -520,5 +519,7 @@ export async function getSubmissions(activityUuid: string): Promise<CodeSubmissi
     throw new Error('Failed to fetch submissions');
   }
 
-  return ((await response.json()) as CanonicalSubmissionRead[] as unknown as GradingSubmission[]).map(mapCanonicalCodeSubmission);
+  return ((await response.json()) as CanonicalSubmissionRead[] as unknown as GradingSubmission[]).map(
+    mapCanonicalCodeSubmission,
+  );
 }

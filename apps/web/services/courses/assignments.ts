@@ -138,10 +138,12 @@ function normalizeTaskType(type?: AssignmentType | null) {
   switch (type) {
     case 'FILE_SUBMISSION':
     case 'FORM':
-    case 'QUIZ':
+    case 'QUIZ': {
       return type;
-    default:
+    }
+    default: {
       return 'OTHER' as const;
+    }
   }
 }
 
@@ -176,8 +178,10 @@ function taskMutationToAssessmentItemPayload(body: AssignmentTaskMutationPayload
         kind: 'FILE_UPLOAD',
         prompt: body.description ?? '',
         max_files: Math.max(1, normalizeNumber(contents.max_files, 1)),
-        max_mb: contents.max_file_size_mb == null ? null : normalizeNumber(contents.max_file_size_mb, 1),
-        mimes: normalizeArray<string>(contents.allowed_mime_types).filter((item): item is string => typeof item === 'string'),
+        max_mb: contents.max_file_size_mb === null ? null : normalizeNumber(contents.max_file_size_mb, 1),
+        mimes: normalizeArray<string>(contents.allowed_mime_types).filter(
+          (item): item is string => typeof item === 'string',
+        ),
       },
     };
   }
@@ -219,8 +223,8 @@ function taskMutationToAssessmentItemPayload(body: AssignmentTaskMutationPayload
       is_correct: option.assigned_right_answer === true,
     }));
     const correctCount = normalizedOptions.filter((option) => option.is_correct).length;
-    const optionTexts = normalizedOptions.map((option) => option.text.trim().toLowerCase());
-    const isTrueFalse = normalizedOptions.length === 2 && optionTexts.includes('true') && optionTexts.includes('false');
+    const optionTexts = new Set(normalizedOptions.map((option) => option.text.trim().toLowerCase()));
+    const isTrueFalse = normalizedOptions.length === 2 && optionTexts.has('true') && optionTexts.has('false');
     return {
       kind: 'CHOICE',
       title,
@@ -415,7 +419,7 @@ export async function getAssignmentTask(assignmentUUID: string, assignmentTaskUU
     : null;
   return {
     ...metadata,
-    data: item ? toAssignmentTask(item) ?? item : null,
+    data: item ? (toAssignmentTask(item) ?? item) : null,
   };
 }
 

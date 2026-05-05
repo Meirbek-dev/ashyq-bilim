@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from sqlalchemy import desc
 from sqlmodel import Session, select
 
-from src.db.assessments import Assessment, AssessmentItem, ITEM_BODY_ADAPTER, ItemBody
+from src.db.assessments import ITEM_BODY_ADAPTER, Assessment, AssessmentItem, ItemBody
 from src.db.courses.blocks import Block, BlockTypeEnum
 from src.db.courses.quiz import QuizSettings
 from src.db.grading.submissions import AssessmentType
@@ -138,7 +138,8 @@ def _load_quiz_settings(activity_id: int, db_session: Session) -> AssessmentSett
     return AssessmentSettings(
         questions=questions,
         max_attempts=qs.max_attempts,
-        time_limit_seconds=_settings_time_limit_seconds(raw_settings) or qs.time_limit_seconds,
+        time_limit_seconds=_settings_time_limit_seconds(raw_settings)
+        or qs.time_limit_seconds,
         max_score_penalty_per_attempt=qs.max_score_penalty_per_attempt,
         due_date_iso=_settings_due_date_iso(raw_settings),
         track_violations=qs.track_violations,

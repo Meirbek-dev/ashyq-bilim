@@ -135,7 +135,9 @@ describe('teacher review controls', () => {
 
     const dialog = await screen.findByRole('dialog');
     expect(within(dialog).getByText('Publish selected grades')).toBeInTheDocument();
-    expect(within(dialog).getByText('Review the exact impact before making grades visible to students.')).toBeInTheDocument();
+    expect(
+      within(dialog).getByText('Review the exact impact before making grades visible to students.'),
+    ).toBeInTheDocument();
     expect(within(dialog).getByText('Grade-ready')).toBeInTheDocument();
     expect(within(dialog).getByText('Hidden from student')).toBeInTheDocument();
     expect(within(dialog).getByText('Already visible')).toBeInTheDocument();
@@ -162,8 +164,27 @@ describe('teacher review controls', () => {
         disabled={false}
         onRefresh={onRefresh}
         submissions={[
-          createSubmission({ user: { id: 9, user_uuid: 'user_a', username: 'student.a', first_name: 'A', last_name: 'Student', email: 'a@example.test' } as Submission['user'] }),
-          createSubmission({ submission_uuid: 'submission_two', user: { id: 10, user_uuid: 'user_b', username: 'student.b', first_name: 'B', last_name: 'Student', email: 'b@example.test' } as Submission['user'] }),
+          createSubmission({
+            user: {
+              id: 9,
+              user_uuid: 'user_a',
+              username: 'student.a',
+              first_name: 'A',
+              last_name: 'Student',
+              email: 'a@example.test',
+            } as Submission['user'],
+          }),
+          createSubmission({
+            submission_uuid: 'submission_two',
+            user: {
+              id: 10,
+              user_uuid: 'user_b',
+              username: 'student.b',
+              first_name: 'B',
+              last_name: 'Student',
+              email: 'b@example.test',
+            } as Submission['user'],
+          }),
         ]}
       />,
     );
@@ -222,7 +243,12 @@ describe('teacher review controls', () => {
   });
 
   it('explains hidden grades and keeps publish disabled until the teacher saves a grade', () => {
-    mocks.gradingPanelState.submission = createSubmission({ status: 'PENDING', final_score: null, auto_score: null, grading_json: {} });
+    mocks.gradingPanelState.submission = createSubmission({
+      status: 'PENDING',
+      final_score: null,
+      auto_score: null,
+      grading_json: {},
+    });
 
     render(
       <GradeForm
@@ -233,7 +259,9 @@ describe('teacher review controls', () => {
     );
 
     expect(screen.getByText('Hidden from student')).toBeInTheDocument();
-    expect(screen.getByText('This submission is still awaiting grading. Students cannot see any result yet.')).toBeInTheDocument();
+    expect(
+      screen.getByText('This submission is still awaiting grading. Students cannot see any result yet.'),
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Publish to student' })).toBeDisabled();
     expect(screen.getByText('Save as graded first before publishing student-visible results.')).toBeInTheDocument();
   });
@@ -251,7 +279,9 @@ describe('teacher review controls', () => {
     );
 
     expect(screen.getByText('Awaiting release')).toBeInTheDocument();
-    expect(screen.getByText('The grade is saved internally and still hidden from the student until you publish it.')).toBeInTheDocument();
+    expect(
+      screen.getByText('The grade is saved internally and still hidden from the student until you publish it.'),
+    ).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Publish to student' }));
 

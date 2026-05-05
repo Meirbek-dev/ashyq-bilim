@@ -560,7 +560,9 @@ async def save_assessment_draft(
         _enforce_draft_version(draft, if_match)
 
         answers = _normalize_answer_patch(assessment, payload, current_user, db_session)
-        current_payload = draft.answers_json if isinstance(draft.answers_json, dict) else {}
+        current_payload = (
+            draft.answers_json if isinstance(draft.answers_json, dict) else {}
+        )
         current_answers = current_payload.get("answers", {})
         if not isinstance(current_answers, dict):
             current_answers = {}
@@ -748,9 +750,7 @@ def build_readiness(
                 )
             )
         anti_cheat = (
-            policy.anti_cheat_json
-            if isinstance(policy.anti_cheat_json, dict)
-            else {}
+            policy.anti_cheat_json if isinstance(policy.anti_cheat_json, dict) else {}
         )
         if (
             isinstance(anti_cheat.get("violation_threshold"), int)
@@ -904,12 +904,18 @@ def _build_attempt_projection(
         .order_by(desc(Submission.created_at))
     ).all()
     draft = next(
-        (submission for submission in submissions if submission.status == SubmissionStatus.DRAFT),
+        (
+            submission
+            for submission in submissions
+            if submission.status == SubmissionStatus.DRAFT
+        ),
         None,
     )
     active_submission = draft or (submissions[0] if submissions else None)
     submission_status = (
-        SubmissionStatus(active_submission.status) if active_submission is not None else None
+        SubmissionStatus(active_submission.status)
+        if active_submission is not None
+        else None
     )
     can_edit = active_submission is None or submission_status in {
         SubmissionStatus.DRAFT,
@@ -918,14 +924,17 @@ def _build_attempt_projection(
 
     return AssessmentAttemptProjection(
         assessment_uuid=assessment.assessment_uuid,
-        submission_uuid=active_submission.submission_uuid if active_submission else None,
+        submission_uuid=active_submission.submission_uuid
+        if active_submission
+        else None,
         submission_status=submission_status.value if submission_status else None,
         release_state=_release_state_for_submission(submission_status),
         can_edit=can_edit,
         can_save_draft=can_edit,
         can_submit=can_edit,
         is_returned_for_revision=submission_status == SubmissionStatus.RETURNED,
-        is_result_visible=submission_status in {
+        is_result_visible=submission_status
+        in {
             SubmissionStatus.PUBLISHED,
             SubmissionStatus.RETURNED,
         },
@@ -1215,7 +1224,7 @@ def _get_or_create_policy(
     if patch is not None:
         for field, value in _normalized_policy_patch(kind, patch).items():
             if field == "late_policy":
-                setattr(policy, "late_policy_json", value)
+                policy.late_policy_json = value
                 continue
             setattr(policy, field, value)
     policy.updated_at = now
@@ -1250,9 +1259,9 @@ def _normalize_policy_settings_json(
     kind: AssessmentType,
     settings_json: dict[str, object] | None,
     *,
-    due_at: datetime | None | object = _UNSET,
-    max_attempts: int | None | object = _UNSET,
-    time_limit_seconds: int | None | object = _UNSET,
+    due_at: datetime | object | None = _UNSET,
+    max_attempts: int | object | None = _UNSET,
+    time_limit_seconds: int | object | None = _UNSET,
 ) -> dict[str, object] | None:
     if (
         settings_json is None
@@ -1264,7 +1273,9 @@ def _normalize_policy_settings_json(
 
     normalized = dict(settings_json or {})
 
-    normalized_due_at = _first_string_setting(normalized, "due_at", "due_date_iso", "due_date")
+    normalized_due_at = _first_string_setting(
+        normalized, "due_at", "due_date_iso", "due_date"
+    )
     if due_at is not _UNSET:
         normalized_due_at = due_at.isoformat() if isinstance(due_at, datetime) else None
     if due_at is not _UNSET or normalized_due_at is not None:
@@ -1274,9 +1285,13 @@ def _normalize_policy_settings_json(
         if kind == AssessmentType.CODE_CHALLENGE:
             normalized["due_date"] = normalized_due_at
 
-    normalized_max_attempts = _first_int_setting(normalized, "max_attempts", "attempt_limit")
+    normalized_max_attempts = _first_int_setting(
+        normalized, "max_attempts", "attempt_limit"
+    )
     if max_attempts is not _UNSET:
-        normalized_max_attempts = max_attempts if isinstance(max_attempts, int) else None
+        normalized_max_attempts = (
+            max_attempts if isinstance(max_attempts, int) else None
+        )
     if max_attempts is not _UNSET or normalized_max_attempts is not None:
         normalized["max_attempts"] = normalized_max_attempts
         if kind in {
@@ -1292,7 +1307,10 @@ def _normalize_policy_settings_json(
             normalized_time_limit_seconds = (
                 time_limit_seconds if isinstance(time_limit_seconds, int) else None
             )
-        if time_limit_seconds is not _UNSET or normalized_time_limit_seconds is not None:
+        if (
+            time_limit_seconds is not _UNSET
+            or normalized_time_limit_seconds is not None
+        ):
             normalized["time_limit_seconds"] = normalized_time_limit_seconds
             normalized["time_limit"] = (
                 None
@@ -1613,7 +1631,9 @@ def _item_readiness_issues(item: AssessmentItem) -> list[ReadinessIssue]:
                 )
             )
         option_texts = [
-            option.text.strip().lower() for option in body.options if option.text.strip()
+            option.text.strip().lower()
+            for option in body.options
+            if option.text.strip()
         ]
         if len(set(option_texts)) != len(option_texts):
             issues.append(
@@ -1715,7 +1735,9 @@ def _item_readiness_issues(item: AssessmentItem) -> list[ReadinessIssue]:
                     item_uuid=item.item_uuid,
                 )
             )
-        field_ids = [field.id.strip().lower() for field in body.fields if field.id.strip()]
+        field_ids = [
+            field.id.strip().lower() for field in body.fields if field.id.strip()
+        ]
         if len(set(field_ids)) != len(field_ids):
             issues.append(
                 ReadinessIssue(
@@ -1785,9 +1807,7 @@ def _item_readiness_issues(item: AssessmentItem) -> list[ReadinessIssue]:
                     item_uuid=item.item_uuid,
                 )
             )
-        if any(
-            not pair.left.strip() or not pair.right.strip() for pair in body.pairs
-        ):
+        if any(not pair.left.strip() or not pair.right.strip() for pair in body.pairs):
             issues.append(
                 ReadinessIssue(
                     code="matching.pair_value_missing",
@@ -1795,8 +1815,12 @@ def _item_readiness_issues(item: AssessmentItem) -> list[ReadinessIssue]:
                     item_uuid=item.item_uuid,
                 )
             )
-        left_values = [pair.left.strip().lower() for pair in body.pairs if pair.left.strip()]
-        right_values = [pair.right.strip().lower() for pair in body.pairs if pair.right.strip()]
+        left_values = [
+            pair.left.strip().lower() for pair in body.pairs if pair.left.strip()
+        ]
+        right_values = [
+            pair.right.strip().lower() for pair in body.pairs if pair.right.strip()
+        ]
         if len(set(left_values)) != len(left_values):
             issues.append(
                 ReadinessIssue(

@@ -1,7 +1,7 @@
 'use client';
 
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { apiFetch } from '@/lib/api-client';
@@ -80,7 +80,7 @@ export function useAssessmentSubmission(assessmentUuid: string | null | undefine
         queryKey: queryKeys.assessments.draft(assessmentUuid),
         queryFn: async () => {
           const response = await apiFetch(`assessments/${assessmentUuid}/draft`);
-           return (await readJsonOrThrow(response)) as DraftRead;
+          return (await readJsonOrThrow(response)) as DraftRead;
         },
       }),
     [assessmentUuid],
@@ -122,7 +122,7 @@ export function useAssessmentSubmission(assessmentUuid: string | null | undefine
       queryClient.setQueryData(submissionsQueryKey, (current: AssessmentSubmissionRead[] | undefined) => {
         const next = [...(current ?? [])];
         const existingIndex = next.findIndex((candidate) => candidate.submission_uuid === latest.submission_uuid);
-        if (existingIndex >= 0) {
+        if (existingIndex !== -1) {
           next[existingIndex] = latest;
         } else {
           next.unshift(latest);
@@ -180,7 +180,9 @@ export function useAssessmentSubmission(assessmentUuid: string | null | undefine
         if (latest) {
           openConflict(latest);
         }
-        toast.error('Your draft changed in another tab. Choose whether to keep your local version or load the latest saved draft.');
+        toast.error(
+          'Your draft changed in another tab. Choose whether to keep your local version or load the latest saved draft.',
+        );
         return;
       }
       setSaveState('error');
@@ -254,7 +256,7 @@ export function useAssessmentSubmission(assessmentUuid: string | null | undefine
   useEffect(() => {
     const loadError = draftQuery.error ?? submissionsQuery.error;
     if (!loadError) return;
-    const message = loadError.message;
+    const {message} = loadError;
     const key = `${assessmentUuid ?? 'missing'}:${message}`;
     if (reportedLoadError === key) return;
     setReportedLoadError(key);
@@ -364,5 +366,5 @@ export function useAssessmentSubmission(assessmentUuid: string | null | undefine
 function cloneAnswers(answers: Record<string, ItemAnswer>): Record<string, ItemAnswer> {
   return typeof structuredClone === 'function'
     ? structuredClone(answers)
-    : (JSON.parse(JSON.stringify(answers)) as Record<string, ItemAnswer>);
+    : (structuredClone(answers) as Record<string, ItemAnswer>);
 }

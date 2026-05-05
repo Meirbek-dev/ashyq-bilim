@@ -6,6 +6,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
+import { apiFetch } from '@/lib/api-client';
+
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 import { courseKeys } from '@/hooks/courses/courseKeys';
@@ -69,7 +71,8 @@ export default function ExamAttemptContent({ courseUuid, vm }: KindAttemptProps)
     return <div className="text-destructive rounded-lg border p-6 text-sm">{t('errorLoadingExam')}</div>;
   }
 
-  const latestCompletedSubmission = submissionState.submissions.find((submission) => submission.status !== 'DRAFT') ?? null;
+  const latestCompletedSubmission =
+    submissionState.submissions.find((submission) => submission.status !== 'DRAFT') ?? null;
   const historyItems = submissionState.submissions
     .filter((submission) => submission.status !== 'DRAFT')
     .map((submission, index) => ({
@@ -77,8 +80,7 @@ export default function ExamAttemptContent({ courseUuid, vm }: KindAttemptProps)
       label: index === 0 ? 'Latest submission' : `Attempt ${submissionState.submissions.length - index}`,
       submittedAt: submission.submitted_at ?? submission.updated_at,
       status: submission.status,
-      scoreLabel:
-        typeof submission.final_score === 'number' ? `${Math.round(submission.final_score)}%` : null,
+      scoreLabel: typeof submission.final_score === 'number' ? `${Math.round(submission.final_score)}%` : null,
     }));
 
   const handleStartExam = async () => {
@@ -180,9 +182,7 @@ export default function ExamAttemptContent({ courseUuid, vm }: KindAttemptProps)
                 </AlertDescription>
               </Alert>
             ) : null}
-            {latestCompletedSubmission ? (
-              <ExamSubmissionStatePanel submission={latestCompletedSubmission} />
-            ) : null}
+            {latestCompletedSubmission ? <ExamSubmissionStatePanel submission={latestCompletedSubmission} /> : null}
           </div>
         }
       />
@@ -226,13 +226,13 @@ function ExamTakingContent({
   canSaveDraft: boolean;
   canSubmit: boolean;
   latestCompletedSubmission: ReturnType<typeof useAssessmentSubmission>['submission'];
-  historyItems: Array<{
+  historyItems: {
     id: string;
     label: string;
     submittedAt: string | null | undefined;
     status: 'PENDING' | 'GRADED' | 'PUBLISHED' | 'RETURNED';
     scoreLabel: string | null;
-  }>;
+  }[];
 }) {
   const t = useTranslations('Activities.ExamActivity');
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -343,13 +343,13 @@ function ExamTakingContent({
           ? ('submitted' as const)
           : submissionState.status === 'RETURNED'
             ? ('returned' as const)
-          : submissionState.saveState === 'dirty'
-            ? ('unsaved' as const)
-            : submissionState.saveState === 'saving'
-              ? ('saving' as const)
-              : submissionState.saveState === 'error' || submissionState.saveState === 'conflict'
-                ? ('error' as const)
-                : ('saved' as const),
+            : submissionState.saveState === 'dirty'
+              ? ('unsaved' as const)
+              : submissionState.saveState === 'saving'
+                ? ('saving' as const)
+                : submissionState.saveState === 'error' || submissionState.saveState === 'conflict'
+                  ? ('error' as const)
+                  : ('saved' as const),
       status: submissionState.status,
       canSave: canSaveDraft && submissionState.saveState === 'dirty',
       canSubmit,
@@ -576,7 +576,8 @@ function ExamSubmissionStatePanel({
       <Alert>
         <AlertTitle>Submission received</AlertTitle>
         <AlertDescription>
-          Submitted{submission.submitted_at ? ` on ${formatDateTime(submission.submitted_at)}` : ''}. Results stay hidden until review is complete.
+          Submitted{submission.submitted_at ? ` on ${formatDateTime(submission.submitted_at)}` : ''}. Results stay
+          hidden until review is complete.
         </AlertDescription>
       </Alert>
     );
@@ -597,11 +598,13 @@ function ExamSubmissionStatePanel({
       <AlertDescription className="space-y-3">
         {typeof submission.final_score === 'number' ? (
           <span className="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm font-medium">
-            <span className="rounded bg-muted px-2 py-0.5 text-xs font-medium">Score</span>
+            <span className="bg-muted rounded px-2 py-0.5 text-xs font-medium">Score</span>
             {Math.round(submission.final_score)}%
           </span>
         ) : null}
-        {submission.grading_json?.feedback ? <p className="whitespace-pre-wrap">{submission.grading_json.feedback}</p> : null}
+        {submission.grading_json?.feedback ? (
+          <p className="whitespace-pre-wrap">{submission.grading_json.feedback}</p>
+        ) : null}
       </AlertDescription>
     </Alert>
   );
@@ -618,9 +621,7 @@ function Instruction({ icon: Icon, label }: { icon: any; label: string }) {
 
 function isAntiCheatWarningVisible(policy: typeof DEFAULT_POLICY_VIEW): boolean {
   return (
-    policy.antiCheat.tabSwitchDetection ||
-    policy.antiCheat.copyPasteProtection ||
-    policy.antiCheat.devtoolsDetection
+    policy.antiCheat.tabSwitchDetection || policy.antiCheat.copyPasteProtection || policy.antiCheat.devtoolsDetection
   );
 }
 

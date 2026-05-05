@@ -117,7 +117,9 @@ export default function SubmissionList({
                     <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-2 text-xs">
                       <span>Attempt #{submission.attempt_number}</span>
                       <span>{formatDate(submission.submitted_at ?? submission.updated_at)}</span>
-                      {typeof submission.final_score === 'number' ? <span>{Math.round(submission.final_score)}%</span> : null}
+                      {typeof submission.final_score === 'number' ? (
+                        <span>{Math.round(submission.final_score)}%</span>
+                      ) : null}
                     </div>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <SubmissionStatusBadge status={submission.status} />

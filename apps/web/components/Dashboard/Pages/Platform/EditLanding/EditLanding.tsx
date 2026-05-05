@@ -896,8 +896,7 @@ const HeroSectionEditor: FC<{
               <Label htmlFor="background">{t('HeroEditor.Background.typeLabel')}</Label>
               <Select
                 value={section.background.type}
-                onValueChange={(normalizedType) => {
-                  const bgType = normalizedType ?? 'solid';
+                onValueChange={(bgType = 'solid') => {
                   onChange({
                     ...section,
                     background: {

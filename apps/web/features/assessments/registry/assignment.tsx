@@ -22,11 +22,17 @@ registerKind('TYPE_ASSIGNMENT', async () => {
   ]);
 
   const OutlineSlot: ComponentType<KindAuthorProps> = (_props) => (
-    <NativeItemOutline allowedKinds={['CHOICE', 'OPEN_TEXT', 'FILE_UPLOAD', 'FORM', 'MATCHING']} itemNoun="Task" />
+    <NativeItemOutline
+      allowedKinds={['CHOICE', 'OPEN_TEXT', 'FILE_UPLOAD', 'FORM', 'MATCHING']}
+      itemNoun="Task"
+    />
   );
 
   const AuthorSlot: ComponentType<KindAuthorProps> = (_props) => (
-    <NativeItemAuthor mode="assignment" itemNoun="Task" />
+    <NativeItemAuthor
+      mode="assignment"
+      itemNoun="Task"
+    />
   );
 
   const ReviewPassthrough: ComponentType<KindReviewProps> = ({ activityId, submissionUuid, title }) =>

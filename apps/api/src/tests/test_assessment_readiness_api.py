@@ -1,8 +1,8 @@
 # pyright: reportMissingImports=false, reportUnusedImport=false
 
-from datetime import UTC, datetime, timedelta
 import pathlib
 import sys
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi import FastAPI
@@ -97,7 +97,9 @@ def teacher_user_fixture() -> PublicUser:
 
 
 @pytest.fixture(name="api_client")
-def api_client_fixture(db_session_factory, teacher_user, monkeypatch: pytest.MonkeyPatch):
+def api_client_fixture(
+    db_session_factory, teacher_user, monkeypatch: pytest.MonkeyPatch
+):
     app = FastAPI()
     app.include_router(router, prefix="/assessments")
 
@@ -171,7 +173,9 @@ def _seed_assessment(
         session.flush()
 
         activity_type = (
-            ActivityTypeEnum.TYPE_EXAM if kind == AssessmentType.EXAM else ActivityTypeEnum.TYPE_ASSIGNMENT
+            ActivityTypeEnum.TYPE_EXAM
+            if kind == AssessmentType.EXAM
+            else ActivityTypeEnum.TYPE_ASSIGNMENT
         )
         activity_sub_type = (
             ActivitySubTypeEnum.SUBTYPE_EXAM_STANDARD
@@ -290,8 +294,18 @@ def test_readiness_endpoint_returns_new_policy_and_item_codes(
                     "kind": "FORM",
                     "prompt": "Collect details",
                     "fields": [
-                        {"id": "name", "label": "", "field_type": "text", "required": True},
-                        {"id": "NAME", "label": "Name again", "field_type": "text", "required": False},
+                        {
+                            "id": "name",
+                            "label": "",
+                            "field_type": "text",
+                            "required": True,
+                        },
+                        {
+                            "id": "NAME",
+                            "label": "Name again",
+                            "field_type": "text",
+                            "required": False,
+                        },
                     ],
                 },
             },
@@ -347,7 +361,9 @@ def test_readiness_endpoint_and_publish_block_forbidden_exam_item_kind(
         ],
     )
 
-    readiness_response = api_client.get(f"/assessments/{assessment.assessment_uuid}/readiness")
+    readiness_response = api_client.get(
+        f"/assessments/{assessment.assessment_uuid}/readiness"
+    )
 
     assert readiness_response.status_code == 200
     readiness_payload = readiness_response.json()

@@ -180,7 +180,8 @@ function getReleaseNotice({
   if (releaseState === 'AWAITING_RELEASE' || submissionStatus === 'GRADED') {
     return {
       title: 'Results are waiting for release',
-      description: 'Your work has been graded, but the score and feedback remain hidden until your teacher releases them.',
+      description:
+        'Your work has been graded, but the score and feedback remain hidden until your teacher releases them.',
     };
   }
 

@@ -269,7 +269,7 @@ export function renderCanonicalReviewAnswer(item: AssessmentItem, answer: ItemAn
 
   if (body.kind === 'CHOICE') {
     const choiceModule = getItemKindModule(body.multiple ? 'CHOICE_MULTIPLE' : 'CHOICE_SINGLE');
-    const ReviewDetail = choiceModule.ReviewDetail;
+    const {ReviewDetail} = choiceModule;
     const reviewItem: ChoiceAttemptItem = {
       id: item.item_uuid,
       kind: body.multiple ? 'CHOICE_MULTIPLE' : 'CHOICE_SINGLE',
@@ -288,11 +288,16 @@ export function renderCanonicalReviewAnswer(item: AssessmentItem, answer: ItemAn
       : answer?.kind === 'CHOICE'
         ? (answer.selected[0] ?? null)
         : null;
-    return <ReviewDetail item={reviewItem} answer={reviewAnswer} />;
+    return (
+      <ReviewDetail
+        item={reviewItem}
+        answer={reviewAnswer}
+      />
+    );
   }
 
   if (body.kind === 'OPEN_TEXT') {
-    const ReviewDetail = getItemKindModule('OPEN_TEXT').ReviewDetail;
+    const {ReviewDetail} = getItemKindModule('OPEN_TEXT');
     return (
       <div className="space-y-3">
         <ReviewDetail
@@ -310,7 +315,7 @@ export function renderCanonicalReviewAnswer(item: AssessmentItem, answer: ItemAn
   }
 
   if (body.kind === 'FILE_UPLOAD') {
-    const ReviewDetail = getItemKindModule('FILE_UPLOAD').ReviewDetail;
+    const {ReviewDetail} = getItemKindModule('FILE_UPLOAD');
     return (
       <ReviewDetail
         item={{
@@ -329,7 +334,7 @@ export function renderCanonicalReviewAnswer(item: AssessmentItem, answer: ItemAn
   }
 
   if (body.kind === 'FORM') {
-    const ReviewDetail = getItemKindModule('FORM').ReviewDetail;
+    const {ReviewDetail} = getItemKindModule('FORM');
     return (
       <ReviewDetail
         item={normalizeFormItem({
@@ -350,12 +355,17 @@ export function renderCanonicalReviewAnswer(item: AssessmentItem, answer: ItemAn
   }
 
   if (body.kind === 'MATCHING') {
-    const ReviewDetail = getItemKindModule('MATCHING').ReviewDetail;
-    return <ReviewDetail item={body} answer={answer?.kind === 'MATCHING' ? answer : null} />;
+    const {ReviewDetail} = getItemKindModule('MATCHING');
+    return (
+      <ReviewDetail
+        item={body}
+        answer={answer?.kind === 'MATCHING' ? answer : null}
+      />
+    );
   }
 
   if (body.kind === 'CODE') {
-    const ReviewDetail = getItemKindModule('CODE').ReviewDetail;
+    const {ReviewDetail} = getItemKindModule('CODE');
     return <ReviewDetail answer={answer?.kind === 'CODE' ? answer : null} />;
   }
 
@@ -364,7 +374,9 @@ export function renderCanonicalReviewAnswer(item: AssessmentItem, answer: ItemAn
       <div className="mb-2 flex items-center gap-2">
         <Badge variant="outline">Unsupported</Badge>
       </div>
-      <pre className="bg-muted max-h-80 overflow-auto rounded-md p-3 text-xs">{JSON.stringify(answer ?? {}, null, 2)}</pre>
+      <pre className="bg-muted max-h-80 overflow-auto rounded-md p-3 text-xs">
+        {JSON.stringify(answer ?? {}, null, 2)}
+      </pre>
     </div>
   );
 }

@@ -36,7 +36,8 @@ export default function AssignmentAttemptContent({ vm }: KindAttemptProps) {
   const canEdit = vm?.canEdit ?? false;
   const canSave = Boolean(vm?.canSaveDraft) && submissionState.saveState === 'dirty';
   const canSubmit = Boolean(vm?.canSubmit);
-  const latestCompletedSubmission = submissionState.submissions.find((submission) => submission.status !== 'DRAFT') ?? null;
+  const latestCompletedSubmission =
+    submissionState.submissions.find((submission) => submission.status !== 'DRAFT') ?? null;
 
   const persistence = useAssessmentAttempt<Record<string, ItemAnswer>>({
     attemptUuid: draft?.submission_uuid ?? `entry_${assessmentUuid ?? 'missing'}`,

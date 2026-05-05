@@ -71,9 +71,22 @@ export default function SubmissionInspector({
             </div>
           </div>
           <div className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
-            <HistoryItem label="Release state" value={RELEASE_STATE_LABELS[reviewVm.releaseState]} />
-            <HistoryItem label="Student visibility" value={reviewVm.releaseState === 'VISIBLE' || reviewVm.releaseState === 'RETURNED_FOR_REVISION' ? 'Visible now' : 'Hidden until release'} />
-            <HistoryItem label="Score" value={typeof current.final_score === 'number' ? `${Math.round(current.final_score)}%` : '--'} />
+            <HistoryItem
+              label="Release state"
+              value={RELEASE_STATE_LABELS[reviewVm.releaseState]}
+            />
+            <HistoryItem
+              label="Student visibility"
+              value={
+                reviewVm.releaseState === 'VISIBLE' || reviewVm.releaseState === 'RETURNED_FOR_REVISION'
+                  ? 'Visible now'
+                  : 'Hidden until release'
+              }
+            />
+            <HistoryItem
+              label="Score"
+              value={typeof current.final_score === 'number' ? `${Math.round(current.final_score)}%` : '--'}
+            />
           </div>
         </div>
 
@@ -274,7 +287,10 @@ function RubricSummary({ rubric }: { rubric: string }) {
       <div className="mb-2 font-medium">Rubric guidance</div>
       <ul className="space-y-1 text-xs">
         {criteria.map((criterion) => (
-          <li key={criterion} className="flex gap-2">
+          <li
+            key={criterion}
+            className="flex gap-2"
+          >
             <span>•</span>
             <span>{criterion}</span>
           </li>

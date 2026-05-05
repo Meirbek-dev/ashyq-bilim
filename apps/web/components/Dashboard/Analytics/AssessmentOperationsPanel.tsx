@@ -19,25 +19,32 @@ function formatHours(value: number | null | undefined, emptyLabel: string) {
 
 function getSloBadgeVariant(status: TeacherAssessmentDetailResponse['slo']['status']) {
   switch (status) {
-    case 'healthy':
+    case 'healthy': {
       return 'success';
-    case 'warning':
+    }
+    case 'warning': {
       return 'warning';
-    case 'breached':
+    }
+    case 'breached': {
       return 'destructive';
-    default:
+    }
+    default: {
       return 'outline';
+    }
   }
 }
 
 function getMigrationBadgeVariant(mode: TeacherAssessmentDetailResponse['migration']['compatibility_mode']) {
   switch (mode) {
-    case 'canonical':
+    case 'canonical': {
       return 'success';
-    case 'dual_write':
+    }
+    case 'dual_write': {
       return 'warning';
-    default:
+    }
+    default: {
       return 'destructive';
+    }
   }
 }
 
@@ -125,11 +132,15 @@ export default function AssessmentOperationsPanel({ detail }: AssessmentOperatio
             </div>
             <div className="rounded-2xl border border-slate-200 p-4">
               <div className="text-xs tracking-wide text-slate-500 uppercase">{t('pages.assessmentOpsSloP50')}</div>
-              <div className="mt-2 text-2xl font-semibold">{formatHours(detail.slo.observed_p50_hours, t('atRisk.na'))}</div>
+              <div className="mt-2 text-2xl font-semibold">
+                {formatHours(detail.slo.observed_p50_hours, t('atRisk.na'))}
+              </div>
             </div>
             <div className="rounded-2xl border border-slate-200 p-4">
               <div className="text-xs tracking-wide text-slate-500 uppercase">{t('pages.assessmentOpsSloP90')}</div>
-              <div className="mt-2 text-2xl font-semibold">{formatHours(detail.slo.observed_p90_hours, t('atRisk.na'))}</div>
+              <div className="mt-2 text-2xl font-semibold">
+                {formatHours(detail.slo.observed_p90_hours, t('atRisk.na'))}
+              </div>
             </div>
             <div className="rounded-2xl border border-slate-200 p-4">
               <div className="text-xs tracking-wide text-slate-500 uppercase">{t('pages.assessmentOpsSloBacklog')}</div>

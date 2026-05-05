@@ -11,9 +11,7 @@ vi.mock('next-intl', () => ({
   useLocale: () => 'en-US',
 }));
 
-function createDetail(
-  overrides: Partial<TeacherAssessmentDetailResponse> = {},
-): TeacherAssessmentDetailResponse {
+function createDetail(overrides: Partial<TeacherAssessmentDetailResponse> = {}): TeacherAssessmentDetailResponse {
   return {
     generated_at: '2026-05-05T12:00:00Z',
     assessment_type: 'assignment',
@@ -90,9 +88,13 @@ describe('AssessmentOperationsPanel', () => {
     render(<AssessmentOperationsPanel detail={createDetail()} />);
 
     expect(screen.getByText('pages.assessmentOpsTitle')).toBeInTheDocument();
-    expect(screen.getByText('Assignments use canonical submission states and grading ledger history.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Assignments use canonical submission states and grading ledger history.'),
+    ).toBeInTheDocument();
     expect(screen.getByText('Backlog is approaching the release target for manual grading.')).toBeInTheDocument();
-    expect(screen.getByText('Quiz analytics detail still reads QuizAttempt compatibility rows and cannot cut over yet.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Quiz analytics detail still reads QuizAttempt compatibility rows and cannot cut over yet.'),
+    ).toBeInTheDocument();
     expect(screen.getByText('Release Grades for 8 learners')).toBeInTheDocument();
     expect(screen.getByText('Teacher Analytics')).toBeInTheDocument();
     expect(screen.getByText('quiz_attempt')).toBeInTheDocument();

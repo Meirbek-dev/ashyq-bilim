@@ -107,7 +107,9 @@ def grade_canonical_choice_items(
 ) -> tuple[float, GradingBreakdown]:
     """Grade canonical CHOICE and MATCHING items from answers[item_uuid]."""
 
-    gradable_items = [item for item in items if item.body.kind in {"CHOICE", "MATCHING"}]
+    gradable_items = [
+        item for item in items if item.body.kind in {"CHOICE", "MATCHING"}
+    ]
     if not gradable_items:
         return 0.0, GradingBreakdown(
             items=[], needs_manual_review=False, auto_graded=True
@@ -338,7 +340,9 @@ def _grade_canonical_matching(
         )
 
     correct_count = sum(
-        1 for left, right in expected_pairs.items() if submitted_pairs.get(left) == right
+        1
+        for left, right in expected_pairs.items()
+        if submitted_pairs.get(left) == right
     )
     total_pairs = max(len(expected_pairs), 1)
     score = round((correct_count / total_pairs) * points, 2)
@@ -350,7 +354,9 @@ def _grade_canonical_matching(
         score=score,
         max_score=points,
         correct=correct,
-        feedback="Correct" if correct else f"Matched {correct_count}/{len(expected_pairs)} pairs",
+        feedback="Correct"
+        if correct
+        else f"Matched {correct_count}/{len(expected_pairs)} pairs",
         user_answer=[
             {"left": left, "right": right} for left, right in submitted_pairs.items()
         ],

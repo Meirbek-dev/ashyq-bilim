@@ -332,11 +332,12 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
                     <AlertTriangle className="size-4 text-amber-600 dark:text-amber-400" />
                     <AlertDescription className="text-amber-900 dark:text-amber-200">
                       <p className="mb-2 text-sm font-medium">
-                        {classifiedIssues.length} {classifiedIssues.length === 1 ? 'issue blocks' : 'issues block'} publishing.
+                        {classifiedIssues.length} {classifiedIssues.length === 1 ? 'issue blocks' : 'issues block'}{' '}
+                        publishing.
                       </p>
                       {assessmentIssues.length > 0 ? (
                         <div className="mb-3">
-                          <p className="mb-1 text-xs font-semibold uppercase tracking-wide">Assessment</p>
+                          <p className="mb-1 text-xs font-semibold tracking-wide uppercase">Assessment</p>
                           <ul className="space-y-1">
                             {assessmentIssues.map((issue, idx) => (
                               <li
@@ -352,7 +353,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
                       ) : null}
                       {itemIssues.length > 0 ? (
                         <div>
-                          <p className="mb-1 text-xs font-semibold uppercase tracking-wide">Items</p>
+                          <p className="mb-1 text-xs font-semibold tracking-wide uppercase">Items</p>
                           <ul className="space-y-1">
                             {itemIssues.map((issue, idx) => (
                               <li
@@ -382,7 +383,8 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
                   <Alert>
                     <AlertTriangle className="size-4" />
                     <AlertDescription>
-                      Resolve the assessment-level blockers before publishing. Item-level issues remain linked from the list above.
+                      Resolve the assessment-level blockers before publishing. Item-level issues remain linked from the
+                      list above.
                     </AlertDescription>
                   </Alert>
                 ) : null}

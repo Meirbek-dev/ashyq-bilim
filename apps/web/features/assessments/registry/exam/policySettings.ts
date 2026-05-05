@@ -49,7 +49,7 @@ export function buildExamAntiCheatSettings(settings: ExamSettingsRecord) {
 }
 
 export function normalizeExamPolicySettings(settings: ExamSettingsRecord | null | undefined): ExamSettingsRecord {
-  const normalized: ExamSettingsRecord = { ...(settings ?? {}) };
+  const normalized: ExamSettingsRecord = { ...settings };
   const dueAt = readString(normalized, 'due_at', 'due_date_iso');
   const maxAttempts = getExamAttemptLimit(normalized);
   const timeLimitSeconds = getExamTimeLimitSeconds(normalized);

@@ -184,7 +184,10 @@ def _settings_for_activity(
             _assignment_settings_payload(activity, assessment, policy)
         )
 
-    if assessment is not None and AssessmentType(assessment.kind) == AssessmentType.QUIZ:
+    if (
+        assessment is not None
+        and AssessmentType(assessment.kind) == AssessmentType.QUIZ
+    ):
         return validate_settings(_quiz_settings_payload(assessment, policy, db_session))
 
     return AssignmentAssessmentSettings()
@@ -215,7 +218,9 @@ def _exam_settings_payload(
     if assessment is not None and assessment.id is not None:
         question_limit = len(
             db_session.exec(
-                select(AssessmentItem).where(AssessmentItem.assessment_id == assessment.id)
+                select(AssessmentItem).where(
+                    AssessmentItem.assessment_id == assessment.id
+                )
             ).all()
         )
     anti_cheat = policy.anti_cheat_json if policy else {}
@@ -294,22 +299,34 @@ def _code_settings_payload(
             payload.setdefault("allowed_languages", item.body_json.get("languages", []))
             payload.setdefault("starter_code", item.body_json.get("starter_code", {}))
             payload.setdefault("visible_tests", item.body_json.get("tests", []))
-            payload.setdefault("time_limit", item.body_json.get("time_limit_seconds", 5))
-            payload.setdefault("memory_limit", item.body_json.get("memory_limit_mb", 256))
+            payload.setdefault(
+                "time_limit", item.body_json.get("time_limit_seconds", 5)
+            )
+            payload.setdefault(
+                "memory_limit", item.body_json.get("memory_limit_mb", 256)
+            )
     payload.setdefault("kind", "CODE_CHALLENGE")
-    payload.setdefault("due_date", policy.due_at.isoformat() if policy and policy.due_at else None)
+    payload.setdefault(
+        "due_date", policy.due_at.isoformat() if policy and policy.due_at else None
+    )
     payload.setdefault("lifecycle_status", _lifecycle_value(activity, assessment))
     payload.setdefault(
         "scheduled_at",
-        assessment.scheduled_at.isoformat() if assessment and assessment.scheduled_at else None,
+        assessment.scheduled_at.isoformat()
+        if assessment and assessment.scheduled_at
+        else None,
     )
     payload.setdefault(
         "published_at",
-        assessment.published_at.isoformat() if assessment and assessment.published_at else None,
+        assessment.published_at.isoformat()
+        if assessment and assessment.published_at
+        else None,
     )
     payload.setdefault(
         "archived_at",
-        assessment.archived_at.isoformat() if assessment and assessment.archived_at else None,
+        assessment.archived_at.isoformat()
+        if assessment and assessment.archived_at
+        else None,
     )
     return payload
 

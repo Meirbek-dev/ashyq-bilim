@@ -1,10 +1,4 @@
-export type UnifiedItemKind =
-  | 'CHOICE'
-  | 'OPEN_TEXT'
-  | 'FILE_UPLOAD'
-  | 'FORM'
-  | 'CODE'
-  | 'MATCHING';
+export type UnifiedItemKind = 'CHOICE' | 'OPEN_TEXT' | 'FILE_UPLOAD' | 'FORM' | 'CODE' | 'MATCHING';
 
 export interface ChoiceOption {
   id: string;
