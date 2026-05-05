@@ -19,7 +19,6 @@ from src.db.grading.submissions import AssessmentType as SubmissionAssessmentTyp
 from src.db.grading.submissions import Submission, SubmissionStatus
 from src.db.usergroups import UserGroup
 from src.db.users import User
-from src.infra.settings import get_settings
 from src.services.analytics.filters import AnalyticsFilters
 from src.services.analytics.queries import (
     AnalyticsContext,
@@ -892,7 +891,6 @@ def _build_support_diagnostics(
     eligible_user_ids: set[int],
     cohort_filter_ids: set[int] | None,
 ) -> AssessmentSupportDiagnostics:
-    flags = get_settings().assessment_feature_flags
     scoped_cohort_ids: set[int] = set()
     for user_id in eligible_user_ids:
         cohort_ids = set(context.cohort_ids_by_user.get(user_id, set()))
@@ -943,17 +941,6 @@ def _build_support_diagnostics(
                 summary="Compatibility reads still block a full cutover to canonical analytics.",
             )
         )
-    if assessment_type == "quiz" and flags.legacy_quiz_attempts_route_enabled:
-        cutover_blockers.append("Legacy quiz attempts route is still enabled.")
-        alerts.append(
-            AssessmentSupportAlertRow(
-                code="legacy_quiz_route_live",
-                severity="info",
-                summary="Legacy quiz support routes remain enabled for rollback.",
-            )
-        )
-    if assessment_type == "quiz" and flags.legacy_quiz_stats_route_enabled:
-        cutover_blockers.append("Legacy quiz stats route is still enabled.")
 
     note = (
         "Support follow-up is recommended for the active alerts and cutover blockers."
@@ -968,10 +955,6 @@ def _build_support_diagnostics(
         scoped_cohort_count=len(scoped_cohort_ids),
         cohort_filter_applied=bool(cohort_filter_ids),
         audit_event_count=len(audit_history),
-        legacy_quiz_attempts_route_enabled=(
-            flags.legacy_quiz_attempts_route_enabled
-        ),
-        legacy_quiz_stats_route_enabled=flags.legacy_quiz_stats_route_enabled,
         cutover_blockers=cutover_blockers,
         alerts=alerts,
         note=note,

@@ -984,46 +984,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/blocks/quiz/{activity_id}/attempts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Quiz Attempts
-         * @description Get quiz attempts for an activity.
-         */
-        get: operations["api_get_quiz_attempts_api_v1_blocks_quiz__activity_id__attempts_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/blocks/quiz/{activity_id}/stats": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Api Get Quiz Stats
-         * @description Get per-question statistics for a quiz (teachers only).
-         */
-        get: operations["api_get_quiz_stats_api_v1_blocks_quiz__activity_id__stats_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/blocks/video": {
         parameters: {
             query?: never;
@@ -4129,7 +4089,7 @@ export interface components {
              * Type
              * @enum {string}
              */
-            type: "risk_spike" | "engagement_drop" | "grading_backlog" | "assessment_outlier" | "content_stale";
+            type: "risk_spike" | "engagement_drop" | "grading_backlog" | "grading_slo" | "assessment_outlier" | "content_stale";
         };
         /** AnalyticsDataQuality */
         AnalyticsDataQuality: {
@@ -4744,7 +4704,7 @@ export interface components {
              * Code
              * @enum {string}
              */
-            code: "grading_slo_breached" | "grading_slo_warning" | "suspicious_attempts" | "missing_scores" | "cutover_blocked" | "legacy_quiz_route_live";
+            code: "grading_slo_breached" | "grading_slo_warning" | "suspicious_attempts" | "missing_scores" | "cutover_blocked";
             /**
              * Severity
              * @enum {string}
@@ -4774,16 +4734,6 @@ export interface components {
             cohort_filter_applied: boolean;
             /** Cutover Blockers */
             cutover_blockers: string[];
-            /**
-             * Legacy Quiz Attempts Route Enabled
-             * @default true
-             */
-            legacy_quiz_attempts_route_enabled: boolean;
-            /**
-             * Legacy Quiz Stats Route Enabled
-             * @default true
-             */
-            legacy_quiz_stats_route_enabled: boolean;
             /** Note */
             note: string;
             /**
@@ -7136,55 +7086,6 @@ export interface components {
             weak_correct_pct?: number | null;
         };
         /**
-         * QuizAttemptRead
-         * @description Schema for reading quiz attempt data.
-         */
-        QuizAttemptRead: {
-            /** Activity Id */
-            activity_id: number;
-            /** Attempt Number */
-            attempt_number: number;
-            /** Attempt Uuid */
-            attempt_uuid: string;
-            /** Creation Date */
-            creation_date: string;
-            /** Duration Seconds */
-            duration_seconds: number | null;
-            /** End Ts */
-            end_ts: string | null;
-            /** Grading Result */
-            grading_result: {
-                [key: string]: unknown;
-            };
-            /** Id */
-            id: number;
-            /** Max Attempts */
-            max_attempts: number | null;
-            /** Max Score */
-            max_score: number;
-            /** Max Score Penalty Per Attempt */
-            max_score_penalty_per_attempt: number | null;
-            /** Score */
-            score: number;
-            /**
-             * Start Ts
-             * Format: date-time
-             */
-            start_ts: string;
-            /** Time Limit Seconds */
-            time_limit_seconds: number | null;
-            /** Update Date */
-            update_date: string;
-            /** User Id */
-            user_id: number;
-            /** Violation Count */
-            violation_count: number;
-            /** Violations */
-            violations: {
-                [key: string]: unknown;
-            };
-        };
-        /**
          * QuizGradingResult
          * @description Grading result for a quiz submission.
          */
@@ -7211,28 +7112,6 @@ export interface components {
              * @default 0
              */
             xp_awarded: number;
-        };
-        /**
-         * QuizQuestionStatRead
-         * @description Schema for reading quiz question statistics.
-         */
-        QuizQuestionStatRead: {
-            /** Activity Id */
-            activity_id: number;
-            /** Avg Time Seconds */
-            avg_time_seconds: number | null;
-            /** Correct Count */
-            correct_count: number;
-            /** Creation Date */
-            creation_date: string;
-            /** Id */
-            id: number;
-            /** Question Id */
-            question_id: string;
-            /** Total Attempts */
-            total_attempts: number;
-            /** Update Date */
-            update_date: string;
         };
         /**
          * QuizSubmissionRequest
@@ -10816,70 +10695,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["QuizSubmissionResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_quiz_attempts_api_v1_blocks_quiz__activity_id__attempts_get: {
-        parameters: {
-            query?: {
-                user_id?: number | null;
-            };
-            header?: never;
-            path: {
-                activity_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["QuizAttemptRead"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    api_get_quiz_stats_api_v1_blocks_quiz__activity_id__stats_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                activity_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["QuizQuestionStatRead"][];
                 };
             };
             /** @description Validation Error */

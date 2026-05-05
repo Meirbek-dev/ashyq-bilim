@@ -1,12 +1,20 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import type { TeacherAssessmentDetailResponse } from '@/types/analytics';
+import { Download, RotateCcw, Search } from 'lucide-react';
+import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 
 interface AssessmentOperationsPanelProps {
   detail: TeacherAssessmentDetailResponse;
+}
+
+function escapeCsvValue(value: string | number | null | undefined) {
+  return `"${String(value ?? '').replaceAll('"', '""')}"`;
 }
 
 function formatHours(value: number | null | undefined, emptyLabel: string) {
@@ -89,6 +97,9 @@ function getSupportAlertBadgeVariant(
 export default function AssessmentOperationsPanel({ detail }: AssessmentOperationsPanelProps) {
   const t = useTranslations('TeacherAnalytics');
   const locale = useLocale();
+  const [auditSearch, setAuditSearch] = useState('');
+  const [auditSourceFilter, setAuditSourceFilter] = useState<'all' | TeacherAssessmentDetailResponse['audit_history'][number]['source']>('all');
+  const [auditStatusFilter, setAuditStatusFilter] = useState<string>('all');
 
   const diagnosticMetrics = [
     { label: t('pages.assessmentOpsAttempts'), value: detail.diagnostics.total_attempt_records },
@@ -126,6 +137,62 @@ export default function AssessmentOperationsPanel({ detail }: AssessmentOperatio
     workflow: t('pages.assessmentItemTypeWorkflow'),
     question: t('pages.assessmentItemTypeQuestion'),
     test: t('pages.assessmentItemTypeTest'),
+  };
+
+  const auditStatuses = [
+    ...new Set(detail.audit_history.map((event) => event.status).filter((status): status is string => Boolean(status))),
+  ].toSorted();
+  const normalizedAuditSearch = auditSearch.trim().toLowerCase();
+  const filteredAuditHistory = detail.audit_history.filter((event) => {
+    if (auditSourceFilter !== 'all' && event.source !== auditSourceFilter) {
+      return false;
+    }
+    if (auditStatusFilter !== 'all' && event.status !== auditStatusFilter) {
+      return false;
+    }
+    if (!normalizedAuditSearch) {
+      return true;
+    }
+
+    return [event.action, event.source, event.status, event.summary, event.actor_display_name]
+      .filter(Boolean)
+      .some((value) => String(value).toLowerCase().includes(normalizedAuditSearch));
+  });
+
+  const exportAuditHistory = () => {
+    const headers = [
+      t('pages.assessmentOpsAuditColumnOccurredAt'),
+      t('pages.assessmentOpsAuditColumnSource'),
+      t('pages.assessmentOpsAuditColumnStatus'),
+      t('pages.assessmentOpsAuditColumnAction'),
+      t('pages.assessmentOpsAuditColumnActor'),
+      t('pages.assessmentOpsAuditColumnAffected'),
+      t('pages.assessmentOpsAuditColumnSummary'),
+    ];
+    const rows = filteredAuditHistory.map((event) => [
+      new Date(event.occurred_at).toLocaleString(locale),
+      event.source,
+      event.status ?? '',
+      event.action,
+      event.actor_display_name ?? t('pages.assessmentOpsAuditSystem'),
+      event.affected_count ?? '',
+      event.summary,
+    ]);
+    const csv = [headers.map(escapeCsvValue).join(','), ...rows.map((row) => row.map(escapeCsvValue).join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const slug = `${detail.assessment_type}-${detail.assessment_id}-audit`;
+    link.href = url;
+    link.download = `${slug}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const resetAuditFilters = () => {
+    setAuditSearch('');
+    setAuditSourceFilter('all');
+    setAuditStatusFilter('all');
   };
 
   return (
@@ -197,29 +264,6 @@ export default function AssessmentOperationsPanel({ detail }: AssessmentOperatio
                   {t('pages.assessmentSupportAuditEvents')}
                 </div>
                 <div className="mt-2 text-2xl font-semibold">{detail.support.audit_event_count}</div>
-              </div>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl border border-slate-200 p-4">
-                <div className="text-xs tracking-wide text-slate-500 uppercase">
-                  {t('pages.assessmentSupportLegacyAttemptsRoute')}
-                </div>
-                <div className="mt-2 text-sm font-semibold text-slate-900">
-                  {detail.support.legacy_quiz_attempts_route_enabled
-                    ? t('pages.assessmentSupportRouteEnabled')
-                    : t('pages.assessmentSupportRouteDisabled')}
-                </div>
-              </div>
-              <div className="rounded-2xl border border-slate-200 p-4">
-                <div className="text-xs tracking-wide text-slate-500 uppercase">
-                  {t('pages.assessmentSupportLegacyStatsRoute')}
-                </div>
-                <div className="mt-2 text-sm font-semibold text-slate-900">
-                  {detail.support.legacy_quiz_stats_route_enabled
-                    ? t('pages.assessmentSupportRouteEnabled')
-                    : t('pages.assessmentSupportRouteDisabled')}
-                </div>
               </div>
             </div>
 
@@ -423,33 +467,109 @@ export default function AssessmentOperationsPanel({ detail }: AssessmentOperatio
 
       <Card className="border-slate-200 bg-white/90 shadow-sm xl:col-span-2">
         <CardHeader>
-          <CardTitle>{t('pages.assessmentOpsAuditTitle')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {detail.audit_history.length ? (
-            <div className="space-y-3">
-              {detail.audit_history.map((event) => (
-                <div
-                  key={event.id}
-                  className="rounded-2xl border border-slate-200 p-4"
-                >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="outline">{event.source}</Badge>
-                    {event.status ? <Badge variant="secondary">{event.status}</Badge> : null}
-                  </div>
-                  <div className="mt-3 text-sm font-medium text-slate-900">{event.summary}</div>
-                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500">
-                    <span>{event.actor_display_name || t('pages.assessmentOpsAuditSystem')}</span>
-                    <span>{new Date(event.occurred_at).toLocaleString(locale)}</span>
-                    {event.affected_count !== null && event.affected_count !== undefined ? (
-                      <span>
-                        {t('pages.assessmentOpsAuditAffected')}: {event.affected_count}
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
-              ))}
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div>
+              <CardTitle>{t('pages.assessmentOpsAuditTitle')}</CardTitle>
+              <p className="mt-2 text-sm text-slate-500">
+                {t('pages.assessmentOpsAuditRowCount', {
+                  shown: filteredAuditHistory.length,
+                  total: detail.audit_history.length,
+                })}
+              </p>
             </div>
+            {detail.audit_history.length ? (
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={resetAuditFilters}>
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  {t('pages.assessmentOpsAuditReset')}
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={exportAuditHistory}>
+                  <Download className="h-3.5 w-3.5" />
+                  {t('pages.assessmentOpsAuditExport')}
+                </Button>
+              </div>
+            ) : null}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {detail.audit_history.length ? (
+            <>
+              <div className="grid gap-3 lg:grid-cols-[minmax(0,1.6fr)_auto_auto]">
+                <div className="relative">
+                  <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <Input
+                    value={auditSearch}
+                    onChange={(event) => setAuditSearch(event.target.value)}
+                    placeholder={t('pages.assessmentOpsAuditSearchPlaceholder')}
+                    className="h-10 pl-9"
+                  />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {(['all', 'bulk_action', 'grading_entry'] as const).map((source) => (
+                    <Button
+                      key={source}
+                      type="button"
+                      variant={auditSourceFilter === source ? 'secondary' : 'outline'}
+                      size="sm"
+                      onClick={() => setAuditSourceFilter(source)}
+                    >
+                      {source === 'all' ? t('pages.assessmentOpsAuditFilterAllSources') : source}
+                    </Button>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant={auditStatusFilter === 'all' ? 'secondary' : 'outline'}
+                    size="sm"
+                    onClick={() => setAuditStatusFilter('all')}
+                  >
+                    {t('pages.assessmentOpsAuditFilterAllStatuses')}
+                  </Button>
+                  {auditStatuses.map((status) => (
+                    <Button
+                      key={status}
+                      type="button"
+                      variant={auditStatusFilter === status ? 'secondary' : 'outline'}
+                      size="sm"
+                      onClick={() => setAuditStatusFilter(status)}
+                    >
+                      {status}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {filteredAuditHistory.length ? (
+                <div className="space-y-3">
+                  {filteredAuditHistory.map((event) => (
+                    <div
+                      key={event.id}
+                      className="rounded-2xl border border-slate-200 p-4"
+                    >
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant="outline">{event.source}</Badge>
+                        {event.status ? <Badge variant="secondary">{event.status}</Badge> : null}
+                      </div>
+                      <div className="mt-3 text-sm font-medium text-slate-900">{event.summary}</div>
+                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500">
+                        <span>{event.actor_display_name || t('pages.assessmentOpsAuditSystem')}</span>
+                        <span>{new Date(event.occurred_at).toLocaleString(locale)}</span>
+                        {event.affected_count !== null && event.affected_count !== undefined ? (
+                          <span>
+                            {t('pages.assessmentOpsAuditAffected')}: {event.affected_count}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">
+                  {t('pages.assessmentOpsAuditFilteredEmpty')}
+                </div>
+              )}
+            </>
           ) : (
             <div className="text-sm text-slate-500">{t('pages.assessmentOpsAuditEmpty')}</div>
           )}

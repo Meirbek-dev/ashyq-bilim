@@ -1049,6 +1049,7 @@
               "risk_spike",
               "engagement_drop",
               "grading_backlog",
+              "grading_slo",
               "assessment_outlier",
               "content_stale"
             ],
@@ -2715,8 +2716,7 @@
               "grading_slo_warning",
               "suspicious_attempts",
               "missing_scores",
-              "cutover_blocked",
-              "legacy_quiz_route_live"
+              "cutover_blocked"
             ],
             "title": "Code",
             "type": "string"
@@ -2773,16 +2773,6 @@
             },
             "title": "Cutover Blockers",
             "type": "array"
-          },
-          "legacy_quiz_attempts_route_enabled": {
-            "default": true,
-            "title": "Legacy Quiz Attempts Route Enabled",
-            "type": "boolean"
-          },
-          "legacy_quiz_stats_route_enabled": {
-            "default": true,
-            "title": "Legacy Quiz Stats Route Enabled",
-            "type": "boolean"
           },
           "note": {
             "title": "Note",
@@ -9008,144 +8998,6 @@
         "title": "QuestionDifficultyRow",
         "type": "object"
       },
-      "QuizAttemptRead": {
-        "description": "Schema for reading quiz attempt data.",
-        "properties": {
-          "activity_id": {
-            "title": "Activity Id",
-            "type": "integer"
-          },
-          "attempt_number": {
-            "title": "Attempt Number",
-            "type": "integer"
-          },
-          "attempt_uuid": {
-            "title": "Attempt Uuid",
-            "type": "string"
-          },
-          "creation_date": {
-            "title": "Creation Date",
-            "type": "string"
-          },
-          "duration_seconds": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Duration Seconds"
-          },
-          "end_ts": {
-            "anyOf": [
-              {
-                "format": "date-time",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "End Ts"
-          },
-          "grading_result": {
-            "additionalProperties": true,
-            "title": "Grading Result",
-            "type": "object"
-          },
-          "id": {
-            "title": "Id",
-            "type": "integer"
-          },
-          "max_attempts": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Max Attempts"
-          },
-          "max_score": {
-            "title": "Max Score",
-            "type": "number"
-          },
-          "max_score_penalty_per_attempt": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Max Score Penalty Per Attempt"
-          },
-          "score": {
-            "title": "Score",
-            "type": "number"
-          },
-          "start_ts": {
-            "format": "date-time",
-            "title": "Start Ts",
-            "type": "string"
-          },
-          "time_limit_seconds": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Time Limit Seconds"
-          },
-          "update_date": {
-            "title": "Update Date",
-            "type": "string"
-          },
-          "user_id": {
-            "title": "User Id",
-            "type": "integer"
-          },
-          "violation_count": {
-            "title": "Violation Count",
-            "type": "integer"
-          },
-          "violations": {
-            "additionalProperties": true,
-            "title": "Violations",
-            "type": "object"
-          }
-        },
-        "required": [
-          "id",
-          "user_id",
-          "activity_id",
-          "attempt_uuid",
-          "attempt_number",
-          "start_ts",
-          "end_ts",
-          "duration_seconds",
-          "score",
-          "max_score",
-          "max_attempts",
-          "time_limit_seconds",
-          "max_score_penalty_per_attempt",
-          "violation_count",
-          "violations",
-          "grading_result",
-          "creation_date",
-          "update_date"
-        ],
-        "title": "QuizAttemptRead",
-        "type": "object"
-      },
       "QuizGradingResult": {
         "description": "Grading result for a quiz submission.",
         "properties": {
@@ -9192,62 +9044,6 @@
           "per_question"
         ],
         "title": "QuizGradingResult",
-        "type": "object"
-      },
-      "QuizQuestionStatRead": {
-        "description": "Schema for reading quiz question statistics.",
-        "properties": {
-          "activity_id": {
-            "title": "Activity Id",
-            "type": "integer"
-          },
-          "avg_time_seconds": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Avg Time Seconds"
-          },
-          "correct_count": {
-            "title": "Correct Count",
-            "type": "integer"
-          },
-          "creation_date": {
-            "title": "Creation Date",
-            "type": "string"
-          },
-          "id": {
-            "title": "Id",
-            "type": "integer"
-          },
-          "question_id": {
-            "title": "Question Id",
-            "type": "string"
-          },
-          "total_attempts": {
-            "title": "Total Attempts",
-            "type": "integer"
-          },
-          "update_date": {
-            "title": "Update Date",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "activity_id",
-          "question_id",
-          "total_attempts",
-          "correct_count",
-          "avg_time_seconds",
-          "creation_date",
-          "update_date"
-        ],
-        "title": "QuizQuestionStatRead",
         "type": "object"
       },
       "QuizSubmissionRequest": {
@@ -18958,126 +18754,6 @@
           }
         ],
         "summary": "Api Submit Quiz",
-        "tags": [
-          "blocks"
-        ]
-      }
-    },
-    "/api/v1/blocks/quiz/{activity_id}/attempts": {
-      "get": {
-        "description": "Get quiz attempts for an activity.",
-        "operationId": "api_get_quiz_attempts_api_v1_blocks_quiz__activity_id__attempts_get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "activity_id",
-            "required": true,
-            "schema": {
-              "title": "Activity Id",
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "user_id",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "User Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/QuizAttemptRead"
-                  },
-                  "title": "Response Api Get Quiz Attempts Api V1 Blocks Quiz  Activity Id  Attempts Get",
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ],
-        "summary": "Api Get Quiz Attempts",
-        "tags": [
-          "blocks"
-        ]
-      }
-    },
-    "/api/v1/blocks/quiz/{activity_id}/stats": {
-      "get": {
-        "description": "Get per-question statistics for a quiz (teachers only).",
-        "operationId": "api_get_quiz_stats_api_v1_blocks_quiz__activity_id__stats_get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "activity_id",
-            "required": true,
-            "schema": {
-              "title": "Activity Id",
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/QuizQuestionStatRead"
-                  },
-                  "title": "Response Api Get Quiz Stats Api V1 Blocks Quiz  Activity Id  Stats Get",
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ],
-        "summary": "Api Get Quiz Stats",
         "tags": [
           "blocks"
         ]

@@ -429,17 +429,6 @@ class Judge0Config(PlatformSectionSettings):
         return stripped.rstrip("/")
 
 
-class AssessmentFeatureFlagsConfig(PlatformSectionSettings):
-    legacy_quiz_attempts_route_enabled: bool = Field(
-        default=True,
-        validation_alias="PLATFORM_LEGACY_QUIZ_ATTEMPTS_ROUTE_ENABLED",
-    )
-    legacy_quiz_stats_route_enabled: bool = Field(
-        default=True,
-        validation_alias="PLATFORM_LEGACY_QUIZ_STATS_ROUTE_ENABLED",
-    )
-
-
 class PlatformConfig(PydanticStrictBaseModel):
     general_config: GeneralConfig
     hosting_config: HostingConfig
@@ -462,9 +451,6 @@ class AppSettings(PlatformConfig):
     bootstrap: BootstrapConfig = Field(default_factory=BootstrapConfig)
     integrations: IntegrationsConfig = Field(default_factory=IntegrationsConfig)
     google_oauth: GoogleOAuthConfig = Field(default_factory=GoogleOAuthConfig)
-    assessment_feature_flags: AssessmentFeatureFlagsConfig = Field(
-        default_factory=AssessmentFeatureFlagsConfig
-    )
 
 
 @lru_cache(maxsize=1)
@@ -480,7 +466,6 @@ def get_settings() -> AppSettings:
         bootstrap=BootstrapConfig(),
         integrations=IntegrationsConfig(judge0=Judge0Config()),
         google_oauth=GoogleOAuthConfig(),
-        assessment_feature_flags=AssessmentFeatureFlagsConfig(),
     )
 
 

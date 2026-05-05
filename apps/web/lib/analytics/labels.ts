@@ -29,6 +29,7 @@ const alertTypeKeys: Record<string, string> = {
   risk_spike: 'labels.alertType.riskSpike',
   engagement_drop: 'labels.alertType.engagementDrop',
   grading_backlog: 'labels.alertType.gradingBacklog',
+  grading_slo: 'labels.alertType.gradingSlo',
   assessment_outlier: 'labels.alertType.assessmentOutlier',
   content_stale: 'labels.alertType.contentStale',
 };

@@ -53,7 +53,7 @@ from src.services.analytics.schemas import (
     TimeSeriesPoint,
 )
 from src.services.analytics.scope import TeacherAnalyticsScope
-from src.services.analytics.workload import build_teacher_workload
+from src.services.analytics.workload import GRADING_SLA_HOURS, build_teacher_workload
 
 
 def _metric(
@@ -203,6 +203,58 @@ def _teacher_rollup_id(scope: TeacherAnalyticsScope, filters: AnalyticsFilters) 
     if scope.has_platform_scope and filters.teacher_user_id is None:
         return 0
     return scope.teacher_user_id
+
+
+def _build_grading_slo_alerts(workload) -> list[AlertItem]:
+    alerts: list[AlertItem] = []
+    breached_rows = [row for row in workload.backlog_by_assignment if row.sla_breaches > 0]
+
+    for row in breached_rows[:3]:
+        oldest_age = f"; oldest submission is {row.age_hours:.1f}h old" if row.age_hours is not None else ""
+        alerts.append(
+            AlertItem(
+                id=f"grading-slo-{row.assessment_id}",
+                type="grading_slo",
+                severity="critical" if row.sla_breaches >= 3 else "warning",
+                title=f"{row.title} is outside the grading SLA",
+                body=(
+                    f"{row.sla_breaches} submission(s) in {row.course_name} exceeded the "
+                    f"{int(GRADING_SLA_HOURS)}-hour grading target; {row.awaiting_review} remain in backlog"
+                    f"{oldest_age}."
+                ),
+                course_id=row.course_id,
+                assessment_id=row.assessment_id,
+                learner_count=row.awaiting_review,
+            )
+        )
+
+    if alerts:
+        return alerts
+
+    leading_backlog = workload.backlog_by_assignment[0] if workload.backlog_by_assignment else None
+    if (
+        leading_backlog is not None
+        and leading_backlog.age_hours is not None
+        and leading_backlog.age_hours >= 48
+    ):
+        alerts.append(
+            AlertItem(
+                id=f"grading-slo-watch-{leading_backlog.assessment_id}",
+                type="grading_slo",
+                severity="warning",
+                title=f"{leading_backlog.title} is trending toward the grading SLA",
+                body=(
+                    f"{leading_backlog.awaiting_review} submission(s) are waiting in {leading_backlog.course_name}; "
+                    f"the oldest has been open for {leading_backlog.age_hours:.1f} hours against a "
+                    f"{int(GRADING_SLA_HOURS)}-hour target."
+                ),
+                course_id=leading_backlog.course_id,
+                assessment_id=leading_backlog.assessment_id,
+                learner_count=leading_backlog.awaiting_review,
+            )
+        )
+
+    return alerts
 
 
 def get_teacher_overview(
@@ -437,6 +489,7 @@ def get_teacher_overview(
     alerts: list[AlertItem] = [
         row.top_alert for row in course_rows if row.top_alert is not None
     ]
+    alerts.extend(_build_grading_slo_alerts(workload))
     if at_risk_count > 0:
         alerts.append(
             AlertItem(

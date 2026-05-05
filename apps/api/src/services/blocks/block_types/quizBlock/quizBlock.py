@@ -13,10 +13,8 @@ from src.db.courses.activities import Activity
 from src.db.courses.blocks import Block
 from src.db.courses.quiz import (
     QuizAttempt,
-    QuizAttemptRead,
     QuizGradingResult,
     QuizQuestionStat,
-    QuizQuestionStatRead,
     QuizSettings,
     QuizSubmissionRequest,
     QuizSubmissionResponse,
@@ -256,97 +254,6 @@ async def submit_quiz(
         and attempt_number >= settings.max_attempts,
         violations_exceeded=violations_exceeded,
     )
-
-
-async def get_quiz_attempts(
-    request: Request,
-    activity_id: int,
-    current_user: PublicUser,
-    db_session: Session,
-    user_id: int | None = None,
-) -> list[QuizAttemptRead]:
-    """
-    Get quiz attempts for an activity.
-
-    Teachers can see all attempts, students can only see their own.
-    """
-
-    # Get activity
-    statement = select(Activity).where(Activity.id == activity_id)
-    activity = db_session.exec(statement).first()
-
-    if not activity:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Activity not found"
-        )
-
-    # Check permissions
-    checker = PermissionChecker(db_session)
-    checker.require(
-        current_user.id,
-        "quiz:read",
-        is_assigned=True,
-        resource_owner_id=activity.creator_id,
-    )
-
-    # Build query
-    statement = select(QuizAttempt).where(QuizAttempt.activity_id == activity_id)
-
-    # Check if user can view all attempts (instructor/admin) or just their own
-    can_view_all = checker.check(
-        current_user.id,
-        "quiz:update",
-        resource_owner_id=activity.creator_id,
-    )
-
-    # If not instructor/admin, only show own attempts
-    if not can_view_all:
-        if user_id:
-            statement = statement.where(QuizAttempt.user_id == user_id)
-        elif not current_user.is_anonymous:
-            statement = statement.where(QuizAttempt.user_id == current_user.id)
-
-    attempts = db_session.exec(statement).all()
-
-    return [QuizAttemptRead.model_validate(attempt) for attempt in attempts]
-
-
-async def get_quiz_stats(
-    request: Request,
-    activity_id: int,
-    current_user: PublicUser,
-    db_session: Session,
-) -> list[QuizQuestionStatRead]:
-    """
-    Get per-question statistics for a quiz.
-
-    Only accessible to teachers/admins.
-    """
-
-    # Get activity
-    statement = select(Activity).where(Activity.id == activity_id)
-    activity = db_session.exec(statement).first()
-
-    if not activity:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Activity not found"
-        )
-
-    # Check permissions (teacher/admin only)
-    checker = PermissionChecker(db_session)
-    checker.require(
-        current_user.id,
-        "quiz:read",
-        resource_owner_id=activity.creator_id,
-    )
-
-    # Get stats
-    statement = select(QuizQuestionStat).where(
-        QuizQuestionStat.activity_id == activity_id
-    )
-    stats = db_session.exec(statement).all()
-
-    return [QuizQuestionStatRead.model_validate(stat) for stat in stats]
 
 
 def _check_max_attempts(

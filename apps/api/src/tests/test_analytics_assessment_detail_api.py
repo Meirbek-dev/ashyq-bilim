@@ -44,6 +44,8 @@ from src.infra.settings import get_settings
 from src.routers import analytics as analytics_router_module
 from src.routers.analytics import router
 from src.services.analytics.queries import AnalyticsContext, AssessmentAnalyticsRow
+from src.services.analytics.overview import _build_grading_slo_alerts
+from src.services.analytics.schemas import GradingBacklogItem, TeacherWorkloadSummary, WorkloadAgingBuckets
 from src.services.analytics.scope import TeacherAnalyticsScope
 
 
@@ -641,7 +643,39 @@ def test_quiz_detail_endpoint_reports_legacy_cutover_state(
         "compatibility_mode": "dual_write",
         "note": "Quiz analytics detail still reads QuizAttempt compatibility rows and cannot cut over yet.",
     }
-    assert payload["support"]["legacy_quiz_attempts_route_enabled"] is True
-    assert "Legacy quiz attempts route is still enabled." in payload["support"]["cutover_blockers"]
+    assert payload["support"]["cutover_blockers"] == [
+        "Quiz analytics detail still reads QuizAttempt compatibility rows and cannot cut over yet."
+    ]
     assert payload["cohort_analytics"][0]["cohort_name"] == "Alpha Cohort"
     assert payload["audit_history"] == []
+
+
+def test_overview_grading_slo_alerts_surface_breached_assignments() -> None:
+    workload = TeacherWorkloadSummary(
+        backlog_total=4,
+        sla_breaches=3,
+        median_feedback_latency_hours=61.0,
+        aging_buckets=WorkloadAgingBuckets(),
+        forecast_backlog_7d=5,
+        backlog_by_assignment=[
+            GradingBacklogItem(
+                course_id=1,
+                course_name="Analytics Assignment",
+                assessment_id=7,
+                assessment_type="assignment",
+                title="Operational assignment",
+                awaiting_review=4,
+                oldest_submitted_at="2026-05-02T10:00:00Z",
+                age_hours=80.0,
+                sla_breaches=3,
+            )
+        ],
+    )
+
+    alerts = _build_grading_slo_alerts(workload)
+
+    assert len(alerts) == 1
+    assert alerts[0].type == "grading_slo"
+    assert alerts[0].severity == "critical"
+    assert alerts[0].assessment_id == 7
+    assert "72-hour grading target" in alerts[0].body

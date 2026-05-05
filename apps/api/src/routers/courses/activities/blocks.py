@@ -1,18 +1,15 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, Form, Request, UploadFile
 
 from src.auth.users import get_optional_public_user, get_public_user
 from src.db.courses.blocks import BlockRead
 from src.db.courses.quiz import (
-    QuizAttemptRead,
-    QuizQuestionStatRead,
     QuizSubmissionRequest,
     QuizSubmissionResponse,
 )
 from src.db.users import AnonymousUser, PublicUser
 from src.infra.db.session import get_db_session
-from src.infra.settings import get_settings
 from src.services.blocks.block_types.imageBlock.imageBlock import (
     create_image_block,
     get_image_block,
@@ -22,8 +19,6 @@ from src.services.blocks.block_types.pdfBlock.pdfBlock import (
     get_pdf_block,
 )
 from src.services.blocks.block_types.quizBlock.quizBlock import (
-    get_quiz_attempts,
-    get_quiz_stats,
     submit_quiz,
 )
 from src.services.blocks.block_types.videoBlock.videoBlock import (
@@ -155,48 +150,6 @@ async def api_submit_quiz(
         request=request,
         activity_id=activity_id,
         submission=submission,
-        current_user=current_user,
-        db_session=db_session,
-    )
-
-
-@router.get("/quiz/{activity_id}/attempts", response_model=list[QuizAttemptRead])
-async def api_get_quiz_attempts(
-    request: Request,
-    activity_id: int,
-    user_id: int | None = None,
-    db_session=Depends(get_db_session),
-    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
-):
-    """
-    Get quiz attempts for an activity.
-    """
-    if not get_settings().assessment_feature_flags.legacy_quiz_attempts_route_enabled:
-        raise HTTPException(status_code=404, detail="Legacy quiz attempts route disabled")
-    return await get_quiz_attempts(
-        request=request,
-        activity_id=activity_id,
-        current_user=current_user,
-        db_session=db_session,
-        user_id=user_id,
-    )
-
-
-@router.get("/quiz/{activity_id}/stats", response_model=list[QuizQuestionStatRead])
-async def api_get_quiz_stats(
-    request: Request,
-    activity_id: int,
-    db_session=Depends(get_db_session),
-    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
-):
-    """
-    Get per-question statistics for a quiz (teachers only).
-    """
-    if not get_settings().assessment_feature_flags.legacy_quiz_stats_route_enabled:
-        raise HTTPException(status_code=404, detail="Legacy quiz stats route disabled")
-    return await get_quiz_stats(
-        request=request,
-        activity_id=activity_id,
         current_user=current_user,
         db_session=db_session,
     )

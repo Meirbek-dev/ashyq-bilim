@@ -29,6 +29,7 @@ class AlertItem(PydanticStrictBaseModel):
         "risk_spike",
         "engagement_drop",
         "grading_backlog",
+        "grading_slo",
         "assessment_outlier",
         "content_stale",
     ]
@@ -587,7 +588,6 @@ class AssessmentSupportAlertRow(PydanticStrictBaseModel):
         "suspicious_attempts",
         "missing_scores",
         "cutover_blocked",
-        "legacy_quiz_route_live",
     ]
     severity: Literal["info", "warning", "critical"]
     summary: str
@@ -600,8 +600,6 @@ class AssessmentSupportDiagnostics(PydanticStrictBaseModel):
     scoped_cohort_count: int = 0
     cohort_filter_applied: bool = False
     audit_event_count: int = 0
-    legacy_quiz_attempts_route_enabled: bool = True
-    legacy_quiz_stats_route_enabled: bool = True
     cutover_blockers: list[str]
     alerts: list[AssessmentSupportAlertRow]
     note: str
