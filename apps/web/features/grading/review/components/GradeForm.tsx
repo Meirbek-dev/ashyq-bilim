@@ -42,14 +42,16 @@ interface GradeDraft {
 
 export default function GradeForm({
   submissionUuid,
+  assessmentUuid,
   onSaved,
   navigation,
 }: {
   submissionUuid: string | null;
+  assessmentUuid?: string;
   onSaved: () => Promise<void>;
   navigation: ReviewNavigationState;
 }) {
-  const { submission, isLoading, mutate } = useGradingPanel(submissionUuid);
+  const { submission, isLoading, mutate } = useGradingPanel(submissionUuid, assessmentUuid);
   const [draft, setDraft] = useState<GradeDraft>({ score: '', feedback: '' });
   const [isSaving, startSaving] = useTransition();
   const [staleDraft, setStaleDraft] = useState<{ server: Submission; local: GradeDraft } | null>(null);

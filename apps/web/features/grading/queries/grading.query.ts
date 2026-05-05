@@ -14,6 +14,7 @@ import { queryKeys } from '@/lib/react-query/queryKeys';
 
 export interface SubmissionListQueryParams {
   activityId: number;
+  assessmentUuid?: string;
   page: number;
   pageSize: number;
   search: string;
@@ -24,7 +25,7 @@ export interface SubmissionListQueryParams {
 
 function buildSubmissionsSearchParams(params: SubmissionListQueryParams) {
   const searchParams = new URLSearchParams();
-  searchParams.set('activity_id', String(params.activityId));
+  if (!params.assessmentUuid) searchParams.set('activity_id', String(params.activityId));
   if (params.status !== 'ALL') searchParams.set('status', params.status);
   if (params.search) searchParams.set('search', params.search);
   searchParams.set('sort_by', params.sortBy);
@@ -34,10 +35,15 @@ function buildSubmissionsSearchParams(params: SubmissionListQueryParams) {
   return searchParams.toString();
 }
 
-export function gradingDetailQueryOptions(submissionUuid: string) {
+export function gradingDetailQueryOptions(submissionUuid: string, assessmentUuid?: string) {
   return queryOptions({
     queryKey: queryKeys.grading.detail(submissionUuid),
-    queryFn: () => apiFetcher(`${getAPIUrl()}grading/submissions/${submissionUuid}`) as Promise<Submission>,
+    queryFn: () =>
+      apiFetcher(
+        assessmentUuid
+          ? `${getAPIUrl()}assessments/${assessmentUuid}/submissions/${submissionUuid}`
+          : `${getAPIUrl()}grading/submissions/${submissionUuid}`,
+      ) as Promise<Submission>,
     staleTime: 2000,
   });
 }
@@ -59,21 +65,26 @@ export function mySubmissionQueryOptions(activityId: number) {
   });
 }
 
-export function submissionStatsQueryOptions(activityId: number) {
+export function submissionStatsQueryOptions(activityId: number, assessmentUuid?: string) {
   return queryOptions({
     queryKey: queryKeys.grading.stats(activityId),
     queryFn: () =>
-      apiFetcher(`${getAPIUrl()}grading/submissions/stats?activity_id=${activityId}`) as Promise<SubmissionStats>,
+      apiFetcher(
+        assessmentUuid
+          ? `${getAPIUrl()}assessments/${assessmentUuid}/submissions/stats`
+          : `${getAPIUrl()}grading/submissions/stats?activity_id=${activityId}`,
+      ) as Promise<SubmissionStats>,
     staleTime: 5000,
   });
 }
 
 export function submissionsQueryOptions(params: SubmissionListQueryParams) {
+  const path = params.assessmentUuid
+    ? `${getAPIUrl()}assessments/${params.assessmentUuid}/submissions`
+    : `${getAPIUrl()}grading/submissions`;
   return queryOptions({
     queryKey: queryKeys.grading.submissions(params),
     queryFn: () =>
-      apiFetcher(
-        `${getAPIUrl()}grading/submissions?${buildSubmissionsSearchParams(params)}`,
-      ) as Promise<SubmissionsPage>,
+      apiFetcher(`${path}?${buildSubmissionsSearchParams(params)}`) as Promise<SubmissionsPage>,
   });
 }

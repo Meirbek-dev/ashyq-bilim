@@ -14,6 +14,7 @@ import type { StatusFilter } from './types';
 
 interface GradingReviewWorkspaceProps {
   activityId: number;
+  assessmentUuid?: string;
   activityUuid?: string;
   title?: string;
   initialSubmissionUuid?: string | null;
@@ -23,6 +24,7 @@ interface GradingReviewWorkspaceProps {
 
 export default function GradingReviewWorkspace({
   activityId,
+  assessmentUuid,
   activityUuid,
   title,
   initialSubmissionUuid,
@@ -65,12 +67,13 @@ export default function GradingReviewWorkspace({
 
   const { submissions, total, pages, page, setPage, isLoading, mutate } = useSubmissions({
     activityId,
+    assessmentUuid,
     status: activeFilter === 'ALL' ? undefined : activeFilter,
     search: search || undefined,
     sortBy,
     pageSize: 20,
   });
-  const { stats, mutate: mutateStats } = useSubmissionStats(activityId);
+  const { stats, mutate: mutateStats } = useSubmissionStats(activityId, assessmentUuid);
 
   useEffect(() => {
     if (initialSubmissionUuid) setSelectedUuid(initialSubmissionUuid);
@@ -185,11 +188,13 @@ export default function GradingReviewWorkspace({
       <SubmissionInspector
         selectedUuid={selectedUuid}
         fallbackSubmission={selectedSubmission}
+        assessmentUuid={assessmentUuid}
         activityUuid={activityUuid}
         ReviewDetail={kindModule?.ReviewDetail}
       />
       <GradeForm
         submissionUuid={selectedUuid}
+        assessmentUuid={assessmentUuid}
         onSaved={refresh}
         navigation={navigation}
       />

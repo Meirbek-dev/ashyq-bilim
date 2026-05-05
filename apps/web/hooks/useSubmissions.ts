@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 
 export interface UseSubmissionsOptions {
   activityId: number | null;
+  assessmentUuid?: string | null;
   status?: SubmissionStatus | 'NEEDS_GRADING' | null;
   search?: string;
   sortBy?: string;
@@ -16,6 +17,7 @@ export interface UseSubmissionsOptions {
 
 function submissionsHookOptions(
   activityId: number | null,
+  assessmentUuid: string | null | undefined,
   page: number,
   pageSize: number,
   search: string,
@@ -26,6 +28,7 @@ function submissionsHookOptions(
   return queryOptions({
     ...submissionsQueryOptions({
       activityId: activityId ?? 0,
+      assessmentUuid: assessmentUuid ?? undefined,
       page,
       pageSize,
       search,
@@ -39,6 +42,7 @@ function submissionsHookOptions(
 
 export function useSubmissions({
   activityId,
+  assessmentUuid,
   status,
   search,
   sortBy = 'submitted_at',
@@ -53,6 +57,7 @@ export function useSubmissions({
 
   const queryParams = {
     activityId: activityId ?? 0,
+    assessmentUuid: assessmentUuid ?? undefined,
     page,
     pageSize,
     search: search ?? '',
@@ -63,7 +68,7 @@ export function useSubmissions({
   const { queryKey } = submissionsQueryOptions(queryParams);
   const queryClient = useQueryClient();
   const query = useQuery(
-    submissionsHookOptions(activityId, page, pageSize, search ?? '', sortBy, sortDir, status ?? 'ALL'),
+    submissionsHookOptions(activityId, assessmentUuid, page, pageSize, search ?? '', sortBy, sortDir, status ?? 'ALL'),
   );
 
   return {

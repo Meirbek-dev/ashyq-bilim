@@ -19,15 +19,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 export default function SubmissionInspector({
   selectedUuid,
   fallbackSubmission,
+  assessmentUuid,
   activityUuid,
   ReviewDetail,
 }: {
   selectedUuid: string | null;
   fallbackSubmission: Submission | null;
+  assessmentUuid?: string;
   activityUuid?: string;
   ReviewDetail?: ComponentType<KindReviewDetailProps>;
 }) {
-  const { submission, isLoading } = useGradingPanel(selectedUuid);
+  const { submission, isLoading } = useGradingPanel(selectedUuid, assessmentUuid);
   const current = submission ?? fallbackSubmission;
 
   if (!selectedUuid) {

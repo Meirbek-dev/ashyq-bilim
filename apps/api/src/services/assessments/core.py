@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 
 from fastapi import HTTPException, status
 from pydantic import ValidationError
-from sqlalchemy import desc, func
+from sqlalchemy import asc, desc, func, or_
 from sqlmodel import Session, select
 from ulid import ULID
 
@@ -56,6 +56,7 @@ from src.db.grading.submissions import (
     Submission,
     SubmissionListResponse,
     SubmissionRead,
+    SubmissionStats,
     SubmissionStatus,
 )
 from src.db.uploads import Upload, UploadStatus
@@ -64,6 +65,7 @@ from src.security.rbac import PermissionChecker
 from src.services.assessments.settings import validate_settings
 from src.services.courses._utils import _next_activity_order
 from src.services.courses.access import user_has_course_access
+from src.services.grading.assignment_breakdown import build_effective_grading_breakdown
 from src.services.grading.settings_loader import load_activity_settings
 from src.services.grading.submission import start_submission_v2
 from src.services.grading.submit import submit_assessment as submit_assessment_pipeline
@@ -121,6 +123,12 @@ _ALLOWED_LIFECYCLE_TRANSITIONS: dict[
 
 logger = logging.getLogger(__name__)
 _UNSET = object()
+_REVIEW_SORT_MAP = {
+    "submitted_at": Submission.submitted_at,
+    "final_score": Submission.final_score,
+    "created_at": Submission.created_at,
+    "attempt_number": Submission.attempt_number,
+}
 
 
 # ── Public assessment CRUD ────────────────────────────────────────────────────
@@ -291,7 +299,7 @@ async def transition_assessment_lifecycle(
         and not readiness.ok
     ):
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail={"issues": [issue.model_dump() for issue in readiness.issues]},
         )
 
@@ -300,7 +308,7 @@ async def transition_assessment_lifecycle(
         scheduled_at = payload.scheduled_at
         if scheduled_at is None:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="scheduled_at is required when scheduling",
             )
         scheduled_at = (
@@ -308,7 +316,7 @@ async def transition_assessment_lifecycle(
         )
         if scheduled_at <= now:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="scheduled_at must be in the future",
             )
         assessment.scheduled_at = scheduled_at
@@ -661,6 +669,10 @@ async def get_assessment_submissions(
     db_session: Session,
     *,
     status_filter: str | None = None,
+    late_only: bool = False,
+    search: str | None = None,
+    sort_by: str = "submitted_at",
+    sort_dir: str = "desc",
     page: int = 1,
     page_size: int = 25,
 ) -> SubmissionListResponse:
@@ -668,18 +680,44 @@ async def get_assessment_submissions(
     activity, course = _get_activity_and_course(assessment, db_session)
     _require_grade(current_user, course, db_session)
 
-    query = select(Submission).where(Submission.activity_id == activity.id)
+    query = (
+        select(Submission)
+        .join(User, User.id == Submission.user_id)
+        .where(Submission.activity_id == activity.id)
+    )
     if status_filter:
         if status_filter == "NEEDS_GRADING":
             query = query.where(Submission.status == SubmissionStatus.PENDING)
         else:
-            query = query.where(Submission.status == SubmissionStatus(status_filter))
+            try:
+                query = query.where(Submission.status == SubmissionStatus(status_filter))
+            except ValueError as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid status '{status_filter}'",
+                ) from exc
+
+    if late_only:
+        query = query.where(Submission.is_late)
+
+    if search:
+        term = f"%{search}%"
+        query = query.where(
+            or_(
+                User.first_name.ilike(term),
+                User.last_name.ilike(term),
+                User.username.ilike(term),
+                User.email.ilike(term),
+            )
+        )
 
     total = db_session.exec(select(func.count()).select_from(query.subquery())).one()
+    sort_col = _REVIEW_SORT_MAP.get(sort_by, Submission.submitted_at)
+    order_fn = desc if sort_dir == "desc" else asc
     offset = max(page - 1, 0) * page_size
     rows = db_session.exec(
         query
-        .order_by(desc(Submission.submitted_at), desc(Submission.created_at))
+        .order_by(order_fn(sort_col), desc(Submission.created_at))
         .offset(offset)
         .limit(page_size)
     ).all()
@@ -693,7 +731,7 @@ async def get_assessment_submissions(
             read.user = _submission_user(user)
         items.append(read)
 
-    pages = (total + page_size - 1) // page_size if page_size else 1
+    pages = max(1, -(-total // page_size)) if page_size else 1
     return SubmissionListResponse(
         items=items,
         total=total,
@@ -701,6 +739,103 @@ async def get_assessment_submissions(
         page_size=page_size,
         pages=pages,
     )
+
+
+async def get_assessment_submission_stats(
+    assessment_uuid: str,
+    current_user: PublicUser,
+    db_session: Session,
+) -> SubmissionStats:
+    assessment = _get_assessment_by_uuid_or_404(assessment_uuid, db_session)
+    activity, course = _get_activity_and_course(assessment, db_session)
+    _require_grade(current_user, course, db_session)
+
+    status_rows = db_session.exec(
+        select(Submission.status, func.count().label("cnt"))
+        .where(
+            Submission.activity_id == activity.id,
+            Submission.status != SubmissionStatus.DRAFT,
+        )
+        .group_by(Submission.status)
+    ).all()
+
+    status_counts = {status_value: count for status_value, count in status_rows}
+    total = sum(status_counts.values())
+    pending_count = status_counts.get(SubmissionStatus.PENDING, 0)
+    graded_count = status_counts.get(SubmissionStatus.GRADED, 0) + status_counts.get(
+        SubmissionStatus.PUBLISHED, 0
+    )
+
+    late_count = db_session.exec(
+        select(func.count()).where(
+            Submission.activity_id == activity.id,
+            Submission.status != SubmissionStatus.DRAFT,
+            Submission.is_late,
+        )
+    ).one()
+
+    graded_scores = db_session.exec(
+        select(Submission.final_score).where(
+            Submission.activity_id == activity.id,
+            Submission.status.in_(
+                [
+                    SubmissionStatus.GRADED,
+                    SubmissionStatus.PUBLISHED,
+                ]
+            ),
+            Submission.final_score.is_not(None),
+        )
+    ).all()
+
+    avg_score = (
+        round(sum(graded_scores) / len(graded_scores), 2) if graded_scores else None
+    )
+    passing = [score for score in graded_scores if score >= 50.0]
+    pass_rate = (
+        round(len(passing) / len(graded_scores) * 100, 1)
+        if graded_scores
+        else None
+    )
+
+    return SubmissionStats(
+        total=total,
+        graded_count=graded_count,
+        needs_grading_count=pending_count,
+        late_count=late_count,
+        avg_score=avg_score,
+        pass_rate=pass_rate,
+    )
+
+
+async def get_assessment_submission(
+    assessment_uuid: str,
+    submission_uuid: str,
+    current_user: PublicUser,
+    db_session: Session,
+) -> SubmissionRead:
+    assessment = _get_assessment_by_uuid_or_404(assessment_uuid, db_session)
+    activity, course = _get_activity_and_course(assessment, db_session)
+    _require_grade(current_user, course, db_session)
+
+    submission = db_session.exec(
+        select(Submission).where(
+            Submission.submission_uuid == submission_uuid,
+            Submission.activity_id == activity.id,
+        )
+    ).first()
+    if submission is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Submission not found",
+        )
+
+    result = SubmissionRead.model_validate(submission)
+    result.grading_json = build_effective_grading_breakdown(submission, db_session)
+    users = _batch_fetch_users({submission.user_id}, db_session)
+    user = users.get(submission.user_id)
+    if user is not None:
+        result.user = _submission_user(user)
+    return result
 
 
 # ── Readiness ─────────────────────────────────────────────────────────────────
@@ -952,6 +1087,7 @@ def _build_review_projection(
         activity_uuid=activity.activity_uuid,
         title=assessment.title,
         kind=assessment.kind,
+        default_filter="NEEDS_GRADING",
     )
 
 
@@ -1487,7 +1623,7 @@ def _validate_file_upload_answer(
             or upload.status != UploadStatus.FINALIZED
         ):
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail={
                     "message": "File upload is not finalized for this user",
                     "upload_uuid": upload_id,
@@ -1496,7 +1632,7 @@ def _validate_file_upload_answer(
             )
         if allowed_mimes and upload.content_type not in allowed_mimes:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail={
                     "message": "File content type is not allowed",
                     "upload_uuid": upload_id,
@@ -1509,7 +1645,7 @@ def _validate_file_upload_answer(
             and upload.size_bytes > max_bytes
         ):
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail={
                     "message": "File is larger than this item allows",
                     "upload_uuid": upload_id,

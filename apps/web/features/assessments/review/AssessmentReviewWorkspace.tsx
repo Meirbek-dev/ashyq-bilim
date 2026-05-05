@@ -29,6 +29,7 @@ interface AssessmentReviewDetail {
     activity_uuid: string;
     title: string;
     kind: 'ASSIGNMENT' | 'EXAM' | 'CODE_CHALLENGE' | 'QUIZ';
+    default_filter?: 'ALL' | 'NEEDS_GRADING' | 'PENDING' | 'GRADED' | 'PUBLISHED' | 'RETURNED';
   } | null;
 }
 
@@ -97,10 +98,11 @@ export default function AssessmentReviewWorkspace({
   return (
     <GradingReviewWorkspace
       activityId={reviewProjection.activity_id}
+      assessmentUuid={reviewProjection.assessment_uuid}
       activityUuid={reviewProjection.activity_uuid}
       title={reviewProjection.title}
       initialSubmissionUuid={initialSubmissionUuid ?? null}
-      initialFilter="ALL"
+      initialFilter={reviewProjection.default_filter ?? 'ALL'}
       kindModule={kindModule}
     />
   );

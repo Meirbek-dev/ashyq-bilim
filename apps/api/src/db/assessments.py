@@ -443,6 +443,25 @@ class AssessmentReviewProjection(PydanticStrictBaseModel):
     activity_uuid: str
     title: str
     kind: AssessmentType
+    default_filter: Literal[
+        "ALL",
+        "NEEDS_GRADING",
+        "PENDING",
+        "GRADED",
+        "PUBLISHED",
+        "RETURNED",
+    ] = "NEEDS_GRADING"
+    supports_search: bool = True
+    supports_late_only: bool = True
+    supported_sorts: list[
+        Literal["submitted_at", "final_score", "attempt_number"]
+    ] = Field(
+        default_factory=lambda: [
+            "submitted_at",
+            "final_score",
+            "attempt_number",
+        ]
+    )
 
 
 class AssessmentRead(PydanticStrictBaseModel):

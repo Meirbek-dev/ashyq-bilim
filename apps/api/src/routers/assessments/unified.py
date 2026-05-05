@@ -23,7 +23,11 @@ from src.db.assessments import (
     AssessmentReadItem,
     AssessmentUpdate,
 )
-from src.db.grading.submissions import SubmissionListResponse, SubmissionRead
+from src.db.grading.submissions import (
+    SubmissionListResponse,
+    SubmissionRead,
+    SubmissionStats,
+)
 from src.db.users import AnonymousUser, PublicUser
 from src.infra.db.session import get_db_session
 from src.services.assessments.core import (
@@ -32,6 +36,8 @@ from src.services.assessments.core import (
     create_assessment_item,
     delete_assessment_item,
     get_assessment,
+    get_assessment_submission,
+    get_assessment_submission_stats,
     get_assessment_by_activity_uuid,
     get_assessment_submissions,
     get_my_assessment_draft,
@@ -233,7 +239,11 @@ async def api_get_submissions(
     assessment_uuid: str,
     current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
-    status_filter: str | None = None,
+    status_filter: Annotated[str | None, Query(alias="status")] = None,
+    late_only: Annotated[bool, Query()] = False,
+    search: Annotated[str | None, Query()] = None,
+    sort_by: Annotated[str, Query()] = "submitted_at",
+    sort_dir: Annotated[str, Query()] = "desc",
     page: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1, le=100)] = 25,
 ) -> SubmissionListResponse:
@@ -242,6 +252,40 @@ async def api_get_submissions(
         current_user,
         db_session,
         status_filter=status_filter,
+        late_only=late_only,
+        search=search,
+        sort_by=sort_by,
+        sort_dir=sort_dir,
         page=page,
         page_size=page_size,
+    )
+
+
+@router.get("/{assessment_uuid}/submissions/stats", response_model=SubmissionStats)
+async def api_get_submission_stats(
+    assessment_uuid: str,
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
+    db_session: Annotated[Session, Depends(get_db_session)],
+) -> SubmissionStats:
+    return await get_assessment_submission_stats(
+        assessment_uuid,
+        current_user,
+        db_session,
+    )
+
+
+@router.get(
+    "/{assessment_uuid}/submissions/{submission_uuid}", response_model=SubmissionRead
+)
+async def api_get_submission(
+    assessment_uuid: str,
+    submission_uuid: str,
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
+    db_session: Annotated[Session, Depends(get_db_session)],
+) -> SubmissionRead:
+    return await get_assessment_submission(
+        assessment_uuid,
+        submission_uuid,
+        current_user,
+        db_session,
     )

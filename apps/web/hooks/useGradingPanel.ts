@@ -18,18 +18,24 @@ export interface UseGradingPanelResult {
   mutate: () => Promise<Submission | undefined>;
 }
 
-function gradingPanelHookOptions(submissionUuid: string | null) {
+function gradingPanelHookOptionsWithAssessment(
+  submissionUuid: string | null,
+  assessmentUuid?: string | null,
+) {
   const normalizedSubmissionUuid = submissionUuid ?? '';
 
   return queryOptions({
-    ...gradingDetailQueryOptions(normalizedSubmissionUuid),
+    ...gradingDetailQueryOptions(normalizedSubmissionUuid, assessmentUuid ?? undefined),
     enabled: Boolean(submissionUuid),
   });
 }
 
-export function useGradingPanel(submissionUuid: string | null): UseGradingPanelResult {
+export function useGradingPanel(
+  submissionUuid: string | null,
+  assessmentUuid?: string | null,
+): UseGradingPanelResult {
   const queryClient = useQueryClient();
-  const query = useQuery(gradingPanelHookOptions(submissionUuid));
+  const query = useQuery(gradingPanelHookOptionsWithAssessment(submissionUuid, assessmentUuid));
 
   return {
     submission: query.data ?? null,
@@ -38,7 +44,9 @@ export function useGradingPanel(submissionUuid: string | null): UseGradingPanelR
     mutate: async () => {
       if (!submissionUuid) return undefined;
       await queryClient.invalidateQueries({ queryKey: queryKeys.grading.detail(submissionUuid) });
-      return queryClient.fetchQuery(gradingDetailQueryOptions(submissionUuid));
+      return queryClient.fetchQuery(
+        gradingDetailQueryOptions(submissionUuid, assessmentUuid ?? undefined),
+      );
     },
   };
 }
