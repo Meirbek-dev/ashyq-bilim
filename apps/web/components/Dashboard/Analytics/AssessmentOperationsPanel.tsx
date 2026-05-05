@@ -17,6 +17,14 @@ function formatHours(value: number | null | undefined, emptyLabel: string) {
   return `${value.toFixed(1)}h`;
 }
 
+function formatRate(value: number | null | undefined, emptyLabel: string) {
+  if (value === null || value === undefined) {
+    return emptyLabel;
+  }
+
+  return `${value.toFixed(1)}%`;
+}
+
 function getSloBadgeVariant(status: TeacherAssessmentDetailResponse['slo']['status']) {
   switch (status) {
     case 'healthy': {
@@ -44,6 +52,36 @@ function getMigrationBadgeVariant(mode: TeacherAssessmentDetailResponse['migrati
     }
     default: {
       return 'destructive';
+    }
+  }
+}
+
+function getItemSignalBadgeVariant(signal: TeacherAssessmentDetailResponse['item_analytics'][number]['signal']) {
+  switch (signal) {
+    case 'critical': {
+      return 'destructive';
+    }
+    case 'watch': {
+      return 'warning';
+    }
+    default: {
+      return 'success';
+    }
+  }
+}
+
+function getSupportAlertBadgeVariant(
+  severity: TeacherAssessmentDetailResponse['support']['alerts'][number]['severity'],
+) {
+  switch (severity) {
+    case 'critical': {
+      return 'destructive';
+    }
+    case 'warning': {
+      return 'warning';
+    }
+    default: {
+      return 'success';
     }
   }
 }
@@ -76,6 +114,18 @@ export default function AssessmentOperationsPanel({ detail }: AssessmentOperatio
     canonical: t('pages.assessmentOpsMigrationModeCanonical'),
     dual_write: t('pages.assessmentOpsMigrationModeDualWrite'),
     legacy_only: t('pages.assessmentOpsMigrationModeLegacyOnly'),
+  };
+
+  const signalLabels: Record<TeacherAssessmentDetailResponse['item_analytics'][number]['signal'], string> = {
+    healthy: t('pages.assessmentSignalHealthy'),
+    watch: t('pages.assessmentSignalWatch'),
+    critical: t('pages.assessmentSignalCritical'),
+  };
+
+  const itemTypeLabels: Record<TeacherAssessmentDetailResponse['item_analytics'][number]['item_type'], string> = {
+    workflow: t('pages.assessmentItemTypeWorkflow'),
+    question: t('pages.assessmentItemTypeQuestion'),
+    test: t('pages.assessmentItemTypeTest'),
   };
 
   return (
@@ -117,6 +167,98 @@ export default function AssessmentOperationsPanel({ detail }: AssessmentOperatio
       </Card>
 
       <div className="grid gap-6">
+        <Card className="border-slate-200 bg-white/90 shadow-sm">
+          <CardHeader>
+            <CardTitle>{t('pages.assessmentSupportTitle')}</CardTitle>
+            <p className="text-sm text-slate-500">{detail.support.note}</p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl border border-slate-200 p-4">
+                <div className="text-xs tracking-wide text-slate-500 uppercase">
+                  {t('pages.assessmentSupportEligible')}
+                </div>
+                <div className="mt-2 text-2xl font-semibold">{detail.support.scoped_eligible_learners}</div>
+              </div>
+              <div className="rounded-2xl border border-slate-200 p-4">
+                <div className="text-xs tracking-wide text-slate-500 uppercase">
+                  {t('pages.assessmentSupportVisible')}
+                </div>
+                <div className="mt-2 text-2xl font-semibold">{detail.support.scoped_visible_learners}</div>
+              </div>
+              <div className="rounded-2xl border border-slate-200 p-4">
+                <div className="text-xs tracking-wide text-slate-500 uppercase">
+                  {t('pages.assessmentSupportCohorts')}
+                </div>
+                <div className="mt-2 text-2xl font-semibold">{detail.support.scoped_cohort_count}</div>
+              </div>
+              <div className="rounded-2xl border border-slate-200 p-4">
+                <div className="text-xs tracking-wide text-slate-500 uppercase">
+                  {t('pages.assessmentSupportAuditEvents')}
+                </div>
+                <div className="mt-2 text-2xl font-semibold">{detail.support.audit_event_count}</div>
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl border border-slate-200 p-4">
+                <div className="text-xs tracking-wide text-slate-500 uppercase">
+                  {t('pages.assessmentSupportLegacyAttemptsRoute')}
+                </div>
+                <div className="mt-2 text-sm font-semibold text-slate-900">
+                  {detail.support.legacy_quiz_attempts_route_enabled
+                    ? t('pages.assessmentSupportRouteEnabled')
+                    : t('pages.assessmentSupportRouteDisabled')}
+                </div>
+              </div>
+              <div className="rounded-2xl border border-slate-200 p-4">
+                <div className="text-xs tracking-wide text-slate-500 uppercase">
+                  {t('pages.assessmentSupportLegacyStatsRoute')}
+                </div>
+                <div className="mt-2 text-sm font-semibold text-slate-900">
+                  {detail.support.legacy_quiz_stats_route_enabled
+                    ? t('pages.assessmentSupportRouteEnabled')
+                    : t('pages.assessmentSupportRouteDisabled')}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div className="text-xs font-medium tracking-wide text-slate-500 uppercase">
+                {t('pages.assessmentSupportAlerts')}
+              </div>
+              {detail.support.alerts.length ? (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {detail.support.alerts.map((alert) => (
+                    <Badge key={alert.code} variant={getSupportAlertBadgeVariant(alert.severity)}>
+                      {alert.summary}
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-2 text-sm text-slate-500">{t('pages.assessmentSupportAlertsEmpty')}</div>
+              )}
+            </div>
+
+            <div>
+              <div className="text-xs font-medium tracking-wide text-slate-500 uppercase">
+                {t('pages.assessmentSupportBlockers')}
+              </div>
+              {detail.support.cutover_blockers.length ? (
+                <div className="mt-2 space-y-2">
+                  {detail.support.cutover_blockers.map((blocker) => (
+                    <div key={blocker} className="rounded-2xl border border-slate-200 p-3 text-sm text-slate-700">
+                      {blocker}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-2 text-sm text-slate-500">{t('pages.assessmentSupportBlockersEmpty')}</div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="border-slate-200 bg-white/90 shadow-sm">
           <CardHeader>
             <div className="flex flex-wrap items-center gap-2">
@@ -204,6 +346,80 @@ export default function AssessmentOperationsPanel({ detail }: AssessmentOperatio
           </CardContent>
         </Card>
       </div>
+
+      <Card className="border-slate-200 bg-white/90 shadow-sm">
+        <CardHeader>
+          <CardTitle>{t('pages.assessmentItemTitle')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {detail.item_analytics.length ? (
+            <div className="space-y-3">
+              {detail.item_analytics.map((item) => (
+                <div key={`${item.item_type}-${item.item_key}`} className="rounded-2xl border border-slate-200 p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="outline">{itemTypeLabels[item.item_type]}</Badge>
+                    <Badge variant={getItemSignalBadgeVariant(item.signal)}>{signalLabels[item.signal]}</Badge>
+                  </div>
+                  <div className="mt-3 text-sm font-medium text-slate-900">{item.item_label}</div>
+                  <div className="mt-2 grid gap-3 text-sm text-slate-500 sm:grid-cols-3">
+                    <span>
+                      {t('pages.assessmentItemPopulation')}: {item.population_count}
+                    </span>
+                    <span>
+                      {t('pages.assessmentItemImpacted')}: {item.impacted_count}
+                    </span>
+                    <span>
+                      {t('pages.assessmentItemRate')}: {formatRate(item.impact_rate, t('atRisk.na'))}
+                    </span>
+                  </div>
+                  <div className="mt-2 text-sm text-slate-600">{item.note}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-slate-500">{t('pages.assessmentItemEmpty')}</div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="border-slate-200 bg-white/90 shadow-sm">
+        <CardHeader>
+          <CardTitle>{t('pages.assessmentCohortTitle')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {detail.cohort_analytics.length ? (
+            <div className="space-y-3">
+              {detail.cohort_analytics.map((cohort) => (
+                <div key={cohort.cohort_id} className="rounded-2xl border border-slate-200 p-4">
+                  <div className="text-sm font-medium text-slate-900">{cohort.cohort_name}</div>
+                  <div className="mt-3 grid gap-3 text-sm text-slate-500 sm:grid-cols-3">
+                    <span>
+                      {t('pages.assessmentCohortEligible')}: {cohort.eligible_learners}
+                    </span>
+                    <span>
+                      {t('pages.assessmentCohortSubmitted')}: {cohort.submitted_learners}
+                    </span>
+                    <span>
+                      {t('pages.assessmentCohortPassRate')}: {formatRate(cohort.pass_rate, t('atRisk.na'))}
+                    </span>
+                    <span>
+                      {t('pages.assessmentCohortAwaiting')}: {cohort.awaiting_grading}
+                    </span>
+                    <span>
+                      {t('pages.assessmentCohortReturned')}: {cohort.returned_for_resubmission}
+                    </span>
+                    <span>
+                      {t('pages.assessmentCohortReleased')}: {cohort.released_learners}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-slate-500">{t('pages.assessmentCohortEmpty')}</div>
+          )}
+        </CardContent>
+      </Card>
 
       <Card className="border-slate-200 bg-white/90 shadow-sm xl:col-span-2">
         <CardHeader>

@@ -80,6 +80,62 @@ function createDetail(overrides: Partial<TeacherAssessmentDetailResponse> = {}):
       compatibility_mode: 'dual_write',
       note: 'Quiz analytics detail still reads QuizAttempt compatibility rows and cannot cut over yet.',
     },
+    support: {
+      analytics_mode: 'live',
+      scoped_eligible_learners: 24,
+      scoped_visible_learners: 18,
+      scoped_cohort_count: 2,
+      cohort_filter_applied: false,
+      audit_event_count: 1,
+      legacy_quiz_attempts_route_enabled: true,
+      legacy_quiz_stats_route_enabled: false,
+      cutover_blockers: ['Legacy quiz attempts route is still enabled.'],
+      alerts: [
+        {
+          code: 'grading_slo_breached',
+          severity: 'critical',
+          summary: 'Grading latency is outside the current service target.',
+        },
+      ],
+      note: 'Support follow-up is recommended for the active alerts and cutover blockers.',
+    },
+    cohort_analytics: [
+      {
+        cohort_id: 10,
+        cohort_name: 'Alpha Cohort',
+        eligible_learners: 12,
+        submitted_learners: 10,
+        submission_rate: 83.3,
+        pass_rate: 70,
+        awaiting_grading: 2,
+        returned_for_resubmission: 1,
+        released_learners: 5,
+        avg_attempts: 1.5,
+        median_score: 76,
+      },
+    ],
+    item_analytics: [
+      {
+        item_key: 'awaiting_grading',
+        item_label: 'Awaiting teacher grading',
+        item_type: 'workflow',
+        population_count: 18,
+        impacted_count: 4,
+        impact_rate: 22.2,
+        signal: 'critical',
+        note: 'Manual review is still pending for these learners.',
+      },
+      {
+        item_key: 'q1',
+        item_label: 'Question 1',
+        item_type: 'question',
+        population_count: 18,
+        impacted_count: 9,
+        impact_rate: 50,
+        signal: 'watch',
+        note: 'Accuracy 50.0%',
+      },
+    ],
     ...overrides,
   };
 }
@@ -96,6 +152,12 @@ describe('AssessmentOperationsPanel', () => {
     expect(
       screen.getByText('Quiz analytics detail still reads QuizAttempt compatibility rows and cannot cut over yet.'),
     ).toBeInTheDocument();
+    expect(screen.getByText('Support follow-up is recommended for the active alerts and cutover blockers.')).toBeInTheDocument();
+    expect(screen.getByText('Grading latency is outside the current service target.')).toBeInTheDocument();
+    expect(screen.getByText('Legacy quiz attempts route is still enabled.')).toBeInTheDocument();
+    expect(screen.getByText('Alpha Cohort')).toBeInTheDocument();
+    expect(screen.getByText('Awaiting teacher grading')).toBeInTheDocument();
+    expect(screen.getByText('Question 1')).toBeInTheDocument();
     expect(screen.getByText('Release Grades for 8 learners')).toBeInTheDocument();
     expect(screen.getByText('Teacher Analytics')).toBeInTheDocument();
     expect(screen.getByText('quiz_attempt')).toBeInTheDocument();
@@ -124,6 +186,21 @@ describe('AssessmentOperationsPanel', () => {
             overdue_backlog_count: 0,
             note: 'Current grading latency is within target.',
           },
+          support: {
+            analytics_mode: 'live',
+            scoped_eligible_learners: 18,
+            scoped_visible_learners: 18,
+            scoped_cohort_count: 0,
+            cohort_filter_applied: false,
+            audit_event_count: 0,
+            legacy_quiz_attempts_route_enabled: false,
+            legacy_quiz_stats_route_enabled: false,
+            cutover_blockers: [],
+            alerts: [],
+            note: 'Support diagnostics are within the current operational envelope.',
+          },
+          cohort_analytics: [],
+          item_analytics: [],
         })}
       />,
     );
@@ -131,5 +208,10 @@ describe('AssessmentOperationsPanel', () => {
     expect(screen.getByText('pages.assessmentOpsAuditEmpty')).toBeInTheDocument();
     expect(screen.getByText('Assignments are reading only canonical submission rows.')).toBeInTheDocument();
     expect(screen.getByText('Current grading latency is within target.')).toBeInTheDocument();
+    expect(screen.getByText('Support diagnostics are within the current operational envelope.')).toBeInTheDocument();
+    expect(screen.getByText('pages.assessmentSupportAlertsEmpty')).toBeInTheDocument();
+    expect(screen.getByText('pages.assessmentSupportBlockersEmpty')).toBeInTheDocument();
+    expect(screen.getByText('pages.assessmentItemEmpty')).toBeInTheDocument();
+    expect(screen.getByText('pages.assessmentCohortEmpty')).toBeInTheDocument();
   });
 });

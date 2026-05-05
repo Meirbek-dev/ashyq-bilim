@@ -7,7 +7,7 @@
  */
 
 import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { Submission } from '@/types/grading';
+import type { Submission } from '@/features/grading/domain/types';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 import { mySubmissionQueryOptions } from '@/features/grading/queries/grading.query';
 

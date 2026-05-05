@@ -1466,6 +1466,93 @@
         "title": "AssessmentAuditEventRow",
         "type": "object"
       },
+      "AssessmentCohortRow": {
+        "properties": {
+          "avg_attempts": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Attempts"
+          },
+          "awaiting_grading": {
+            "default": 0,
+            "title": "Awaiting Grading",
+            "type": "integer"
+          },
+          "cohort_id": {
+            "title": "Cohort Id",
+            "type": "integer"
+          },
+          "cohort_name": {
+            "title": "Cohort Name",
+            "type": "string"
+          },
+          "eligible_learners": {
+            "default": 0,
+            "title": "Eligible Learners",
+            "type": "integer"
+          },
+          "median_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Score"
+          },
+          "pass_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pass Rate"
+          },
+          "released_learners": {
+            "default": 0,
+            "title": "Released Learners",
+            "type": "integer"
+          },
+          "returned_for_resubmission": {
+            "default": 0,
+            "title": "Returned For Resubmission",
+            "type": "integer"
+          },
+          "submission_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submission Rate"
+          },
+          "submitted_learners": {
+            "default": 0,
+            "title": "Submitted Learners",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "cohort_id",
+          "cohort_name"
+        ],
+        "title": "AssessmentCohortRow",
+        "type": "object"
+      },
       "AssessmentCreate": {
         "properties": {
           "chapter_id": {
@@ -1632,6 +1719,70 @@
         ],
         "title": "AssessmentGradingType",
         "type": "string"
+      },
+      "AssessmentItemAnalyticsRow": {
+        "properties": {
+          "impact_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Rate"
+          },
+          "impacted_count": {
+            "default": 0,
+            "title": "Impacted Count",
+            "type": "integer"
+          },
+          "item_key": {
+            "title": "Item Key",
+            "type": "string"
+          },
+          "item_label": {
+            "title": "Item Label",
+            "type": "string"
+          },
+          "item_type": {
+            "enum": [
+              "workflow",
+              "question",
+              "test"
+            ],
+            "title": "Item Type",
+            "type": "string"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "population_count": {
+            "default": 0,
+            "title": "Population Count",
+            "type": "integer"
+          },
+          "signal": {
+            "enum": [
+              "healthy",
+              "watch",
+              "critical"
+            ],
+            "title": "Signal",
+            "type": "string"
+          }
+        },
+        "required": [
+          "item_key",
+          "item_label",
+          "item_type",
+          "signal",
+          "note"
+        ],
+        "title": "AssessmentItemAnalyticsRow",
+        "type": "object"
       },
       "AssessmentItemCreate": {
         "properties": {
@@ -2554,6 +2705,112 @@
           "note"
         ],
         "title": "AssessmentSloSnapshot",
+        "type": "object"
+      },
+      "AssessmentSupportAlertRow": {
+        "properties": {
+          "code": {
+            "enum": [
+              "grading_slo_breached",
+              "grading_slo_warning",
+              "suspicious_attempts",
+              "missing_scores",
+              "cutover_blocked",
+              "legacy_quiz_route_live"
+            ],
+            "title": "Code",
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "info",
+              "warning",
+              "critical"
+            ],
+            "title": "Severity",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "severity",
+          "summary"
+        ],
+        "title": "AssessmentSupportAlertRow",
+        "type": "object"
+      },
+      "AssessmentSupportDiagnostics": {
+        "properties": {
+          "alerts": {
+            "items": {
+              "$ref": "#/components/schemas/AssessmentSupportAlertRow"
+            },
+            "title": "Alerts",
+            "type": "array"
+          },
+          "analytics_mode": {
+            "const": "live",
+            "title": "Analytics Mode",
+            "type": "string"
+          },
+          "audit_event_count": {
+            "default": 0,
+            "title": "Audit Event Count",
+            "type": "integer"
+          },
+          "cohort_filter_applied": {
+            "default": false,
+            "title": "Cohort Filter Applied",
+            "type": "boolean"
+          },
+          "cutover_blockers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Cutover Blockers",
+            "type": "array"
+          },
+          "legacy_quiz_attempts_route_enabled": {
+            "default": true,
+            "title": "Legacy Quiz Attempts Route Enabled",
+            "type": "boolean"
+          },
+          "legacy_quiz_stats_route_enabled": {
+            "default": true,
+            "title": "Legacy Quiz Stats Route Enabled",
+            "type": "boolean"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "scoped_cohort_count": {
+            "default": 0,
+            "title": "Scoped Cohort Count",
+            "type": "integer"
+          },
+          "scoped_eligible_learners": {
+            "default": 0,
+            "title": "Scoped Eligible Learners",
+            "type": "integer"
+          },
+          "scoped_visible_learners": {
+            "default": 0,
+            "title": "Scoped Visible Learners",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "analytics_mode",
+          "cutover_blockers",
+          "alerts",
+          "note"
+        ],
+        "title": "AssessmentSupportDiagnostics",
         "type": "object"
       },
       "AssessmentType": {
@@ -10078,6 +10335,13 @@
             "title": "Audit History",
             "type": "array"
           },
+          "cohort_analytics": {
+            "items": {
+              "$ref": "#/components/schemas/AssessmentCohortRow"
+            },
+            "title": "Cohort Analytics",
+            "type": "array"
+          },
           "common_failures": {
             "items": {
               "$ref": "#/components/schemas/CommonFailureRow"
@@ -10095,6 +10359,13 @@
           "generated_at": {
             "title": "Generated At",
             "type": "string"
+          },
+          "item_analytics": {
+            "items": {
+              "$ref": "#/components/schemas/AssessmentItemAnalyticsRow"
+            },
+            "title": "Item Analytics",
+            "type": "array"
           },
           "learner_rows": {
             "items": {
@@ -10155,6 +10426,9 @@
           "summary": {
             "$ref": "#/components/schemas/TeacherAssessmentDetailSummary"
           },
+          "support": {
+            "$ref": "#/components/schemas/AssessmentSupportDiagnostics"
+          },
           "title": {
             "title": "Title",
             "type": "string"
@@ -10174,7 +10448,10 @@
           "diagnostics",
           "audit_history",
           "slo",
-          "migration"
+          "migration",
+          "support",
+          "cohort_analytics",
+          "item_analytics"
         ],
         "title": "TeacherAssessmentDetailResponse",
         "type": "object"

@@ -580,6 +580,58 @@ class AssessmentMigrationStatus(PydanticStrictBaseModel):
     note: str
 
 
+class AssessmentSupportAlertRow(PydanticStrictBaseModel):
+    code: Literal[
+        "grading_slo_breached",
+        "grading_slo_warning",
+        "suspicious_attempts",
+        "missing_scores",
+        "cutover_blocked",
+        "legacy_quiz_route_live",
+    ]
+    severity: Literal["info", "warning", "critical"]
+    summary: str
+
+
+class AssessmentSupportDiagnostics(PydanticStrictBaseModel):
+    analytics_mode: Literal["live"]
+    scoped_eligible_learners: int = 0
+    scoped_visible_learners: int = 0
+    scoped_cohort_count: int = 0
+    cohort_filter_applied: bool = False
+    audit_event_count: int = 0
+    legacy_quiz_attempts_route_enabled: bool = True
+    legacy_quiz_stats_route_enabled: bool = True
+    cutover_blockers: list[str]
+    alerts: list[AssessmentSupportAlertRow]
+    note: str
+
+
+class AssessmentItemAnalyticsRow(PydanticStrictBaseModel):
+    item_key: str
+    item_label: str
+    item_type: Literal["workflow", "question", "test"]
+    population_count: int = 0
+    impacted_count: int = 0
+    impact_rate: float | None = None
+    signal: Literal["healthy", "watch", "critical"]
+    note: str
+
+
+class AssessmentCohortRow(PydanticStrictBaseModel):
+    cohort_id: int
+    cohort_name: str
+    eligible_learners: int = 0
+    submitted_learners: int = 0
+    submission_rate: float | None = None
+    pass_rate: float | None = None
+    awaiting_grading: int = 0
+    returned_for_resubmission: int = 0
+    released_learners: int = 0
+    avg_attempts: float | None = None
+    median_score: float | None = None
+
+
 class TeacherAssessmentDetailSummary(PydanticStrictBaseModel):
     eligible_learners: int
     submitted_learners: int
@@ -609,6 +661,9 @@ class TeacherAssessmentDetailResponse(PydanticStrictBaseModel):
     audit_history: list[AssessmentAuditEventRow]
     slo: AssessmentSloSnapshot
     migration: AssessmentMigrationStatus
+    support: AssessmentSupportDiagnostics
+    cohort_analytics: list[AssessmentCohortRow]
+    item_analytics: list[AssessmentItemAnalyticsRow]
 
 
 class AtRiskLearnersResponse(PydanticStrictBaseModel):

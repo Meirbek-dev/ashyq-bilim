@@ -6,7 +6,7 @@
  * Single hook for loading a submission into the teacher review workspace.
  */
 
-import type { Submission } from '@/types/grading';
+import type { Submission } from '@/features/grading/domain/types';
 import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 import { gradingDetailQueryOptions } from '@/features/grading/queries/grading.query';

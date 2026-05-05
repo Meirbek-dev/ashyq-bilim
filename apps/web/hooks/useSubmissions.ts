@@ -1,6 +1,6 @@
 'use client';
 
-import type { SubmissionStatus } from '@/types/grading';
+import type { SubmissionStatus } from '@/features/grading/domain/types';
 import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query';
 import { submissionsQueryOptions } from '@/features/grading/queries/grading.query';
 import { useState, useEffect } from 'react';

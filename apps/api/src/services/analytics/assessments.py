@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import operator
 from collections import Counter, defaultdict
+from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
+from typing import cast
 
 from sqlalchemy import select
 from sqlmodel import Session
@@ -10,12 +12,14 @@ from sqlmodel import Session
 from src.db.assessments import Assessment
 from src.db.courses.activities import Activity, ActivityTypeEnum
 from src.db.courses.courses import Course
+from src.db.courses.quiz import QuizAttempt
 from src.db.grading.bulk_actions import BulkAction
 from src.db.grading.entries import GradingEntry
 from src.db.grading.submissions import AssessmentType as SubmissionAssessmentType
 from src.db.grading.submissions import Submission, SubmissionStatus
 from src.db.usergroups import UserGroup
 from src.db.users import User
+from src.infra.settings import get_settings
 from src.services.analytics.filters import AnalyticsFilters
 from src.services.analytics.queries import (
     AnalyticsContext,
@@ -33,6 +37,7 @@ from src.services.analytics.queries import (
     median_or_none,
     parse_timestamp,
     percentile,
+    ProgressSnapshot,
     progress_snapshots,
     safe_pct,
     to_iso,
@@ -48,10 +53,14 @@ from src.services.analytics.schemas import (
     AnalyticsFilterOption,
     AssessmentAuditEventRow,
     AssessmentDiagnosticsSnapshot,
+    AssessmentCohortRow,
     AssessmentLearnerRow,
     AssessmentMigrationStatus,
+    AssessmentItemAnalyticsRow,
     AssessmentOutlierRow,
     AssessmentSloSnapshot,
+    AssessmentSupportAlertRow,
+    AssessmentSupportDiagnostics,
     CommonFailureRow,
     HistogramBucket,
     QuestionDifficultyRow,
@@ -60,6 +69,20 @@ from src.services.analytics.schemas import (
     TeacherAssessmentListResponse,
 )
 from src.services.analytics.scope import TeacherAnalyticsScope
+
+
+@dataclass
+class _CohortRollupAccumulator:
+    eligible_learners: int = 0
+    submitted_learners: int = 0
+    released_learners: int = 0
+    awaiting_grading: int = 0
+    returned_for_resubmission: int = 0
+    passers: int = 0
+    scored_learners: int = 0
+    attempt_total: int = 0
+    attempt_learners: int = 0
+    scores: list[float] = field(default_factory=list)
 
 
 def _selected_bucket_window(
@@ -244,7 +267,7 @@ def _score_bucket(score: float | None) -> str:
 
 
 def _attempt_distribution(attempts_by_user: dict[int, int]) -> list[HistogramBucket]:
-    buckets = Counter()
+    buckets: Counter[str] = Counter()
     for attempts in attempts_by_user.values():
         label = str(attempts if attempts < 5 else "5+")
         buckets[label] += 1
@@ -450,7 +473,6 @@ def _build_quiz_diagnostics(attempts: list[object]) -> AssessmentDiagnosticsSnap
         graded_not_released=0,
         returned_for_resubmission=0,
         released=sum(1 for attempt in attempts if getattr(attempt, "end_ts", None)),
-        late_submissions=0,
         stale_backlog=0,
         suspicious_attempts=sum(
             1
@@ -460,8 +482,7 @@ def _build_quiz_diagnostics(attempts: list[object]) -> AssessmentDiagnosticsSnap
         missing_scores=sum(
             1
             for attempt in attempts
-            if getattr(attempt, "end_ts", None)
-            and getattr(attempt, "max_score", None) is None
+            if getattr(attempt, "max_score", None) is None
         ),
         note="Quiz analytics still depend on legacy attempt compatibility rows.",
     )
@@ -694,14 +715,277 @@ def _build_migration_status(
     )
 
 
+def _build_workflow_item_rows(
+    diagnostics: AssessmentDiagnosticsSnapshot,
+) -> list[AssessmentItemAnalyticsRow]:
+    total = diagnostics.total_attempt_records
+    priority_by_item_key = {
+        "awaiting_grading": 0,
+        "missing_scores": 1,
+        "suspicious_attempts": 2,
+        "returned_for_resubmission": 3,
+        "late_submissions": 4,
+    }
+    definitions = [
+        (
+            "awaiting_grading",
+            "Awaiting teacher grading",
+            diagnostics.awaiting_grading,
+            "critical" if diagnostics.stale_backlog else "watch",
+            "Manual review is still pending for these learners.",
+        ),
+        (
+            "returned_for_resubmission",
+            "Returned for resubmission",
+            diagnostics.returned_for_resubmission,
+            "watch",
+            "Learners still need to resubmit after teacher feedback.",
+        ),
+        (
+            "late_submissions",
+            "Late submissions",
+            diagnostics.late_submissions,
+            "watch",
+            "Late work may need deadline or policy follow-up.",
+        ),
+        (
+            "suspicious_attempts",
+            "Suspicious attempts",
+            diagnostics.suspicious_attempts,
+            "critical",
+            "Integrity signals were recorded for these attempts.",
+        ),
+        (
+            "missing_scores",
+            "Missing scores",
+            diagnostics.missing_scores,
+            "critical",
+            "A submission exists without a score that support can verify.",
+        ),
+    ]
+    rows = [
+        AssessmentItemAnalyticsRow(
+            item_key=item_key,
+            item_label=item_label,
+            item_type="workflow",
+            population_count=total,
+            impacted_count=impacted_count,
+            impact_rate=safe_pct(impacted_count, total),
+            signal=signal,
+            note=note,
+        )
+        for item_key, item_label, impacted_count, signal, note in definitions
+        if impacted_count > 0
+    ]
+    rows.sort(key=lambda item: priority_by_item_key.get(item.item_key, 999))
+    return rows
+
+
+def _build_cohort_analytics(
+    context: AnalyticsContext,
+    *,
+    eligible_user_ids: set[int],
+    learner_rows: list[AssessmentLearnerRow],
+    threshold: float | None,
+    cohort_filter_ids: set[int] | None,
+    awaiting_statuses: set[str],
+    returned_statuses: set[str],
+    released_statuses: set[str],
+) -> list[AssessmentCohortRow]:
+    if not context.usergroup_names_by_id:
+        return []
+
+    row_by_user = {row.user_id: row for row in learner_rows}
+    cohort_rollups: dict[int, _CohortRollupAccumulator] = {}
+    for user_id in eligible_user_ids:
+        cohort_ids = set(context.cohort_ids_by_user.get(user_id, set()))
+        if cohort_filter_ids is not None:
+            cohort_ids &= cohort_filter_ids
+        if not cohort_ids:
+            continue
+
+        learner_row = row_by_user.get(user_id)
+        status = learner_row.status if learner_row is not None else None
+        submitted = learner_row is not None and (
+            learner_row.submitted_at is not None
+            or status not in {None, "DRAFT", "IN_PROGRESS"}
+        )
+        released = learner_row is not None and status in released_statuses
+        returned = learner_row is not None and status in returned_statuses
+        awaiting = learner_row is not None and status in awaiting_statuses
+        best_score = learner_row.best_score if learner_row is not None else None
+        passed = (
+            learner_row is not None
+            and best_score is not None
+            and threshold is not None
+            and best_score >= threshold
+        )
+
+        for cohort_id in cohort_ids:
+            current = cohort_rollups.setdefault(cohort_id, _CohortRollupAccumulator())
+            current.eligible_learners += 1
+            if submitted:
+                current.submitted_learners += 1
+            if released:
+                current.released_learners += 1
+            if awaiting:
+                current.awaiting_grading += 1
+            if returned:
+                current.returned_for_resubmission += 1
+            if learner_row is not None:
+                current.attempt_total += learner_row.attempts
+                current.attempt_learners += 1
+            if best_score is not None:
+                current.scores.append(best_score)
+                current.scored_learners += 1
+            if passed:
+                current.passers += 1
+
+    rows: list[AssessmentCohortRow] = []
+    for cohort_id, values in cohort_rollups.items():
+        eligible = values.eligible_learners
+        submitted_count = values.submitted_learners
+        scored = values.scored_learners
+        scores = list(values.scores)
+        rows.append(
+            AssessmentCohortRow(
+                cohort_id=cohort_id,
+                cohort_name=context.usergroup_names_by_id.get(
+                    cohort_id, f"Cohort {cohort_id}"
+                ),
+                eligible_learners=eligible,
+                submitted_learners=submitted_count,
+                submission_rate=safe_pct(submitted_count, eligible),
+                pass_rate=safe_pct(values.passers, scored),
+                awaiting_grading=values.awaiting_grading,
+                returned_for_resubmission=values.returned_for_resubmission,
+                released_learners=values.released_learners,
+                avg_attempts=round(
+                    values.attempt_total / values.attempt_learners,
+                    2,
+                )
+                if values.attempt_learners
+                else None,
+                median_score=median_or_none(scores),
+            )
+        )
+    rows.sort(
+        key=lambda row: (
+            row.submission_rate if row.submission_rate is not None else -1,
+            row.cohort_name.lower(),
+        ),
+        reverse=True,
+    )
+    return rows
+
+
+def _build_support_diagnostics(
+    *,
+    assessment_type: str,
+    eligible_learners: int,
+    learner_rows: list[AssessmentLearnerRow],
+    audit_history: list[AssessmentAuditEventRow],
+    diagnostics: AssessmentDiagnosticsSnapshot,
+    slo: AssessmentSloSnapshot,
+    migration: AssessmentMigrationStatus,
+    context: AnalyticsContext,
+    eligible_user_ids: set[int],
+    cohort_filter_ids: set[int] | None,
+) -> AssessmentSupportDiagnostics:
+    flags = get_settings().assessment_feature_flags
+    scoped_cohort_ids: set[int] = set()
+    for user_id in eligible_user_ids:
+        cohort_ids = set(context.cohort_ids_by_user.get(user_id, set()))
+        if cohort_filter_ids is not None:
+            cohort_ids &= cohort_filter_ids
+        scoped_cohort_ids.update(cohort_ids)
+
+    alerts: list[AssessmentSupportAlertRow] = []
+    cutover_blockers: list[str] = []
+    if slo.status == "breached":
+        alerts.append(
+            AssessmentSupportAlertRow(
+                code="grading_slo_breached",
+                severity="critical",
+                summary="Grading latency is outside the current service target.",
+            )
+        )
+    elif slo.status == "warning":
+        alerts.append(
+            AssessmentSupportAlertRow(
+                code="grading_slo_warning",
+                severity="warning",
+                summary="Grading latency is approaching the service target.",
+            )
+        )
+    if diagnostics.suspicious_attempts > 0:
+        alerts.append(
+            AssessmentSupportAlertRow(
+                code="suspicious_attempts",
+                severity="warning",
+                summary="Integrity signals were detected in the current support scope.",
+            )
+        )
+    if diagnostics.missing_scores > 0:
+        alerts.append(
+            AssessmentSupportAlertRow(
+                code="missing_scores",
+                severity="critical",
+                summary="One or more scoped attempts are missing a score.",
+            )
+        )
+    if not migration.cutover_ready:
+        cutover_blockers.append(migration.note)
+        alerts.append(
+            AssessmentSupportAlertRow(
+                code="cutover_blocked",
+                severity="warning",
+                summary="Compatibility reads still block a full cutover to canonical analytics.",
+            )
+        )
+    if assessment_type == "quiz" and flags.legacy_quiz_attempts_route_enabled:
+        cutover_blockers.append("Legacy quiz attempts route is still enabled.")
+        alerts.append(
+            AssessmentSupportAlertRow(
+                code="legacy_quiz_route_live",
+                severity="info",
+                summary="Legacy quiz support routes remain enabled for rollback.",
+            )
+        )
+    if assessment_type == "quiz" and flags.legacy_quiz_stats_route_enabled:
+        cutover_blockers.append("Legacy quiz stats route is still enabled.")
+
+    note = (
+        "Support follow-up is recommended for the active alerts and cutover blockers."
+        if alerts or cutover_blockers
+        else "Support diagnostics are within the current operational envelope."
+    )
+
+    return AssessmentSupportDiagnostics(
+        analytics_mode="live",
+        scoped_eligible_learners=eligible_learners,
+        scoped_visible_learners=len(learner_rows),
+        scoped_cohort_count=len(scoped_cohort_ids),
+        cohort_filter_applied=bool(cohort_filter_ids),
+        audit_event_count=len(audit_history),
+        legacy_quiz_attempts_route_enabled=(
+            flags.legacy_quiz_attempts_route_enabled
+        ),
+        legacy_quiz_stats_route_enabled=flags.legacy_quiz_stats_route_enabled,
+        cutover_blockers=cutover_blockers,
+        alerts=alerts,
+        note=note,
+    )
+
+
 def _build_assignment_rows(
     context: AnalyticsContext,
-    snapshots: dict[tuple[int, int], object],
+    snapshots: dict[tuple[int, int], ProgressSnapshot],
     allowed_user_ids: set[int] | None,
     bucket_window: tuple[datetime, datetime] | None,
 ) -> list[AssessmentOutlierRow]:
     eligible_by_course: dict[int, set[int]] = defaultdict(set)
-    for course_id, user_id in snapshots.items():
+    for course_id, user_id in snapshots:
         eligible_by_course[course_id].add(user_id)
 
     submissions_by_assignment: dict[int, list] = defaultdict(list)
@@ -800,12 +1084,12 @@ def _build_assignment_rows(
 
 def _build_exam_rows(
     context: AnalyticsContext,
-    snapshots: dict[tuple[int, int], object],
+    snapshots: dict[tuple[int, int], ProgressSnapshot],
     allowed_user_ids: set[int] | None,
     bucket_window: tuple[datetime, datetime] | None,
 ) -> list[AssessmentOutlierRow]:
     eligible_by_course: dict[int, set[int]] = defaultdict(set)
-    for course_id, user_id in snapshots.items():
+    for course_id, user_id in snapshots:
         eligible_by_course[course_id].add(user_id)
 
     attempts_by_exam: dict[int, list] = defaultdict(list)
@@ -891,12 +1175,12 @@ def _build_exam_rows(
 
 def _build_quiz_rows(
     context: AnalyticsContext,
-    snapshots: dict[tuple[int, int], object],
+    snapshots: dict[tuple[int, int], ProgressSnapshot],
     allowed_user_ids: set[int] | None,
     bucket_window: tuple[datetime, datetime] | None,
 ) -> list[AssessmentOutlierRow]:
     eligible_by_course: dict[int, set[int]] = defaultdict(set)
-    for course_id, user_id in snapshots.items():
+    for course_id, user_id in snapshots:
         eligible_by_course[course_id].add(user_id)
 
     attempts_by_activity: dict[int, list] = defaultdict(list)
@@ -972,12 +1256,12 @@ def _build_quiz_rows(
 
 def _build_code_rows(
     context: AnalyticsContext,
-    snapshots: dict[tuple[int, int], object],
+    snapshots: dict[tuple[int, int], ProgressSnapshot],
     allowed_user_ids: set[int] | None,
     bucket_window: tuple[datetime, datetime] | None,
 ) -> list[AssessmentOutlierRow]:
     eligible_by_course: dict[int, set[int]] = defaultdict(set)
-    for course_id, user_id in snapshots.items():
+    for course_id, user_id in snapshots:
         eligible_by_course[course_id].add(user_id)
 
     submissions_by_activity: dict[int, list] = defaultdict(list)
@@ -1285,6 +1569,30 @@ def get_teacher_assessment_detail(
             assessment_type="assignment",
             activity_id=assignment.activity_id,
         )
+        eligible_user_ids = eligible_by_course.get(assignment.course_id, set())
+        cohort_analytics = _build_cohort_analytics(
+            context,
+            eligible_user_ids=eligible_user_ids,
+            learner_rows=learner_rows,
+            threshold=60,
+            cohort_filter_ids=set(filters.cohort_ids) if filters.cohort_ids else None,
+            awaiting_statuses={SubmissionStatus.PENDING.value},
+            returned_statuses={SubmissionStatus.RETURNED.value},
+            released_statuses={SubmissionStatus.PUBLISHED.value},
+        )
+        item_analytics = _build_workflow_item_rows(diagnostics)
+        support = _build_support_diagnostics(
+            assessment_type="assignment",
+            eligible_learners=eligible,
+            learner_rows=learner_rows,
+            audit_history=audit_history,
+            diagnostics=diagnostics,
+            slo=slo,
+            migration=migration,
+            context=context,
+            eligible_user_ids=eligible_user_ids,
+            cohort_filter_ids=set(filters.cohort_ids) if filters.cohort_ids else None,
+        )
         return TeacherAssessmentDetailResponse(
             generated_at=to_iso(context.generated_at) or "",
             assessment_type="assignment",
@@ -1316,6 +1624,9 @@ def get_teacher_assessment_detail(
             audit_history=audit_history,
             slo=slo,
             migration=migration,
+            support=support,
+            cohort_analytics=cohort_analytics,
+            item_analytics=item_analytics,
         )
 
     if assessment_type == "exam":
@@ -1387,6 +1698,30 @@ def get_teacher_assessment_detail(
             assessment_type="exam",
             activity_id=exam.activity_id,
         )
+        eligible_user_ids = eligible_by_course.get(exam.course_id, set())
+        cohort_analytics = _build_cohort_analytics(
+            context,
+            eligible_user_ids=eligible_user_ids,
+            learner_rows=learner_rows,
+            threshold=threshold,
+            cohort_filter_ids=set(filters.cohort_ids) if filters.cohort_ids else None,
+            awaiting_statuses={SubmissionStatus.PENDING.value},
+            returned_statuses={SubmissionStatus.RETURNED.value},
+            released_statuses={SubmissionStatus.PUBLISHED.value},
+        )
+        item_analytics = _build_workflow_item_rows(diagnostics)
+        support = _build_support_diagnostics(
+            assessment_type="exam",
+            eligible_learners=eligible,
+            learner_rows=learner_rows,
+            audit_history=audit_history,
+            diagnostics=diagnostics,
+            slo=slo,
+            migration=migration,
+            context=context,
+            eligible_user_ids=eligible_user_ids,
+            cohort_filter_ids=set(filters.cohort_ids) if filters.cohort_ids else None,
+        )
         return TeacherAssessmentDetailResponse(
             generated_at=to_iso(context.generated_at) or "",
             assessment_type="exam",
@@ -1425,6 +1760,9 @@ def get_teacher_assessment_detail(
             audit_history=audit_history,
             slo=slo,
             migration=migration,
+            support=support,
+            cohort_analytics=cohort_analytics,
+            item_analytics=item_analytics,
         )
 
     if assessment_type == "quiz":
@@ -1439,7 +1777,7 @@ def get_teacher_assessment_detail(
             and _is_allowed(attempt.user_id, allowed_user_ids)
         ]
         eligible = len(eligible_by_course.get(activity.course_id, set()))
-        quiz_attempts_by_user: dict[int, list[object]] = defaultdict(list)
+        quiz_attempts_by_user: dict[int, list[QuizAttempt]] = defaultdict(list)
         quiz_scores: list[float] = []
         for attempt, _activity in records:
             quiz_attempts_by_user[attempt.user_id].append(attempt)
@@ -1489,13 +1827,14 @@ def get_teacher_assessment_detail(
         ]
         learner_rows = []
         for user_id, attempts in quiz_attempts_by_user.items():
+            quiz_attempt_list: list[QuizAttempt] = list(attempts)
             ordered_attempts = sorted(
-                attempts, key=lambda item: item.end_ts or item.start_ts
+                quiz_attempt_list, key=lambda item: item.end_ts or item.start_ts
             )
             best_score = max(
                 (
                     (float(item.score) / float(item.max_score)) * 100
-                    for item in attempts
+                    for item in quiz_attempt_list
                     if item.max_score
                 ),
                 default=None,
@@ -1510,7 +1849,7 @@ def get_teacher_assessment_detail(
                 AssessmentLearnerRow(
                     user_id=user_id,
                     user_display_name=display_name(context.users_by_id.get(user_id)),
-                    attempts=len(attempts),
+                    attempts=len(quiz_attempt_list),
                     best_score=round(best_score, 2) if best_score is not None else None,
                     last_score=round(last_score, 2) if last_score is not None else None,
                     submitted_at=to_iso(last_attempt.end_ts),
@@ -1550,6 +1889,67 @@ def get_teacher_assessment_detail(
             assessment_type="quiz",
             activity_id=activity.id,
             legacy_row_count=len(records),
+        )
+        eligible_user_ids = eligible_by_course.get(activity.course_id, set())
+        item_analytics = _build_workflow_item_rows(diagnostics)
+        for stat in [
+            item for item in context.quiz_question_stats if item.activity_id == assessment_id
+        ]:
+            accuracy_pct = safe_pct(stat.correct_count, stat.total_attempts)
+            signal = (
+                "critical"
+                if accuracy_pct is not None and accuracy_pct < 50
+                else "watch"
+                if accuracy_pct is not None and accuracy_pct < 75
+                else "healthy"
+            )
+            item_analytics.append(
+                AssessmentItemAnalyticsRow(
+                    item_key=stat.question_id,
+                    item_label=f"Question {stat.question_id}",
+                    item_type="question",
+                    population_count=stat.total_attempts,
+                    impacted_count=max(0, stat.total_attempts - stat.correct_count),
+                    impact_rate=safe_pct(
+                        max(0, stat.total_attempts - stat.correct_count),
+                        stat.total_attempts,
+                    ),
+                    signal=signal,
+                    note=(
+                        f"Accuracy {accuracy_pct:.1f}%"
+                        if accuracy_pct is not None
+                        else "Accuracy is not available yet."
+                    ),
+                )
+            )
+        item_analytics.sort(
+            key=lambda item: (
+                item.impact_rate if item.impact_rate is not None else -1,
+                item.impacted_count,
+            ),
+            reverse=True,
+        )
+        cohort_analytics = _build_cohort_analytics(
+            context,
+            eligible_user_ids=eligible_user_ids,
+            learner_rows=learner_rows,
+            threshold=60,
+            cohort_filter_ids=set(filters.cohort_ids) if filters.cohort_ids else None,
+            awaiting_statuses=set(),
+            returned_statuses=set(),
+            released_statuses={"COMPLETED"},
+        )
+        support = _build_support_diagnostics(
+            assessment_type="quiz",
+            eligible_learners=eligible,
+            learner_rows=learner_rows,
+            audit_history=audit_history,
+            diagnostics=diagnostics,
+            slo=slo,
+            migration=migration,
+            context=context,
+            eligible_user_ids=eligible_user_ids,
+            cohort_filter_ids=set(filters.cohort_ids) if filters.cohort_ids else None,
         )
         return TeacherAssessmentDetailResponse(
             generated_at=to_iso(context.generated_at) or "",
@@ -1591,6 +1991,9 @@ def get_teacher_assessment_detail(
             audit_history=audit_history,
             slo=slo,
             migration=migration,
+            support=support,
+            cohort_analytics=cohort_analytics,
+            item_analytics=item_analytics,
         )
 
     if assessment_type == "code_challenge":
@@ -1607,7 +2010,7 @@ def get_teacher_assessment_detail(
         eligible = len(eligible_by_course.get(activity.course_id, set()))
         code_attempts_by_user: dict[int, list[Submission]] = defaultdict(list)
         code_scores: list[float] = []
-        failure_counter = Counter()
+        failure_counter: Counter[str] = Counter()
         for submission, _activity in records:
             code_attempts_by_user[submission.user_id].append(submission)
             score = assignment_score(submission)
@@ -1628,11 +2031,14 @@ def get_teacher_assessment_detail(
         }
         learner_rows = []
         for user_id, attempts in code_attempts_by_user.items():
-            ordered_attempts = sorted(attempts, key=lambda item: item.created_at)
+            submission_attempts = cast(list[Submission], list(attempts))
+            ordered_attempts = sorted(
+                submission_attempts, key=lambda item: item.created_at
+            )
             best_score = max(
                 (
                     score
-                    for item in attempts
+                    for item in submission_attempts
                     if (score := assignment_score(item)) is not None
                 ),
                 default=None,
@@ -1643,7 +2049,7 @@ def get_teacher_assessment_detail(
                 AssessmentLearnerRow(
                     user_id=user_id,
                     user_display_name=display_name(context.users_by_id.get(user_id)),
-                    attempts=len(attempts),
+                    attempts=len(submission_attempts),
                     best_score=round(best_score, 2) if best_score is not None else None,
                     last_score=round(last_score, 2) if last_score is not None else None,
                     submitted_at=to_iso(last_attempt.created_at),
@@ -1675,6 +2081,43 @@ def get_teacher_assessment_detail(
             db_session,
             assessment_type="code_challenge",
             activity_id=activity.id,
+        )
+        eligible_user_ids = eligible_by_course.get(activity.course_id, set())
+        item_analytics = _build_workflow_item_rows(diagnostics)
+        for key, count in failure_counter.most_common(8):
+            item_analytics.append(
+                AssessmentItemAnalyticsRow(
+                    item_key=key,
+                    item_label=f"Failed test {key}",
+                    item_type="test",
+                    population_count=len(records),
+                    impacted_count=count,
+                    impact_rate=safe_pct(count, len(records)),
+                    signal="critical" if safe_pct(count, len(records)) and safe_pct(count, len(records)) >= 50 else "watch",
+                    note=f"This test failed in {count} submissions.",
+                )
+            )
+        cohort_analytics = _build_cohort_analytics(
+            context,
+            eligible_user_ids=eligible_user_ids,
+            learner_rows=learner_rows,
+            threshold=60,
+            cohort_filter_ids=set(filters.cohort_ids) if filters.cohort_ids else None,
+            awaiting_statuses={SubmissionStatus.PENDING.value},
+            returned_statuses={SubmissionStatus.RETURNED.value},
+            released_statuses={SubmissionStatus.PUBLISHED.value},
+        )
+        support = _build_support_diagnostics(
+            assessment_type="code_challenge",
+            eligible_learners=eligible,
+            learner_rows=learner_rows,
+            audit_history=audit_history,
+            diagnostics=diagnostics,
+            slo=slo,
+            migration=migration,
+            context=context,
+            eligible_user_ids=eligible_user_ids,
+            cohort_filter_ids=set(filters.cohort_ids) if filters.cohort_ids else None,
         )
         return TeacherAssessmentDetailResponse(
             generated_at=to_iso(context.generated_at) or "",
@@ -1714,6 +2157,9 @@ def get_teacher_assessment_detail(
             audit_history=audit_history,
             slo=slo,
             migration=migration,
+            support=support,
+            cohort_analytics=cohort_analytics,
+            item_analytics=item_analytics,
         )
 
     msg = f"Неподдерживаемый тип оценивания: {assessment_type}"

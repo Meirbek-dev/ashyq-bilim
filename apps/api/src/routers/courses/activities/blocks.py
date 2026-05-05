@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Form, Request, UploadFile
+from fastapi import APIRouter, Depends, Form, HTTPException, Request, UploadFile
 
 from src.auth.users import get_optional_public_user, get_public_user
 from src.db.courses.blocks import BlockRead
@@ -12,6 +12,7 @@ from src.db.courses.quiz import (
 )
 from src.db.users import AnonymousUser, PublicUser
 from src.infra.db.session import get_db_session
+from src.infra.settings import get_settings
 from src.services.blocks.block_types.imageBlock.imageBlock import (
     create_image_block,
     get_image_block,
@@ -170,6 +171,8 @@ async def api_get_quiz_attempts(
     """
     Get quiz attempts for an activity.
     """
+    if not get_settings().assessment_feature_flags.legacy_quiz_attempts_route_enabled:
+        raise HTTPException(status_code=404, detail="Legacy quiz attempts route disabled")
     return await get_quiz_attempts(
         request=request,
         activity_id=activity_id,
@@ -189,6 +192,8 @@ async def api_get_quiz_stats(
     """
     Get per-question statistics for a quiz (teachers only).
     """
+    if not get_settings().assessment_feature_flags.legacy_quiz_stats_route_enabled:
+        raise HTTPException(status_code=404, detail="Legacy quiz stats route disabled")
     return await get_quiz_stats(
         request=request,
         activity_id=activity_id,

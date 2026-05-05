@@ -4282,6 +4282,46 @@ export interface components {
             /** Summary */
             summary: string;
         };
+        /** AssessmentCohortRow */
+        AssessmentCohortRow: {
+            /** Avg Attempts */
+            avg_attempts?: number | null;
+            /**
+             * Awaiting Grading
+             * @default 0
+             */
+            awaiting_grading: number;
+            /** Cohort Id */
+            cohort_id: number;
+            /** Cohort Name */
+            cohort_name: string;
+            /**
+             * Eligible Learners
+             * @default 0
+             */
+            eligible_learners: number;
+            /** Median Score */
+            median_score?: number | null;
+            /** Pass Rate */
+            pass_rate?: number | null;
+            /**
+             * Released Learners
+             * @default 0
+             */
+            released_learners: number;
+            /**
+             * Returned For Resubmission
+             * @default 0
+             */
+            returned_for_resubmission: number;
+            /** Submission Rate */
+            submission_rate?: number | null;
+            /**
+             * Submitted Learners
+             * @default 0
+             */
+            submitted_learners: number;
+        };
         /** AssessmentCreate */
         AssessmentCreate: {
             /** Chapter Id */
@@ -4381,6 +4421,37 @@ export interface components {
          * @enum {string}
          */
         AssessmentGradingType: "NUMERIC" | "PERCENTAGE";
+        /** AssessmentItemAnalyticsRow */
+        AssessmentItemAnalyticsRow: {
+            /** Impact Rate */
+            impact_rate?: number | null;
+            /**
+             * Impacted Count
+             * @default 0
+             */
+            impacted_count: number;
+            /** Item Key */
+            item_key: string;
+            /** Item Label */
+            item_label: string;
+            /**
+             * Item Type
+             * @enum {string}
+             */
+            item_type: "workflow" | "question" | "test";
+            /** Note */
+            note: string;
+            /**
+             * Population Count
+             * @default 0
+             */
+            population_count: number;
+            /**
+             * Signal
+             * @enum {string}
+             */
+            signal: "healthy" | "watch" | "critical";
+        };
         /** AssessmentItemCreate */
         AssessmentItemCreate: {
             body: components["schemas"]["ItemBody"];
@@ -4666,6 +4737,70 @@ export interface components {
             status: "healthy" | "warning" | "breached" | "not_applicable";
             /** Target Hours */
             target_hours?: number | null;
+        };
+        /** AssessmentSupportAlertRow */
+        AssessmentSupportAlertRow: {
+            /**
+             * Code
+             * @enum {string}
+             */
+            code: "grading_slo_breached" | "grading_slo_warning" | "suspicious_attempts" | "missing_scores" | "cutover_blocked" | "legacy_quiz_route_live";
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "info" | "warning" | "critical";
+            /** Summary */
+            summary: string;
+        };
+        /** AssessmentSupportDiagnostics */
+        AssessmentSupportDiagnostics: {
+            /** Alerts */
+            alerts: components["schemas"]["AssessmentSupportAlertRow"][];
+            /**
+             * Analytics Mode
+             * @constant
+             */
+            analytics_mode: "live";
+            /**
+             * Audit Event Count
+             * @default 0
+             */
+            audit_event_count: number;
+            /**
+             * Cohort Filter Applied
+             * @default false
+             */
+            cohort_filter_applied: boolean;
+            /** Cutover Blockers */
+            cutover_blockers: string[];
+            /**
+             * Legacy Quiz Attempts Route Enabled
+             * @default true
+             */
+            legacy_quiz_attempts_route_enabled: boolean;
+            /**
+             * Legacy Quiz Stats Route Enabled
+             * @default true
+             */
+            legacy_quiz_stats_route_enabled: boolean;
+            /** Note */
+            note: string;
+            /**
+             * Scoped Cohort Count
+             * @default 0
+             */
+            scoped_cohort_count: number;
+            /**
+             * Scoped Eligible Learners
+             * @default 0
+             */
+            scoped_eligible_learners: number;
+            /**
+             * Scoped Visible Learners
+             * @default 0
+             */
+            scoped_visible_learners: number;
         };
         /**
          * AssessmentType
@@ -7566,6 +7701,8 @@ export interface components {
             attempt_distribution: components["schemas"]["HistogramBucket"][];
             /** Audit History */
             audit_history: components["schemas"]["AssessmentAuditEventRow"][];
+            /** Cohort Analytics */
+            cohort_analytics: components["schemas"]["AssessmentCohortRow"][];
             /** Common Failures */
             common_failures: components["schemas"]["CommonFailureRow"][];
             /** Course Id */
@@ -7573,6 +7710,8 @@ export interface components {
             diagnostics: components["schemas"]["AssessmentDiagnosticsSnapshot"];
             /** Generated At */
             generated_at: string;
+            /** Item Analytics */
+            item_analytics: components["schemas"]["AssessmentItemAnalyticsRow"][];
             /** Learner Rows */
             learner_rows: components["schemas"]["AssessmentLearnerRow"][];
             migration: components["schemas"]["AssessmentMigrationStatus"];
@@ -7586,6 +7725,7 @@ export interface components {
             score_distribution: components["schemas"]["HistogramBucket"][];
             slo: components["schemas"]["AssessmentSloSnapshot"];
             summary: components["schemas"]["TeacherAssessmentDetailSummary"];
+            support: components["schemas"]["AssessmentSupportDiagnostics"];
             /** Title */
             title: string;
         };

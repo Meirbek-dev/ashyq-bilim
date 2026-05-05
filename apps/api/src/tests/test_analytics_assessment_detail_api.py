@@ -333,8 +333,8 @@ def _make_context_for_assignment(session, assessment_id: int) -> AnalyticsContex
         quiz_question_stats=[],
         code_submissions=[],
         users_by_id=users_by_id,
-        usergroup_names_by_id={},
-        cohort_ids_by_user={},
+        usergroup_names_by_id={10: "Alpha Cohort", 20: "Beta Cohort"},
+        cohort_ids_by_user={2: {10}, 3: {10}, 4: {20}, 5: {20}},
     )
 
 
@@ -364,8 +364,8 @@ def _make_context_for_quiz(session) -> AnalyticsContext:
         quiz_question_stats=[],
         code_submissions=[],
         users_by_id=users_by_id,
-        usergroup_names_by_id={},
-        cohort_ids_by_user={},
+        usergroup_names_by_id={10: "Alpha Cohort"},
+        cohort_ids_by_user={2: {10}},
     )
 
 
@@ -546,6 +546,10 @@ def test_assignment_detail_endpoint_returns_operational_fields(
     assert payload["slo"]["status"] == "breached"
     assert payload["migration"]["compatibility_mode"] == "canonical"
     assert payload["migration"]["canonical_row_count"] == 4
+    assert payload["support"]["alerts"][0]["code"] == "grading_slo_breached"
+    assert payload["support"]["scoped_cohort_count"] == 2
+    assert payload["cohort_analytics"][0]["cohort_name"] == "Beta Cohort"
+    assert payload["item_analytics"][0]["item_key"] == "awaiting_grading"
     assert [event["source"] for event in payload["audit_history"][:2]] == [
         "bulk_action",
         "grading_entry",
@@ -637,4 +641,7 @@ def test_quiz_detail_endpoint_reports_legacy_cutover_state(
         "compatibility_mode": "dual_write",
         "note": "Quiz analytics detail still reads QuizAttempt compatibility rows and cannot cut over yet.",
     }
+    assert payload["support"]["legacy_quiz_attempts_route_enabled"] is True
+    assert "Legacy quiz attempts route is still enabled." in payload["support"]["cutover_blockers"]
+    assert payload["cohort_analytics"][0]["cohort_name"] == "Alpha Cohort"
     assert payload["audit_history"] == []

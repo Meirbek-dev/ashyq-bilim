@@ -8,7 +8,7 @@
  * `components/features/courses/code-challenges/CodeRunStatusBadge`.
  */
 
-import type { SubmissionStatus } from '@/types/grading';
+import type { SubmissionStatus } from '@/features/grading/domain/types';
 import { SUBMISSION_STATUS_LABELS } from '@/features/grading/domain';
 import { Badge } from '@/components/ui/badge';
 import { useTranslations } from 'next-intl';

@@ -1,4 +1,4 @@
-import type { Submission } from '@/types/grading';
+import type { Submission } from '@/features/grading/domain/types';
 
 export class StaleGradeError extends Error {
   public override readonly name = 'StaleGradeError';
