@@ -1374,6 +1374,98 @@
         "title": "AssessmentAttemptProjection",
         "type": "object"
       },
+      "AssessmentAuditEventRow": {
+        "properties": {
+          "action": {
+            "title": "Action",
+            "type": "string"
+          },
+          "actor_display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor Display Name"
+          },
+          "actor_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor User Id"
+          },
+          "affected_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Affected Count"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "occurred_at": {
+            "title": "Occurred At",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "grading_entry",
+              "bulk_action"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "submission_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submission Id"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "source",
+          "action",
+          "occurred_at",
+          "summary"
+        ],
+        "title": "AssessmentAuditEventRow",
+        "type": "object"
+      },
       "AssessmentCreate": {
         "properties": {
           "chapter_id": {
@@ -1423,6 +1515,78 @@
           "chapter_id"
         ],
         "title": "AssessmentCreate",
+        "type": "object"
+      },
+      "AssessmentDiagnosticsSnapshot": {
+        "properties": {
+          "awaiting_grading": {
+            "default": 0,
+            "title": "Awaiting Grading",
+            "type": "integer"
+          },
+          "draft_attempts": {
+            "default": 0,
+            "title": "Draft Attempts",
+            "type": "integer"
+          },
+          "graded_not_released": {
+            "default": 0,
+            "title": "Graded Not Released",
+            "type": "integer"
+          },
+          "late_submissions": {
+            "default": 0,
+            "title": "Late Submissions",
+            "type": "integer"
+          },
+          "manual_grading_required": {
+            "default": false,
+            "title": "Manual Grading Required",
+            "type": "boolean"
+          },
+          "missing_scores": {
+            "default": 0,
+            "title": "Missing Scores",
+            "type": "integer"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "released": {
+            "default": 0,
+            "title": "Released",
+            "type": "integer"
+          },
+          "returned_for_resubmission": {
+            "default": 0,
+            "title": "Returned For Resubmission",
+            "type": "integer"
+          },
+          "stale_backlog": {
+            "default": 0,
+            "title": "Stale Backlog",
+            "type": "integer"
+          },
+          "suspicious_attempts": {
+            "default": 0,
+            "title": "Suspicious Attempts",
+            "type": "integer"
+          },
+          "total_attempt_records": {
+            "default": 0,
+            "title": "Total Attempt Records",
+            "type": "integer"
+          }
+        },
+        "title": "AssessmentDiagnosticsSnapshot",
         "type": "object"
       },
       "AssessmentDraftPatch": {
@@ -1687,6 +1851,57 @@
           "to"
         ],
         "title": "AssessmentLifecycleTransition",
+        "type": "object"
+      },
+      "AssessmentMigrationStatus": {
+        "properties": {
+          "canonical_row_count": {
+            "default": 0,
+            "title": "Canonical Row Count",
+            "type": "integer"
+          },
+          "compatibility_mode": {
+            "enum": [
+              "canonical",
+              "dual_write",
+              "legacy_only"
+            ],
+            "title": "Compatibility Mode",
+            "type": "string"
+          },
+          "cutover_ready": {
+            "title": "Cutover Ready",
+            "type": "boolean"
+          },
+          "is_canonical": {
+            "title": "Is Canonical",
+            "type": "boolean"
+          },
+          "legacy_row_count": {
+            "default": 0,
+            "title": "Legacy Row Count",
+            "type": "integer"
+          },
+          "legacy_sources": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Legacy Sources",
+            "type": "array"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          }
+        },
+        "required": [
+          "is_canonical",
+          "legacy_sources",
+          "cutover_ready",
+          "compatibility_mode",
+          "note"
+        ],
+        "title": "AssessmentMigrationStatus",
         "type": "object"
       },
       "AssessmentOutlierRow": {
@@ -2272,6 +2487,73 @@
           }
         },
         "title": "AssessmentScoreProjection",
+        "type": "object"
+      },
+      "AssessmentSloSnapshot": {
+        "properties": {
+          "backlog_count": {
+            "default": 0,
+            "title": "Backlog Count",
+            "type": "integer"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "observed_p50_hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed P50 Hours"
+          },
+          "observed_p90_hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed P90 Hours"
+          },
+          "overdue_backlog_count": {
+            "default": 0,
+            "title": "Overdue Backlog Count",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "healthy",
+              "warning",
+              "breached",
+              "not_applicable"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "target_hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Hours"
+          }
+        },
+        "required": [
+          "status",
+          "note"
+        ],
+        "title": "AssessmentSloSnapshot",
         "type": "object"
       },
       "AssessmentType": {
@@ -9789,6 +10071,13 @@
             "title": "Attempt Distribution",
             "type": "array"
           },
+          "audit_history": {
+            "items": {
+              "$ref": "#/components/schemas/AssessmentAuditEventRow"
+            },
+            "title": "Audit History",
+            "type": "array"
+          },
           "common_failures": {
             "items": {
               "$ref": "#/components/schemas/CommonFailureRow"
@@ -9800,6 +10089,9 @@
             "title": "Course Id",
             "type": "integer"
           },
+          "diagnostics": {
+            "$ref": "#/components/schemas/AssessmentDiagnosticsSnapshot"
+          },
           "generated_at": {
             "title": "Generated At",
             "type": "string"
@@ -9810,6 +10102,9 @@
             },
             "title": "Learner Rows",
             "type": "array"
+          },
+          "migration": {
+            "$ref": "#/components/schemas/AssessmentMigrationStatus"
           },
           "pass_threshold": {
             "anyOf": [
@@ -9854,6 +10149,9 @@
             "title": "Score Distribution",
             "type": "array"
           },
+          "slo": {
+            "$ref": "#/components/schemas/AssessmentSloSnapshot"
+          },
           "summary": {
             "$ref": "#/components/schemas/TeacherAssessmentDetailSummary"
           },
@@ -9872,7 +10170,11 @@
           "score_distribution",
           "attempt_distribution",
           "common_failures",
-          "learner_rows"
+          "learner_rows",
+          "diagnostics",
+          "audit_history",
+          "slo",
+          "migration"
         ],
         "title": "TeacherAssessmentDetailResponse",
         "type": "object"

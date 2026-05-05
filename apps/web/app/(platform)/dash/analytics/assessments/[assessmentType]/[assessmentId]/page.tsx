@@ -1,5 +1,6 @@
 import AnalyticsThresholdHistogram from '@components/Dashboard/Analytics/AnalyticsThresholdHistogram';
 import AssessmentLearnerRowsTable from '@components/Dashboard/Analytics/AssessmentLearnerRowsTable';
+import AssessmentOperationsPanel from '@components/Dashboard/Analytics/AssessmentOperationsPanel';
 import { getTeacherAssessmentDetail, normalizeAnalyticsQuery } from '@services/analytics/teacher';
 import QuestionDifficultyRadar from '@components/Dashboard/Analytics/QuestionDifficultyRadar';
 import AnalyticsEmptyState from '@components/Dashboard/Analytics/AnalyticsEmptyState';
@@ -125,6 +126,8 @@ async function PlatformAnalyticsAssessmentDetailPageInner(props: {
             )}
           </CardContent>
         </Card>
+
+        <AssessmentOperationsPanel detail={detail} />
 
         <AssessmentLearnerRowsTable
           rows={detail.learner_rows}

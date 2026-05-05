@@ -532,6 +532,54 @@ class AssessmentLearnerRow(PydanticStrictBaseModel):
     status: str | None = None
 
 
+class AssessmentDiagnosticsSnapshot(PydanticStrictBaseModel):
+    manual_grading_required: bool = False
+    total_attempt_records: int = 0
+    draft_attempts: int = 0
+    awaiting_grading: int = 0
+    graded_not_released: int = 0
+    returned_for_resubmission: int = 0
+    released: int = 0
+    late_submissions: int = 0
+    stale_backlog: int = 0
+    suspicious_attempts: int = 0
+    missing_scores: int = 0
+    note: str | None = None
+
+
+class AssessmentAuditEventRow(PydanticStrictBaseModel):
+    id: str
+    source: Literal["grading_entry", "bulk_action"]
+    action: str
+    actor_user_id: int | None = None
+    actor_display_name: str | None = None
+    occurred_at: str
+    status: str | None = None
+    summary: str
+    affected_count: int | None = None
+    submission_id: int | None = None
+
+
+class AssessmentSloSnapshot(PydanticStrictBaseModel):
+    status: Literal["healthy", "warning", "breached", "not_applicable"]
+    target_hours: float | None = None
+    observed_p50_hours: float | None = None
+    observed_p90_hours: float | None = None
+    backlog_count: int = 0
+    overdue_backlog_count: int = 0
+    note: str
+
+
+class AssessmentMigrationStatus(PydanticStrictBaseModel):
+    is_canonical: bool
+    legacy_sources: list[str]
+    legacy_row_count: int = 0
+    canonical_row_count: int = 0
+    cutover_ready: bool
+    compatibility_mode: Literal["canonical", "dual_write", "legacy_only"]
+    note: str
+
+
 class TeacherAssessmentDetailSummary(PydanticStrictBaseModel):
     eligible_learners: int
     submitted_learners: int
@@ -557,6 +605,10 @@ class TeacherAssessmentDetailResponse(PydanticStrictBaseModel):
     question_breakdown: list[QuestionDifficultyRow] | None = None
     common_failures: list[CommonFailureRow]
     learner_rows: list[AssessmentLearnerRow]
+    diagnostics: AssessmentDiagnosticsSnapshot
+    audit_history: list[AssessmentAuditEventRow]
+    slo: AssessmentSloSnapshot
+    migration: AssessmentMigrationStatus
 
 
 class AtRiskLearnersResponse(PydanticStrictBaseModel):

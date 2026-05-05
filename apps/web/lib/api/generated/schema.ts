@@ -4256,6 +4256,32 @@ export interface components {
             /** Submission Uuid */
             submission_uuid?: string | null;
         };
+        /** AssessmentAuditEventRow */
+        AssessmentAuditEventRow: {
+            /** Action */
+            action: string;
+            /** Actor Display Name */
+            actor_display_name?: string | null;
+            /** Actor User Id */
+            actor_user_id?: number | null;
+            /** Affected Count */
+            affected_count?: number | null;
+            /** Id */
+            id: string;
+            /** Occurred At */
+            occurred_at: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "grading_entry" | "bulk_action";
+            /** Status */
+            status?: string | null;
+            /** Submission Id */
+            submission_id?: number | null;
+            /** Summary */
+            summary: string;
+        };
         /** AssessmentCreate */
         AssessmentCreate: {
             /** Chapter Id */
@@ -4278,6 +4304,66 @@ export interface components {
              * @default 1
              */
             weight: number;
+        };
+        /** AssessmentDiagnosticsSnapshot */
+        AssessmentDiagnosticsSnapshot: {
+            /**
+             * Awaiting Grading
+             * @default 0
+             */
+            awaiting_grading: number;
+            /**
+             * Draft Attempts
+             * @default 0
+             */
+            draft_attempts: number;
+            /**
+             * Graded Not Released
+             * @default 0
+             */
+            graded_not_released: number;
+            /**
+             * Late Submissions
+             * @default 0
+             */
+            late_submissions: number;
+            /**
+             * Manual Grading Required
+             * @default false
+             */
+            manual_grading_required: boolean;
+            /**
+             * Missing Scores
+             * @default 0
+             */
+            missing_scores: number;
+            /** Note */
+            note?: string | null;
+            /**
+             * Released
+             * @default 0
+             */
+            released: number;
+            /**
+             * Returned For Resubmission
+             * @default 0
+             */
+            returned_for_resubmission: number;
+            /**
+             * Stale Backlog
+             * @default 0
+             */
+            stale_backlog: number;
+            /**
+             * Suspicious Attempts
+             * @default 0
+             */
+            suspicious_attempts: number;
+            /**
+             * Total Attempt Records
+             * @default 0
+             */
+            total_attempt_records: number;
         };
         /** AssessmentDraftPatch */
         AssessmentDraftPatch: {
@@ -4360,6 +4446,32 @@ export interface components {
             /** Scheduled At */
             scheduled_at?: string | null;
             to: components["schemas"]["AssessmentLifecycle"];
+        };
+        /** AssessmentMigrationStatus */
+        AssessmentMigrationStatus: {
+            /**
+             * Canonical Row Count
+             * @default 0
+             */
+            canonical_row_count: number;
+            /**
+             * Compatibility Mode
+             * @enum {string}
+             */
+            compatibility_mode: "canonical" | "dual_write" | "legacy_only";
+            /** Cutover Ready */
+            cutover_ready: boolean;
+            /** Is Canonical */
+            is_canonical: boolean;
+            /**
+             * Legacy Row Count
+             * @default 0
+             */
+            legacy_row_count: number;
+            /** Legacy Sources */
+            legacy_sources: string[];
+            /** Note */
+            note: string;
         };
         /** AssessmentOutlierRow */
         AssessmentOutlierRow: {
@@ -4528,6 +4640,32 @@ export interface components {
              * @enum {string}
              */
             source: "teacher" | "auto" | "none";
+        };
+        /** AssessmentSloSnapshot */
+        AssessmentSloSnapshot: {
+            /**
+             * Backlog Count
+             * @default 0
+             */
+            backlog_count: number;
+            /** Note */
+            note: string;
+            /** Observed P50 Hours */
+            observed_p50_hours?: number | null;
+            /** Observed P90 Hours */
+            observed_p90_hours?: number | null;
+            /**
+             * Overdue Backlog Count
+             * @default 0
+             */
+            overdue_backlog_count: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "healthy" | "warning" | "breached" | "not_applicable";
+            /** Target Hours */
+            target_hours?: number | null;
         };
         /**
          * AssessmentType
@@ -7426,14 +7564,18 @@ export interface components {
             assessment_type: "assignment" | "quiz" | "exam" | "code_challenge";
             /** Attempt Distribution */
             attempt_distribution: components["schemas"]["HistogramBucket"][];
+            /** Audit History */
+            audit_history: components["schemas"]["AssessmentAuditEventRow"][];
             /** Common Failures */
             common_failures: components["schemas"]["CommonFailureRow"][];
             /** Course Id */
             course_id: number;
+            diagnostics: components["schemas"]["AssessmentDiagnosticsSnapshot"];
             /** Generated At */
             generated_at: string;
             /** Learner Rows */
             learner_rows: components["schemas"]["AssessmentLearnerRow"][];
+            migration: components["schemas"]["AssessmentMigrationStatus"];
             /** Pass Threshold */
             pass_threshold?: number | null;
             /** Pass Threshold Bucket Label */
@@ -7442,6 +7584,7 @@ export interface components {
             question_breakdown?: components["schemas"]["QuestionDifficultyRow"][] | null;
             /** Score Distribution */
             score_distribution: components["schemas"]["HistogramBucket"][];
+            slo: components["schemas"]["AssessmentSloSnapshot"];
             summary: components["schemas"]["TeacherAssessmentDetailSummary"];
             /** Title */
             title: string;
