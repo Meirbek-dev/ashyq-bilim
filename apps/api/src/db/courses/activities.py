@@ -24,6 +24,7 @@ class ActivityTypeEnum(StrEnum):
     TYPE_DYNAMIC = "TYPE_DYNAMIC"
     TYPE_ASSIGNMENT = "TYPE_ASSIGNMENT"
     TYPE_EXAM = "TYPE_EXAM"
+    TYPE_QUIZ = "TYPE_QUIZ"
     TYPE_CODE_CHALLENGE = "TYPE_CODE_CHALLENGE"
     TYPE_CUSTOM = "TYPE_CUSTOM"
 
@@ -41,6 +42,8 @@ class ActivitySubTypeEnum(StrEnum):
     SUBTYPE_ASSIGNMENT_ANY = "SUBTYPE_ASSIGNMENT_ANY"
     # Exam
     SUBTYPE_EXAM_STANDARD = "SUBTYPE_EXAM_STANDARD"
+    # Quiz
+    SUBTYPE_QUIZ_STANDARD = "SUBTYPE_QUIZ_STANDARD"
     # Code Challenge
     SUBTYPE_CODE_GENERAL = "SUBTYPE_CODE_GENERAL"
     SUBTYPE_CODE_COMPETITIVE = "SUBTYPE_CODE_COMPETITIVE"
@@ -128,6 +131,7 @@ _VALID_SUBTYPES: dict[ActivityTypeEnum, set[ActivitySubTypeEnum]] = {
     ActivityTypeEnum.TYPE_DYNAMIC: {ActivitySubTypeEnum.SUBTYPE_DYNAMIC_PAGE},
     ActivityTypeEnum.TYPE_ASSIGNMENT: {ActivitySubTypeEnum.SUBTYPE_ASSIGNMENT_ANY},
     ActivityTypeEnum.TYPE_EXAM: {ActivitySubTypeEnum.SUBTYPE_EXAM_STANDARD},
+    ActivityTypeEnum.TYPE_QUIZ: {ActivitySubTypeEnum.SUBTYPE_QUIZ_STANDARD},
     ActivityTypeEnum.TYPE_CODE_CHALLENGE: {
         ActivitySubTypeEnum.SUBTYPE_CODE_GENERAL,
         ActivitySubTypeEnum.SUBTYPE_CODE_COMPETITIVE,

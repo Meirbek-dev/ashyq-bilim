@@ -15,6 +15,7 @@
 import { queryOptions, useQuery } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { apiFetcher } from '@/lib/api-client';
+import type { components } from '@/lib/api/generated/schema';
 import { getAPIUrl } from '@services/config/config';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 import { reportClientError } from '@/services/telemetry/client';
@@ -27,52 +28,9 @@ import type { AssessmentPolicyDTO } from '../domain/policy';
 import { assessmentTypeToKind } from '../domain/view-models';
 import type { AssessmentKind, AssessmentSurface, StudioViewModel, AttemptViewModel } from '../domain/view-models';
 import type { AssessmentItem } from '../domain/items';
+import type { SubmissionStatus } from '../domain/submission-status';
 
-// ── Internal activity shape (subset of what the API returns) ──────────────────
-
-interface AssessmentDetail {
-  id: number;
-  assessment_uuid: string;
-  activity_id: number;
-  activity_uuid: string;
-  kind: 'ASSIGNMENT' | 'EXAM' | 'CODE_CHALLENGE' | 'QUIZ';
-  title: string;
-  description: string;
-  lifecycle: AssessmentLifecycle;
-  scheduled_at?: string | null;
-  published_at?: string | null;
-  archived_at?: string | null;
-  items: AssessmentItem[];
-  assessment_policy?: AssessmentPolicyDTO | null;
-  attempt_projection?: AttemptProjectionPayload | null;
-  review_projection?: ReviewProjectionPayload | null;
-}
-
-interface AssessmentScoreProjection {
-  percent: number | null;
-  source: 'auto' | 'teacher' | 'none';
-}
-
-interface AttemptProjectionPayload {
-  assessment_uuid: string;
-  submission_uuid?: string | null;
-  submission_status?: 'DRAFT' | 'PENDING' | 'GRADED' | 'PUBLISHED' | 'RETURNED' | null;
-  release_state?: 'HIDDEN' | 'AWAITING_RELEASE' | 'VISIBLE' | 'RETURNED_FOR_REVISION';
-  can_edit: boolean;
-  can_save_draft: boolean;
-  can_submit: boolean;
-  is_returned_for_revision: boolean;
-  is_result_visible: boolean;
-  score?: AssessmentScoreProjection | null;
-}
-
-interface ReviewProjectionPayload {
-  assessment_uuid: string;
-  activity_id: number;
-  activity_uuid: string;
-  title: string;
-  kind: 'ASSIGNMENT' | 'EXAM' | 'CODE_CHALLENGE' | 'QUIZ';
-}
+type AssessmentDetail = components['schemas']['AssessmentRead'];
 
 interface ReadinessPayload {
   ok: boolean;
@@ -181,7 +139,7 @@ export function useAssessment(
       canArchive: canArchive(lifecycle),
       scheduledAt: assessment.scheduled_at ?? null,
       policy: policyFromAssessmentPolicy(assessment.assessment_policy),
-      items: assessment.items,
+      items: (assessment.items ?? []) as AssessmentItem[],
       validationIssues:
         readiness.data?.issues.map((issue) =>
           classifyValidationIssue({
@@ -204,6 +162,7 @@ export function useAssessment(
 
   // ATTEMPT surface
   const attemptProjection = assessment.attempt_projection;
+  const effectivePolicy = attemptProjection?.effective_policy as AssessmentPolicyDTO | null | undefined;
   const vm: AttemptViewModel = {
     surface: 'ATTEMPT',
     kind,
@@ -211,17 +170,27 @@ export function useAssessment(
     activityUuid: assessment.activity_uuid,
     title: assessment.title,
     description: assessment.description || null,
-    dueAt: assessment.assessment_policy?.due_at ?? null,
-    submissionStatus: attemptProjection?.submission_status ?? null,
+    dueAt: attemptProjection?.due_at ?? assessment.assessment_policy?.due_at ?? null,
+    submissionStatus: (attemptProjection?.submission_status ?? null) as SubmissionStatus | null,
     releaseState: attemptProjection?.release_state ?? 'HIDDEN',
-    score: attemptProjection?.score ?? { percent: null, source: 'none' },
-    policy: policyFromAssessmentPolicy(assessment.assessment_policy),
-    items: assessment.items,
+    score: {
+      percent: attemptProjection?.score?.percent ?? null,
+      source: attemptProjection?.score?.source ?? 'none',
+    },
+    policy: policyFromAssessmentPolicy(effectivePolicy ?? assessment.assessment_policy),
+    items: (assessment.items ?? []) as AssessmentItem[],
     canEdit: attemptProjection?.can_edit ?? false,
     canSaveDraft: attemptProjection?.can_save_draft ?? false,
     canSubmit: attemptProjection?.can_submit ?? false,
     isReturnedForRevision: attemptProjection?.is_returned_for_revision ?? false,
     isResultVisible: attemptProjection?.is_result_visible ?? false,
+    disabledActionReasons: attemptProjection?.disabled_action_reasons ?? [],
+    serverNow: attemptProjection?.server_now ?? null,
+    availableAt: attemptProjection?.available_at ?? null,
+    closesAt: attemptProjection?.closes_at ?? null,
+    timeRemainingSeconds: attemptProjection?.time_remaining_seconds ?? null,
+    contentVersion: attemptProjection?.content_version ?? assessment.content_version ?? 1,
+    policyVersion: attemptProjection?.policy_version ?? assessment.policy_version ?? 1,
   };
   return { vm: { surface: 'ATTEMPT', vm, kind }, isLoading: false, error: null };
 }

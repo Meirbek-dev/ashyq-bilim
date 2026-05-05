@@ -17,11 +17,12 @@ export function getSubmissionDisplayName(submission: Pick<Submission, 'user' | '
 }
 
 export function buildSubmissionReviewViewModel(submission: Submission): SubmissionReviewViewModel {
+  const releaseState = 'release_state' in submission && submission.release_state ? submission.release_state : getReleaseState(submission.status);
   return {
     surface: 'SUBMISSION_REVIEW',
     submission,
     displayName: getSubmissionDisplayName(submission),
-    releaseState: getReleaseState(submission.status),
+    releaseState,
     scoreLabel: formatScoreFraction(submission.final_score, 100),
     isLate: submission.is_late,
     needsTeacherAction: needsTeacherAction(submission.status),

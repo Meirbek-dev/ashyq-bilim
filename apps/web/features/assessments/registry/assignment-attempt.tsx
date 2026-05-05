@@ -27,7 +27,7 @@ export default function AssignmentAttemptContent({ vm }: KindAttemptProps) {
     () => ['assessments', 'submissions', 'me', assessmentUuid ?? 'missing'] as const,
     [assessmentUuid],
   );
-  const submissionState = useAssessmentSubmission(assessmentUuid);
+  const submissionState = useAssessmentSubmission(assessmentUuid, vm?.activityUuid ?? null);
   const [isStarting, setIsStarting] = useState(false);
   const [showRecoveryDialog, setShowRecoveryDialog] = useState(false);
   const [recoveredAnswers, setRecoveredAnswers] = useState<Record<string, ItemAnswer> | null>(null);

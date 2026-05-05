@@ -64,6 +64,7 @@ export interface AssessmentPolicyDTO {
   time_limit_seconds?: number | null;
   due_at?: string | null;
   late_policy_json?: Record<string, unknown> | null;
+  late_policy?: Record<string, unknown> | null;
   anti_cheat_json?: Record<string, unknown> | null;
 }
 
@@ -80,7 +81,7 @@ export function isAntiCheatEnabled(policy: AntiCheatPolicy): boolean {
 export function policyFromAssessmentPolicy(policy: AssessmentPolicyDTO | null | undefined): PolicyView {
   if (!policy) return DEFAULT_POLICY_VIEW;
   const antiCheat = policy.anti_cheat_json ?? {};
-  const latePolicy = policy.late_policy_json ?? {};
+  const latePolicy = policy.late_policy_json ?? policy.late_policy ?? {};
 
   return {
     dueAt: policy.due_at ?? null,

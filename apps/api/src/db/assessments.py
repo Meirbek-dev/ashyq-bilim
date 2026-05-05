@@ -14,8 +14,12 @@ from sqlalchemy import JSON, Column, DateTime, Float, ForeignKey, Index, Integer
 from sqlmodel import Field as SQLField
 
 from src.db.courses.activities import ActivityAssessmentPolicyRead
-from src.db.grading.progress import LatePolicy, LatePolicyNone
-from src.db.grading.submissions import AssessmentType, SubmissionRead
+from src.db.grading.progress import GradeReleaseMode, LatePolicy, LatePolicyNone
+from src.db.grading.submissions import (
+    AssessmentType,
+    SubmissionListResponse,
+    SubmissionRead,
+)
 from src.db.strict_base_model import PydanticStrictBaseModel, SQLModelStrictBaseModel
 
 
@@ -415,7 +419,20 @@ class AssessmentScoreProjection(PydanticStrictBaseModel):
     source: Literal["teacher", "auto", "none"] = "none"
 
 
-class AssessmentAttemptProjection(PydanticStrictBaseModel):
+class AssessmentEffectivePolicy(PydanticStrictBaseModel):
+    max_attempts: int | None = None
+    attempts_used: int = 0
+    attempts_remaining: int | None = None
+    time_limit_seconds: int | None = None
+    due_at: datetime | None = None
+    allow_late: bool = True
+    late_policy: dict[str, object] = Field(default_factory=dict)
+    grade_release_mode: GradeReleaseMode = GradeReleaseMode.IMMEDIATE
+    anti_cheat_json: dict[str, object] = Field(default_factory=dict)
+    settings_json: dict[str, object] = Field(default_factory=dict)
+
+
+class AttemptStateRead(PydanticStrictBaseModel):
     model_config = ConfigDict(use_enum_values=True)
 
     assessment_uuid: str
@@ -433,6 +450,23 @@ class AssessmentAttemptProjection(PydanticStrictBaseModel):
     is_returned_for_revision: bool = False
     is_result_visible: bool = False
     score: AssessmentScoreProjection = Field(default_factory=AssessmentScoreProjection)
+    disabled_action_reasons: list[str] = Field(default_factory=list)
+    effective_policy: AssessmentEffectivePolicy = Field(
+        default_factory=AssessmentEffectivePolicy
+    )
+    server_now: datetime | None = None
+    available_at: datetime | None = None
+    closes_at: datetime | None = None
+    due_at: datetime | None = None
+    time_remaining_seconds: int | None = None
+    content_version: int = 1
+    policy_version: int = 1
+
+
+class AssessmentAttemptProjection(AttemptStateRead):
+    """Backward-compatible OpenAPI name for the attempt state contract."""
+
+    pass
 
 
 class AssessmentReviewProjection(PydanticStrictBaseModel):
@@ -464,7 +498,7 @@ class AssessmentReviewProjection(PydanticStrictBaseModel):
     )
 
 
-class AssessmentRead(PydanticStrictBaseModel):
+class AssessmentDetailRead(PydanticStrictBaseModel):
     model_config = ConfigDict(use_enum_values=True)
 
     id: int
@@ -488,8 +522,43 @@ class AssessmentRead(PydanticStrictBaseModel):
     items: list[AssessmentReadItem] = Field(default_factory=list)
     attempt_projection: AssessmentAttemptProjection | None = None
     review_projection: AssessmentReviewProjection | None = None
+    content_version: int = 1
+    policy_version: int = 1
     created_at: datetime
     updated_at: datetime
+
+
+class AssessmentRead(AssessmentDetailRead):
+    """Backward-compatible OpenAPI name for the assessment detail contract."""
+
+    pass
+
+
+class StudentSubmissionRead(SubmissionRead):
+    release_state: Literal[
+        "HIDDEN",
+        "AWAITING_RELEASE",
+        "VISIBLE",
+        "RETURNED_FOR_REVISION",
+    ] = "HIDDEN"
+    is_result_visible: bool = False
+
+
+class TeacherSubmissionRead(SubmissionRead):
+    release_state: Literal[
+        "HIDDEN",
+        "AWAITING_RELEASE",
+        "VISIBLE",
+        "RETURNED_FOR_REVISION",
+    ] = "HIDDEN"
+    is_result_visible: bool = False
+    content_version: int = 1
+    policy_version: int = 1
+
+
+class ReviewQueueRead(SubmissionListResponse):
+    items: list[TeacherSubmissionRead]
+    contract_version: int = 1
 
 
 class AssessmentCreateResponse(PydanticStrictBaseModel):
@@ -571,4 +640,4 @@ class AssessmentDraftPatch(PydanticStrictBaseModel):
 
 class AssessmentDraftRead(PydanticStrictBaseModel):
     assessment_uuid: str
-    submission: SubmissionRead | None = None
+    submission: StudentSubmissionRead | None = None

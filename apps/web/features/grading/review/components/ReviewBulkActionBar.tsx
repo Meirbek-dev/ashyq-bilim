@@ -61,7 +61,10 @@ export default function ReviewBulkActionBar({
     let visible = 0;
     let hidden = 0;
     for (const submission of submissions) {
-      const releaseState = getReleaseState(submission.status);
+      const releaseState =
+        'release_state' in submission && submission.release_state
+          ? submission.release_state
+          : getReleaseState(submission.status);
       if (releaseState === 'VISIBLE' || releaseState === 'RETURNED_FOR_REVISION') {
         visible += 1;
       } else {

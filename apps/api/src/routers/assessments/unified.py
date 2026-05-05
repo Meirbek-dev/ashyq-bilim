@@ -22,11 +22,12 @@ from src.db.assessments import (
     AssessmentReadiness,
     AssessmentReadItem,
     AssessmentUpdate,
+    ReviewQueueRead,
+    StudentSubmissionRead,
+    TeacherSubmissionRead,
 )
 from src.db.grading.schemas import BulkPublishGradesResponse
 from src.db.grading.submissions import (
-    SubmissionListResponse,
-    SubmissionRead,
     SubmissionStats,
     TeacherGradeInput,
 )
@@ -173,12 +174,12 @@ async def api_delete_item(
     )
 
 
-@router.post("/{assessment_uuid}/start", response_model=SubmissionRead)
+@router.post("/{assessment_uuid}/start", response_model=StudentSubmissionRead)
 async def api_start_assessment(
     assessment_uuid: str,
     current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
-) -> SubmissionRead:
+) -> StudentSubmissionRead:
     return await start_assessment(assessment_uuid, current_user, db_session)
 
 
@@ -191,14 +192,14 @@ async def api_get_draft(
     return await get_my_assessment_draft(assessment_uuid, current_user, db_session)
 
 
-@router.patch("/{assessment_uuid}/draft", response_model=SubmissionRead)
+@router.patch("/{assessment_uuid}/draft", response_model=StudentSubmissionRead)
 async def api_save_draft(
     assessment_uuid: str,
     payload: AssessmentDraftPatch,
     current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
     if_match: Annotated[str | None, Header(alias="If-Match")] = None,
-) -> SubmissionRead:
+) -> StudentSubmissionRead:
     return await save_assessment_draft(
         assessment_uuid,
         payload,
@@ -208,7 +209,7 @@ async def api_save_draft(
     )
 
 
-@router.post("/{assessment_uuid}/submit", response_model=SubmissionRead)
+@router.post("/{assessment_uuid}/submit", response_model=StudentSubmissionRead)
 async def api_submit_assessment(
     assessment_uuid: str,
     payload: AssessmentDraftPatch | None = None,
@@ -216,7 +217,7 @@ async def api_submit_assessment(
     db_session: Annotated[Session, Depends(get_db_session)] = None,
     if_match: Annotated[str | None, Header(alias="If-Match")] = None,
     violation_count: Annotated[int, Query(ge=0)] = 0,
-) -> SubmissionRead:
+) -> StudentSubmissionRead:
     return await submit_assessment(
         assessment_uuid,
         payload,
@@ -227,18 +228,18 @@ async def api_submit_assessment(
     )
 
 
-@router.get("/{assessment_uuid}/me", response_model=list[SubmissionRead])
+@router.get("/{assessment_uuid}/me", response_model=list[StudentSubmissionRead])
 async def api_get_my_submissions(
     assessment_uuid: str,
     current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
-) -> list[SubmissionRead]:
+) -> list[StudentSubmissionRead]:
     return await get_my_assessment_submissions(
         assessment_uuid, current_user, db_session
     )
 
 
-@router.get("/{assessment_uuid}/submissions", response_model=SubmissionListResponse)
+@router.get("/{assessment_uuid}/submissions", response_model=ReviewQueueRead)
 async def api_get_submissions(
     assessment_uuid: str,
     current_user: Annotated[PublicUser, Depends(get_public_user)],
@@ -250,7 +251,7 @@ async def api_get_submissions(
     sort_dir: Annotated[str, Query()] = "desc",
     page: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1, le=100)] = 25,
-) -> SubmissionListResponse:
+) -> ReviewQueueRead:
     return await get_assessment_submissions(
         assessment_uuid,
         current_user,
@@ -279,14 +280,14 @@ async def api_get_submission_stats(
 
 
 @router.get(
-    "/{assessment_uuid}/submissions/{submission_uuid}", response_model=SubmissionRead
+    "/{assessment_uuid}/submissions/{submission_uuid}", response_model=TeacherSubmissionRead
 )
 async def api_get_submission(
     assessment_uuid: str,
     submission_uuid: str,
     current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
-) -> SubmissionRead:
+) -> TeacherSubmissionRead:
     return await get_assessment_submission(
         assessment_uuid,
         submission_uuid,
@@ -296,7 +297,7 @@ async def api_get_submission(
 
 
 @router.patch(
-    "/{assessment_uuid}/submissions/{submission_uuid}", response_model=SubmissionRead
+    "/{assessment_uuid}/submissions/{submission_uuid}", response_model=TeacherSubmissionRead
 )
 async def api_save_grade(
     assessment_uuid: str,
@@ -305,7 +306,7 @@ async def api_save_grade(
     current_user: Annotated[PublicUser, Depends(get_public_user)],
     db_session: Annotated[Session, Depends(get_db_session)],
     if_match: Annotated[str | None, Header(alias="If-Match")] = None,
-) -> SubmissionRead:
+) -> TeacherSubmissionRead:
     return await save_assessment_grade(
         assessment_uuid,
         submission_uuid,

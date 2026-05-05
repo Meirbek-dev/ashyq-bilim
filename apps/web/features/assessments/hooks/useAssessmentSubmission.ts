@@ -5,24 +5,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { apiFetch } from '@/lib/api-client';
+import type { components } from '@/lib/api/generated/schema';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 import { reportClientError } from '@/services/telemetry/client';
 import type { ItemAnswer } from '../domain/items';
 
-export interface AssessmentSubmissionRead {
-  submission_uuid: string;
-  created_at: string;
-  answers_json: { answers?: Record<string, ItemAnswer> } | Record<string, unknown>;
-  status: 'DRAFT' | 'PENDING' | 'GRADED' | 'PUBLISHED' | 'RETURNED';
-  version: number;
-  updated_at: string;
-  submitted_at?: string | null;
-  final_score?: number | null;
-  auto_score?: number | null;
-  grading_json?: {
-    feedback?: string;
-  } | null;
-}
+export type AssessmentSubmissionRead = components['schemas']['StudentSubmissionRead'];
 
 interface DraftRead {
   assessment_uuid: string;
@@ -62,7 +50,10 @@ async function readJsonOrThrow(response: Response) {
   return payload;
 }
 
-export function useAssessmentSubmission(assessmentUuid: string | null | undefined) {
+export function useAssessmentSubmission(
+  assessmentUuid: string | null | undefined,
+  activityUuid?: string | null,
+) {
   const queryClient = useQueryClient();
   const [localAnswers, setLocalAnswers] = useState<Record<string, ItemAnswer>>({});
   const [saveState, setSaveState] = useState<AssessmentSaveState>('idle');
@@ -73,6 +64,7 @@ export function useAssessmentSubmission(assessmentUuid: string | null | undefine
     () => ['assessments', 'submissions', 'me', assessmentUuid || 'missing'] as const,
     [assessmentUuid],
   );
+  const normalizedActivityUuid = activityUuid?.replace(/^activity_/, '') ?? null;
 
   const draftQueryOptions = useMemo(
     () =>
@@ -84,6 +76,27 @@ export function useAssessmentSubmission(assessmentUuid: string | null | undefine
         },
       }),
     [assessmentUuid],
+  );
+
+  const invalidateAssessmentState = useCallback(
+    async () => {
+      if (!assessmentUuid) return;
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: draftQueryOptions.queryKey }),
+        queryClient.invalidateQueries({ queryKey: submissionsQueryKey }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.assessments.detail(assessmentUuid) }),
+        normalizedActivityUuid
+          ? queryClient.invalidateQueries({ queryKey: queryKeys.assessments.activity(normalizedActivityUuid) })
+          : Promise.resolve(),
+      ]);
+    },
+    [
+      assessmentUuid,
+      draftQueryOptions.queryKey,
+      normalizedActivityUuid,
+      queryClient,
+      submissionsQueryKey,
+    ],
   );
 
   const draftQuery = useQuery({
@@ -169,10 +182,7 @@ export function useAssessmentSubmission(assessmentUuid: string | null | undefine
     onSuccess: async () => {
       setConflictState(null);
       setSaveState('saved');
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: draftQueryOptions.queryKey }),
-        queryClient.invalidateQueries({ queryKey: submissionsQueryKey }),
-      ]);
+      await invalidateAssessmentState();
     },
     onError: (error: Error & { status?: number; payload?: any }) => {
       if (error.status === 409) {
@@ -226,11 +236,7 @@ export function useAssessmentSubmission(assessmentUuid: string | null | undefine
       setConflictState(null);
       setSaveState('saved');
       if (assessmentUuid) {
-        await Promise.all([
-          queryClient.invalidateQueries({ queryKey: draftQueryOptions.queryKey }),
-          queryClient.invalidateQueries({ queryKey: submissionsQueryKey }),
-          queryClient.invalidateQueries({ queryKey: queryKeys.assessments.detail(assessmentUuid) }),
-        ]);
+        await invalidateAssessmentState();
       }
     },
     onError: (error: Error & { status?: number; payload?: any }) => {

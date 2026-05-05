@@ -43,7 +43,9 @@ export function useGradingPanel(
     error: query.error ?? null,
     mutate: async () => {
       if (!submissionUuid) return undefined;
-      await queryClient.invalidateQueries({ queryKey: queryKeys.grading.detail(submissionUuid) });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.grading.detail(submissionUuid, assessmentUuid ?? undefined),
+      });
       return queryClient.fetchQuery(
         gradingDetailQueryOptions(submissionUuid, assessmentUuid ?? undefined),
       );

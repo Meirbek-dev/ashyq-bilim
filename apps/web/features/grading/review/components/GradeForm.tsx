@@ -121,7 +121,8 @@ export default function GradeForm({
   const editable = canTeacherEditGrade(submission.status);
   const canPublishNow = canPublishGrade(submission.status);
   const canReturnNow = canReturnSubmission(submission.status);
-  const releaseState = getReleaseState(submission.status);
+  const releaseState =
+    'release_state' in submission && submission.release_state ? submission.release_state : getReleaseState(submission.status);
 
   return (
     <aside className="space-y-5 p-4 xl:sticky xl:top-0 xl:h-[calc(100vh-96px)] xl:overflow-y-auto">

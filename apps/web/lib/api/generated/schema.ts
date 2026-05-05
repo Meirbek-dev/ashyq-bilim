@@ -4003,12 +4003,12 @@ export interface components {
          * ActivitySubTypeEnum
          * @enum {string}
          */
-        ActivitySubTypeEnum: "SUBTYPE_DYNAMIC_PAGE" | "SUBTYPE_VIDEO_YOUTUBE" | "SUBTYPE_VIDEO_HOSTED" | "SUBTYPE_DOCUMENT_PDF" | "SUBTYPE_DOCUMENT_DOC" | "SUBTYPE_ASSIGNMENT_ANY" | "SUBTYPE_EXAM_STANDARD" | "SUBTYPE_CODE_GENERAL" | "SUBTYPE_CODE_COMPETITIVE" | "SUBTYPE_CUSTOM";
+        ActivitySubTypeEnum: "SUBTYPE_DYNAMIC_PAGE" | "SUBTYPE_VIDEO_YOUTUBE" | "SUBTYPE_VIDEO_HOSTED" | "SUBTYPE_DOCUMENT_PDF" | "SUBTYPE_DOCUMENT_DOC" | "SUBTYPE_ASSIGNMENT_ANY" | "SUBTYPE_EXAM_STANDARD" | "SUBTYPE_QUIZ_STANDARD" | "SUBTYPE_CODE_GENERAL" | "SUBTYPE_CODE_COMPETITIVE" | "SUBTYPE_CUSTOM";
         /**
          * ActivityTypeEnum
          * @enum {string}
          */
-        ActivityTypeEnum: "TYPE_VIDEO" | "TYPE_DOCUMENT" | "TYPE_DYNAMIC" | "TYPE_ASSIGNMENT" | "TYPE_EXAM" | "TYPE_CODE_CHALLENGE" | "TYPE_CUSTOM";
+        ActivityTypeEnum: "TYPE_VIDEO" | "TYPE_DOCUMENT" | "TYPE_DYNAMIC" | "TYPE_ASSIGNMENT" | "TYPE_EXAM" | "TYPE_QUIZ" | "TYPE_CODE_CHALLENGE" | "TYPE_CUSTOM";
         /** ActivityUpdate */
         ActivityUpdate: {
             activity_sub_type?: components["schemas"]["ActivitySubTypeEnum"] | null;
@@ -4229,10 +4229,15 @@ export interface components {
             /** Item Uuid */
             item_uuid: string;
         };
-        /** AssessmentAttemptProjection */
+        /**
+         * AssessmentAttemptProjection
+         * @description Backward-compatible OpenAPI name for the attempt state contract.
+         */
         AssessmentAttemptProjection: {
             /** Assessment Uuid */
             assessment_uuid: string;
+            /** Available At */
+            available_at?: string | null;
             /**
              * Can Edit
              * @default false
@@ -4248,6 +4253,18 @@ export interface components {
              * @default false
              */
             can_submit: boolean;
+            /** Closes At */
+            closes_at?: string | null;
+            /**
+             * Content Version
+             * @default 1
+             */
+            content_version: number;
+            /** Disabled Action Reasons */
+            disabled_action_reasons?: string[];
+            /** Due At */
+            due_at?: string | null;
+            effective_policy?: components["schemas"]["AssessmentEffectivePolicy"];
             /**
              * Is Result Visible
              * @default false
@@ -4259,16 +4276,25 @@ export interface components {
              */
             is_returned_for_revision: boolean;
             /**
+             * Policy Version
+             * @default 1
+             */
+            policy_version: number;
+            /**
              * Release State
              * @default HIDDEN
              * @enum {string}
              */
             release_state: "HIDDEN" | "AWAITING_RELEASE" | "VISIBLE" | "RETURNED_FOR_REVISION";
             score?: components["schemas"]["AssessmentScoreProjection"];
+            /** Server Now */
+            server_now?: string | null;
             /** Submission Status */
             submission_status?: string | null;
             /** Submission Uuid */
             submission_uuid?: string | null;
+            /** Time Remaining Seconds */
+            time_remaining_seconds?: number | null;
         };
         /** AssessmentAuditEventRow */
         AssessmentAuditEventRow: {
@@ -4428,7 +4454,42 @@ export interface components {
         AssessmentDraftRead: {
             /** Assessment Uuid */
             assessment_uuid: string;
-            submission?: components["schemas"]["SubmissionRead"] | null;
+            submission?: components["schemas"]["StudentSubmissionRead"] | null;
+        };
+        /** AssessmentEffectivePolicy */
+        AssessmentEffectivePolicy: {
+            /**
+             * Allow Late
+             * @default true
+             */
+            allow_late: boolean;
+            /** Anti Cheat Json */
+            anti_cheat_json?: {
+                [key: string]: unknown;
+            };
+            /** Attempts Remaining */
+            attempts_remaining?: number | null;
+            /**
+             * Attempts Used
+             * @default 0
+             */
+            attempts_used: number;
+            /** Due At */
+            due_at?: string | null;
+            /** @default IMMEDIATE */
+            grade_release_mode: components["schemas"]["GradeReleaseMode"];
+            /** Late Policy */
+            late_policy?: {
+                [key: string]: unknown;
+            };
+            /** Max Attempts */
+            max_attempts?: number | null;
+            /** Settings Json */
+            settings_json?: {
+                [key: string]: unknown;
+            };
+            /** Time Limit Seconds */
+            time_limit_seconds?: number | null;
         };
         /**
          * AssessmentGradingType
@@ -4615,7 +4676,10 @@ export interface components {
             /** Time Limit Seconds */
             time_limit_seconds?: number | null;
         };
-        /** AssessmentRead */
+        /**
+         * AssessmentRead
+         * @description Backward-compatible OpenAPI name for the assessment detail contract.
+         */
         AssessmentRead: {
             /** Activity Id */
             activity_id: number;
@@ -4629,6 +4693,11 @@ export interface components {
             attempt_projection?: components["schemas"]["AssessmentAttemptProjection"] | null;
             /** Chapter Id */
             chapter_id: number;
+            /**
+             * Content Version
+             * @default 1
+             */
+            content_version: number;
             /** Course Id */
             course_id?: number | null;
             /** Course Uuid */
@@ -4649,6 +4718,11 @@ export interface components {
             lifecycle: components["schemas"]["AssessmentLifecycle"];
             /** Policy Id */
             policy_id?: number | null;
+            /**
+             * Policy Version
+             * @default 1
+             */
+            policy_version: number;
             /** Published At */
             published_at?: string | null;
             review_projection?: components["schemas"]["AssessmentReviewProjection"] | null;
@@ -6453,6 +6527,17 @@ export interface components {
             /** Pct Of Previous */
             pct_of_previous?: number | null;
         };
+        /**
+         * GradeReleaseMode
+         * @description Controls when a published grade becomes visible to the student.
+         *
+         *     IMMEDIATE — grade is visible as soon as the teacher marks it PUBLISHED.
+         *     BATCH     — grade is hidden until a teacher explicitly runs
+         *                 POST /grading/activities/{uuid}/publish-grades, which stamps
+         *                 GradingEntry.published_at for all PUBLISHED submissions at once.
+         * @enum {string}
+         */
+        GradeReleaseMode: "IMMEDIATE" | "BATCH";
         /** GradebookActivity */
         GradebookActivity: {
             /** Activity Type */
@@ -7243,6 +7328,24 @@ export interface components {
          * @enum {string}
          */
         ResourceAuthorshipStatusEnum: "ACTIVE" | "PENDING" | "INACTIVE";
+        /** ReviewQueueRead */
+        ReviewQueueRead: {
+            /**
+             * Contract Version
+             * @default 1
+             */
+            contract_version: number;
+            /** Items */
+            items: components["schemas"]["TeacherSubmissionRead"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Pages */
+            pages: number;
+            /** Total */
+            total: number;
+        };
         /** RiskDistributionCounts */
         RiskDistributionCounts: {
             /**
@@ -7471,6 +7574,88 @@ export interface components {
             longest_count: number;
             /** Streak Type */
             streak_type: string;
+        };
+        /** StudentSubmissionRead */
+        StudentSubmissionRead: {
+            /** Activity Id */
+            activity_id: number;
+            /** Answers Json */
+            answers_json?: {
+                [key: string]: unknown;
+            };
+            assessment_type: components["schemas"]["AssessmentType"];
+            /**
+             * Attempt Number
+             * @default 1
+             */
+            attempt_number: number;
+            /** Auto Score */
+            auto_score?: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Final Score */
+            final_score?: number | null;
+            /** Graded At */
+            graded_at?: string | null;
+            grading_json?: components["schemas"]["GradingBreakdown"];
+            /**
+             * Grading Version
+             * @default 1
+             */
+            grading_version: number;
+            /** Id */
+            id: number;
+            /**
+             * Is Late
+             * @default false
+             */
+            is_late: boolean;
+            /**
+             * Is Result Visible
+             * @default false
+             */
+            is_result_visible: boolean;
+            /**
+             * Late Penalty Pct
+             * @default 0
+             */
+            late_penalty_pct: number;
+            /** Late Penalty Reason */
+            late_penalty_reason?: string | null;
+            /** Metadata Json */
+            metadata_json?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Release State
+             * @default HIDDEN
+             * @enum {string}
+             */
+            release_state: "HIDDEN" | "AWAITING_RELEASE" | "VISIBLE" | "RETURNED_FOR_REVISION";
+            /** Started At */
+            started_at?: string | null;
+            /** @default DRAFT */
+            status: components["schemas"]["SubmissionStatus"];
+            /** Submission Uuid */
+            submission_uuid: string;
+            /** Submitted At */
+            submitted_at?: string | null;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            user?: components["schemas"]["SubmissionUser"] | null;
+            /** User Id */
+            user_id: number;
+            /**
+             * Version
+             * @default 1
+             */
+            version: number;
         };
         /**
          * SubmissionListResponse
@@ -8022,6 +8207,98 @@ export interface components {
             grading_completed: components["schemas"]["TimeSeriesPoint"][];
             /** Submissions */
             submissions: components["schemas"]["TimeSeriesPoint"][];
+        };
+        /** TeacherSubmissionRead */
+        TeacherSubmissionRead: {
+            /** Activity Id */
+            activity_id: number;
+            /** Answers Json */
+            answers_json?: {
+                [key: string]: unknown;
+            };
+            assessment_type: components["schemas"]["AssessmentType"];
+            /**
+             * Attempt Number
+             * @default 1
+             */
+            attempt_number: number;
+            /** Auto Score */
+            auto_score?: number | null;
+            /**
+             * Content Version
+             * @default 1
+             */
+            content_version: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Final Score */
+            final_score?: number | null;
+            /** Graded At */
+            graded_at?: string | null;
+            grading_json?: components["schemas"]["GradingBreakdown"];
+            /**
+             * Grading Version
+             * @default 1
+             */
+            grading_version: number;
+            /** Id */
+            id: number;
+            /**
+             * Is Late
+             * @default false
+             */
+            is_late: boolean;
+            /**
+             * Is Result Visible
+             * @default false
+             */
+            is_result_visible: boolean;
+            /**
+             * Late Penalty Pct
+             * @default 0
+             */
+            late_penalty_pct: number;
+            /** Late Penalty Reason */
+            late_penalty_reason?: string | null;
+            /** Metadata Json */
+            metadata_json?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Policy Version
+             * @default 1
+             */
+            policy_version: number;
+            /**
+             * Release State
+             * @default HIDDEN
+             * @enum {string}
+             */
+            release_state: "HIDDEN" | "AWAITING_RELEASE" | "VISIBLE" | "RETURNED_FOR_REVISION";
+            /** Started At */
+            started_at?: string | null;
+            /** @default DRAFT */
+            status: components["schemas"]["SubmissionStatus"];
+            /** Submission Uuid */
+            submission_uuid: string;
+            /** Submitted At */
+            submitted_at?: string | null;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            user?: components["schemas"]["SubmissionUser"] | null;
+            /** User Id */
+            user_id: number;
+            /**
+             * Version
+             * @default 1
+             */
+            version: number;
         };
         /** TeacherWorkloadSummary */
         TeacherWorkloadSummary: {
@@ -9960,7 +10237,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SubmissionRead"];
+                    "application/json": components["schemas"]["StudentSubmissionRead"];
                 };
             };
             /** @description Validation Error */
@@ -10166,7 +10443,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SubmissionRead"][];
+                    "application/json": components["schemas"]["StudentSubmissionRead"][];
                 };
             };
             /** @description Validation Error */
@@ -10259,7 +10536,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SubmissionRead"];
+                    "application/json": components["schemas"]["StudentSubmissionRead"];
                 };
             };
             /** @description Validation Error */
@@ -10298,7 +10575,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SubmissionListResponse"];
+                    "application/json": components["schemas"]["ReviewQueueRead"];
                 };
             };
             /** @description Validation Error */
@@ -10361,7 +10638,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SubmissionRead"];
+                    "application/json": components["schemas"]["TeacherSubmissionRead"];
                 };
             };
             /** @description Validation Error */
@@ -10399,7 +10676,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SubmissionRead"];
+                    "application/json": components["schemas"]["TeacherSubmissionRead"];
                 };
             };
             /** @description Validation Error */
@@ -10438,7 +10715,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SubmissionRead"];
+                    "application/json": components["schemas"]["StudentSubmissionRead"];
                 };
             };
             /** @description Validation Error */

@@ -598,6 +598,7 @@
           "SUBTYPE_DOCUMENT_DOC",
           "SUBTYPE_ASSIGNMENT_ANY",
           "SUBTYPE_EXAM_STANDARD",
+          "SUBTYPE_QUIZ_STANDARD",
           "SUBTYPE_CODE_GENERAL",
           "SUBTYPE_CODE_COMPETITIVE",
           "SUBTYPE_CUSTOM"
@@ -612,6 +613,7 @@
           "TYPE_DYNAMIC",
           "TYPE_ASSIGNMENT",
           "TYPE_EXAM",
+          "TYPE_QUIZ",
           "TYPE_CODE_CHALLENGE",
           "TYPE_CUSTOM"
         ],
@@ -1313,10 +1315,23 @@
         "type": "object"
       },
       "AssessmentAttemptProjection": {
+        "description": "Backward-compatible OpenAPI name for the attempt state contract.",
         "properties": {
           "assessment_uuid": {
             "title": "Assessment Uuid",
             "type": "string"
+          },
+          "available_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Available At"
           },
           "can_edit": {
             "default": false,
@@ -1333,6 +1348,45 @@
             "title": "Can Submit",
             "type": "boolean"
           },
+          "closes_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closes At"
+          },
+          "content_version": {
+            "default": 1,
+            "title": "Content Version",
+            "type": "integer"
+          },
+          "disabled_action_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Disabled Action Reasons",
+            "type": "array"
+          },
+          "due_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due At"
+          },
+          "effective_policy": {
+            "$ref": "#/components/schemas/AssessmentEffectivePolicy"
+          },
           "is_result_visible": {
             "default": false,
             "title": "Is Result Visible",
@@ -1342,6 +1396,11 @@
             "default": false,
             "title": "Is Returned For Revision",
             "type": "boolean"
+          },
+          "policy_version": {
+            "default": 1,
+            "title": "Policy Version",
+            "type": "integer"
           },
           "release_state": {
             "default": "HIDDEN",
@@ -1356,6 +1415,18 @@
           },
           "score": {
             "$ref": "#/components/schemas/AssessmentScoreProjection"
+          },
+          "server_now": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Server Now"
           },
           "submission_status": {
             "anyOf": [
@@ -1378,6 +1449,17 @@
               }
             ],
             "title": "Submission Uuid"
+          },
+          "time_remaining_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Remaining Seconds"
           }
         },
         "required": [
@@ -1710,7 +1792,7 @@
           "submission": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/SubmissionRead"
+                "$ref": "#/components/schemas/StudentSubmissionRead"
               },
               {
                 "type": "null"
@@ -1722,6 +1804,86 @@
           "assessment_uuid"
         ],
         "title": "AssessmentDraftRead",
+        "type": "object"
+      },
+      "AssessmentEffectivePolicy": {
+        "properties": {
+          "allow_late": {
+            "default": true,
+            "title": "Allow Late",
+            "type": "boolean"
+          },
+          "anti_cheat_json": {
+            "additionalProperties": true,
+            "title": "Anti Cheat Json",
+            "type": "object"
+          },
+          "attempts_remaining": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempts Remaining"
+          },
+          "attempts_used": {
+            "default": 0,
+            "title": "Attempts Used",
+            "type": "integer"
+          },
+          "due_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due At"
+          },
+          "grade_release_mode": {
+            "$ref": "#/components/schemas/GradeReleaseMode",
+            "default": "IMMEDIATE"
+          },
+          "late_policy": {
+            "additionalProperties": true,
+            "title": "Late Policy",
+            "type": "object"
+          },
+          "max_attempts": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Attempts"
+          },
+          "settings_json": {
+            "additionalProperties": true,
+            "title": "Settings Json",
+            "type": "object"
+          },
+          "time_limit_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Limit Seconds"
+          }
+        },
+        "title": "AssessmentEffectivePolicy",
         "type": "object"
       },
       "AssessmentGradingType": {
@@ -2326,6 +2488,7 @@
         "type": "object"
       },
       "AssessmentRead": {
+        "description": "Backward-compatible OpenAPI name for the assessment detail contract.",
         "properties": {
           "activity_id": {
             "title": "Activity Id",
@@ -2373,6 +2536,11 @@
           },
           "chapter_id": {
             "title": "Chapter Id",
+            "type": "integer"
+          },
+          "content_version": {
+            "default": 1,
+            "title": "Content Version",
             "type": "integer"
           },
           "course_id": {
@@ -2436,6 +2604,11 @@
               }
             ],
             "title": "Policy Id"
+          },
+          "policy_version": {
+            "default": 1,
+            "title": "Policy Version",
+            "type": "integer"
           },
           "published_at": {
             "anyOf": [
@@ -7099,6 +7272,15 @@
         "title": "FunnelStep",
         "type": "object"
       },
+      "GradeReleaseMode": {
+        "description": "Controls when a published grade becomes visible to the student.\n\nIMMEDIATE — grade is visible as soon as the teacher marks it PUBLISHED.\nBATCH     — grade is hidden until a teacher explicitly runs\n            POST /grading/activities/{uuid}/publish-grades, which stamps\n            GradingEntry.published_at for all PUBLISHED submissions at once.",
+        "enum": [
+          "IMMEDIATE",
+          "BATCH"
+        ],
+        "title": "GradeReleaseMode",
+        "type": "string"
+      },
       "GradebookActivity": {
         "properties": {
           "activity_type": {
@@ -9217,6 +9399,47 @@
         "title": "ResourceAuthorshipStatusEnum",
         "type": "string"
       },
+      "ReviewQueueRead": {
+        "properties": {
+          "contract_version": {
+            "default": 1,
+            "title": "Contract Version",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TeacherSubmissionRead"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "pages": {
+            "title": "Pages",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size",
+          "pages"
+        ],
+        "title": "ReviewQueueRead",
+        "type": "object"
+      },
       "RiskDistributionCounts": {
         "properties": {
           "high": {
@@ -9726,6 +9949,187 @@
           "is_new_record"
         ],
         "title": "StreakUpdateRead",
+        "type": "object"
+      },
+      "StudentSubmissionRead": {
+        "properties": {
+          "activity_id": {
+            "title": "Activity Id",
+            "type": "integer"
+          },
+          "answers_json": {
+            "additionalProperties": true,
+            "title": "Answers Json",
+            "type": "object"
+          },
+          "assessment_type": {
+            "$ref": "#/components/schemas/AssessmentType"
+          },
+          "attempt_number": {
+            "default": 1,
+            "title": "Attempt Number",
+            "type": "integer"
+          },
+          "auto_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auto Score"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "final_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Final Score"
+          },
+          "graded_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Graded At"
+          },
+          "grading_json": {
+            "$ref": "#/components/schemas/GradingBreakdown"
+          },
+          "grading_version": {
+            "default": 1,
+            "title": "Grading Version",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "is_late": {
+            "default": false,
+            "title": "Is Late",
+            "type": "boolean"
+          },
+          "is_result_visible": {
+            "default": false,
+            "title": "Is Result Visible",
+            "type": "boolean"
+          },
+          "late_penalty_pct": {
+            "default": 0.0,
+            "title": "Late Penalty Pct",
+            "type": "number"
+          },
+          "late_penalty_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Late Penalty Reason"
+          },
+          "metadata_json": {
+            "additionalProperties": true,
+            "title": "Metadata Json",
+            "type": "object"
+          },
+          "release_state": {
+            "default": "HIDDEN",
+            "enum": [
+              "HIDDEN",
+              "AWAITING_RELEASE",
+              "VISIBLE",
+              "RETURNED_FOR_REVISION"
+            ],
+            "title": "Release State",
+            "type": "string"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SubmissionStatus",
+            "default": "DRAFT"
+          },
+          "submission_uuid": {
+            "title": "Submission Uuid",
+            "type": "string"
+          },
+          "submitted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submitted At"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "user": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SubmissionUser"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          },
+          "version": {
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "assessment_type",
+          "activity_id",
+          "user_id",
+          "id",
+          "submission_uuid",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "StudentSubmissionRead",
         "type": "object"
       },
       "SubmissionListResponse": {
@@ -11229,6 +11633,197 @@
           "grading_completed"
         ],
         "title": "TeacherOverviewTrends",
+        "type": "object"
+      },
+      "TeacherSubmissionRead": {
+        "properties": {
+          "activity_id": {
+            "title": "Activity Id",
+            "type": "integer"
+          },
+          "answers_json": {
+            "additionalProperties": true,
+            "title": "Answers Json",
+            "type": "object"
+          },
+          "assessment_type": {
+            "$ref": "#/components/schemas/AssessmentType"
+          },
+          "attempt_number": {
+            "default": 1,
+            "title": "Attempt Number",
+            "type": "integer"
+          },
+          "auto_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auto Score"
+          },
+          "content_version": {
+            "default": 1,
+            "title": "Content Version",
+            "type": "integer"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "final_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Final Score"
+          },
+          "graded_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Graded At"
+          },
+          "grading_json": {
+            "$ref": "#/components/schemas/GradingBreakdown"
+          },
+          "grading_version": {
+            "default": 1,
+            "title": "Grading Version",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "is_late": {
+            "default": false,
+            "title": "Is Late",
+            "type": "boolean"
+          },
+          "is_result_visible": {
+            "default": false,
+            "title": "Is Result Visible",
+            "type": "boolean"
+          },
+          "late_penalty_pct": {
+            "default": 0.0,
+            "title": "Late Penalty Pct",
+            "type": "number"
+          },
+          "late_penalty_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Late Penalty Reason"
+          },
+          "metadata_json": {
+            "additionalProperties": true,
+            "title": "Metadata Json",
+            "type": "object"
+          },
+          "policy_version": {
+            "default": 1,
+            "title": "Policy Version",
+            "type": "integer"
+          },
+          "release_state": {
+            "default": "HIDDEN",
+            "enum": [
+              "HIDDEN",
+              "AWAITING_RELEASE",
+              "VISIBLE",
+              "RETURNED_FOR_REVISION"
+            ],
+            "title": "Release State",
+            "type": "string"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SubmissionStatus",
+            "default": "DRAFT"
+          },
+          "submission_uuid": {
+            "title": "Submission Uuid",
+            "type": "string"
+          },
+          "submitted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submitted At"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "user": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SubmissionUser"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          },
+          "version": {
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "assessment_type",
+          "activity_id",
+          "user_id",
+          "id",
+          "submission_uuid",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "TeacherSubmissionRead",
         "type": "object"
       },
       "TeacherWorkloadSummary": {
@@ -17473,7 +18068,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SubmissionRead"
+                  "$ref": "#/components/schemas/StudentSubmissionRead"
                 }
               }
             },
@@ -17820,7 +18415,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/SubmissionRead"
+                    "$ref": "#/components/schemas/StudentSubmissionRead"
                   },
                   "title": "Response Api Get My Submissions Api V1 Assessments  Assessment Uuid  Me Get",
                   "type": "array"
@@ -17964,7 +18559,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SubmissionRead"
+                  "$ref": "#/components/schemas/StudentSubmissionRead"
                 }
               }
             },
@@ -18096,7 +18691,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SubmissionListResponse"
+                  "$ref": "#/components/schemas/ReviewQueueRead"
                 }
               }
             },
@@ -18199,7 +18794,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SubmissionRead"
+                  "$ref": "#/components/schemas/TeacherSubmissionRead"
                 }
               }
             },
@@ -18279,7 +18874,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SubmissionRead"
+                  "$ref": "#/components/schemas/TeacherSubmissionRead"
                 }
               }
             },
@@ -18370,7 +18965,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SubmissionRead"
+                  "$ref": "#/components/schemas/StudentSubmissionRead"
                 }
               }
             },

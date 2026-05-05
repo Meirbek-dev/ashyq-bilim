@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useMemo, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { CodeItemAttempt, CodeItemLoading, useCodeSubmitControl } from '@/features/assessments/items/code';
 import { useCodeChallengeSettings } from './hooks';
 import { useAttemptShellControls } from '@/features/assessments/shell';
 import { apiFetch } from '@/lib/api-client';
+import { queryKeys } from '@/lib/react-query/queryKeys';
 import type { KindAttemptProps } from '../index';
 
 interface CodeChallengeTestCase {
@@ -33,6 +35,7 @@ interface CodeChallengeActivitySettings {
 
 export default function CodeChallengeAttemptContent({ activityUuid, vm }: KindAttemptProps) {
   const normalizedActivityUuid = activityUuid.replace(/^activity_/, '');
+  const queryClient = useQueryClient();
   const { data: settings, isLoading } = useCodeChallengeSettings<CodeChallengeActivitySettings>(normalizedActivityUuid);
   const { submitControl, handleSubmitControlChange } = useCodeSubmitControl();
   const startedRef = useRef<string | null>(null);
@@ -61,10 +64,22 @@ export default function CodeChallengeAttemptContent({ activityUuid, vm }: KindAt
     startedRef.current = normalizedActivityUuid;
     if (!vm?.assessmentUuid) return;
 
-    void apiFetch(`assessments/${vm.assessmentUuid}/start`, { method: 'POST' }).catch(() => {
-      startedRef.current = null;
-    });
-  }, [isConfigured, normalizedActivityUuid, vm?.assessmentUuid]);
+    void apiFetch(`assessments/${vm.assessmentUuid}/start`, { method: 'POST' })
+      .then(async (response) => {
+        if (!response.ok) {
+          startedRef.current = null;
+          return;
+        }
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: queryKeys.assessments.detail(vm.assessmentUuid) }),
+          queryClient.invalidateQueries({ queryKey: queryKeys.assessments.activity(normalizedActivityUuid) }),
+          queryClient.invalidateQueries({ queryKey: queryKeys.assessments.draft(vm.assessmentUuid) }),
+        ]);
+      })
+      .catch(() => {
+        startedRef.current = null;
+      });
+  }, [isConfigured, normalizedActivityUuid, queryClient, vm?.assessmentUuid]);
 
   if (isLoading) {
     return <CodeItemLoading />;

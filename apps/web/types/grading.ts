@@ -23,7 +23,7 @@ export type AssessmentType = components['schemas']['AssessmentType'];
 
 export type GradedItem = components['schemas']['GradedItem'];
 export type GradingBreakdown = components['schemas']['GradingBreakdown'];
-export type Submission = components['schemas']['SubmissionRead'];
+export type Submission = components['schemas']['SubmissionRead'] | components['schemas']['TeacherSubmissionRead'];
 export type SubmissionUser = components['schemas']['SubmissionUser'];
 
 /** Typed paginated response for the teacher submissions list. */

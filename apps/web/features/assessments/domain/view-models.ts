@@ -94,6 +94,14 @@ export interface AttemptViewModel {
   isReturnedForRevision: boolean;
   /** Score and feedback are visible to the student. */
   isResultVisible: boolean;
+  /** Backend reason codes explaining why start/save/submit actions are disabled. */
+  disabledActionReasons: string[];
+  serverNow: string | null;
+  availableAt: string | null;
+  closesAt: string | null;
+  timeRemainingSeconds: number | null;
+  contentVersion: number;
+  policyVersion: number;
 }
 
 // ── Shared helpers ─────────────────────────────────────────────────────────────

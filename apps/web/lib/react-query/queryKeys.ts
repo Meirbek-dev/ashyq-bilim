@@ -5,6 +5,8 @@ export const queryKeys = {
   },
   assessments: {
     activity: (activityUuid: string) => ['assessments', 'activity', activityUuid] as const,
+    activityDetail: (activityUuid: string, assessmentUuid: string | null | undefined) =>
+      ['assessments', 'activity', activityUuid, assessmentUuid || 'missing'] as const,
     detail: (assessmentUuid: string) => ['assessments', 'detail', assessmentUuid] as const,
     draft: (assessmentUuid: string | null | undefined) =>
       ['assessments', 'draft', assessmentUuid || 'missing'] as const,
@@ -49,12 +51,15 @@ export const queryKeys = {
     questions: (examUuid: string) => ['exams', 'questions', examUuid] as const,
   },
   grading: {
-    detail: (submissionUuid: string) => ['grading', 'submission', submissionUuid] as const,
+    detail: (submissionUuid: string, assessmentUuid?: string | null) =>
+      ['grading', 'submission', assessmentUuid || 'legacy', submissionUuid] as const,
     gradebook: (courseUuid: string) => ['grading', 'gradebook', courseUuid] as const,
     mine: (activityId: number) => ['grading', 'my-submissions', activityId] as const,
-    stats: (activityId: number) => ['grading', 'submission-stats', activityId] as const,
+    stats: (activityId: number, assessmentUuid?: string | null) =>
+      ['grading', 'submission-stats', assessmentUuid || 'legacy', activityId] as const,
     submissions: (params: {
       activityId: number;
+      assessmentUuid?: string | null;
       page: number;
       pageSize: number;
       search: string;

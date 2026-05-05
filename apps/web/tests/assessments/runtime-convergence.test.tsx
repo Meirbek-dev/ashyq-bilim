@@ -119,7 +119,7 @@ function installLocalStorageMock() {
 }
 
 function createAttemptVm(overrides: Partial<AttemptViewModel> = {}): AttemptViewModel {
-  return {
+  const vm = {
     surface: 'ATTEMPT',
     kind: 'TYPE_ASSIGNMENT',
     assessmentUuid: 'assessment_runtime',
@@ -162,8 +162,15 @@ function createAttemptVm(overrides: Partial<AttemptViewModel> = {}): AttemptView
     canSubmit: true,
     isReturnedForRevision: true,
     isResultVisible: true,
-    ...overrides,
-  };
+    disabledActionReasons: [],
+    serverNow: null,
+    availableAt: null,
+    closesAt: null,
+    timeRemainingSeconds: null,
+    contentVersion: 1,
+    policyVersion: 1,
+  } satisfies AttemptViewModel;
+  return { ...vm, ...overrides } as AttemptViewModel;
 }
 
 describe('assessment runtime convergence', () => {
