@@ -10,6 +10,7 @@ import type { Submission } from '@/features/grading/domain';
 const mocks = vi.hoisted(() => ({
   batchGradeSubmissionsMock: vi.fn(),
   extendDeadlineMock: vi.fn(),
+  publishAssessmentGradesMock: vi.fn(),
   publishActivityGradesMock: vi.fn(),
   exportGradesCsvMock: vi.fn(),
   saveGradeMock: vi.fn(),
@@ -56,6 +57,7 @@ vi.mock('next-intl', () => ({
 vi.mock('@/services/grading/grading', () => ({
   batchGradeSubmissions: (...args: unknown[]) => mocks.batchGradeSubmissionsMock(...args),
   extendDeadline: (...args: unknown[]) => mocks.extendDeadlineMock(...args),
+  publishAssessmentGrades: (...args: unknown[]) => mocks.publishAssessmentGradesMock(...args),
   publishActivityGrades: (...args: unknown[]) => mocks.publishActivityGradesMock(...args),
   exportGradesCSV: (...args: unknown[]) => mocks.exportGradesCsvMock(...args),
   saveGrade: (...args: unknown[]) => mocks.saveGradeMock(...args),
@@ -110,6 +112,7 @@ describe('teacher review controls', () => {
     mocks.gradingPanelState.isLoading = false;
     mocks.batchGradeSubmissionsMock.mockResolvedValue({ succeeded: 1, failed: 0, errors: [] });
     mocks.extendDeadlineMock.mockResolvedValue({ action_uuid: 'bulk_1', status: 'QUEUED' });
+    mocks.publishAssessmentGradesMock.mockResolvedValue({ published_count: 2, already_published_count: 1 });
     mocks.publishActivityGradesMock.mockResolvedValue({ published_count: 2, already_published_count: 1 });
     mocks.exportGradesCsvMock.mockResolvedValue('header\nvalue');
     mocks.saveGradeMock.mockResolvedValue(createSubmission({ status: 'PUBLISHED' }));
@@ -121,6 +124,7 @@ describe('teacher review controls', () => {
     render(
       <ReviewBulkActionBar
         activityId={42}
+        assessmentUuid="assessment_review"
         disabled={false}
         onRefresh={onRefresh}
         submissions={[
@@ -145,12 +149,33 @@ describe('teacher review controls', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm publish' }));
 
     await waitFor(() => {
-      expect(mocks.batchGradeSubmissionsMock).toHaveBeenCalledTimes(1);
+      expect(mocks.saveGradeMock).toHaveBeenCalledTimes(2);
     });
-    expect(mocks.batchGradeSubmissionsMock).toHaveBeenCalledWith([
-      expect.objectContaining({ submission_uuid: 'submission_ready', status: 'PUBLISHED', final_score: 91 }),
-      expect.objectContaining({ submission_uuid: 'submission_visible', status: 'PUBLISHED', final_score: 77 }),
-    ]);
+    expect(mocks.batchGradeSubmissionsMock).not.toHaveBeenCalled();
+    expect(mocks.saveGradeMock).toHaveBeenNthCalledWith(
+      1,
+      'submission_ready',
+      {
+        final_score: 91,
+        feedback: 'Solid work.',
+        status: 'PUBLISHED',
+        item_feedback: [],
+      },
+      3,
+      'assessment_review',
+    );
+    expect(mocks.saveGradeMock).toHaveBeenNthCalledWith(
+      2,
+      'submission_visible',
+      {
+        final_score: 77,
+        feedback: 'Solid work.',
+        status: 'PUBLISHED',
+        item_feedback: [],
+      },
+      3,
+      'assessment_review',
+    );
     expect(mocks.toastSuccessMock).toHaveBeenCalledWith('Selected grades published');
     expect(onRefresh).toHaveBeenCalledTimes(1);
     expect(await screen.findByText('Bulk publish finished')).toBeInTheDocument();
@@ -217,6 +242,7 @@ describe('teacher review controls', () => {
     render(
       <ReviewBulkActionBar
         activityId={55}
+        assessmentUuid="assessment_review"
         disabled={false}
         onRefresh={onRefresh}
         submissions={[
@@ -236,8 +262,9 @@ describe('teacher review controls', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: 'Release grades' }));
 
     await waitFor(() => {
-      expect(mocks.publishActivityGradesMock).toHaveBeenCalledWith(55);
+      expect(mocks.publishAssessmentGradesMock).toHaveBeenCalledWith('assessment_review');
     });
+    expect(mocks.publishActivityGradesMock).not.toHaveBeenCalled();
     expect(mocks.toastSuccessMock).toHaveBeenCalledWith('Hidden grades released');
     expect(await screen.findByText('Grade release finished')).toBeInTheDocument();
   });
@@ -273,6 +300,7 @@ describe('teacher review controls', () => {
     render(
       <GradeForm
         submissionUuid="submission_review"
+        assessmentUuid="assessment_review"
         onSaved={onSaved}
         navigation={{ hasNext: true, hasPrevious: true, goNext: vi.fn(), goPrevious: vi.fn(), selectedIndex: 0 }}
       />,
@@ -295,6 +323,7 @@ describe('teacher review controls', () => {
           item_feedback: [],
         },
         8,
+        'assessment_review',
       );
     });
     expect(mocks.toastSuccessMock).toHaveBeenCalledWith('Grade published');

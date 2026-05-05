@@ -139,6 +139,7 @@ export default function GradingReviewWorkspace({
   return (
     <ReviewLayout
       activityId={activityId}
+      assessmentUuid={assessmentUuid}
       title={title}
       total={total}
       stats={stats}

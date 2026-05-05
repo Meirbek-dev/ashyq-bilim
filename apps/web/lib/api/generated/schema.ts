@@ -669,6 +669,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/assessments/{assessment_uuid}/publish-grades": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Api Publish Grades */
+        post: operations["api_publish_grades_api_v1_assessments__assessment_uuid__publish_grades_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/assessments/{assessment_uuid}/readiness": {
         parameters: {
             query?: never;
@@ -718,6 +735,41 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assessments/{assessment_uuid}/submissions/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Api Get Submission Stats */
+        get: operations["api_get_submission_stats_api_v1_assessments__assessment_uuid__submissions_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assessments/{assessment_uuid}/submissions/{submission_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Api Get Submission */
+        get: operations["api_get_submission_api_v1_assessments__assessment_uuid__submissions__submission_uuid__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Api Save Grade */
+        patch: operations["api_save_grade_api_v1_assessments__assessment_uuid__submissions__submission_uuid__patch"];
         trace?: never;
     };
     "/api/v1/assessments/{assessment_uuid}/submit": {
@@ -4652,7 +4704,25 @@ export interface components {
             activity_uuid: string;
             /** Assessment Uuid */
             assessment_uuid: string;
+            /**
+             * Default Filter
+             * @default NEEDS_GRADING
+             * @enum {string}
+             */
+            default_filter: "ALL" | "NEEDS_GRADING" | "PENDING" | "GRADED" | "PUBLISHED" | "RETURNED";
             kind: components["schemas"]["AssessmentType"];
+            /** Supported Sorts */
+            supported_sorts?: ("submitted_at" | "final_score" | "attempt_number")[];
+            /**
+             * Supports Late Only
+             * @default true
+             */
+            supports_late_only: boolean;
+            /**
+             * Supports Search
+             * @default true
+             */
+            supports_search: boolean;
             /** Title */
             title: string;
         };
@@ -10110,6 +10180,37 @@ export interface operations {
             };
         };
     };
+    api_publish_grades_api_v1_assessments__assessment_uuid__publish_grades_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assessment_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkPublishGradesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     api_check_readiness_api_v1_assessments__assessment_uuid__readiness_get: {
         parameters: {
             query?: never;
@@ -10175,7 +10276,11 @@ export interface operations {
     api_get_submissions_api_v1_assessments__assessment_uuid__submissions_get: {
         parameters: {
             query?: {
-                status_filter?: string | null;
+                status?: string | null;
+                late_only?: boolean;
+                search?: string | null;
+                sort_by?: string;
+                sort_dir?: string;
                 page?: number;
                 page_size?: number;
             };
@@ -10194,6 +10299,107 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SubmissionListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_submission_stats_api_v1_assessments__assessment_uuid__submissions_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assessment_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmissionStats"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_get_submission_api_v1_assessments__assessment_uuid__submissions__submission_uuid__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assessment_uuid: string;
+                submission_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmissionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    api_save_grade_api_v1_assessments__assessment_uuid__submissions__submission_uuid__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "If-Match"?: string | null;
+            };
+            path: {
+                assessment_uuid: string;
+                submission_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TeacherGradeInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmissionRead"];
                 };
             };
             /** @description Validation Error */

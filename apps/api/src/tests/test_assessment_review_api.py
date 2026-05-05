@@ -7,7 +7,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from sqlmodel import SQLModel
+from sqlmodel import SQLModel, select
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
@@ -23,6 +23,7 @@ from src.db.assessments import (
 from src.db.courses.activities import Activity, ActivitySubTypeEnum, ActivityTypeEnum
 from src.db.courses.chapters import Chapter
 from src.db.courses.courses import Course, ThumbnailType
+from src.db.grading.entries import GradingEntry
 from src.db.grading.progress import (
     AssessmentCompletionRule,
     AssessmentGradingMode,
@@ -37,6 +38,7 @@ from src.infra.db.session import get_db_session
 from src.infra.settings import get_settings
 from src.routers.assessments.unified import router
 from src.services.assessments import core
+from src.services.grading import teacher as teacher_service
 
 
 @pytest.fixture(name="db_session_factory")
@@ -53,6 +55,7 @@ def db_session_factory_fixture():
             Assessment.__table__,
             AssessmentItem.__table__,
             Submission.__table__,
+            GradingEntry.__table__,
         ],
     )
     factory = build_session_factory(engine)
@@ -62,6 +65,7 @@ def db_session_factory_fixture():
         SQLModel.metadata.drop_all(
             engine,
             tables=[
+                GradingEntry.__table__,
                 Submission.__table__,
                 AssessmentItem.__table__,
                 Assessment.__table__,
@@ -116,6 +120,21 @@ def api_client_fixture(
     app.dependency_overrides[get_public_user] = lambda: teacher_user
     monkeypatch.setattr(core, "_require_read", lambda *_args, **_kwargs: None)
     monkeypatch.setattr(core, "_require_grade", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(
+        teacher_service,
+        "recalculate_activity_progress",
+        lambda *_args, **_kwargs: None,
+    )
+    monkeypatch.setattr(
+        teacher_service,
+        "publish_grading_event",
+        lambda *_args, **_kwargs: None,
+    )
+    monkeypatch.setattr(
+        teacher_service,
+        "_award_xp_on_publish",
+        lambda *_args, **_kwargs: None,
+    )
     return TestClient(app)
 
 
@@ -459,6 +478,8 @@ def seeded_review_data_fixture(db_session_factory):
             "assessment_uuid": assessment.assessment_uuid,
             "other_assessment_uuid": other_assessment.assessment_uuid,
             "alice_submission_uuid": alice_submission.submission_uuid,
+            "aaron_submission_uuid": aaron_submission.submission_uuid,
+            "bella_submission_uuid": bella_submission.submission_uuid,
         }
 
 
@@ -575,3 +596,130 @@ def test_assessment_submission_detail_is_scoped_and_hydrates_breakdown(
     )
     assert mismatch_response.status_code == 404
     assert mismatch_response.json() == {"detail": "Submission not found"}
+
+
+def test_assessment_submission_grade_save_honors_if_match(
+    api_client: TestClient,
+    seeded_review_data,
+) -> None:
+    detail = api_client.get(
+        f"/assessments/{seeded_review_data['assessment_uuid']}/submissions/{seeded_review_data['alice_submission_uuid']}"
+    )
+    assert detail.status_code == 200
+    current_version = detail.json()["version"]
+
+    response = api_client.patch(
+        f"/assessments/{seeded_review_data['assessment_uuid']}/submissions/{seeded_review_data['alice_submission_uuid']}",
+        headers={"If-Match": str(current_version + 1)},
+        json={
+            "final_score": 84,
+            "feedback": "Needs a deeper explanation.",
+            "status": "GRADED",
+            "item_feedback": [],
+        },
+    )
+
+    assert response.status_code == 412
+    assert "modified concurrently" in response.json()["detail"]
+
+
+def test_assessment_submission_publish_transition_updates_state_and_ledger(
+    api_client: TestClient,
+    db_session_factory,
+    seeded_review_data,
+) -> None:
+    detail = api_client.get(
+        f"/assessments/{seeded_review_data['assessment_uuid']}/submissions/{seeded_review_data['alice_submission_uuid']}"
+    )
+    assert detail.status_code == 200
+    current_version = detail.json()["version"]
+
+    response = api_client.patch(
+        f"/assessments/{seeded_review_data['assessment_uuid']}/submissions/{seeded_review_data['alice_submission_uuid']}",
+        headers={"If-Match": str(current_version)},
+        json={
+            "final_score": 80,
+            "feedback": "Ready for release.",
+            "status": "PUBLISHED",
+            "item_feedback": [],
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "PUBLISHED"
+    assert payload["final_score"] == 72.0
+    assert payload["version"] == current_version + 1
+    assert payload["graded_at"] is not None
+
+    with db_session_factory() as session:
+        submission = session.exec(
+            select(Submission).where(
+                Submission.submission_uuid
+                == seeded_review_data["alice_submission_uuid"]
+            )
+        ).first()
+        assert submission is not None
+        assert submission.status == SubmissionStatus.PUBLISHED
+        assert submission.final_score == 72.0
+
+        entries = session.exec(
+            select(GradingEntry).where(GradingEntry.submission_id == submission.id)
+        ).all()
+        assert len(entries) == 1
+        assert entries[0].published_at is not None
+        assert entries[0].final_score == 72.0
+        assert entries[0].overall_feedback == "Ready for release."
+
+
+@pytest.mark.parametrize(
+    ("submission_key", "expected_score"),
+    [
+        ("aaron_submission_uuid", 67.0),
+        ("bella_submission_uuid", 55.0),
+    ],
+)
+def test_assessment_submission_return_flow_supports_pending_and_published_states(
+    api_client: TestClient,
+    db_session_factory,
+    seeded_review_data,
+    submission_key: str,
+    expected_score: float,
+) -> None:
+    submission_uuid = seeded_review_data[submission_key]
+    detail = api_client.get(
+        f"/assessments/{seeded_review_data['assessment_uuid']}/submissions/{submission_uuid}"
+    )
+    assert detail.status_code == 200
+    current_version = detail.json()["version"]
+
+    response = api_client.patch(
+        f"/assessments/{seeded_review_data['assessment_uuid']}/submissions/{submission_uuid}",
+        headers={"If-Match": str(current_version)},
+        json={
+            "final_score": expected_score,
+            "feedback": "Revise and resubmit.",
+            "status": "RETURNED",
+            "item_feedback": [],
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "RETURNED"
+    assert payload["final_score"] == expected_score
+    assert payload["version"] == current_version + 1
+
+    with db_session_factory() as session:
+        submission = session.exec(
+            select(Submission).where(Submission.submission_uuid == submission_uuid)
+        ).first()
+        assert submission is not None
+        assert submission.status == SubmissionStatus.RETURNED
+        assert submission.final_score == expected_score
+
+        entries = session.exec(
+            select(GradingEntry).where(GradingEntry.submission_id == submission.id)
+        ).all()
+        assert len(entries) == 1
+        assert entries[0].published_at is None

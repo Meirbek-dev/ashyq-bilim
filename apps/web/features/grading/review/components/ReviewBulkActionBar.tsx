@@ -10,7 +10,9 @@ import {
   exportGradesCSV,
   batchGradeSubmissions,
   extendDeadline,
+  publishAssessmentGrades,
   publishActivityGrades,
+  saveGrade,
 } from '@/services/grading/grading';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,11 +36,13 @@ interface BulkActionSummary {
 
 export default function ReviewBulkActionBar({
   activityId,
+  assessmentUuid,
   submissions,
   disabled,
   onRefresh,
 }: {
   activityId: number;
+  assessmentUuid?: string;
   submissions: Submission[];
   disabled: boolean;
   onRefresh: () => Promise<void>;
@@ -74,15 +78,17 @@ export default function ReviewBulkActionBar({
     }
     startTransition(async () => {
       try {
-        const result = await batchGradeSubmissions(
-          gradeable.map((submission) => ({
-            submission_uuid: submission.submission_uuid,
-            final_score: submission.final_score ?? 0,
-            status,
-            feedback: submission.grading_json?.feedback ?? null,
-            item_feedback: null,
-          })),
-        );
+        const result = assessmentUuid
+          ? await saveGradesWithinAssessment(assessmentUuid, gradeable, status)
+          : await batchGradeSubmissions(
+              gradeable.map((submission) => ({
+                submission_uuid: submission.submission_uuid,
+                final_score: submission.final_score ?? 0,
+                status,
+                feedback: submission.grading_json?.feedback ?? null,
+                item_feedback: null,
+              })),
+            );
         toast.success(status === 'PUBLISHED' ? 'Selected grades published' : 'Selected submissions returned');
         setLastSummary({
           label: status === 'PUBLISHED' ? 'Bulk publish finished' : 'Bulk return finished',
@@ -125,7 +131,9 @@ export default function ReviewBulkActionBar({
   const releaseHiddenGrades = () => {
     startTransition(async () => {
       try {
-        const result = await publishActivityGrades(activityId);
+        const result = assessmentUuid
+          ? await publishAssessmentGrades(assessmentUuid)
+          : await publishActivityGrades(activityId);
         toast.success('Hidden grades released');
         setLastSummary({
           label: 'Grade release finished',
@@ -326,6 +334,34 @@ function PreviewRow({ label, value }: { label: string; value: string }) {
       <span className="font-medium">{value}</span>
     </div>
   );
+}
+
+async function saveGradesWithinAssessment(
+  assessmentUuid: string,
+  submissions: Submission[],
+  status: 'PUBLISHED' | 'RETURNED',
+) {
+  const results = await Promise.allSettled(
+    submissions.map((submission) =>
+      saveGrade(
+        submission.submission_uuid,
+        {
+          final_score: submission.final_score ?? 0,
+          status,
+          feedback: submission.grading_json?.feedback ?? '',
+          item_feedback: [],
+        },
+        submission.version,
+        assessmentUuid,
+      ),
+    ),
+  );
+
+  const succeeded = results.filter((result) => result.status === 'fulfilled').length;
+  return {
+    succeeded,
+    failed: results.length - succeeded,
+  };
 }
 
 function getDialogTitle(action: PendingAction): string {

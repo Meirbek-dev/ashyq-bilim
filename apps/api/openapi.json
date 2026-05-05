@@ -2590,8 +2590,43 @@
             "title": "Assessment Uuid",
             "type": "string"
           },
+          "default_filter": {
+            "default": "NEEDS_GRADING",
+            "enum": [
+              "ALL",
+              "NEEDS_GRADING",
+              "PENDING",
+              "GRADED",
+              "PUBLISHED",
+              "RETURNED"
+            ],
+            "title": "Default Filter",
+            "type": "string"
+          },
           "kind": {
             "$ref": "#/components/schemas/AssessmentType"
+          },
+          "supported_sorts": {
+            "items": {
+              "enum": [
+                "submitted_at",
+                "final_score",
+                "attempt_number"
+              ],
+              "type": "string"
+            },
+            "title": "Supported Sorts",
+            "type": "array"
+          },
+          "supports_late_only": {
+            "default": true,
+            "title": "Supports Late Only",
+            "type": "boolean"
+          },
+          "supports_search": {
+            "default": true,
+            "title": "Supports Search",
+            "type": "boolean"
           },
           "title": {
             "title": "Title",
@@ -17816,6 +17851,53 @@
         ]
       }
     },
+    "/api/v1/assessments/{assessment_uuid}/publish-grades": {
+      "post": {
+        "operationId": "api_publish_grades_api_v1_assessments__assessment_uuid__publish_grades_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assessment_uuid",
+            "required": true,
+            "schema": {
+              "title": "Assessment Uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkPublishGradesResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Api Publish Grades",
+        "tags": [
+          "assessments"
+        ]
+      }
+    },
     "/api/v1/assessments/{assessment_uuid}/readiness": {
       "get": {
         "operationId": "api_check_readiness_api_v1_assessments__assessment_uuid__readiness_get",
@@ -17925,7 +18007,7 @@
           },
           {
             "in": "query",
-            "name": "status_filter",
+            "name": "status",
             "required": false,
             "schema": {
               "anyOf": [
@@ -17936,7 +18018,53 @@
                   "type": "null"
                 }
               ],
-              "title": "Status Filter"
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "late_only",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Late Only",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort_by",
+            "required": false,
+            "schema": {
+              "default": "submitted_at",
+              "title": "Sort By",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort_dir",
+            "required": false,
+            "schema": {
+              "default": "desc",
+              "title": "Sort Dir",
+              "type": "string"
             }
           },
           {
@@ -17991,6 +18119,189 @@
           }
         ],
         "summary": "Api Get Submissions",
+        "tags": [
+          "assessments"
+        ]
+      }
+    },
+    "/api/v1/assessments/{assessment_uuid}/submissions/stats": {
+      "get": {
+        "operationId": "api_get_submission_stats_api_v1_assessments__assessment_uuid__submissions_stats_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assessment_uuid",
+            "required": true,
+            "schema": {
+              "title": "Assessment Uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionStats"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Api Get Submission Stats",
+        "tags": [
+          "assessments"
+        ]
+      }
+    },
+    "/api/v1/assessments/{assessment_uuid}/submissions/{submission_uuid}": {
+      "get": {
+        "operationId": "api_get_submission_api_v1_assessments__assessment_uuid__submissions__submission_uuid__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assessment_uuid",
+            "required": true,
+            "schema": {
+              "title": "Assessment Uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "submission_uuid",
+            "required": true,
+            "schema": {
+              "title": "Submission Uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Api Get Submission",
+        "tags": [
+          "assessments"
+        ]
+      },
+      "patch": {
+        "operationId": "api_save_grade_api_v1_assessments__assessment_uuid__submissions__submission_uuid__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assessment_uuid",
+            "required": true,
+            "schema": {
+              "title": "Assessment Uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "submission_uuid",
+            "required": true,
+            "schema": {
+              "title": "Submission Uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "If-Match",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "If-Match"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeacherGradeInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Api Save Grade",
         "tags": [
           "assessments"
         ]

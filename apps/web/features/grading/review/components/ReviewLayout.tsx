@@ -16,6 +16,7 @@ interface SubmissionStats {
 
 export default function ReviewLayout({
   activityId,
+  assessmentUuid,
   title,
   total,
   stats,
@@ -24,6 +25,7 @@ export default function ReviewLayout({
   onBulkRefresh,
 }: {
   activityId: number;
+  assessmentUuid?: string;
   title?: string;
   total: number;
   stats?: SubmissionStats | null;
@@ -44,6 +46,7 @@ export default function ReviewLayout({
             </div>
             <ReviewBulkActionBar
               activityId={activityId}
+              assessmentUuid={assessmentUuid}
               submissions={selectedSubmissions}
               disabled={selectedSubmissions.length === 0}
               onRefresh={onBulkRefresh}

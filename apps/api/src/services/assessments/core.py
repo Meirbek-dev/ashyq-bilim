@@ -51,6 +51,7 @@ from src.db.grading.progress import (
     AssessmentPolicy,
     LatePolicyNone,
 )
+from src.db.grading.schemas import BulkPublishGradesResponse
 from src.db.grading.submissions import (
     AssessmentType,
     Submission,
@@ -58,6 +59,7 @@ from src.db.grading.submissions import (
     SubmissionRead,
     SubmissionStats,
     SubmissionStatus,
+    TeacherGradeInput,
 )
 from src.db.uploads import Upload, UploadStatus
 from src.db.users import AnonymousUser, PublicUser, User
@@ -69,6 +71,7 @@ from src.services.grading.assignment_breakdown import build_effective_grading_br
 from src.services.grading.settings_loader import load_activity_settings
 from src.services.grading.submission import start_submission_v2
 from src.services.grading.submit import submit_assessment as submit_assessment_pipeline
+from src.services.grading.teacher import _save_teacher_grade, bulk_publish_grades
 from src.services.progress import submissions as progress_submissions
 
 ASSESSABLE_ACTIVITY_TYPES = {
@@ -838,6 +841,46 @@ async def get_assessment_submission(
     return result
 
 
+async def save_assessment_grade(
+    assessment_uuid: str,
+    submission_uuid: str,
+    payload: TeacherGradeInput,
+    current_user: PublicUser,
+    db_session: Session,
+    *,
+    if_match: str | None = None,
+) -> SubmissionRead:
+    assessment = _get_assessment_by_uuid_or_404(assessment_uuid, db_session)
+    activity, course = _get_activity_and_course(assessment, db_session)
+    _require_grade(current_user, course, db_session)
+
+    submission = _get_assessment_submission_or_404(
+        activity_id=activity.id,
+        submission_uuid=submission_uuid,
+        db_session=db_session,
+    )
+    expected_version = _parse_if_match_version(if_match)
+    return _save_teacher_grade(
+        submission=submission,
+        grade_input=payload,
+        submission_uuid=submission_uuid,
+        current_user=current_user,
+        db_session=db_session,
+        expected_version=expected_version,
+    )
+
+
+async def publish_assessment_grades(
+    assessment_uuid: str,
+    current_user: PublicUser,
+    db_session: Session,
+) -> BulkPublishGradesResponse:
+    assessment = _get_assessment_by_uuid_or_404(assessment_uuid, db_session)
+    activity, course = _get_activity_and_course(assessment, db_session)
+    _require_grade(current_user, course, db_session)
+    return await bulk_publish_grades(activity.id, current_user, db_session)
+
+
 # ── Readiness ─────────────────────────────────────────────────────────────────
 
 
@@ -1197,6 +1240,26 @@ def _get_activity_and_course(
     if activity is None:
         raise HTTPException(status_code=404, detail="Activity not found")
     return activity, _get_course_for_activity_or_404(activity, db_session)
+
+
+def _get_assessment_submission_or_404(
+    *,
+    activity_id: int,
+    submission_uuid: str,
+    db_session: Session,
+) -> Submission:
+    submission = db_session.exec(
+        select(Submission).where(
+            Submission.submission_uuid == submission_uuid,
+            Submission.activity_id == activity_id,
+        )
+    ).first()
+    if submission is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Submission not found",
+        )
+    return submission
 
 
 def _get_course_for_activity_or_404(activity: Activity, db_session: Session) -> Course:
@@ -1709,6 +1772,19 @@ def _enforce_draft_version(draft: Submission, if_match: str | None) -> None:
                 "latest": SubmissionRead.model_validate(draft).model_dump(mode="json"),
             },
         )
+
+
+def _parse_if_match_version(if_match: str | None) -> int | None:
+    if if_match is None:
+        return None
+    raw = if_match.strip().strip('"')
+    try:
+        return int(raw)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="If-Match must be the current numeric submission version",
+        ) from exc
 
 
 def _item_readiness_issues(item: AssessmentItem) -> list[ReadinessIssue]:

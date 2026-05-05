@@ -85,6 +85,7 @@ export default function GradeForm({
             item_feedback: [],
           },
           submission.version,
+          assessmentUuid,
         );
         toast.success(status === 'PUBLISHED' ? 'Grade published' : status === 'RETURNED' ? 'Returned' : 'Grade saved');
         setStaleDraft(null);

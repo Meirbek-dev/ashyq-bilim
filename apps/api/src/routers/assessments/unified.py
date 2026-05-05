@@ -23,10 +23,12 @@ from src.db.assessments import (
     AssessmentReadItem,
     AssessmentUpdate,
 )
+from src.db.grading.schemas import BulkPublishGradesResponse
 from src.db.grading.submissions import (
     SubmissionListResponse,
     SubmissionRead,
     SubmissionStats,
+    TeacherGradeInput,
 )
 from src.db.users import AnonymousUser, PublicUser
 from src.infra.db.session import get_db_session
@@ -36,14 +38,16 @@ from src.services.assessments.core import (
     create_assessment_item,
     delete_assessment_item,
     get_assessment,
+    get_assessment_by_activity_uuid,
     get_assessment_submission,
     get_assessment_submission_stats,
-    get_assessment_by_activity_uuid,
     get_assessment_submissions,
     get_my_assessment_draft,
     get_my_assessment_submissions,
+    publish_assessment_grades,
     reorder_assessment_items,
     save_assessment_draft,
+    save_assessment_grade,
     start_assessment,
     submit_assessment,
     transition_assessment_lifecycle,
@@ -286,6 +290,42 @@ async def api_get_submission(
     return await get_assessment_submission(
         assessment_uuid,
         submission_uuid,
+        current_user,
+        db_session,
+    )
+
+
+@router.patch(
+    "/{assessment_uuid}/submissions/{submission_uuid}", response_model=SubmissionRead
+)
+async def api_save_grade(
+    assessment_uuid: str,
+    submission_uuid: str,
+    payload: TeacherGradeInput,
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
+    db_session: Annotated[Session, Depends(get_db_session)],
+    if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+) -> SubmissionRead:
+    return await save_assessment_grade(
+        assessment_uuid,
+        submission_uuid,
+        payload,
+        current_user,
+        db_session,
+        if_match=if_match,
+    )
+
+
+@router.post(
+    "/{assessment_uuid}/publish-grades", response_model=BulkPublishGradesResponse
+)
+async def api_publish_grades(
+    assessment_uuid: str,
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
+    db_session: Annotated[Session, Depends(get_db_session)],
+) -> BulkPublishGradesResponse:
+    return await publish_assessment_grades(
+        assessment_uuid,
         current_user,
         db_session,
     )
