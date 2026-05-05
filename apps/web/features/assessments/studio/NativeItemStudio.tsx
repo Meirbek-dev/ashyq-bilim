@@ -312,7 +312,7 @@ export function NativeItemOutline({
                     <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />
                   )}
                 </div>
-                {issues.length > 0 ? <p className="mt-2 text-xs text-amber-700">{issues[0].message}</p> : null}
+                {issues.length > 0 ? <p className="mt-2 text-xs text-amber-700">{issues[0]?.message}</p> : null}
               </button>
             );
           })}

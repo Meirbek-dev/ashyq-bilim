@@ -247,14 +247,14 @@ describe('teacher review controls', () => {
       status: 'PENDING',
       final_score: null,
       auto_score: null,
-      grading_json: {},
+      grading_json: { auto_graded: false, needs_manual_review: false, feedback: '' },
     });
 
     render(
       <GradeForm
         submissionUuid="submission_review"
         onSaved={vi.fn().mockResolvedValue(undefined)}
-        navigation={{ hasNext: false, hasPrevious: false, goNext: vi.fn(), goPrevious: vi.fn() }}
+        navigation={{ hasNext: false, hasPrevious: false, goNext: vi.fn(), goPrevious: vi.fn(), selectedIndex: 0 }}
       />,
     );
 
@@ -274,7 +274,7 @@ describe('teacher review controls', () => {
       <GradeForm
         submissionUuid="submission_review"
         onSaved={onSaved}
-        navigation={{ hasNext: true, hasPrevious: true, goNext: vi.fn(), goPrevious: vi.fn() }}
+        navigation={{ hasNext: true, hasPrevious: true, goNext: vi.fn(), goPrevious: vi.fn(), selectedIndex: 0 }}
       />,
     );
 
@@ -308,7 +308,7 @@ describe('teacher review controls', () => {
       <GradeForm
         submissionUuid="submission_review"
         onSaved={vi.fn().mockResolvedValue(undefined)}
-        navigation={{ hasNext: false, hasPrevious: false, goNext: vi.fn(), goPrevious: vi.fn() }}
+        navigation={{ hasNext: false, hasPrevious: false, goNext: vi.fn(), goPrevious: vi.fn(), selectedIndex: 0 }}
       />,
     );
 

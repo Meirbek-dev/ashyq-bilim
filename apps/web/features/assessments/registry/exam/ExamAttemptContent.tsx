@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertCircle, CheckCircle, Clock, FileText, InfinityIcon, ShieldAlert, Users } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, FileText, InfinityIcon, ShieldAlert, Users, RotateCcw } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
@@ -182,7 +182,7 @@ export default function ExamAttemptContent({ courseUuid, vm }: KindAttemptProps)
                 </AlertDescription>
               </Alert>
             ) : null}
-            {latestCompletedSubmission ? <ExamSubmissionStatePanel submission={latestCompletedSubmission} /> : null}
+            {latestCompletedSubmission ? <ExamSubmissionStatePanel submission={latestCompletedSubmission as any} /> : null}
           </div>
         }
       />
@@ -200,7 +200,7 @@ export default function ExamAttemptContent({ courseUuid, vm }: KindAttemptProps)
       canSaveDraft={vm.canSaveDraft}
       canSubmit={vm.canSubmit}
       latestCompletedSubmission={latestCompletedSubmission}
-      historyItems={historyItems}
+      historyItems={historyItems as any}
     />
   );
 }
@@ -456,7 +456,7 @@ function ExamTakingContent({
 
       {historyItems.length ? <AttemptHistoryList items={historyItems} /> : null}
 
-      {latestCompletedSubmission ? <ExamSubmissionStatePanel submission={latestCompletedSubmission} /> : null}
+      {latestCompletedSubmission ? <ExamSubmissionStatePanel submission={latestCompletedSubmission as any} /> : null}
 
       <Progress
         value={progress}

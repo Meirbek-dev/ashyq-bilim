@@ -13,6 +13,7 @@ vi.mock('next-intl', () => ({
 
 function createDetail(overrides: Partial<TeacherAssessmentDetailResponse> = {}): TeacherAssessmentDetailResponse {
   return {
+    course_id: overrides.course_id ?? 1,
     generated_at: '2026-05-05T12:00:00Z',
     assessment_type: 'assignment',
     assessment_id: 42,

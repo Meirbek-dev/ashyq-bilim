@@ -500,9 +500,9 @@ def load_analytics_context(
                 Submission.updated_at >= activity_start
             )
         assignment_submissions = [
-            (submission, assessments_by_activity[submission.activity_id])
-            for submission in db_session.exec(submission_stmt).all()
-            if submission.activity_id in assessments_by_activity
+            (sub, assessments_by_activity[sub.activity_id])
+            for row in db_session.exec(submission_stmt).all()
+            if (sub := _unwrap_model(row, Submission)).activity_id in assessments_by_activity
         ]
 
     exams = [
