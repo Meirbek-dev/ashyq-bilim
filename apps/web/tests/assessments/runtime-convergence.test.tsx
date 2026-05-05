@@ -170,7 +170,7 @@ function createAttemptVm(overrides: Partial<AttemptViewModel> = {}): AttemptView
     contentVersion: 1,
     policyVersion: 1,
   } satisfies AttemptViewModel;
-  return { ...vm, ...overrides } as AttemptViewModel;
+  return { ...vm, ...overrides };
 }
 
 describe('assessment runtime convergence', () => {

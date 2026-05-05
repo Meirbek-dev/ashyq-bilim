@@ -372,5 +372,5 @@ export function useAssessmentSubmission(
 function cloneAnswers(answers: Record<string, ItemAnswer>): Record<string, ItemAnswer> {
   return typeof structuredClone === 'function'
     ? structuredClone(answers)
-    : (structuredClone(answers) as Record<string, ItemAnswer>);
+    : JSON.parse(JSON.stringify(answers));
 }

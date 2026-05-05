@@ -79,12 +79,13 @@ export function submissionStatsQueryOptions(activityId: number, assessmentUuid?:
 }
 
 export function submissionsQueryOptions(params: SubmissionListQueryParams) {
-  const path = params.assessmentUuid
-    ? `${getAPIUrl()}assessments/${params.assessmentUuid}/submissions`
-    : `${getAPIUrl()}grading/submissions`;
   return queryOptions({
     queryKey: queryKeys.grading.submissions(params),
-    queryFn: () =>
-      apiFetcher(`${path}?${buildSubmissionsSearchParams(params)}`) as Promise<SubmissionsPage>,
+    queryFn: () => {
+      const path = params.assessmentUuid
+        ? `${getAPIUrl()}assessments/${params.assessmentUuid}/submissions`
+        : `${getAPIUrl()}grading/submissions`;
+      return apiFetcher(`${path}?${buildSubmissionsSearchParams(params)}`) as Promise<SubmissionsPage>;
+    },
   });
 }

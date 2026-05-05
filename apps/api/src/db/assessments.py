@@ -466,7 +466,6 @@ class AttemptStateRead(PydanticStrictBaseModel):
 class AssessmentAttemptProjection(AttemptStateRead):
     """Backward-compatible OpenAPI name for the attempt state contract."""
 
-    pass
 
 
 class AssessmentReviewProjection(PydanticStrictBaseModel):
@@ -531,7 +530,6 @@ class AssessmentDetailRead(PydanticStrictBaseModel):
 class AssessmentRead(AssessmentDetailRead):
     """Backward-compatible OpenAPI name for the assessment detail contract."""
 
-    pass
 
 
 class StudentSubmissionRead(SubmissionRead):

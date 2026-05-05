@@ -18,9 +18,9 @@ from src.db.assessments import (
     Assessment,
     AssessmentAttemptProjection,
     AssessmentCreate,
-    AssessmentEffectivePolicy,
     AssessmentDraftPatch,
     AssessmentDraftRead,
+    AssessmentEffectivePolicy,
     AssessmentGradingType,
     AssessmentItem,
     AssessmentItemCreate,
@@ -49,6 +49,8 @@ from src.db.courses.activities import (
 )
 from src.db.courses.chapters import Chapter
 from src.db.courses.courses import Course
+from src.db.grading.entries import GradingEntry
+from src.db.grading.overrides import StudentPolicyOverride
 from src.db.grading.progress import (
     AssessmentCompletionRule,
     AssessmentGradingMode,
@@ -56,8 +58,6 @@ from src.db.grading.progress import (
     GradeReleaseMode,
     LatePolicyNone,
 )
-from src.db.grading.entries import GradingEntry
-from src.db.grading.overrides import StudentPolicyOverride
 from src.db.grading.schemas import BulkPublishGradesResponse
 from src.db.grading.submissions import (
     AssessmentType,

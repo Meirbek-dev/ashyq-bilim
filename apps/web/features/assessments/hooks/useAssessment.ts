@@ -22,7 +22,6 @@ import { reportClientError } from '@/services/telemetry/client';
 
 import { isAssessmentEditable, canPublish, canSchedule, canArchive } from '../domain/lifecycle';
 import { classifyValidationIssue } from '../domain/readiness';
-import type { AssessmentLifecycle } from '../domain/lifecycle';
 import { policyFromAssessmentPolicy } from '../domain/policy';
 import type { AssessmentPolicyDTO } from '../domain/policy';
 import { assessmentTypeToKind } from '../domain/view-models';
