@@ -1,0 +1,370 @@
+# pyright: reportMissingImports=false, reportUnusedImport=false
+
+from datetime import UTC, datetime, timedelta
+import pathlib
+import sys
+
+import pytest
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
+from sqlmodel import SQLModel
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
+
+from src.auth.users import get_public_user
+from src.db.assessments import (
+    Assessment,
+    AssessmentGradingType,
+    AssessmentItem,
+    AssessmentLifecycle,
+    ItemKind,
+)
+from src.db.courses.activities import Activity, ActivitySubTypeEnum, ActivityTypeEnum
+from src.db.courses.chapters import Chapter
+from src.db.courses.courses import Course, ThumbnailType
+from src.db.grading.progress import (
+    AssessmentCompletionRule,
+    AssessmentGradingMode,
+    AssessmentPolicy,
+    GradeReleaseMode,
+    LatePolicyNone,
+)
+from src.db.grading.submissions import AssessmentType
+from src.db.users import PublicUser, User
+from src.infra.db.engine import build_engine, build_session_factory
+from src.infra.db.session import get_db_session
+from src.infra.settings import get_settings
+from src.routers.assessments.unified import router
+from src.services.assessments import core
+
+
+@pytest.fixture(name="db_session_factory")
+def db_session_factory_fixture():
+    engine = build_engine(get_settings())
+    SQLModel.metadata.create_all(
+        engine,
+        tables=[
+            User.__table__,
+            Course.__table__,
+            Chapter.__table__,
+            Activity.__table__,
+            AssessmentPolicy.__table__,
+            Assessment.__table__,
+            AssessmentItem.__table__,
+        ],
+    )
+    factory = build_session_factory(engine)
+    try:
+        yield factory
+    finally:
+        SQLModel.metadata.drop_all(
+            engine,
+            tables=[
+                AssessmentItem.__table__,
+                Assessment.__table__,
+                AssessmentPolicy.__table__,
+                Activity.__table__,
+                Chapter.__table__,
+                Course.__table__,
+                User.__table__,
+            ],
+        )
+        engine.dispose()
+
+
+@pytest.fixture(name="teacher_user")
+def teacher_user_fixture() -> PublicUser:
+    return PublicUser(
+        id=1,
+        user_uuid="user_teacher_readiness",
+        username="teacher.readiness",
+        first_name="Teacher",
+        middle_name="",
+        last_name="Readiness",
+        email="teacher.readiness@example.com",
+        avatar_image="",
+        bio="",
+        details={},
+        profile={},
+        theme="default",
+        locale="en-US",
+        auth_provider="local",
+        is_active=True,
+        is_superuser=False,
+        is_verified=True,
+    )
+
+
+@pytest.fixture(name="api_client")
+def api_client_fixture(db_session_factory, teacher_user, monkeypatch: pytest.MonkeyPatch):
+    app = FastAPI()
+    app.include_router(router, prefix="/assessments")
+
+    def override_get_db_session():
+        session = db_session_factory()
+        try:
+            yield session
+        finally:
+            session.close()
+
+    app.dependency_overrides[get_db_session] = override_get_db_session
+    app.dependency_overrides[get_public_user] = lambda: teacher_user
+    monkeypatch.setattr(core, "_require_author", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(core, "_require_publish", lambda *_args, **_kwargs: None)
+    return TestClient(app)
+
+
+def _seed_assessment(
+    db_session_factory,
+    *,
+    kind: AssessmentType,
+    title: str,
+    scheduled_at: datetime | None,
+    policy_kwargs: dict | None = None,
+    items: list[dict] | None = None,
+) -> Assessment:
+    with db_session_factory() as session:
+        user = User(
+            id=1,
+            user_uuid="user_teacher_readiness",
+            username="teacher.readiness",
+            first_name="Teacher",
+            middle_name="",
+            last_name="Readiness",
+            email="teacher.readiness@example.com",
+            hashed_password="hashed",
+            is_active=True,
+            is_superuser=False,
+            is_verified=True,
+        )
+        session.add(user)
+        session.flush()
+
+        course = Course(
+            name="Readiness Course",
+            description="",
+            about="",
+            learnings=None,
+            tags=None,
+            thumbnail_type=ThumbnailType.IMAGE,
+            thumbnail_image="",
+            thumbnail_video="",
+            public=False,
+            open_to_contributors=False,
+            creator_id=user.id,
+            course_uuid="course_readiness",
+        )
+        session.add(course)
+        session.flush()
+
+        chapter = Chapter(
+            name="Week 1",
+            description="",
+            thumbnail_image="",
+            course_id=course.id,
+            chapter_uuid="chapter_readiness",
+            creator_id=user.id,
+            order=1,
+        )
+        session.add(chapter)
+        session.flush()
+
+        activity_type = (
+            ActivityTypeEnum.TYPE_EXAM if kind == AssessmentType.EXAM else ActivityTypeEnum.TYPE_ASSIGNMENT
+        )
+        activity_sub_type = (
+            ActivitySubTypeEnum.SUBTYPE_EXAM_STANDARD
+            if kind == AssessmentType.EXAM
+            else ActivitySubTypeEnum.SUBTYPE_ASSIGNMENT_ANY
+        )
+        activity = Activity(
+            name="Assessment Activity",
+            activity_type=activity_type,
+            activity_sub_type=activity_sub_type,
+            content={},
+            details={},
+            settings={},
+            published=False,
+            chapter_id=chapter.id,
+            course_id=course.id,
+            creator_id=user.id,
+            activity_uuid="activity_readiness",
+            order=1,
+        )
+        session.add(activity)
+        session.flush()
+
+        policy_payload = {
+            "policy_uuid": "policy_readiness",
+            "activity_id": activity.id,
+            "assessment_type": kind,
+            "grading_mode": AssessmentGradingMode.MANUAL,
+            "grade_release_mode": GradeReleaseMode.IMMEDIATE,
+            "completion_rule": AssessmentCompletionRule.GRADED,
+            "passing_score": 60.0,
+            "max_attempts": 1,
+            "time_limit_seconds": None,
+            "due_at": None,
+            "allow_late": True,
+            "late_policy_json": LatePolicyNone().model_dump(mode="json"),
+            "anti_cheat_json": {},
+            "settings_json": {},
+        }
+        policy_payload.update(policy_kwargs or {})
+        policy = AssessmentPolicy(**policy_payload)
+        session.add(policy)
+        session.flush()
+
+        assessment = Assessment(
+            assessment_uuid=f"assessment_{kind.lower()}",
+            activity_id=activity.id,
+            kind=kind,
+            title=title,
+            description="",
+            lifecycle=AssessmentLifecycle.DRAFT,
+            scheduled_at=scheduled_at,
+            published_at=None,
+            archived_at=None,
+            weight=1.0,
+            grading_type=AssessmentGradingType.PERCENTAGE,
+            policy_id=policy.id,
+        )
+        session.add(assessment)
+        session.flush()
+
+        for index, item in enumerate(items or [], start=1):
+            session.add(
+                AssessmentItem(
+                    item_uuid=f"item_{index}",
+                    assessment_id=assessment.id,
+                    order=index,
+                    kind=item["kind"],
+                    title=item.get("title", ""),
+                    body_json=item.get("body_json", {}),
+                    max_score=item.get("max_score", 0.0),
+                )
+            )
+
+        session.commit()
+        session.refresh(assessment)
+        return assessment
+
+
+def test_readiness_endpoint_returns_new_policy_and_item_codes(
+    api_client: TestClient,
+    db_session_factory,
+) -> None:
+    assessment = _seed_assessment(
+        db_session_factory,
+        kind=AssessmentType.ASSIGNMENT,
+        title="  ",
+        scheduled_at=datetime.now(UTC) + timedelta(days=3),
+        policy_kwargs={
+            "max_attempts": 0,
+            "time_limit_seconds": 0,
+            "due_at": datetime.now(UTC) + timedelta(days=2),
+            "anti_cheat_json": {"violation_threshold": 0},
+        },
+        items=[
+            {
+                "kind": ItemKind.CHOICE,
+                "title": " ",
+                "max_score": 0,
+                "body_json": {
+                    "kind": "CHOICE",
+                    "prompt": "",
+                    "multiple": False,
+                    "options": [
+                        {"id": "a", "text": "", "is_correct": False},
+                        {"id": "b", "text": "Same", "is_correct": True},
+                        {"id": "c", "text": "same", "is_correct": False},
+                    ],
+                },
+            },
+            {
+                "kind": ItemKind.FORM,
+                "title": "Profile",
+                "max_score": 5,
+                "body_json": {
+                    "kind": "FORM",
+                    "prompt": "Collect details",
+                    "fields": [
+                        {"id": "name", "label": "", "field_type": "text", "required": True},
+                        {"id": "NAME", "label": "Name again", "field_type": "text", "required": False},
+                    ],
+                },
+            },
+        ],
+    )
+
+    response = api_client.get(f"/assessments/{assessment.assessment_uuid}/readiness")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["ok"] is False
+    issue_codes = {issue["code"] for issue in payload["issues"]}
+    assert {
+        "assessment.title_missing",
+        "policy.max_attempts_invalid",
+        "policy.time_limit_invalid",
+        "policy.violation_threshold_invalid",
+        "schedule.after_due_at",
+        "item.title_missing",
+        "item.max_score_invalid",
+        "item.prompt_missing",
+        "choice.option_text_missing",
+        "choice.option_duplicate",
+        "form.field_label_missing",
+        "form.field_id_duplicate",
+    } <= issue_codes
+
+
+def test_readiness_endpoint_and_publish_block_forbidden_exam_item_kind(
+    api_client: TestClient,
+    db_session_factory,
+) -> None:
+    assessment = _seed_assessment(
+        db_session_factory,
+        kind=AssessmentType.EXAM,
+        title="Midterm",
+        scheduled_at=None,
+        policy_kwargs={
+            "max_attempts": 1,
+            "time_limit_seconds": 3600,
+        },
+        items=[
+            {
+                "kind": ItemKind.OPEN_TEXT,
+                "title": "Essay",
+                "max_score": 10,
+                "body_json": {
+                    "kind": "OPEN_TEXT",
+                    "prompt": "Explain the theorem.",
+                    "min_words": 50,
+                },
+            },
+        ],
+    )
+
+    readiness_response = api_client.get(f"/assessments/{assessment.assessment_uuid}/readiness")
+
+    assert readiness_response.status_code == 200
+    readiness_payload = readiness_response.json()
+    assert readiness_payload["ok"] is False
+    assert readiness_payload["issues"] == [
+        {
+            "code": "item.kind_forbidden",
+            "message": "OPEN_TEXT items are not allowed for exam assessments.",
+            "item_uuid": "item_1",
+        }
+    ]
+
+    lifecycle_response = api_client.post(
+        f"/assessments/{assessment.assessment_uuid}/lifecycle",
+        json={"to": "PUBLISHED"},
+    )
+
+    assert lifecycle_response.status_code == 422
+    lifecycle_payload = lifecycle_response.json()
+    assert lifecycle_payload["detail"]["issues"] == readiness_payload["issues"]

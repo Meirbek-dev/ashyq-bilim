@@ -4215,6 +4215,47 @@ export interface components {
             /** Item Uuid */
             item_uuid: string;
         };
+        /** AssessmentAttemptProjection */
+        AssessmentAttemptProjection: {
+            /** Assessment Uuid */
+            assessment_uuid: string;
+            /**
+             * Can Edit
+             * @default false
+             */
+            can_edit: boolean;
+            /**
+             * Can Save Draft
+             * @default false
+             */
+            can_save_draft: boolean;
+            /**
+             * Can Submit
+             * @default false
+             */
+            can_submit: boolean;
+            /**
+             * Is Result Visible
+             * @default false
+             */
+            is_result_visible: boolean;
+            /**
+             * Is Returned For Revision
+             * @default false
+             */
+            is_returned_for_revision: boolean;
+            /**
+             * Release State
+             * @default HIDDEN
+             * @enum {string}
+             */
+            release_state: "HIDDEN" | "AWAITING_RELEASE" | "VISIBLE" | "RETURNED_FOR_REVISION";
+            score?: components["schemas"]["AssessmentScoreProjection"];
+            /** Submission Status */
+            submission_status?: string | null;
+            /** Submission Uuid */
+            submission_uuid?: string | null;
+        };
         /** AssessmentCreate */
         AssessmentCreate: {
             /** Chapter Id */
@@ -4395,6 +4436,7 @@ export interface components {
             assessment_policy?: components["schemas"]["ActivityAssessmentPolicyRead"] | null;
             /** Assessment Uuid */
             assessment_uuid: string;
+            attempt_projection?: components["schemas"]["AssessmentAttemptProjection"] | null;
             /** Chapter Id */
             chapter_id: number;
             /** Course Id */
@@ -4419,6 +4461,7 @@ export interface components {
             policy_id?: number | null;
             /** Published At */
             published_at?: string | null;
+            review_projection?: components["schemas"]["AssessmentReviewProjection"] | null;
             /** Scheduled At */
             scheduled_at?: string | null;
             /** Title */
@@ -4462,6 +4505,29 @@ export interface components {
             issues?: components["schemas"]["ReadinessIssue"][];
             /** Ok */
             ok: boolean;
+        };
+        /** AssessmentReviewProjection */
+        AssessmentReviewProjection: {
+            /** Activity Id */
+            activity_id: number;
+            /** Activity Uuid */
+            activity_uuid: string;
+            /** Assessment Uuid */
+            assessment_uuid: string;
+            kind: components["schemas"]["AssessmentType"];
+            /** Title */
+            title: string;
+        };
+        /** AssessmentScoreProjection */
+        AssessmentScoreProjection: {
+            /** Percent */
+            percent?: number | null;
+            /**
+             * Source
+             * @default none
+             * @enum {string}
+             */
+            source: "teacher" | "auto" | "none";
         };
         /**
          * AssessmentType
@@ -4815,7 +4881,7 @@ export interface components {
             /** Type Of Dir */
             type_of_dir: string;
             /** Uuid */
-            uuid: string;
+            uuid?: string | null;
         };
         /** Body_login_api_v1_auth_login_post */
         Body_login_api_v1_auth_login_post: {

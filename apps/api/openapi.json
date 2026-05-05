@@ -1300,6 +1300,80 @@
         "title": "AssessmentAnswerPatch",
         "type": "object"
       },
+      "AssessmentAttemptProjection": {
+        "properties": {
+          "assessment_uuid": {
+            "title": "Assessment Uuid",
+            "type": "string"
+          },
+          "can_edit": {
+            "default": false,
+            "title": "Can Edit",
+            "type": "boolean"
+          },
+          "can_save_draft": {
+            "default": false,
+            "title": "Can Save Draft",
+            "type": "boolean"
+          },
+          "can_submit": {
+            "default": false,
+            "title": "Can Submit",
+            "type": "boolean"
+          },
+          "is_result_visible": {
+            "default": false,
+            "title": "Is Result Visible",
+            "type": "boolean"
+          },
+          "is_returned_for_revision": {
+            "default": false,
+            "title": "Is Returned For Revision",
+            "type": "boolean"
+          },
+          "release_state": {
+            "default": "HIDDEN",
+            "enum": [
+              "HIDDEN",
+              "AWAITING_RELEASE",
+              "VISIBLE",
+              "RETURNED_FOR_REVISION"
+            ],
+            "title": "Release State",
+            "type": "string"
+          },
+          "score": {
+            "$ref": "#/components/schemas/AssessmentScoreProjection"
+          },
+          "submission_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submission Status"
+          },
+          "submission_uuid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submission Uuid"
+          }
+        },
+        "required": [
+          "assessment_uuid"
+        ],
+        "title": "AssessmentAttemptProjection",
+        "type": "object"
+      },
       "AssessmentCreate": {
         "properties": {
           "chapter_id": {
@@ -1926,6 +2000,16 @@
             "title": "Assessment Uuid",
             "type": "string"
           },
+          "attempt_projection": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AssessmentAttemptProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "chapter_id": {
             "title": "Chapter Id",
             "type": "integer"
@@ -2003,6 +2087,16 @@
               }
             ],
             "title": "Published At"
+          },
+          "review_projection": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AssessmentReviewProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "scheduled_at": {
             "anyOf": [
@@ -2119,6 +2213,65 @@
           "ok"
         ],
         "title": "AssessmentReadiness",
+        "type": "object"
+      },
+      "AssessmentReviewProjection": {
+        "properties": {
+          "activity_id": {
+            "title": "Activity Id",
+            "type": "integer"
+          },
+          "activity_uuid": {
+            "title": "Activity Uuid",
+            "type": "string"
+          },
+          "assessment_uuid": {
+            "title": "Assessment Uuid",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/AssessmentType"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "assessment_uuid",
+          "activity_id",
+          "activity_uuid",
+          "title",
+          "kind"
+        ],
+        "title": "AssessmentReviewProjection",
+        "type": "object"
+      },
+      "AssessmentScoreProjection": {
+        "properties": {
+          "percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percent"
+          },
+          "source": {
+            "default": "none",
+            "enum": [
+              "teacher",
+              "auto",
+              "none"
+            ],
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "title": "AssessmentScoreProjection",
         "type": "object"
       },
       "AssessmentType": {
@@ -3111,14 +3264,20 @@
             "type": "string"
           },
           "uuid": {
-            "title": "Uuid",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uuid"
           }
         },
         "required": [
           "directory",
           "type_of_dir",
-          "uuid",
           "filename",
           "total_chunks",
           "file_size"

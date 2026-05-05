@@ -10,22 +10,33 @@ import AssignmentAttemptContent from '@/features/assessments/registry/assignment
 import { useAttemptShellControls } from '@/features/assessments/shell';
 import type { AttemptViewModel } from '@/features/assessments/domain/view-models';
 
-const apiFetchMock = vi.fn();
-const toastSuccessMock = vi.fn();
-const toastErrorMock = vi.fn();
+const mocks = vi.hoisted(() => ({
+  apiFetchMock: vi.fn(),
+  toastSuccessMock: vi.fn(),
+  toastErrorMock: vi.fn(),
+  useAssessmentSubmissionMock: vi.fn(),
+  useAssessmentAttemptPersistenceMock: vi.fn(),
+  keepLocalMock: vi.fn(),
+  useServerMock: vi.fn(),
+}));
 
 vi.mock('sonner', () => ({
   toast: {
-    success: toastSuccessMock,
-    error: toastErrorMock,
+    success: mocks.toastSuccessMock,
+    error: mocks.toastErrorMock,
   },
+}));
+
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
+  useLocale: () => 'en',
 }));
 
 vi.mock('@/lib/api-client', async () => {
   const actual = await vi.importActual<typeof import('@/lib/api-client')>('@/lib/api-client');
   return {
     ...actual,
-    apiFetch: apiFetchMock,
+    apiFetch: mocks.apiFetchMock,
   };
 });
 
@@ -51,15 +62,12 @@ vi.mock('@/features/assessments/registry', () => ({
     }),
 }));
 
-const useAssessmentSubmissionMock = vi.fn();
-const useAssessmentAttemptPersistenceMock = vi.fn();
-
 vi.mock('@/features/assessments/hooks/useAssessmentSubmission', () => ({
-  useAssessmentSubmission: (...args: unknown[]) => useAssessmentSubmissionMock(...args),
+  useAssessmentSubmission: (...args: unknown[]) => mocks.useAssessmentSubmissionMock(...args),
 }));
 
 vi.mock('@/features/assessments/shell/hooks/useAssessmentAttempt', () => ({
-  useAssessmentAttempt: (...args: unknown[]) => useAssessmentAttemptPersistenceMock(...args),
+  useAssessmentAttempt: (...args: unknown[]) => mocks.useAssessmentAttemptPersistenceMock(...args),
 }));
 
 function DummyAttempt() {
@@ -76,22 +84,38 @@ function DummyAttempt() {
       latestSavedAt: '2026-05-05T10:30:00Z',
       localAnswerCount: 3,
       serverAnswerCount: 5,
-      onKeepLocalVersion: keepLocalMock,
-      onUseServerVersion: useServerMock,
+      onKeepLocalVersion: mocks.keepLocalMock,
+      onUseServerVersion: mocks.useServerMock,
     },
   });
 
   return <div>Attempt content</div>;
 }
 
-const keepLocalMock = vi.fn();
-const useServerMock = vi.fn();
-
 function renderWithClient(children: ReactNode) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
   return render(<QueryClientProvider client={client}>{children}</QueryClientProvider>);
+}
+
+function installLocalStorageMock() {
+  const store = new Map<string, string>();
+  Object.defineProperty(globalThis, 'localStorage', {
+    configurable: true,
+    value: {
+      getItem: vi.fn((key: string) => store.get(key) ?? null),
+      setItem: vi.fn((key: string, value: string) => {
+        store.set(key, String(value));
+      }),
+      removeItem: vi.fn((key: string) => {
+        store.delete(key);
+      }),
+      clear: vi.fn(() => {
+        store.clear();
+      }),
+    },
+  });
 }
 
 function createAttemptVm(overrides: Partial<AttemptViewModel> = {}): AttemptViewModel {
@@ -145,8 +169,10 @@ function createAttemptVm(overrides: Partial<AttemptViewModel> = {}): AttemptView
 describe('assessment runtime convergence', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    apiFetchMock.mockResolvedValue({ ok: true, json: async () => ({}) });
-    useAssessmentAttemptPersistenceMock.mockReturnValue({
+    installLocalStorageMock();
+    globalThis.localStorage.clear();
+    mocks.apiFetchMock.mockResolvedValue({ ok: true, json: async () => ({}) });
+    mocks.useAssessmentAttemptPersistenceMock.mockReturnValue({
       saveAnswers: vi.fn(),
       clearSavedAnswers: vi.fn(),
       getRecoverableData: () => null,
@@ -167,15 +193,15 @@ describe('assessment runtime convergence', () => {
     expect(screen.getByText(/local draft has 3 answered items/i)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Keep my local version' }));
-    expect(keepLocalMock).toHaveBeenCalledTimes(1);
+    expect(mocks.keepLocalMock).toHaveBeenCalledTimes(1);
 
     fireEvent.click(screen.getByRole('button', { name: 'Use latest saved version' }));
-    expect(useServerMock).toHaveBeenCalledTimes(1);
+    expect(mocks.useServerMock).toHaveBeenCalledTimes(1);
   });
 
   it('renders returned resubmission entry flow and starts a revision draft', async () => {
     const saveMock = vi.fn().mockResolvedValue(undefined);
-    useAssessmentSubmissionMock.mockReturnValue({
+    mocks.useAssessmentSubmissionMock.mockReturnValue({
       answers: {},
       draft: null,
       submissions: [
@@ -210,11 +236,11 @@ describe('assessment runtime convergence', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Start revision' }));
 
     await waitFor(() => {
-      expect(apiFetchMock).toHaveBeenCalledWith(
+      expect(mocks.apiFetchMock).toHaveBeenCalledWith(
         'assessments/assessment_runtime/start',
         expect.objectContaining({ method: 'POST' }),
       );
     });
-    expect(toastSuccessMock).toHaveBeenCalledWith('Revision draft created');
+    expect(mocks.toastSuccessMock).toHaveBeenCalledWith('Revision draft created');
   });
 });

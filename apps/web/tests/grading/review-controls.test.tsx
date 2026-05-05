@@ -1,0 +1,289 @@
+/** @vitest-environment jsdom */
+
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import ReviewBulkActionBar from '@/features/grading/review/components/ReviewBulkActionBar';
+import GradeForm from '@/features/grading/review/components/GradeForm';
+import type { Submission } from '@/features/grading/domain';
+
+const mocks = vi.hoisted(() => ({
+  batchGradeSubmissionsMock: vi.fn(),
+  extendDeadlineMock: vi.fn(),
+  publishActivityGradesMock: vi.fn(),
+  exportGradesCsvMock: vi.fn(),
+  saveGradeMock: vi.fn(),
+  toastSuccessMock: vi.fn(),
+  toastErrorMock: vi.fn(),
+  mutateMock: vi.fn().mockResolvedValue(undefined),
+  gradingPanelState: {
+    submission: null as Submission | null,
+    isLoading: false,
+  },
+}));
+
+function installLocalStorageMock() {
+  const store = new Map<string, string>();
+  Object.defineProperty(globalThis, 'localStorage', {
+    configurable: true,
+    value: {
+      getItem: vi.fn((key: string) => store.get(key) ?? null),
+      setItem: vi.fn((key: string, value: string) => {
+        store.set(key, String(value));
+      }),
+      removeItem: vi.fn((key: string) => {
+        store.delete(key);
+      }),
+      clear: vi.fn(() => {
+        store.clear();
+      }),
+    },
+  });
+}
+
+vi.mock('sonner', () => ({
+  toast: {
+    success: mocks.toastSuccessMock,
+    error: mocks.toastErrorMock,
+  },
+}));
+
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
+  useLocale: () => 'en',
+}));
+
+vi.mock('@/services/grading/grading', () => ({
+  batchGradeSubmissions: (...args: unknown[]) => mocks.batchGradeSubmissionsMock(...args),
+  extendDeadline: (...args: unknown[]) => mocks.extendDeadlineMock(...args),
+  publishActivityGrades: (...args: unknown[]) => mocks.publishActivityGradesMock(...args),
+  exportGradesCSV: (...args: unknown[]) => mocks.exportGradesCsvMock(...args),
+  saveGrade: (...args: unknown[]) => mocks.saveGradeMock(...args),
+}));
+
+vi.mock('@/hooks/useGradingPanel', () => ({
+  useGradingPanel: () => ({
+    submission: mocks.gradingPanelState.submission,
+    isLoading: mocks.gradingPanelState.isLoading,
+    mutate: mocks.mutateMock,
+  }),
+}));
+
+function createSubmission(overrides: Partial<Submission> = {}): Submission {
+  return {
+    id: 1,
+    submission_uuid: 'submission_review',
+    user_id: 9,
+    activity_id: 42,
+    status: 'GRADED',
+    version: 3,
+    final_score: 91,
+    auto_score: 88,
+    started_at: '2026-05-05T10:00:00Z',
+    submitted_at: '2026-05-05T10:30:00Z',
+    graded_at: '2026-05-05T11:00:00Z',
+    created_at: '2026-05-05T10:00:00Z',
+    updated_at: '2026-05-05T11:00:00Z',
+    attempt_number: 2,
+    is_late: false,
+    grading_json: { feedback: 'Solid work.' },
+    answers_json: {},
+    metadata_json: {},
+    user: {
+      id: 9,
+      user_uuid: 'user_student',
+      username: 'student',
+      first_name: 'Student',
+      last_name: 'One',
+      email: 'student.one@example.test',
+    },
+    ...overrides,
+  } as Submission;
+}
+
+describe('teacher review controls', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    installLocalStorageMock();
+    globalThis.localStorage.clear();
+    mocks.gradingPanelState.submission = null;
+    mocks.gradingPanelState.isLoading = false;
+    mocks.batchGradeSubmissionsMock.mockResolvedValue({ succeeded: 1, failed: 0, errors: [] });
+    mocks.extendDeadlineMock.mockResolvedValue({ action_uuid: 'bulk_1', status: 'QUEUED' });
+    mocks.publishActivityGradesMock.mockResolvedValue({ published_count: 2, already_published_count: 1 });
+    mocks.exportGradesCsvMock.mockResolvedValue('header\nvalue');
+    mocks.saveGradeMock.mockResolvedValue(createSubmission({ status: 'PUBLISHED' }));
+    mocks.mutateMock.mockResolvedValue(undefined);
+  });
+
+  it('shows publish preview dialog and publishes only grade-ready submissions', async () => {
+    const onRefresh = vi.fn().mockResolvedValue(undefined);
+    render(
+      <ReviewBulkActionBar
+        activityId={42}
+        disabled={false}
+        onRefresh={onRefresh}
+        submissions={[
+          createSubmission({ submission_uuid: 'submission_ready', status: 'GRADED', final_score: 91 }),
+          createSubmission({ submission_uuid: 'submission_hidden', status: 'PENDING', final_score: null }),
+          createSubmission({ submission_uuid: 'submission_visible', status: 'PUBLISHED', final_score: 77 }),
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Publish selected' }));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText('Publish selected grades')).toBeInTheDocument();
+    expect(within(dialog).getByText('Review the exact impact before making grades visible to students.')).toBeInTheDocument();
+    expect(within(dialog).getByText('Grade-ready')).toBeInTheDocument();
+    expect(within(dialog).getByText('Hidden from student')).toBeInTheDocument();
+    expect(within(dialog).getByText('Already visible')).toBeInTheDocument();
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm publish' }));
+
+    await waitFor(() => {
+      expect(mocks.batchGradeSubmissionsMock).toHaveBeenCalledTimes(1);
+    });
+    expect(mocks.batchGradeSubmissionsMock).toHaveBeenCalledWith([
+      expect.objectContaining({ submission_uuid: 'submission_ready', status: 'PUBLISHED', final_score: 91 }),
+      expect.objectContaining({ submission_uuid: 'submission_visible', status: 'PUBLISHED', final_score: 77 }),
+    ]);
+    expect(mocks.toastSuccessMock).toHaveBeenCalledWith('Selected grades published');
+    expect(onRefresh).toHaveBeenCalledTimes(1);
+    expect(await screen.findByText('Bulk publish finished')).toBeInTheDocument();
+  });
+
+  it('shows deadline extension preview and queues the selected learner override', async () => {
+    const onRefresh = vi.fn().mockResolvedValue(undefined);
+    render(
+      <ReviewBulkActionBar
+        activityId={77}
+        disabled={false}
+        onRefresh={onRefresh}
+        submissions={[
+          createSubmission({ user: { id: 9, user_uuid: 'user_a', username: 'student.a', first_name: 'A', last_name: 'Student', email: 'a@example.test' } as Submission['user'] }),
+          createSubmission({ submission_uuid: 'submission_two', user: { id: 10, user_uuid: 'user_b', username: 'student.b', first_name: 'B', last_name: 'Student', email: 'b@example.test' } as Submission['user'] }),
+        ]}
+      />,
+    );
+
+    const dueAtInput = document.querySelector('input[type="datetime-local"]') as HTMLInputElement | null;
+    expect(dueAtInput).not.toBeNull();
+    fireEvent.change(dueAtInput!, { target: { value: '2026-05-10T14:30' } });
+    fireEvent.change(screen.getByPlaceholderText('Reason'), { target: { value: 'Medical extension' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Extend' }));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText('Extend deadlines')).toBeInTheDocument();
+    expect(within(dialog).getByText('Medical extension')).toBeInTheDocument();
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Queue extension' }));
+
+    await waitFor(() => {
+      expect(mocks.extendDeadlineMock).toHaveBeenCalledWith(77, {
+        user_uuids: ['user_a', 'user_b'],
+        new_due_at: new Date('2026-05-10T14:30').toISOString(),
+        reason: 'Medical extension',
+      });
+    });
+    expect(mocks.toastSuccessMock).toHaveBeenCalledWith('Deadline extension queued');
+    expect(onRefresh).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows hidden-grade release preview and summarizes the activity-wide publish result', async () => {
+    const onRefresh = vi.fn().mockResolvedValue(undefined);
+    render(
+      <ReviewBulkActionBar
+        activityId={55}
+        disabled={false}
+        onRefresh={onRefresh}
+        submissions={[
+          createSubmission({ submission_uuid: 'hidden_one', status: 'GRADED' }),
+          createSubmission({ submission_uuid: 'hidden_two', status: 'PENDING', final_score: null }),
+          createSubmission({ submission_uuid: 'visible_one', status: 'PUBLISHED' }),
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Release hidden grades' }));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText('Release hidden grades')).toBeInTheDocument();
+    expect(within(dialog).getByText('Selected hidden submissions')).toBeInTheDocument();
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Release grades' }));
+
+    await waitFor(() => {
+      expect(mocks.publishActivityGradesMock).toHaveBeenCalledWith(55);
+    });
+    expect(mocks.toastSuccessMock).toHaveBeenCalledWith('Hidden grades released');
+    expect(await screen.findByText('Grade release finished')).toBeInTheDocument();
+  });
+
+  it('explains hidden grades and keeps publish disabled until the teacher saves a grade', () => {
+    mocks.gradingPanelState.submission = createSubmission({ status: 'PENDING', final_score: null, auto_score: null, grading_json: {} });
+
+    render(
+      <GradeForm
+        submissionUuid="submission_review"
+        onSaved={vi.fn().mockResolvedValue(undefined)}
+        navigation={{ hasNext: false, hasPrevious: false, goNext: vi.fn(), goPrevious: vi.fn() }}
+      />,
+    );
+
+    expect(screen.getByText('Hidden from student')).toBeInTheDocument();
+    expect(screen.getByText('This submission is still awaiting grading. Students cannot see any result yet.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Publish to student' })).toBeDisabled();
+    expect(screen.getByText('Save as graded first before publishing student-visible results.')).toBeInTheDocument();
+  });
+
+  it('explains awaiting release state and publishes student-visible grades', async () => {
+    const onSaved = vi.fn().mockResolvedValue(undefined);
+    mocks.gradingPanelState.submission = createSubmission({ status: 'GRADED', final_score: 94, version: 8 });
+
+    render(
+      <GradeForm
+        submissionUuid="submission_review"
+        onSaved={onSaved}
+        navigation={{ hasNext: true, hasPrevious: true, goNext: vi.fn(), goPrevious: vi.fn() }}
+      />,
+    );
+
+    expect(screen.getByText('Awaiting release')).toBeInTheDocument();
+    expect(screen.getByText('The grade is saved internally and still hidden from the student until you publish it.')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Publish to student' }));
+
+    await waitFor(() => {
+      expect(mocks.saveGradeMock).toHaveBeenCalledWith(
+        'submission_review',
+        {
+          final_score: 94,
+          feedback: 'Solid work.',
+          status: 'PUBLISHED',
+          item_feedback: [],
+        },
+        8,
+      );
+    });
+    expect(mocks.toastSuccessMock).toHaveBeenCalledWith('Grade published');
+    expect(onSaved).toHaveBeenCalledTimes(1);
+  });
+
+  it('explains already visible grades and keeps publish disabled after release', () => {
+    mocks.gradingPanelState.submission = createSubmission({ status: 'PUBLISHED', final_score: 88 });
+
+    render(
+      <GradeForm
+        submissionUuid="submission_review"
+        onSaved={vi.fn().mockResolvedValue(undefined)}
+        navigation={{ hasNext: false, hasPrevious: false, goNext: vi.fn(), goPrevious: vi.fn() }}
+      />,
+    );
+
+    expect(screen.getByText('Visible to student')).toBeInTheDocument();
+    expect(screen.getByText('This grade is already visible to the student.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Publish to student' })).toBeDisabled();
+  });
+});
