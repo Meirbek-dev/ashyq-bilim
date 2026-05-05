@@ -12,7 +12,6 @@ from ulid import ULID
 from src.db.courses.activities import Activity
 from src.db.courses.blocks import Block
 from src.db.courses.quiz import (
-    QuizAttempt,
     QuizGradingResult,
     QuizQuestionStat,
     QuizSettings,
@@ -31,6 +30,83 @@ from src.services.gamification.service import award_xp
 from src.services.progress import submissions as progress_submissions
 
 logger = logging.getLogger(__name__)
+
+
+def _serialize_quiz_grading(grading_result: dict[str, object]) -> dict[str, object]:
+    per_question = grading_result.get("per_question")
+    items = [
+        {
+            "item_id": str(item.get("question_id") or ""),
+            "item_text": str(item.get("question_text") or ""),
+            "score": float(item.get("score") or 0),
+            "max_score": float(item.get("max_score") or 0),
+            "correct": item.get("correct"),
+            "feedback": str(item.get("feedback") or ""),
+            "needs_manual_review": bool(item.get("needs_grading", False)),
+            "user_answer": item.get("user_answer"),
+            "correct_answer": item.get("correct_answers"),
+        }
+        for item in per_question
+        if isinstance(item, dict)
+    ] if isinstance(per_question, list) else []
+    return {
+        "items": items,
+        "needs_manual_review": any(
+            isinstance(item, dict) and item.get("needs_grading")
+            for item in (per_question or [])
+        ),
+        "auto_graded": True,
+        "feedback": "",
+    }
+
+
+def _submission_attempt_uuid(submission: Submission) -> str:
+    metadata = submission.metadata_json if isinstance(submission.metadata_json, dict) else {}
+    attempt_uuid = metadata.get("attempt_uuid")
+    if isinstance(attempt_uuid, str) and attempt_uuid:
+        return attempt_uuid
+    if submission.submission_uuid.startswith("submission_"):
+        return submission.submission_uuid.removeprefix("submission_")
+    return submission.submission_uuid
+
+
+def _build_quiz_submission_response(
+    submission: Submission,
+    *,
+    max_attempts_reached: bool,
+    violations_exceeded: bool,
+) -> QuizSubmissionResponse:
+    grading_json = submission.grading_json if isinstance(submission.grading_json, dict) else {}
+    items = grading_json.get("items") if isinstance(grading_json.get("items"), list) else []
+    score = float(submission.final_score if submission.final_score is not None else submission.auto_score or 0)
+    per_question = [
+        {
+            "question_id": item.get("item_id"),
+            "question_text": item.get("item_text"),
+            "correct": item.get("correct"),
+            "score": item.get("score"),
+            "max_score": item.get("max_score"),
+            "feedback": item.get("feedback"),
+            "user_answer": item.get("user_answer"),
+            "correct_answers": item.get("correct_answer"),
+            "needs_grading": item.get("needs_manual_review", False),
+        }
+        for item in items
+        if isinstance(item, dict)
+    ]
+    return QuizSubmissionResponse(
+        attempt_uuid=_submission_attempt_uuid(submission),
+        attempt_number=submission.attempt_number,
+        grading_result=QuizGradingResult(
+            total_score=score,
+            max_score=100.0,
+            percentage=score,
+            passed=score >= 50.0,
+            per_question=per_question,
+        ),
+        max_attempts_reached=max_attempts_reached,
+        violations_exceeded=violations_exceeded,
+    )
 
 
 async def submit_quiz(
@@ -86,31 +162,37 @@ async def submit_quiz(
     settings_data = quiz_block.content.get("settings", {})
     settings = QuizSettings(**settings_data) if settings_data else QuizSettings()
 
-    # Check for idempotency
-    if submission.idempotency_key:
-        statement = select(QuizAttempt).where(
-            QuizAttempt.idempotency_key == submission.idempotency_key
-        )
-        existing = db_session.exec(statement).first()
+    statement = select(Submission).where(
+        Submission.user_id == current_user.id,
+        Submission.activity_id == activity_id,
+        Submission.assessment_type == AssessmentType.QUIZ,
+    )
+    previous_attempts = db_session.exec(statement).all()
 
-        if existing:
-            progress_submissions.sync_quiz_attempt(existing, db_session)
-            # Return existing result
-            return QuizSubmissionResponse(
-                attempt_uuid=existing.attempt_uuid,
-                attempt_number=existing.attempt_number,
-                grading_result=QuizGradingResult(**existing.grading_result),
+    if submission.idempotency_key:
+        existing = next(
+            (
+                item
+                for item in previous_attempts
+                if isinstance(item.metadata_json, dict)
+                and item.metadata_json.get("idempotency_key") == submission.idempotency_key
+            ),
+            None,
+        )
+        if existing is not None:
+            return _build_quiz_submission_response(
+                existing,
                 max_attempts_reached=_check_max_attempts(
                     db_session, current_user.id, activity_id, settings.max_attempts
                 ),
+                violations_exceeded=bool(
+                    isinstance(existing.metadata_json, dict)
+                    and int(existing.metadata_json.get("violation_count") or 0)
+                    > settings.max_violations
+                    and settings.block_on_violations
+                ),
             )
 
-    # Check attempt limits
-    statement = select(QuizAttempt).where(
-        QuizAttempt.user_id == current_user.id,
-        QuizAttempt.activity_id == activity_id,
-    )
-    previous_attempts = db_session.exec(statement).all()
     attempt_number = len(previous_attempts) + 1
 
     if settings.max_attempts and attempt_number > settings.max_attempts:
@@ -160,8 +242,6 @@ async def submit_quiz(
         final_score = 0.0
         grading_result["passed"] = False
 
-    # Legacy adapter: write the canonical Submission before the QuizAttempt
-    # compatibility row. New features should not write QuizAttempt directly.
     attempt_uuid = f"quiz_attempt_{ULID()}"
     manual_review = any(
         isinstance(item, dict) and item.get("needs_grading")
@@ -175,7 +255,22 @@ async def submit_quiz(
         status=SubmissionStatus.PENDING if manual_review else SubmissionStatus.GRADED,
         attempt_number=attempt_number,
         answers_json={"answers": submission.answers},
-        grading_json={},
+        grading_json=_serialize_quiz_grading(grading_result),
+        metadata_json={
+            "attempt_uuid": attempt_uuid,
+            "idempotency_key": submission.idempotency_key,
+            "duration_seconds": duration_seconds,
+            "violation_count": submission.violation_count,
+            "violations": [
+                {
+                    "kind": key,
+                    "occurred_at": end_ts,
+                    "count": int(value or 0),
+                }
+                for key, value in submission.violations.items()
+                if int(value or 0) > 0
+            ],
+        },
         auto_score=final_score,
         final_score=None if manual_review else final_score,
         is_late=False,
@@ -185,34 +280,10 @@ async def submit_quiz(
         created_at=datetime.now(UTC),
         updated_at=datetime.now(UTC),
     )
-
-    quiz_attempt = QuizAttempt(
-        user_id=current_user.id,
-        activity_id=activity_id,
-        attempt_uuid=attempt_uuid,
-        attempt_number=attempt_number,
-        start_ts=start_ts,
-        end_ts=end_ts,
-        duration_seconds=duration_seconds,
-        score=final_score,
-        max_score=grading_result["max_score"],
-        max_attempts=settings.max_attempts,
-        time_limit_seconds=settings.time_limit_seconds,
-        max_score_penalty_per_attempt=settings.max_score_penalty_per_attempt,
-        violation_count=submission.violation_count,
-        violations=submission.violations,
-        answers={"answers": submission.answers},
-        grading_result=grading_result,
-        idempotency_key=submission.idempotency_key,
-        creation_date=str(datetime.now(UTC)),
-        update_date=str(datetime.now(UTC)),
-    )
-
-    db_session.add(canonical_submission)
-    db_session.add(quiz_attempt)
-    db_session.commit()
-    db_session.refresh(quiz_attempt)
-    progress_submissions.sync_quiz_attempt(quiz_attempt, db_session)
+    if manual_review:
+        progress_submissions.submit_activity(canonical_submission, db_session)
+    else:
+        progress_submissions.grade_submission(canonical_submission, db_session)
 
     # Update question statistics
     await _update_question_stats(
@@ -267,9 +338,10 @@ def _check_max_attempts(
     if not max_attempts:
         return False
 
-    statement = select(QuizAttempt).where(
-        QuizAttempt.user_id == user_id,
-        QuizAttempt.activity_id == activity_id,
+    statement = select(Submission.id).where(
+        Submission.user_id == user_id,
+        Submission.activity_id == activity_id,
+        Submission.assessment_type == AssessmentType.QUIZ,
     )
     attempts = db_session.exec(statement).all()
 

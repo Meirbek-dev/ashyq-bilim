@@ -36,6 +36,7 @@ class AlertItem(PydanticStrictBaseModel):
     severity: Literal["info", "warning", "critical"]
     title: str
     body: str
+    href: str | None = None
     course_id: int | None = None
     activity_id: int | None = None
     assessment_id: int | None = None
@@ -577,7 +578,7 @@ class AssessmentMigrationStatus(PydanticStrictBaseModel):
     legacy_row_count: int = 0
     canonical_row_count: int = 0
     cutover_ready: bool
-    compatibility_mode: Literal["canonical", "dual_write", "legacy_only"]
+    compatibility_mode: Literal["canonical"]
     note: str
 
 

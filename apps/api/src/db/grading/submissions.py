@@ -70,6 +70,11 @@ class SubmissionMetadata(PydanticStrictBaseModel):
     runs: list[CodeRunRecord] = Field(default_factory=list)
     # Anti-cheat events logged during the attempt
     violations: list[AntiCheatViolation] = Field(default_factory=list)
+    # Quiz/runtime metadata that needs to round-trip for idempotency and diagnostics
+    attempt_uuid: str | None = None
+    idempotency_key: str | None = None
+    duration_seconds: int | None = None
+    violation_count: int = 0
     # Plagiarism detection outcome (populated post-submit by background task)
     plagiarism: PlagiarismScore | None = None
 

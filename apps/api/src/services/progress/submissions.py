@@ -6,8 +6,6 @@ or run as a repair/backfill job to rebuild `activity_progress` and
 """
 
 from datetime import UTC, datetime
-from typing import Any
-
 from sqlmodel import Session, select
 from ulid import ULID
 
@@ -15,7 +13,6 @@ from src.db.assessments import Assessment
 from src.db.courses.activities import Activity, ActivityTypeEnum
 from src.db.courses.blocks import Block, BlockTypeEnum
 from src.db.courses.courses import Course
-from src.db.courses.quiz import QuizAttempt
 from src.db.grading.progress import (
     ActivityProgress,
     ActivityProgressState,
@@ -306,42 +303,6 @@ def backfill_activity_progress(
     if commit:
         db_session.commit()
     return {"activities": len(activities), "progress_rows_repaired": rows}
-
-
-def sync_quiz_attempt(
-    attempt: QuizAttempt,
-    db_session: Session,
-    *,
-    commit: bool = True,
-) -> Submission:
-    manual_review = any(
-        isinstance(item, dict) and item.get("needs_grading")
-        for item in (attempt.grading_result or {}).get("per_question", [])
-    )
-    status = SubmissionStatus.PENDING if manual_review else SubmissionStatus.GRADED
-    submission = _get_or_create_progress_submission(
-        submission_uuid=f"submission_{attempt.attempt_uuid}",
-        activity_id=attempt.activity_id,
-        user_id=attempt.user_id,
-        assessment_type=AssessmentType.QUIZ,
-        db_session=db_session,
-    )
-    submission.attempt_number = attempt.attempt_number
-    submission.status = status
-    submission.answers_json = attempt.answers or {}
-    submission.grading_json = _quiz_grading_json(attempt)
-    submission.metadata_json = submission.metadata_json or {}
-    submission.auto_score = float(attempt.score or 0)
-    submission.final_score = None if manual_review else float(attempt.score or 0)
-    submission.is_late = False
-    submission.started_at = _coerce_datetime(attempt.start_ts)
-    submission.submitted_at = _coerce_datetime(attempt.end_ts)
-    submission.graded_at = None if manual_review else _coerce_datetime(attempt.end_ts)
-    submission.created_at = _coerce_datetime(attempt.creation_date) or datetime.now(UTC)
-    submission.updated_at = _coerce_datetime(attempt.update_date) or datetime.now(UTC)
-
-    _save_progress_submission(submission, db_session, commit=commit)
-    return submission
 
 
 def _record_submission_change(submission: Submission, db_session: Session) -> None:
@@ -706,32 +667,6 @@ def _policy_completion_rule(policy: AssessmentPolicy | None) -> str:
 
 def _policy_passing_score(policy: AssessmentPolicy | None) -> float:
     return float(policy.passing_score) if policy is not None else 60.0
-
-
-def _quiz_grading_json(attempt: QuizAttempt) -> dict[str, Any]:
-    return {
-        "items": [
-            {
-                "item_id": str(item.get("question_id", "")),
-                "item_text": str(item.get("question_text", "")),
-                "score": float(item.get("score") or 0),
-                "max_score": float(item.get("max_score") or 0),
-                "correct": item.get("correct"),
-                "feedback": str(item.get("feedback", "")),
-                "needs_manual_review": bool(item.get("needs_grading", False)),
-                "user_answer": item.get("user_answer"),
-                "correct_answer": item.get("correct_answers"),
-            }
-            for item in (attempt.grading_result or {}).get("per_question", [])
-            if isinstance(item, dict)
-        ],
-        "needs_manual_review": any(
-            isinstance(item, dict) and item.get("needs_grading")
-            for item in (attempt.grading_result or {}).get("per_question", [])
-        ),
-        "auto_graded": True,
-        "feedback": "",
-    }
 
 
 def _submission_score(submission: Submission) -> float | None:

@@ -40,8 +40,8 @@ def build_data_quality(
         missing_sources.append("progress_events")
     if not context.assignment_submissions:
         missing_sources.append("assignment_submissions")
-    if not context.quiz_attempts:
-        missing_sources.append("quiz_attempts")
+    if not context.quiz_submissions:
+        missing_sources.append("quiz_submissions")
     if not context.exam_attempts:
         missing_sources.append("exam_attempts")
     if not context.code_submissions:

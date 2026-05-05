@@ -10,7 +10,6 @@ from src.services.progress.submissions import (
     save_activity_draft,
     start_activity_submission,
     submit_activity,
-    sync_quiz_attempt,
 )
 
 __all__ = [
@@ -23,5 +22,4 @@ __all__ = [
     "save_activity_draft",
     "start_activity_submission",
     "submit_activity",
-    "sync_quiz_attempt",
 ]

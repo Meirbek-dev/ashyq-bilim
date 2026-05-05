@@ -91,9 +91,13 @@ def build_anomalies(
             )
 
     durations_by_activity: dict[int, list[float]] = defaultdict(list)
-    for attempt, activity in context.quiz_attempts:
-        if attempt.duration_seconds is not None and attempt.duration_seconds > 0:
-            durations_by_activity[activity.id].append(float(attempt.duration_seconds))
+    for submission, activity in context.quiz_submissions:
+        metadata = submission.metadata_json if isinstance(submission.metadata_json, dict) else {}
+        duration_seconds = metadata.get("duration_seconds")
+        if duration_seconds is None and submission.started_at and submission.submitted_at:
+            duration_seconds = (submission.submitted_at - submission.started_at).total_seconds()
+        if duration_seconds is not None and float(duration_seconds) > 0:
+            durations_by_activity[activity.id].append(float(duration_seconds))
     for activity_id, durations in durations_by_activity.items():
         if len(durations) < 5:
             continue
@@ -129,19 +133,17 @@ def build_anomalies(
             continue
         before_scores: list[float] = []
         after_scores: list[float] = []
-        for attempt, activity in context.quiz_attempts:
+        for submission, activity in context.quiz_submissions:
             if activity.id != assessment.activity_id:
                 continue
-            completed_at = parse_timestamp(attempt.end_ts) or parse_timestamp(
-                attempt.start_ts
+            completed_at = parse_timestamp(submission.submitted_at) or parse_timestamp(
+                submission.started_at
             )
             if completed_at is None:
                 continue
-            score = (
-                (attempt.score / attempt.max_score) * 100
-                if attempt.max_score
-                else attempt.score
-            )
+            score = submission.final_score if submission.final_score is not None else submission.auto_score
+            if score is None:
+                continue
             if completed_at < last_update:
                 before_scores.append(float(score))
             else:

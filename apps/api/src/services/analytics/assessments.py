@@ -12,7 +12,6 @@ from sqlmodel import Session
 from src.db.assessments import Assessment
 from src.db.courses.activities import Activity, ActivityTypeEnum
 from src.db.courses.courses import Course
-from src.db.courses.quiz import QuizAttempt
 from src.db.grading.bulk_actions import BulkAction
 from src.db.grading.entries import GradingEntry
 from src.db.grading.submissions import AssessmentType as SubmissionAssessmentType
@@ -334,26 +333,28 @@ def _suspicious_flag(
     return None
 
 
-def _quality_by_question_from_quiz_attempts(
-    attempts: list,
+def _quality_by_question_from_quiz_submissions(
+    submissions: list[Submission],
 ) -> dict[str, dict[str, float | int]]:
-    scored_attempts: list[tuple[float, object]] = []
-    for attempt in attempts:
-        if not attempt.end_ts or not attempt.max_score:
+    scored_submissions: list[tuple[float, Submission]] = []
+    for submission in submissions:
+        if (score := assignment_score(submission)) is None:
             continue
-        score_pct = (float(attempt.score) / float(attempt.max_score)) * 100
-        scored_attempts.append((score_pct, attempt))
-    if len(scored_attempts) < 4:
+        scored_submissions.append((score, submission))
+    if len(scored_submissions) < 4:
         return {}
-    ordered = sorted(scored_attempts, key=operator.itemgetter(0))
+    ordered = sorted(scored_submissions, key=operator.itemgetter(0))
     group_size = max(1, round(len(ordered) * 0.27))
-    weak = {id(attempt) for _score, attempt in ordered[:group_size]}
-    strong = {id(attempt) for _score, attempt in ordered[-group_size:]}
+    weak = {id(submission) for _score, submission in ordered[:group_size]}
+    strong = {id(submission) for _score, submission in ordered[-group_size:]}
     totals: dict[str, dict[str, int]] = defaultdict(
         lambda: {"strong": 0, "strong_miss": 0, "weak": 0, "weak_correct": 0}
     )
-    for _score, attempt in scored_attempts:
-        items = (attempt.grading_result or {}).get("items", [])
+    for _score, submission in scored_submissions:
+        grading_json = (
+            submission.grading_json if isinstance(submission.grading_json, dict) else {}
+        )
+        items = grading_json.get("items", [])
         if not isinstance(items, list):
             continue
         for item in items:
@@ -363,11 +364,11 @@ def _quality_by_question_from_quiz_attempts(
             if not question_id:
                 continue
             correct = item.get("correct")
-            if id(attempt) in strong:
+            if id(submission) in strong:
                 totals[question_id]["strong"] += 1
                 if correct is False:
                     totals[question_id]["strong_miss"] += 1
-            if id(attempt) in weak:
+            if id(submission) in weak:
                 totals[question_id]["weak"] += 1
                 if correct is True:
                     totals[question_id]["weak_correct"] += 1
@@ -396,8 +397,11 @@ def _submission_has_suspicion(submission: Submission) -> bool:
         submission.metadata_json if isinstance(submission.metadata_json, dict) else {}
     )
     violations = metadata.get("violations")
+    violation_count = metadata.get("violation_count")
     plagiarism = metadata.get("plagiarism")
     return (isinstance(violations, list) and len(violations) > 0) or (
+        violation_count is not None and int(violation_count) > 0
+    ) or (
         isinstance(plagiarism, dict) and bool(plagiarism.get("flagged"))
     )
 
@@ -458,32 +462,6 @@ def _build_submission_diagnostics(
             1 for submission in submissions if _submission_missing_score(submission)
         ),
         note=note,
-    )
-
-
-def _build_quiz_diagnostics(attempts: list[object]) -> AssessmentDiagnosticsSnapshot:
-    return AssessmentDiagnosticsSnapshot(
-        manual_grading_required=False,
-        total_attempt_records=len(attempts),
-        draft_attempts=sum(
-            1 for attempt in attempts if not getattr(attempt, "end_ts", None)
-        ),
-        awaiting_grading=0,
-        graded_not_released=0,
-        returned_for_resubmission=0,
-        released=sum(1 for attempt in attempts if getattr(attempt, "end_ts", None)),
-        stale_backlog=0,
-        suspicious_attempts=sum(
-            1
-            for attempt in attempts
-            if int(getattr(attempt, "violation_count", 0) or 0) > 0
-        ),
-        missing_scores=sum(
-            1
-            for attempt in attempts
-            if getattr(attempt, "max_score", None) is None
-        ),
-        note="Quiz analytics still depend on legacy attempt compatibility rows.",
     )
 
 
@@ -670,31 +648,10 @@ def _build_migration_status(
     *,
     assessment_type: str,
     activity_id: int,
-    legacy_row_count: int = 0,
 ) -> AssessmentMigrationStatus:
-    if assessment_type == "quiz":
-        canonical_row_count = _canonical_submission_count(
-            db_session,
-            activity_id=activity_id,
-            assessment_type=SubmissionAssessmentType.QUIZ,
-        )
-        compatibility_mode = (
-            "dual_write"
-            if canonical_row_count > 0 and legacy_row_count > 0
-            else "legacy_only"
-        )
-        return AssessmentMigrationStatus(
-            is_canonical=False,
-            legacy_sources=["quiz_attempt"],
-            legacy_row_count=legacy_row_count,
-            canonical_row_count=canonical_row_count,
-            cutover_ready=False,
-            compatibility_mode=compatibility_mode,
-            note="Quiz analytics detail still reads QuizAttempt compatibility rows and cannot cut over yet.",
-        )
-
     canonical_type = {
         "assignment": SubmissionAssessmentType.ASSIGNMENT,
+        "quiz": SubmissionAssessmentType.QUIZ,
         "exam": SubmissionAssessmentType.EXAM,
         "code_challenge": SubmissionAssessmentType.CODE_CHALLENGE,
     }[assessment_type]
@@ -1166,32 +1123,39 @@ def _build_quiz_rows(
     for course_id, user_id in snapshots:
         eligible_by_course[course_id].add(user_id)
 
-    attempts_by_activity: dict[int, list] = defaultdict(list)
-    for attempt, activity in context.quiz_attempts:
-        if not _is_allowed(attempt.user_id, allowed_user_ids):
+    submissions_by_activity: dict[int, list[tuple[Submission, Activity]]] = defaultdict(list)
+    for submission, activity in context.quiz_submissions:
+        if not _is_allowed(submission.user_id, allowed_user_ids):
             continue
-        if not _in_bucket_window(attempt.end_ts or attempt.start_ts, bucket_window):
+        if not _in_bucket_window(
+            submission.submitted_at or submission.created_at,
+            bucket_window,
+        ):
             continue
-        attempts_by_activity[activity.id].append((attempt, activity))
+        submissions_by_activity[activity.id].append((submission, activity))
 
     rows: list[AssessmentOutlierRow] = []
-    for activity_id, attempts in attempts_by_activity.items():
+    for activity_id, submissions in submissions_by_activity.items():
         activity = context.activities_by_id.get(activity_id)
         if activity is None or activity.course_id is None:
             continue
         eligible = len(eligible_by_course.get(activity.course_id, set()))
-        submitted_users = {attempt.user_id for attempt, _ in attempts if attempt.end_ts}
+        submitted_users = {
+            submission.user_id
+            for submission, _ in submissions
+            if assignment_submission_status(submission) != SubmissionStatus.DRAFT.value
+        }
         scores = [
-            ((float(attempt.score) / float(attempt.max_score)) * 100)
-            for attempt, _ in attempts
-            if attempt.end_ts and attempt.max_score
+            score
+            for submission, _ in submissions
+            if (score := assignment_score(submission)) is not None
         ]
         scores_by_user = {
-            attempt.user_id: (float(attempt.score) / float(attempt.max_score)) * 100
-            for attempt, _ in attempts
-            if attempt.end_ts and attempt.max_score
+            submission.user_id: score
+            for submission, _ in submissions
+            if (score := assignment_score(submission)) is not None
         }
-        attempts_by_user = Counter(attempt.user_id for attempt, _ in attempts)
+        attempts_by_user = Counter(submission.user_id for submission, _ in submissions)
         pass_rate = safe_pct(sum(1 for score in scores if score >= 60), len(scores))
         variance = _score_variance(scores)
         discrimination = _discrimination_index(scores_by_user)
@@ -1754,25 +1718,25 @@ def get_teacher_assessment_detail(
             msg = f"Активность теста не найдена: {assessment_id}"
             raise ValueError(msg)
         records = [
-            (attempt, activity_)
-            for attempt, activity_ in context.quiz_attempts
+            (submission, activity_)
+            for submission, activity_ in context.quiz_submissions
             if activity_.id == assessment_id
-            and _is_allowed(attempt.user_id, allowed_user_ids)
+            and _is_allowed(submission.user_id, allowed_user_ids)
         ]
         eligible = len(eligible_by_course.get(activity.course_id, set()))
-        quiz_attempts_by_user: dict[int, list[QuizAttempt]] = defaultdict(list)
+        quiz_attempts_by_user: dict[int, list[Submission]] = defaultdict(list)
         quiz_scores: list[float] = []
-        for attempt, _activity in records:
-            quiz_attempts_by_user[attempt.user_id].append(attempt)
-            if attempt.end_ts and attempt.max_score:
-                quiz_scores.append(
-                    (float(attempt.score) / float(attempt.max_score)) * 100
-                )
+        for submission, _activity in records:
+            quiz_attempts_by_user[submission.user_id].append(submission)
+            if (score := assignment_score(submission)) is not None:
+                quiz_scores.append(score)
         submitted_users = {
-            attempt.user_id for attempt, _activity in records if attempt.end_ts
+            submission.user_id
+            for submission, _activity in records
+            if assignment_submission_status(submission) != SubmissionStatus.DRAFT.value
         }
-        quality_by_question = _quality_by_question_from_quiz_attempts([
-            attempt for attempt, _activity in records
+        quality_by_question = _quality_by_question_from_quiz_submissions([
+            submission for submission, _activity in records
         ])
         question_breakdown = []
         for stat in [
@@ -1810,24 +1774,21 @@ def get_teacher_assessment_detail(
         ]
         learner_rows = []
         for user_id, attempts in quiz_attempts_by_user.items():
-            quiz_attempt_list: list[QuizAttempt] = list(attempts)
+            quiz_attempt_list: list[Submission] = list(attempts)
             ordered_attempts = sorted(
-                quiz_attempt_list, key=lambda item: item.end_ts or item.start_ts
+                quiz_attempt_list,
+                key=lambda item: item.submitted_at or item.updated_at or item.created_at or item.started_at,
             )
             best_score = max(
                 (
-                    (float(item.score) / float(item.max_score)) * 100
+                    score
                     for item in quiz_attempt_list
-                    if item.max_score
+                    if (score := assignment_score(item)) is not None
                 ),
                 default=None,
             )
             last_attempt = ordered_attempts[-1]
-            last_score = (
-                (float(last_attempt.score) / float(last_attempt.max_score)) * 100
-                if last_attempt.max_score
-                else None
-            )
+            last_score = assignment_score(last_attempt)
             learner_rows.append(
                 AssessmentLearnerRow(
                     user_id=user_id,
@@ -1835,27 +1796,21 @@ def get_teacher_assessment_detail(
                     attempts=len(quiz_attempt_list),
                     best_score=round(best_score, 2) if best_score is not None else None,
                     last_score=round(last_score, 2) if last_score is not None else None,
-                    submitted_at=to_iso(last_attempt.end_ts),
-                    graded_at=None,
-                    status="COMPLETED" if last_attempt.end_ts else "IN_PROGRESS",
+                    submitted_at=to_iso(assignment_submitted_at(last_attempt)),
+                    graded_at=to_iso(assignment_graded_at(last_attempt)),
+                    status=assignment_submission_status(last_attempt),
                 )
             )
-        canonical_quiz_submissions = [
-            submission
-            for submission in db_session
-            .exec(
-                select(Submission).where(
-                    Submission.activity_id == activity.id,
-                    Submission.assessment_type == SubmissionAssessmentType.QUIZ,
-                )
-            )
-            .scalars()
-            .all()
-            if allowed_user_ids is None or submission.user_id in allowed_user_ids
-        ]
-        diagnostics = _build_quiz_diagnostics([
-            attempt for attempt, _activity in records
-        ])
+        canonical_quiz_submissions = [submission for submission, _activity in records]
+        diagnostics = _build_submission_diagnostics(
+            canonical_quiz_submissions,
+            manual_grading_required=any(
+                isinstance(submission.grading_json, dict)
+                and bool(submission.grading_json.get("needs_manual_review"))
+                for submission in canonical_quiz_submissions
+            ),
+            note="Quiz analytics detail is backed by canonical submission rows and per-question grading payloads.",
+        )
         audit_history = _load_audit_history(
             db_session,
             activity_id=activity.id,
@@ -1866,12 +1821,12 @@ def get_teacher_assessment_detail(
             ],
             allowed_user_ids=allowed_user_ids,
         )
-        slo = _build_slo_snapshot(diagnostics, [])
+        latencies = _submission_latencies(canonical_quiz_submissions)
+        slo = _build_slo_snapshot(diagnostics, latencies)
         migration = _build_migration_status(
             db_session,
             assessment_type="quiz",
             activity_id=activity.id,
-            legacy_row_count=len(records),
         )
         eligible_user_ids = eligible_by_course.get(activity.course_id, set())
         item_analytics = _build_workflow_item_rows(diagnostics)
@@ -1918,9 +1873,12 @@ def get_teacher_assessment_detail(
             learner_rows=learner_rows,
             threshold=60,
             cohort_filter_ids=set(filters.cohort_ids) if filters.cohort_ids else None,
-            awaiting_statuses=set(),
-            returned_statuses=set(),
-            released_statuses={"COMPLETED"},
+            awaiting_statuses={SubmissionStatus.PENDING.value},
+            returned_statuses={SubmissionStatus.RETURNED.value},
+            released_statuses={
+                SubmissionStatus.GRADED.value,
+                SubmissionStatus.PUBLISHED.value,
+            },
         )
         support = _build_support_diagnostics(
             assessment_type="quiz",
@@ -1958,8 +1916,8 @@ def get_teacher_assessment_detail(
                 )
                 if quiz_attempts_by_user
                 else None,
-                grading_latency_hours_p50=None,
-                grading_latency_hours_p90=None,
+                grading_latency_hours_p50=percentile(latencies, 0.5),
+                grading_latency_hours_p90=percentile(latencies, 0.9),
             ),
             score_distribution=_score_distribution(quiz_scores),
             attempt_distribution=_attempt_distribution({

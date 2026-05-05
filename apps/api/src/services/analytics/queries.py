@@ -16,7 +16,7 @@ from src.db.courses.activities import Activity
 from src.db.courses.certifications import CertificateUser, Certifications
 from src.db.courses.chapters import Chapter
 from src.db.courses.courses import Course
-from src.db.courses.quiz import QuizAttempt, QuizQuestionStat
+from src.db.courses.quiz import QuizQuestionStat
 from src.db.grading.progress import ActivityProgress, CourseProgress
 from src.db.grading.submissions import (
     AssessmentType,
@@ -85,7 +85,7 @@ class AnalyticsContext:
     assignment_submissions: list[tuple[Submission, AssessmentAnalyticsRow]]
     exams: list[AssessmentAnalyticsRow]
     exam_attempts: list[tuple[Submission, AssessmentAnalyticsRow]]
-    quiz_attempts: list[tuple[QuizAttempt, Activity]]
+    quiz_submissions: list[tuple[Submission, Activity]]
     quiz_question_stats: list[QuizQuestionStat]
     code_submissions: list[tuple[Submission, Activity]]
     users_by_id: dict[int, User]
@@ -386,7 +386,7 @@ def load_analytics_context(
             assignment_submissions=[],
             exams=[],
             exam_attempts=[],
-            quiz_attempts=[],
+            quiz_submissions=[],
             quiz_question_stats=[],
             code_submissions=[],
             users_by_id={},
@@ -534,20 +534,22 @@ def load_analytics_context(
         ]
 
     activity_ids = [activity.id for activity in activities if activity.id is not None]
-    quiz_attempts: list[tuple[QuizAttempt, Activity]] = []
+    quiz_submissions: list[tuple[Submission, Activity]] = []
     if activity_ids:
-        quiz_attempt_stmt = (
-            select(QuizAttempt, Activity)
-            .join(Activity, Activity.id == QuizAttempt.activity_id)
+        quiz_submission_stmt = (
+            select(Submission, Activity)
+            .join(Activity, Activity.id == Submission.activity_id)
             .where(Activity.id.in_(activity_ids))
+            .where(Submission.assessment_type == AssessmentType.QUIZ)
+            .where(Submission.status != SubmissionStatus.DRAFT)
         )
         if activity_start is not None:
-            quiz_attempt_stmt = quiz_attempt_stmt.where(
-                QuizAttempt.start_ts >= activity_start
+            quiz_submission_stmt = quiz_submission_stmt.where(
+                Submission.submitted_at >= activity_start
             )
-        quiz_attempts = [
-            _unwrap_pair(row, QuizAttempt, Activity)
-            for row in db_session.exec(quiz_attempt_stmt).all()
+        quiz_submissions = [
+            _unwrap_pair(row, Submission, Activity)
+            for row in db_session.exec(quiz_submission_stmt).all()
         ]
 
     quiz_question_stats: list[QuizQuestionStat] = []
@@ -597,7 +599,7 @@ def load_analytics_context(
         submission.user_id for submission, _assignment in assignment_submissions
     )
     user_ids.update(attempt.user_id for attempt, _exam in exam_attempts)
-    user_ids.update(attempt.user_id for attempt, _activity in quiz_attempts)
+    user_ids.update(submission.user_id for submission, _activity in quiz_submissions)
     user_ids.update(submission.user_id for submission, _activity in code_submissions)
     user_ids.update(
         certificate.user_id for certificate, _certification in certificate_rows
@@ -663,7 +665,7 @@ def load_analytics_context(
         assignment_submissions=assignment_submissions,
         exams=exams,
         exam_attempts=exam_attempts,
-        quiz_attempts=quiz_attempts,
+        quiz_submissions=quiz_submissions,
         quiz_question_stats=quiz_question_stats,
         code_submissions=code_submissions,
         users_by_id=user_map,
@@ -699,15 +701,17 @@ def build_activity_events(
             )
         )
 
-    for attempt, activity in context.quiz_attempts:
-        if allowed_user_ids is not None and attempt.user_id not in allowed_user_ids:
+    for submission, activity in context.quiz_submissions:
+        if allowed_user_ids is not None and submission.user_id not in allowed_user_ids:
             continue
-        ts = parse_timestamp(attempt.end_ts)
+        ts = parse_timestamp(
+            submission.submitted_at or submission.updated_at or submission.created_at
+        )
         if ts is None or activity.course_id is None:
             continue
         events.append(
             ActivityEvent(
-                user_id=attempt.user_id,
+                user_id=submission.user_id,
                 course_id=activity.course_id,
                 ts=ts,
                 source="quiz",

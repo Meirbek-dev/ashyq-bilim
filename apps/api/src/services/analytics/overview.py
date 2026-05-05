@@ -222,6 +222,7 @@ def _build_grading_slo_alerts(workload) -> list[AlertItem]:
                     f"{int(GRADING_SLA_HOURS)}-hour grading target; {row.awaiting_review} remain in backlog"
                     f"{oldest_age}."
                 ),
+                href=f"/dash/analytics/assessments/{row.assessment_type}/{row.assessment_id}",
                 course_id=row.course_id,
                 assessment_id=row.assessment_id,
                 learner_count=row.awaiting_review,
@@ -247,6 +248,10 @@ def _build_grading_slo_alerts(workload) -> list[AlertItem]:
                     f"{leading_backlog.awaiting_review} submission(s) are waiting in {leading_backlog.course_name}; "
                     f"the oldest has been open for {leading_backlog.age_hours:.1f} hours against a "
                     f"{int(GRADING_SLA_HOURS)}-hour target."
+                ),
+                href=(
+                    f"/dash/analytics/assessments/"
+                    f"{leading_backlog.assessment_type}/{leading_backlog.assessment_id}"
                 ),
                 course_id=leading_backlog.course_id,
                 assessment_id=leading_backlog.assessment_id,
