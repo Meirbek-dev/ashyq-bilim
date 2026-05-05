@@ -6,6 +6,12 @@
       "sourceType": "github",
       "computedHash": "9b512c9575fe0c66dcd64c0097072b52437335b80bed5c3f2128c66e906f2eaa"
     },
+    "executing-plans": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/executing-plans/SKILL.md",
+      "computedHash": "b41c919caf1bb07fbacb0e29899ac513f9eb11cd4dd695975ad352c2c03cc4d7"
+    },
     "next-best-practices": {
       "source": "vercel-labs/next-skills",
       "sourceType": "github",
