@@ -3,6 +3,7 @@
 import type { Editor } from '@tiptap/react';
 import { FloatingMenu } from '@tiptap/react/menus';
 import { Plus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 import { openSlashCommand } from '../core/slash-command';
 
@@ -11,6 +12,8 @@ interface FloatingPlusButtonProps {
 }
 
 export function FloatingPlusButton({ editor }: FloatingPlusButtonProps) {
+  const t = useTranslations('DashPage.Editor.Toolbar');
+
   const shouldShow = useCallback(() => {
     if (editor.isEmpty) {
       return false;
@@ -40,8 +43,8 @@ export function FloatingPlusButton({ editor }: FloatingPlusButtonProps) {
         type="button"
         onClick={handleClick}
         className="border-border text-muted-foreground hover:border-primary/30 hover:bg-accent hover:text-foreground flex size-7 items-center justify-center rounded-md border transition-all"
-        aria-label="Insert block"
-        title="Click to insert block, or type /"
+        aria-label={t('insertBlock')}
+        title={t('insertBlockHint')}
       >
         <Plus className="size-4" />
       </button>

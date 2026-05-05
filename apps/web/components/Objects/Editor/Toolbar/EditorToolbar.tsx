@@ -71,7 +71,7 @@ export function EditorToolbar({ editor, onAIToggle }: EditorToolbarProps) {
     <div
       className="flex flex-wrap items-center gap-0.5 py-1.5"
       role="toolbar"
-      aria-label="Editor toolbar"
+      aria-label={t('editorToolbar')}
     >
       <UndoRedoGroup
         editor={editor}

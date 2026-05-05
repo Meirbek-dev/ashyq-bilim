@@ -2,6 +2,7 @@
 
 import { AlertCircle, Download, File, LoaderCircle, UploadCloud } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -64,12 +65,13 @@ export function normalizeFileUploadConstraints(raw: Record<string, unknown> | nu
 }
 
 export function FileUploadConstraintsEditor({ value, disabled, onChange }: ItemAuthorProps<FileUploadConstraints>) {
+  const t = useTranslations('Features.Assessments.Items.FileUpload');
   const mimeText = value.allowed_mime_types.join(', ');
   return (
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="file-max-files">Max files</Label>
+          <Label htmlFor="file-max-files">{t('maxFiles')}</Label>
           <Input
             id="file-max-files"
             type="number"
@@ -80,13 +82,13 @@ export function FileUploadConstraintsEditor({ value, disabled, onChange }: ItemA
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="file-max-size">Max size, MB</Label>
+          <Label htmlFor="file-max-size">{t('maxSizeMb')}</Label>
           <Input
             id="file-max-size"
             type="number"
             min={1}
             value={value.max_file_size_mb ?? ''}
-            placeholder="No limit"
+            placeholder={t('noLimit')}
             disabled={disabled}
             onChange={(event) =>
               onChange({
@@ -99,11 +101,11 @@ export function FileUploadConstraintsEditor({ value, disabled, onChange }: ItemA
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="file-mime-types">Allowed MIME types</Label>
+        <Label htmlFor="file-mime-types">{t('allowedMimeTypes')}</Label>
         <Input
           id="file-mime-types"
           value={mimeText}
-          placeholder="application/pdf, image/png"
+          placeholder={t('mimePlaceholder')}
           disabled={disabled}
           onChange={(event) =>
             onChange({
@@ -126,6 +128,7 @@ export function FileUploadAttempt({
   disabled,
   onAnswerChange,
 }: ItemAttemptProps<FileUploadAttemptItem, FileUploadAnswer | null>) {
+  const t = useTranslations('Features.Assessments.Items.FileUpload');
   const [localFileName, setLocalFileName] = useState('');
   const fileKey = answer?.uploads?.[0]?.upload_uuid ?? '';
   const uploadedLabel = answer?.uploads?.[0]?.filename ?? answer?.uploads?.[0]?.upload_uuid ?? '';
@@ -133,10 +136,10 @@ export function FileUploadAttempt({
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
       if (item.constraints?.max_file_size_mb && file.size > item.constraints.max_file_size_mb * 1024 * 1024) {
-        throw new Error(`File exceeds ${item.constraints.max_file_size_mb} MB`);
+        throw new Error(t('errors.fileTooLarge', { size: item.constraints.max_file_size_mb }));
       }
       if (item.constraints?.allowed_mime_types.length && !item.constraints.allowed_mime_types.includes(file.type)) {
-        throw new Error('File type is not allowed for this item');
+        throw new Error(t('errors.fileTypeNotAllowed'));
       }
 
       const createResponse = await apiFetch('uploads', {
@@ -148,7 +151,7 @@ export function FileUploadAttempt({
           size: file.size,
         }),
       });
-      if (!createResponse.ok) throw await responseError(createResponse, 'Upload could not be created');
+      if (!createResponse.ok) throw await responseError(createResponse, t('errors.uploadCreate'));
       const created = (await createResponse.json()) as { upload_id: string; put_url: string };
 
       const putResponse = await apiFetch(created.put_url, {
@@ -157,7 +160,7 @@ export function FileUploadAttempt({
         body: file,
         timeoutMs: false,
       });
-      if (!putResponse.ok) throw await responseError(putResponse, 'Upload failed');
+      if (!putResponse.ok) throw await responseError(putResponse, t('errors.uploadFailed'));
 
       const digest = await sha256(file);
       const finalizeResponse = await apiFetch(`uploads/${created.upload_id}/finalize`, {
@@ -165,7 +168,7 @@ export function FileUploadAttempt({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sha256: digest, content_type: file.type }),
       });
-      if (!finalizeResponse.ok) throw await responseError(finalizeResponse, 'Upload finalize failed');
+      if (!finalizeResponse.ok) throw await responseError(finalizeResponse, t('errors.uploadFinalizeFailed'));
       return { upload_id: created.upload_id, filename: file.name };
     },
     onSuccess: (uploaded) => {
@@ -173,9 +176,9 @@ export function FileUploadAttempt({
         kind: 'FILE_UPLOAD',
         uploads: [{ upload_uuid: uploaded.upload_id, filename: uploaded.filename }],
       });
-      toast.success('File attached to this draft.');
+      toast.success(t('toasts.attached'));
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : 'Upload failed'),
+    onError: (error) => toast.error(error instanceof Error ? error.message : t('errors.uploadFailed')),
   });
 
   const fileUrl =
@@ -214,7 +217,7 @@ export function FileUploadAttempt({
           }
         >
           <Download className="size-4" />
-          Reference file
+          {t('referenceFile')}
         </Button>
       ) : null}
 
@@ -229,7 +232,7 @@ export function FileUploadAttempt({
           }
         >
           <File className="size-4" />
-          Current file
+          {t('currentFile')}
         </Button>
       ) : uploadedLabel ? (
         <div className="bg-background inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm">
@@ -264,7 +267,7 @@ export function FileUploadAttempt({
 
       <Alert>
         <AlertCircle className="size-4" />
-        <AlertDescription>File is verified before it is attached to this draft.</AlertDescription>
+        <AlertDescription>{t('verifiedBeforeAttach')}</AlertDescription>
       </Alert>
     </div>
   );
@@ -273,11 +276,12 @@ export function FileUploadAttempt({
 export function FileUploadReviewDetail({
   answer,
 }: ItemReviewDetailProps<FileUploadAttemptItem, FileUploadAnswer | null>) {
+  const t = useTranslations('Features.Assessments.Items.FileUpload');
   return (
     <div className="bg-card rounded-md border p-3 text-sm">
-      <div className="font-medium">Uploaded file</div>
+      <div className="font-medium">{t('uploadedFile')}</div>
       <div className="text-muted-foreground mt-1">
-        {answer?.uploads?.[0]?.filename ?? answer?.uploads?.[0]?.upload_uuid ?? 'No file recorded'}
+        {answer?.uploads?.[0]?.filename ?? answer?.uploads?.[0]?.upload_uuid ?? t('noFileRecorded')}
       </div>
     </div>
   );

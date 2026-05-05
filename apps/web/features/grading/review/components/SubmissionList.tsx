@@ -1,6 +1,7 @@
 'use client';
 
 import { ChevronLeft, ChevronRight, LoaderCircle, Search } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
 
 import {
   getSubmissionDisplayName,
@@ -36,6 +37,9 @@ export default function SubmissionList({
   onSelectSubmission,
   onToggleSelected,
 }: SubmissionListProps) {
+  const t = useTranslations('Features.Grading.Review.submissionList');
+  const locale = useLocale();
+
   return (
     <aside className="bg-muted/20 border-b p-4 lg:border-r lg:border-b-0">
       <div className="space-y-3">
@@ -44,7 +48,7 @@ export default function SubmissionList({
           <Input
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="Search learner"
+            placeholder={t('searchLearner')}
             className="pl-9"
           />
         </div>
@@ -52,10 +56,10 @@ export default function SubmissionList({
           <NativeSelect
             value={activeFilter}
             onChange={(event) => onFilterChange(event.target.value as StatusFilter)}
-            aria-label="Status filter"
+            aria-label={t('statusFilter')}
           >
-            <NativeSelectOption value="ALL">All</NativeSelectOption>
-            <NativeSelectOption value="NEEDS_GRADING">Needs grading</NativeSelectOption>
+            <NativeSelectOption value="ALL">{t('filters.all')}</NativeSelectOption>
+            <NativeSelectOption value="NEEDS_GRADING">{t('filters.needsGrading')}</NativeSelectOption>
             <NativeSelectOption value="PENDING">{SUBMISSION_STATUS_LABELS.PENDING}</NativeSelectOption>
             <NativeSelectOption value="GRADED">{SUBMISSION_STATUS_LABELS.GRADED}</NativeSelectOption>
             <NativeSelectOption value="PUBLISHED">{SUBMISSION_STATUS_LABELS.PUBLISHED}</NativeSelectOption>
@@ -64,28 +68,28 @@ export default function SubmissionList({
           <NativeSelect
             value={sortBy}
             onChange={(event) => onSortChange(event.target.value)}
-            aria-label="Sort"
+            aria-label={t('sort')}
           >
-            <NativeSelectOption value="submitted_at">Submitted</NativeSelectOption>
-            <NativeSelectOption value="final_score">Score</NativeSelectOption>
-            <NativeSelectOption value="attempt_number">Attempt</NativeSelectOption>
+            <NativeSelectOption value="submitted_at">{t('sorting.submitted')}</NativeSelectOption>
+            <NativeSelectOption value="final_score">{t('sorting.score')}</NativeSelectOption>
+            <NativeSelectOption value="attempt_number">{t('sorting.attempt')}</NativeSelectOption>
           </NativeSelect>
         </div>
       </div>
 
       <div className="text-muted-foreground mt-4 flex items-center justify-between text-xs">
-        <span>{total} submissions</span>
-        <span>{selectedUuids.size} selected</span>
+        <span>{t('totals.submissions', { count: total })}</span>
+        <span>{t('totals.selected', { count: selectedUuids.size })}</span>
       </div>
 
       <div className="mt-3 space-y-2">
         {isLoading ? (
           <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
             <LoaderCircle className="mr-2 size-4 animate-spin" />
-            Loading
+            {t('loading')}
           </div>
         ) : submissions.length === 0 ? (
-          <div className="text-muted-foreground rounded-md border border-dashed p-4 text-sm">No submissions found.</div>
+          <div className="text-muted-foreground rounded-md border border-dashed p-4 text-sm">{t('empty')}</div>
         ) : (
           submissions.map((submission) => {
             const selected = submission.submission_uuid === selectedUuid;
@@ -103,7 +107,7 @@ export default function SubmissionList({
                   <Checkbox
                     checked={selectedUuids.has(submission.submission_uuid)}
                     onCheckedChange={(checked) => onToggleSelected(submission.submission_uuid, checked)}
-                    aria-label={`Select ${displayName}`}
+                    aria-label={t('selectSubmission', { name: displayName })}
                   />
                   <button
                     type="button"
@@ -115,8 +119,8 @@ export default function SubmissionList({
                       {submission.user?.email ?? `User #${submission.user_id}`}
                     </div>
                     <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-2 text-xs">
-                      <span>Attempt #{submission.attempt_number}</span>
-                      <span>{formatDate(submission.submitted_at ?? submission.updated_at)}</span>
+                      <span>{t('attemptNumber', { number: submission.attempt_number })}</span>
+                      <span>{formatDate(submission.submitted_at ?? submission.updated_at, locale, t)}</span>
                       {typeof submission.final_score === 'number' ? (
                         <span>{Math.round(submission.final_score)}%</span>
                       ) : null}
@@ -124,8 +128,8 @@ export default function SubmissionList({
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <SubmissionStatusBadge status={submission.status} />
                       <Badge variant="outline">{RELEASE_STATE_LABELS[releaseState]}</Badge>
-                      {submission.is_late ? <Badge variant="destructive">Late</Badge> : null}
-                      {needsTeacherAction(submission.status) ? <Badge variant="warning">Action</Badge> : null}
+                      {submission.is_late ? <Badge variant="destructive">{t('late')}</Badge> : null}
+                      {needsTeacherAction(submission.status) ? <Badge variant="warning">{t('action')}</Badge> : null}
                     </div>
                   </button>
                 </div>
@@ -162,11 +166,15 @@ export default function SubmissionList({
   );
 }
 
-function formatDate(value?: string | null) {
-  if (!value) return 'Unsubmitted';
+function formatDate(
+  value: string | null | undefined,
+  locale: string,
+  t: ReturnType<typeof useTranslations<'Features.Grading.Review.submissionList'>>,
+) {
+  if (!value) return t('unsubmitted');
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(locale, {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',

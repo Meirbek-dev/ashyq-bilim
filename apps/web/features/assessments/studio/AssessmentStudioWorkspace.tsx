@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
 import { loadKindModule } from '@/features/assessments/registry';
@@ -58,6 +59,7 @@ const LIFECYCLE_BADGE_VARIANT: Record<AssessmentLifecycle, 'default' | 'secondar
 };
 
 export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: AssessmentStudioWorkspaceProps) {
+  const t = useTranslations('Features.Assessments.Studio');
   const { vm, isLoading, error } = useAssessmentStudio(activityUuid);
   const [kindModule, setKindModule] = useState<KindModule | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -66,6 +68,12 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
   const [scheduledAt, setScheduledAt] = useState('');
   const scheduleInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
+  const lifecycleLabels: Record<AssessmentLifecycle, string> = {
+    DRAFT: t('lifecycle.draft'),
+    SCHEDULED: t('lifecycle.scheduled'),
+    PUBLISHED: t('lifecycle.published'),
+    ARCHIVED: t('lifecycle.archived'),
+  };
 
   useEffect(() => {
     if (!vm?.kind) return;
@@ -83,7 +91,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
     return (
       <div className="text-muted-foreground flex min-h-[420px] items-center justify-center text-sm">
         <LoaderCircle className="mr-2 size-4 animate-spin" />
-        Loading studio
+        {t('loading')}
       </div>
     );
   }
@@ -91,7 +99,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
   if (error || vm?.surface !== 'STUDIO') {
     return (
       <div className="text-muted-foreground rounded-md border border-dashed p-6 text-sm">
-        Studio is unavailable for this activity.
+        {t('unavailable')}
       </div>
     );
   }
@@ -135,11 +143,11 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
         await queryClient.invalidateQueries({
           queryKey: queryKeys.assessments.readiness(studio.assessmentUuid),
         });
-        toast.success(`Lifecycle changed to ${LIFECYCLE_LABELS[lifecycle]}`);
+        toast.success(t('lifecycleChanged', { state: lifecycleLabels[lifecycle] }));
         setScheduleOpen(false);
         setScheduledAt('');
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Failed to update lifecycle');
+        toast.error(error instanceof Error ? error.message : t('updateLifecycleFailed'));
       }
     });
   };
@@ -164,23 +172,23 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
                 href={`/dash/courses/${courseUuid.replace('course_', '')}/curriculum`}
                 className="hover:text-foreground"
               >
-                Curriculum
+                {t('breadcrumb.curriculum')}
               </Link>
               <span>/</span>
               <span>{kindModule?.label ?? studio.kind}</span>
               <span>/</span>
-              <span>Studio</span>
+              <span>{t('breadcrumb.studio')}</span>
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-2">
               <h1 className="truncate text-xl font-semibold">{studio.title}</h1>
-              <Badge variant={LIFECYCLE_BADGE_VARIANT[studio.lifecycle]}>{LIFECYCLE_LABELS[studio.lifecycle]}</Badge>
+              <Badge variant={LIFECYCLE_BADGE_VARIANT[studio.lifecycle]}>{lifecycleLabels[studio.lifecycle]}</Badge>
               {hasIssues && (
                 <Badge
                   variant="outline"
                   className="border-amber-400 text-amber-700 dark:text-amber-300"
                 >
                   <AlertTriangle className="mr-1 size-3" />
-                  {studio.validationIssues.length} {studio.validationIssues.length === 1 ? 'issue' : 'issues'}
+                  {t('issueCount', { count: studio.validationIssues.length })}
                 </Badge>
               )}
             </div>
@@ -200,7 +208,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
               }
             >
               <Eye className="size-4" />
-              Preview
+              {t('preview')}
             </Button>
 
             {/* Publish + schedule dropdown */}
@@ -226,7 +234,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
                       variant="default"
                       disabled={isPending || studio.lifecycle === 'ARCHIVED'}
                       className="rounded-l-none border-l border-l-white/20 px-2"
-                      aria-label="Schedule options"
+                      aria-label={t('scheduleOptions')}
                     >
                       <ChevronDown className="size-4" />
                     </Button>
@@ -236,7 +244,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
                   align="end"
                   className="w-64 space-y-3 p-3"
                 >
-                  <p className="text-sm font-medium">Schedule publication</p>
+                  <p className="text-sm font-medium">{t('schedulePublication')}</p>
                   <input
                     ref={scheduleInputRef}
                     type="datetime-local"
@@ -251,7 +259,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
                     onClick={() => setLifecycle('SCHEDULED', new Date(scheduledAt).toISOString())}
                   >
                     <CalendarClock className="mr-1 size-4" />
-                    Schedule
+                    {t('schedule')}
                   </Button>
                 </PopoverContent>
               </Popover>
@@ -266,7 +274,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
                 onClick={() => setLifecycle('DRAFT')}
               >
                 <Undo2 className="size-4" />
-                Save as draft
+                {t('saveAsDraft')}
               </Button>
             )}
 
@@ -278,7 +286,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
                   <Button
                     variant="outline"
                     size="sm"
-                    aria-label="More options"
+                    aria-label={t('moreOptions')}
                   >
                     <MoreHorizontal className="size-4" />
                   </Button>
@@ -292,7 +300,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
                   className="text-destructive focus:text-destructive"
                 >
                   <Archive className="mr-2 size-4" />
-                  Archive
+                  {t('archive')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -301,7 +309,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
             <Button
               variant={inspectorOpen ? 'secondary' : 'outline'}
               size="sm"
-              aria-label={inspectorOpen ? 'Hide inspector' : 'Show inspector'}
+              aria-label={inspectorOpen ? t('hideInspector') : t('showInspector')}
               onClick={() => setInspectorOpen((v) => !v)}
             >
               <PanelRight className="size-4" />

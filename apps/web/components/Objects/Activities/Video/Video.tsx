@@ -1,7 +1,7 @@
 import ArtPlayer from '@components/Objects/Activities/Video/Artplayer';
 import { getActivityMediaDirectory } from '@services/media/media';
 import type ArtplayerType from 'artplayer';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 // Function to extract YouTube video ID from various YouTube URL formats
 function getYouTubeID(url: string): string | null {
@@ -48,6 +48,7 @@ interface VideoActivityProps {
 
 const VideoActivity = ({ activity, course }: VideoActivityProps) => {
   const fullLocale = useLocale();
+  const t = useTranslations('Components.Video');
   const locale = fullLocale.split('-')[0];
 
   // Extract YouTube ID from activity content
@@ -146,7 +147,7 @@ const VideoActivity = ({ activity, course }: VideoActivityProps) => {
                 }).toString()}`}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
-                title="YouTube видео-плеер"
+                title={t('youtubePlayer')}
               />
             )}
           </div>

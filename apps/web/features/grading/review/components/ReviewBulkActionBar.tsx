@@ -1,6 +1,7 @@
 'use client';
 
 import { CalendarClock, Clock3, Download, RotateCcw, Send } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useMemo, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 
@@ -47,6 +48,7 @@ export default function ReviewBulkActionBar({
   disabled: boolean;
   onRefresh: () => Promise<void>;
 }) {
+  const t = useTranslations('Features.Grading.Review.bulkActions');
   const [isPending, startTransition] = useTransition();
   const [deadlineLocal, setDeadlineLocal] = useState('');
   const [reason, setReason] = useState('');
@@ -76,7 +78,7 @@ export default function ReviewBulkActionBar({
 
   const bulkUpdate = (status: 'PUBLISHED' | 'RETURNED') => {
     if (gradeable.length === 0) {
-      toast.error('Selected submissions need saved scores first.');
+      toast.error(t('toasts.needsSavedScores'));
       return;
     }
     startTransition(async () => {
@@ -92,16 +94,16 @@ export default function ReviewBulkActionBar({
                 item_feedback: null,
               })),
             );
-        toast.success(status === 'PUBLISHED' ? 'Selected grades published' : 'Selected submissions returned');
+        toast.success(status === 'PUBLISHED' ? t('toasts.published') : t('toasts.returned'));
         setLastSummary({
-          label: status === 'PUBLISHED' ? 'Bulk publish finished' : 'Bulk return finished',
-          detail: `${result.succeeded} succeeded${result.failed > 0 ? `, ${result.failed} failed` : ''}.`,
+          label: status === 'PUBLISHED' ? t('summaries.publishFinished') : t('summaries.returnFinished'),
+          detail: t('summaries.resultDetail', { succeeded: result.succeeded, failed: result.failed }),
           tone: result.failed > 0 ? 'warning' : 'success',
         });
         setPendingAction(null);
         await onRefresh();
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Bulk action failed');
+        toast.error(error instanceof Error ? error.message : t('toasts.bulkActionFailed'));
       }
     });
   };
@@ -115,10 +117,10 @@ export default function ReviewBulkActionBar({
           new_due_at: new Date(deadlineLocal).toISOString(),
           reason,
         });
-        toast.success('Deadline extension queued');
+        toast.success(t('toasts.deadlineQueued'));
         setLastSummary({
-          label: 'Deadline extension queued',
-          detail: `${userUuids.length} learner${userUuids.length === 1 ? '' : 's'} targeted.${reason ? ` Reason: ${reason}` : ''}`,
+          label: t('summaries.deadlineQueued'),
+          detail: t('summaries.deadlineDetail', { count: userUuids.length, reason: reason || '' }),
           tone: 'success',
         });
         setDeadlineLocal('');
@@ -126,7 +128,7 @@ export default function ReviewBulkActionBar({
         setPendingAction(null);
         await onRefresh();
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Failed to extend deadline');
+        toast.error(error instanceof Error ? error.message : t('toasts.extendFailed'));
       }
     });
   };
@@ -137,16 +139,19 @@ export default function ReviewBulkActionBar({
         const result = assessmentUuid
           ? await publishAssessmentGrades(assessmentUuid)
           : await publishActivityGrades(activityId);
-        toast.success('Hidden grades released');
+        toast.success(t('toasts.hiddenReleased'));
         setLastSummary({
-          label: 'Grade release finished',
-          detail: `${result.published_count} newly visible${result.already_published_count > 0 ? `, ${result.already_published_count} already visible` : ''}.`,
+          label: t('summaries.releaseFinished'),
+          detail: t('summaries.releaseDetail', {
+            published: result.published_count,
+            alreadyVisible: result.already_published_count,
+          }),
           tone: 'success',
         });
         setPendingAction(null);
         await onRefresh();
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Failed to release hidden grades');
+        toast.error(error instanceof Error ? error.message : t('toasts.releaseFailed'));
       }
     });
   };
@@ -166,13 +171,13 @@ export default function ReviewBulkActionBar({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Badge variant="outline">{submissions.length} selected</Badge>
-      <Badge variant="outline">{releaseSummary.hidden} hidden</Badge>
-      <Badge variant="outline">{releaseSummary.visible} visible</Badge>
+      <Badge variant="outline">{t('selectedCount', { count: submissions.length })}</Badge>
+      <Badge variant="outline">{t('hiddenCount', { count: releaseSummary.hidden })}</Badge>
+      <Badge variant="outline">{t('visibleCount', { count: releaseSummary.visible })}</Badge>
       {isPending ? (
         <Badge variant="warning">
           <Clock3 className="size-3" />
-          Running bulk action
+          {t('running')}
         </Badge>
       ) : null}
       {lastSummary ? (
@@ -189,7 +194,7 @@ export default function ReviewBulkActionBar({
         onClick={() => setPendingAction('publish-selected')}
       >
         <Send className="size-4" />
-        Publish selected
+        {t('publishSelected')}
       </Button>
       <Button
         variant="outline"
@@ -198,7 +203,7 @@ export default function ReviewBulkActionBar({
         onClick={() => setPendingAction('return-selected')}
       >
         <RotateCcw className="size-4" />
-        Return selected
+        {t('returnSelected')}
       </Button>
       <Button
         variant="outline"
@@ -207,7 +212,7 @@ export default function ReviewBulkActionBar({
         onClick={() => setPendingAction('release-hidden')}
       >
         <Send className="size-4" />
-        Release hidden grades
+        {t('releaseHidden')}
       </Button>
       <Input
         type="datetime-local"
@@ -219,7 +224,7 @@ export default function ReviewBulkActionBar({
       <Input
         value={reason}
         disabled={disabled || isPending}
-        placeholder="Reason"
+        placeholder={t('reasonPlaceholder')}
         className="w-40"
         onChange={(event) => setReason(event.target.value)}
       />
@@ -230,7 +235,7 @@ export default function ReviewBulkActionBar({
         onClick={() => setPendingAction('extend-deadline')}
       >
         <CalendarClock className="size-4" />
-        Extend
+        {t('extend')}
       </Button>
       <Button
         variant="outline"
@@ -239,7 +244,7 @@ export default function ReviewBulkActionBar({
         onClick={exportCsv}
       >
         <Download className="size-4" />
-        Export
+        {t('export')}
       </Button>
 
       <Dialog
@@ -250,26 +255,26 @@ export default function ReviewBulkActionBar({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{getDialogTitle(pendingAction)}</DialogTitle>
-            <DialogDescription>{getDialogDescription(pendingAction)}</DialogDescription>
+            <DialogTitle>{getDialogTitle(pendingAction, t)}</DialogTitle>
+            <DialogDescription>{getDialogDescription(pendingAction, t)}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3 text-sm">
             {pendingAction === 'publish-selected' || pendingAction === 'return-selected' ? (
               <>
                 <PreviewRow
-                  label="Selected submissions"
+                  label={t('preview.selectedSubmissions')}
                   value={String(submissions.length)}
                 />
                 <PreviewRow
-                  label="Grade-ready"
+                  label={t('preview.gradeReady')}
                   value={String(gradeable.length)}
                 />
                 <PreviewRow
-                  label="Hidden from student"
+                  label={t('preview.hiddenFromStudent')}
                   value={String(releaseSummary.hidden)}
                 />
                 <PreviewRow
-                  label="Already visible"
+                  label={t('preview.alreadyVisible')}
                   value={String(releaseSummary.visible)}
                 />
               </>
@@ -277,52 +282,51 @@ export default function ReviewBulkActionBar({
             {pendingAction === 'extend-deadline' ? (
               <>
                 <PreviewRow
-                  label="Learners"
+                  label={t('preview.learners')}
                   value={String(userUuids.length)}
                 />
                 <PreviewRow
-                  label="New due date"
-                  value={deadlineLocal || 'Not set'}
+                  label={t('preview.newDueDate')}
+                  value={deadlineLocal || t('preview.notSet')}
                 />
                 <PreviewRow
-                  label="Reason"
-                  value={reason || 'No reason provided'}
+                  label={t('preview.reason')}
+                  value={reason || t('preview.noReason')}
                 />
               </>
             ) : null}
             {pendingAction === 'release-hidden' ? (
               <>
                 <PreviewRow
-                  label="Selected hidden submissions"
+                  label={t('preview.selectedHiddenSubmissions')}
                   value={String(releaseSummary.hidden)}
                 />
                 <PreviewRow
-                  label="Already visible"
+                  label={t('preview.alreadyVisible')}
                   value={String(releaseSummary.visible)}
                 />
                 <p className="text-muted-foreground text-xs">
-                  This applies the activity-level grade release action and updates any graded submissions that are still
-                  hidden.
+                  {t('preview.releaseHiddenDescription')}
                 </p>
               </>
             ) : null}
-            {lastSummary ? <p className="text-muted-foreground text-xs">Last result: {lastSummary.detail}</p> : null}
+            {lastSummary ? <p className="text-muted-foreground text-xs">{t('lastResult', { detail: lastSummary.detail })}</p> : null}
           </div>
           <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setPendingAction(null)}
             >
-              Cancel
+              {t('cancel')}
             </Button>
             {pendingAction === 'publish-selected' ? (
-              <Button onClick={() => bulkUpdate('PUBLISHED')}>Confirm publish</Button>
+              <Button onClick={() => bulkUpdate('PUBLISHED')}>{t('confirmPublish')}</Button>
             ) : null}
             {pendingAction === 'return-selected' ? (
-              <Button onClick={() => bulkUpdate('RETURNED')}>Confirm return</Button>
+              <Button onClick={() => bulkUpdate('RETURNED')}>{t('confirmReturn')}</Button>
             ) : null}
-            {pendingAction === 'extend-deadline' ? <Button onClick={applyDeadline}>Queue extension</Button> : null}
-            {pendingAction === 'release-hidden' ? <Button onClick={releaseHiddenGrades}>Release grades</Button> : null}
+            {pendingAction === 'extend-deadline' ? <Button onClick={applyDeadline}>{t('queueExtension')}</Button> : null}
+            {pendingAction === 'release-hidden' ? <Button onClick={releaseHiddenGrades}>{t('releaseGrades')}</Button> : null}
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -367,42 +371,45 @@ async function saveGradesWithinAssessment(
   };
 }
 
-function getDialogTitle(action: PendingAction): string {
+function getDialogTitle(action: PendingAction, t: ReturnType<typeof useTranslations<'Features.Grading.Review.bulkActions'>>): string {
   switch (action) {
     case 'publish-selected': {
-      return 'Publish selected grades';
+      return t('dialogs.publishTitle');
     }
     case 'return-selected': {
-      return 'Return selected submissions';
+      return t('dialogs.returnTitle');
     }
     case 'extend-deadline': {
-      return 'Extend deadlines';
+      return t('dialogs.extendTitle');
     }
     case 'release-hidden': {
-      return 'Release hidden grades';
+      return t('dialogs.releaseTitle');
     }
     default: {
-      return 'Bulk action';
+      return t('dialogs.defaultTitle');
     }
   }
 }
 
-function getDialogDescription(action: PendingAction): string {
+function getDialogDescription(
+  action: PendingAction,
+  t: ReturnType<typeof useTranslations<'Features.Grading.Review.bulkActions'>>,
+): string {
   switch (action) {
     case 'publish-selected': {
-      return 'Review the exact impact before making grades visible to students.';
+      return t('dialogs.publishDescription');
     }
     case 'return-selected': {
-      return 'This will move selected submissions into the returned-for-revision state.';
+      return t('dialogs.returnDescription');
     }
     case 'extend-deadline': {
-      return 'Queue a deadline extension for the selected learners.';
+      return t('dialogs.extendDescription');
     }
     case 'release-hidden': {
-      return 'Make currently hidden graded submissions visible to students for this activity.';
+      return t('dialogs.releaseDescription');
     }
     default: {
-      return 'Confirm the selected bulk action.';
+      return t('dialogs.defaultDescription');
     }
   }
 }

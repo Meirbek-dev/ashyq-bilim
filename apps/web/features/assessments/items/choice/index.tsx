@@ -1,6 +1,7 @@
 'use client';
 
 import { Check, Plus, Trash2, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -162,6 +163,8 @@ export function ChoiceItemAttempt({
 }
 
 export function ChoiceItemAuthor({ value, disabled, onChange }: ItemAuthorProps<ChoiceAuthorValue>) {
+  const t = useTranslations('Features.Assessments.Items.Choice');
+
   const setKind = (kind: ChoiceItemKind) => {
     if (kind === 'MATCHING') {
       onChange({
@@ -187,8 +190,8 @@ export function ChoiceItemAuthor({ value, disabled, onChange }: ItemAuthorProps<
       options:
         kind === 'TRUE_FALSE'
           ? [
-              { id: 0, text: 'True', isCorrect: value.kind !== 'MATCHING' ? value.options[0]?.isCorrect : false },
-              { id: 1, text: 'False', isCorrect: value.kind !== 'MATCHING' ? value.options[1]?.isCorrect : false },
+              { id: 0, text: t('trueLabel'), isCorrect: value.kind !== 'MATCHING' ? value.options[0]?.isCorrect : false },
+              { id: 1, text: t('falseLabel'), isCorrect: value.kind !== 'MATCHING' ? value.options[1]?.isCorrect : false },
             ]
           : value.kind === 'MATCHING'
             ? value.pairs.map((pair) => ({ id: pair.id, text: pair.left, isCorrect: false }))
@@ -200,7 +203,7 @@ export function ChoiceItemAuthor({ value, disabled, onChange }: ItemAuthorProps<
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-[1fr_10rem]">
         <div className="space-y-2">
-          <Label htmlFor="choice-prompt">Prompt</Label>
+          <Label htmlFor="choice-prompt">{t('prompt')}</Label>
           <Input
             id="choice-prompt"
             value={value.prompt}
@@ -209,17 +212,17 @@ export function ChoiceItemAuthor({ value, disabled, onChange }: ItemAuthorProps<
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="choice-kind">Type</Label>
+          <Label htmlFor="choice-kind">{t('type')}</Label>
           <NativeSelect
             id="choice-kind"
             value={value.kind}
             disabled={disabled}
             onChange={(event) => setKind(event.target.value as ChoiceItemKind)}
           >
-            <NativeSelectOption value="CHOICE_SINGLE">Single choice</NativeSelectOption>
-            <NativeSelectOption value="CHOICE_MULTIPLE">Multiple choice</NativeSelectOption>
-            <NativeSelectOption value="TRUE_FALSE">True/false</NativeSelectOption>
-            <NativeSelectOption value="MATCHING">Matching</NativeSelectOption>
+            <NativeSelectOption value="CHOICE_SINGLE">{t('kinds.single')}</NativeSelectOption>
+            <NativeSelectOption value="CHOICE_MULTIPLE">{t('kinds.multiple')}</NativeSelectOption>
+            <NativeSelectOption value="TRUE_FALSE">{t('kinds.trueFalse')}</NativeSelectOption>
+            <NativeSelectOption value="MATCHING">{t('kinds.matching')}</NativeSelectOption>
           </NativeSelect>
         </div>
       </div>
@@ -246,6 +249,7 @@ function OptionsAuthor({
   disabled,
   onChange,
 }: ItemAuthorProps<Extract<ChoiceAuthorValue, { options: ChoiceOption[] }>>) {
+  const t = useTranslations('Features.Assessments.Items.Choice');
   const toggleCorrect = (index: number) => {
     const options = value.options.map((option, candidateIndex) => ({
       ...option,
@@ -272,13 +276,13 @@ function OptionsAuthor({
             size="icon"
             disabled={disabled}
             onClick={() => toggleCorrect(index)}
-            aria-label="Toggle correct answer"
+            aria-label={t('toggleCorrectAnswer')}
           >
             {option.isCorrect ? <Check className="size-4" /> : <X className="size-4" />}
           </Button>
           <Input
             value={option.text}
-            placeholder={`Option ${String.fromCodePoint(65 + index)}`}
+            placeholder={t('optionPlaceholder', { label: String.fromCodePoint(65 + index) })}
             disabled={disabled || value.kind === 'TRUE_FALSE'}
             onChange={(event) =>
               onChange({
@@ -316,7 +320,7 @@ function OptionsAuthor({
           }
         >
           <Plus className="size-4" />
-          Add option
+          {t('addOption')}
         </Button>
       ) : null}
     </div>
@@ -328,6 +332,7 @@ function MatchingAuthor({
   disabled,
   onChange,
 }: ItemAuthorProps<Extract<ChoiceAuthorValue, { kind: 'MATCHING' }>>) {
+  const t = useTranslations('Features.Assessments.Items.Choice');
   return (
     <div className="space-y-2">
       {value.pairs.map((pair, index) => (
@@ -337,7 +342,7 @@ function MatchingAuthor({
         >
           <Input
             value={pair.left}
-            placeholder="Left"
+            placeholder={t('matching.left')}
             disabled={disabled}
             onChange={(event) =>
               onChange({
@@ -350,7 +355,7 @@ function MatchingAuthor({
           />
           <Input
             value={pair.right}
-            placeholder="Right"
+            placeholder={t('matching.right')}
             disabled={disabled}
             onChange={(event) =>
               onChange({
@@ -387,7 +392,7 @@ function MatchingAuthor({
         }
       >
         <Plus className="size-4" />
-        Add pair
+        {t('matching.addPair')}
       </Button>
     </div>
   );

@@ -24,9 +24,9 @@ export default function HintsPanel() {
           <div>
             <CardTitle className="flex items-center gap-2">
               <Lightbulb className="size-5" />
-              Hints
+              {t('hintsPanel.title')}
             </CardTitle>
-            <CardDescription>Optional help students can reveal during the attempt.</CardDescription>
+            <CardDescription>{t('hintsPanel.description')}</CardDescription>
           </div>
           <Button
             type="button"
@@ -37,14 +37,14 @@ export default function HintsPanel() {
             }
           >
             <Plus className="size-4" />
-            Add hint
+            {t('hintsPanel.addHint')}
           </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
         {!fields.length ? (
           <div className="text-muted-foreground rounded-md border border-dashed p-4 text-center text-sm">
-            No hints configured.
+            {t('hintsPanel.empty')}
           </div>
         ) : (
           fields.map((hint, index) => (
@@ -53,7 +53,7 @@ export default function HintsPanel() {
               className="space-y-3 rounded-md border p-3"
             >
               <div className="flex items-start justify-between gap-3">
-                <div className="text-sm font-medium">Hint #{index + 1}</div>
+                <div className="text-sm font-medium">{t('hintsPanel.hintNumber', { number: index + 1 })}</div>
                 <Button
                   type="button"
                   variant="ghost"
@@ -68,11 +68,11 @@ export default function HintsPanel() {
                 name={`hints.${index}.content`}
                 render={({ field }) => (
                   <Field>
-                    <FieldLabel htmlFor={field.name}>Content</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>{t('hintsPanel.content')}</FieldLabel>
                     <Textarea
                       id={field.name}
                       rows={3}
-                      placeholder="Explain one useful direction without giving away the full solution."
+                      placeholder={t('hintsPanel.contentPlaceholder')}
                       {...field}
                     />
                   </Field>
@@ -83,7 +83,7 @@ export default function HintsPanel() {
                 name={`hints.${index}.xp_penalty`}
                 render={({ field }) => (
                   <Field className="max-w-40">
-                    <FieldLabel htmlFor={field.name}>XP penalty</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>{t('hintsPanel.xpPenalty')}</FieldLabel>
                     <Input
                       id={field.name}
                       type="number"

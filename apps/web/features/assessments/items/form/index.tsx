@@ -1,6 +1,7 @@
 'use client';
 
 import { Plus, TextCursorInput, Trash2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -77,14 +78,16 @@ export function normalizeFormItem(raw: Record<string, unknown> | null | undefine
 }
 
 export function FormItemAuthor({ value, disabled, onChange }: ItemAuthorProps<FormItemValue>) {
+  const t = useTranslations('Features.Assessments.Items.Form');
+
   return (
     <div className="space-y-5">
       <div className="bg-muted/40 rounded-md border p-4">
         <div className="flex items-center gap-2 text-sm font-semibold">
           <TextCursorInput className="size-4" />
-          Form item
+          {t('title')}
         </div>
-        <p className="text-muted-foreground mt-1 text-sm">Create fill-in fields with optional correct answers.</p>
+        <p className="text-muted-foreground mt-1 text-sm">{t('description')}</p>
       </div>
 
       {value.questions.map((question, questionIndex) => (
@@ -93,10 +96,10 @@ export function FormItemAuthor({ value, disabled, onChange }: ItemAuthorProps<Fo
           className="space-y-3 rounded-md border p-4"
         >
           <div className="flex items-center gap-3">
-            <Badge variant="secondary">Q{questionIndex + 1}</Badge>
+            <Badge variant="secondary">{t('questionBadge', { number: questionIndex + 1 })}</Badge>
             <Input
               value={question.questionText}
-              placeholder="Question or prompt"
+              placeholder={t('questionPlaceholder')}
               disabled={disabled}
               onChange={(event) =>
                 onChange({
@@ -128,7 +131,7 @@ export function FormItemAuthor({ value, disabled, onChange }: ItemAuthorProps<Fo
               >
                 <Input
                   value={blank.placeholder}
-                  placeholder="Student field label"
+                  placeholder={t('fieldLabelPlaceholder')}
                   disabled={disabled}
                   onChange={(event) =>
                     updateBlank(value, questionIndex, blankIndex, { placeholder: event.target.value }, onChange)
@@ -136,7 +139,7 @@ export function FormItemAuthor({ value, disabled, onChange }: ItemAuthorProps<Fo
                 />
                 <Input
                   value={blank.correctAnswer ?? ''}
-                  placeholder="Correct answer"
+                  placeholder={t('correctAnswerPlaceholder')}
                   disabled={disabled}
                   onChange={(event) =>
                     updateBlank(value, questionIndex, blankIndex, { correctAnswer: event.target.value }, onChange)
@@ -144,7 +147,7 @@ export function FormItemAuthor({ value, disabled, onChange }: ItemAuthorProps<Fo
                 />
                 <Input
                   value={blank.hint ?? ''}
-                  placeholder="Hint"
+                  placeholder={t('hintPlaceholder')}
                   disabled={disabled}
                   onChange={(event) =>
                     updateBlank(value, questionIndex, blankIndex, { hint: event.target.value }, onChange)
@@ -188,7 +191,7 @@ export function FormItemAuthor({ value, disabled, onChange }: ItemAuthorProps<Fo
               }
             >
               <Plus className="size-4" />
-              Add blank
+              {t('addBlank')}
             </Button>
           </div>
         </div>
@@ -201,7 +204,7 @@ export function FormItemAuthor({ value, disabled, onChange }: ItemAuthorProps<Fo
         onClick={() => onChange({ ...value, questions: [...value.questions, createQuestion()] })}
       >
         <Plus className="size-4" />
-        Add question
+        {t('addQuestion')}
       </Button>
     </div>
   );
@@ -235,6 +238,7 @@ export function FormItemAttempt({
   disabled,
   onAnswerChange,
 }: ItemAttemptProps<FormItemValue & { taskUuid?: string }, FormAnswer | null>) {
+  const t = useTranslations('Features.Assessments.Items.Form');
   const normalized = answer?.form_data?.answers ?? {};
   const updateBlankAnswer = (blankId: string, value: string) => {
     onAnswerChange({
@@ -250,7 +254,7 @@ export function FormItemAttempt({
   };
 
   if (item.questions.length === 0) {
-    return <div className="text-muted-foreground rounded-md border border-dashed p-4 text-sm">No form fields.</div>;
+    return <div className="text-muted-foreground rounded-md border border-dashed p-4 text-sm">{t('noFields')}</div>;
   }
 
   return (
@@ -261,8 +265,8 @@ export function FormItemAttempt({
           className="bg-muted/30 rounded-md border p-4"
         >
           <div className="mb-3 flex items-start gap-2">
-            <Badge variant="secondary">Q{questionIndex + 1}</Badge>
-            <p className="font-medium">{question.questionText || 'Prompt'}</p>
+            <Badge variant="secondary">{t('questionBadge', { number: questionIndex + 1 })}</Badge>
+            <p className="font-medium">{question.questionText || t('promptFallback')}</p>
           </div>
           <div className="grid gap-3">
             {question.blanks.map((blank, blankIndex) => {
@@ -273,7 +277,7 @@ export function FormItemAttempt({
                   className="space-y-2"
                 >
                   <Label htmlFor={`${item.taskUuid ?? 'form'}-${blankId}`}>
-                    {blank.placeholder || `Answer ${blankIndex + 1}`}
+                    {blank.placeholder || t('answerLabel', { number: blankIndex + 1 })}
                   </Label>
                   <Input
                     id={`${item.taskUuid ?? 'form'}-${blankId}`}

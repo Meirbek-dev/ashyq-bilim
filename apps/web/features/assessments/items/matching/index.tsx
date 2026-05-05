@@ -1,6 +1,7 @@
 'use client';
 
 import { Plus, Trash2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +30,8 @@ export interface MatchingAnswer {
 // ── Author ────────────────────────────────────────────────────────────────────
 
 export function MatchingItemAuthor({ value, disabled, onChange }: ItemAuthorProps<MatchingBody>) {
+  const t = useTranslations('Features.Assessments.Items.Matching');
+
   const addPair = () => {
     onChange({
       ...value,
@@ -48,16 +51,16 @@ export function MatchingItemAuthor({ value, disabled, onChange }: ItemAuthorProp
   return (
     <div className="space-y-4">
       <div className="bg-muted/40 rounded-md border p-4">
-        <div className="flex items-center gap-2 text-sm font-semibold">Matching item</div>
+        <div className="flex items-center gap-2 text-sm font-semibold">{t('title')}</div>
         <p className="text-muted-foreground mt-1 text-sm">
-          Students drag or select the right-side value that matches each left-side term.
+          {t('description')}
         </p>
       </div>
 
       <div className="space-y-2">
         <div className="grid grid-cols-[1fr_1fr_auto] gap-2 px-1">
-          <Label className="text-xs font-medium">Left (term)</Label>
-          <Label className="text-xs font-medium">Right (match)</Label>
+          <Label className="text-xs font-medium">{t('leftLabel')}</Label>
+          <Label className="text-xs font-medium">{t('rightLabel')}</Label>
           <span />
         </div>
         {value.pairs.map((pair, index) => (
@@ -67,13 +70,13 @@ export function MatchingItemAuthor({ value, disabled, onChange }: ItemAuthorProp
           >
             <Input
               value={pair.left}
-              placeholder={`Term ${index + 1}`}
+              placeholder={t('termPlaceholder', { number: index + 1 })}
               disabled={disabled}
               onChange={(e) => updatePair(index, 'left', e.target.value)}
             />
             <Input
               value={pair.right}
-              placeholder={`Match ${index + 1}`}
+              placeholder={t('matchPlaceholder', { number: index + 1 })}
               disabled={disabled}
               onChange={(e) => updatePair(index, 'right', e.target.value)}
             />
@@ -83,7 +86,7 @@ export function MatchingItemAuthor({ value, disabled, onChange }: ItemAuthorProp
               size="icon"
               disabled={disabled}
               onClick={() => removePair(index)}
-              aria-label="Remove pair"
+              aria-label={t('removePair')}
             >
               <Trash2 className="size-4" />
             </Button>
@@ -98,7 +101,7 @@ export function MatchingItemAuthor({ value, disabled, onChange }: ItemAuthorProp
           className="mt-1 gap-1"
         >
           <Plus className="size-3.5" />
-          Add pair
+          {t('addPair')}
         </Button>
       </div>
     </div>

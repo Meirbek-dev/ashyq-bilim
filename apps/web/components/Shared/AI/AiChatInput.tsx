@@ -4,6 +4,7 @@ import UserAvatar from '@components/Objects/UserAvatar';
 import { Button } from '@components/ui/button';
 import { Input } from '@components/ui/input';
 import { Send, Square } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { KeyboardEvent } from 'react';
 
 interface AiChatInputProps {
@@ -33,10 +34,13 @@ export function AiChatInput({
   onChange,
   onSend,
   disabled = false,
-  placeholder = 'Ask Ashyk Ai…',
+  placeholder,
   showAvatar = true,
   onStop,
 }: AiChatInputProps) {
+  const t = useTranslations('Components.AiChat');
+  const resolvedPlaceholder = placeholder ?? t('placeholder');
+
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !disabled && value.trim()) {
       e.preventDefault();
@@ -59,8 +63,8 @@ export function AiChatInput({
         onChange={(e) => onChange(e.currentTarget.value)}
         onKeyDown={handleKeyDown}
         disabled={disabled}
-        placeholder={placeholder}
-        aria-label={placeholder}
+        placeholder={resolvedPlaceholder}
+        aria-label={resolvedPlaceholder}
         className="flex-1 border-zinc-700 bg-zinc-800 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-zinc-600"
       />
       {showStop ? (
@@ -68,7 +72,7 @@ export function AiChatInput({
           variant="ghost"
           size="icon"
           onClick={onStop}
-          aria-label="Stop generation"
+          aria-label={t('stopGeneration')}
           type="button"
           className="h-9 w-9 shrink-0 text-zinc-400 hover:text-red-400"
         >
@@ -80,7 +84,7 @@ export function AiChatInput({
           size="icon"
           onClick={onSend}
           disabled={disabled || !value.trim()}
-          aria-label="Send message"
+          aria-label={t('sendMessage')}
           type="button"
           className="h-9 w-9 shrink-0 text-zinc-500 hover:text-black disabled:opacity-40"
         >

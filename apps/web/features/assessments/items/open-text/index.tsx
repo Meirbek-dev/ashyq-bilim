@@ -1,6 +1,7 @@
 'use client';
 
 import { AlignLeft } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Textarea } from '@/components/ui/textarea';
 import { registerItemKind } from '../registry';
@@ -30,18 +31,20 @@ export function normalizeOpenText(raw: Record<string, unknown> | null | undefine
 }
 
 export function OpenTextAuthor({ value, disabled, onChange }: ItemAuthorProps<OpenTextValue>) {
+  const t = useTranslations('Features.Assessments.Items.OpenText');
+
   return (
     <div className="space-y-4">
       <div className="bg-muted/40 rounded-md border p-4">
         <div className="flex items-center gap-2 text-sm font-semibold">
           <AlignLeft className="size-4" />
-          Open text item
+          {t('title')}
         </div>
-        <p className="text-muted-foreground mt-1 text-sm">Prompt for a manually graded written response.</p>
+        <p className="text-muted-foreground mt-1 text-sm">{t('description')}</p>
       </div>
       <Textarea
         value={value.body.prompt}
-        placeholder="Prompt"
+        placeholder={t('promptPlaceholder')}
         disabled={disabled}
         className="min-h-36"
         onChange={(event) => onChange({ ...value, body: { prompt: event.target.value } })}
@@ -76,8 +79,10 @@ export function OpenTextAttempt({
 }
 
 export function OpenTextReviewDetail({ answer }: ItemReviewDetailProps<OpenTextValue, OpenTextAnswer | null>) {
+  const t = useTranslations('Features.Assessments.Items.OpenText');
+
   return (
-    <p className="bg-card rounded-md border p-3 text-sm whitespace-pre-wrap">{answer?.text ?? 'No text recorded'}</p>
+    <p className="bg-card rounded-md border p-3 text-sm whitespace-pre-wrap">{answer?.text ?? t('noTextRecorded')}</p>
   );
 }
 
