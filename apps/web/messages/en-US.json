@@ -126,11 +126,14 @@
       "revisionDraftCreated": "Revision draft created.",
       "recoveredSavedAnswers": "Recovered saved answers.",
       "readyToRevise": "Ready to revise",
+      "readyToBegin": "Ready to begin",
       "readyToBeginDescription": "Start your assignment and submit when you're ready.",
       "readyToReviseDescription": "A revision draft is ready. Update your answers and submit again.",
       "startRevision": "Start revision",
       "startAssessment": "Start assessment",
       "scoreLabel": "Score",
+      "timeLimit": "Time Limit",
+      "noEditableDraft": "No editable draft available",
       "submissionReceivedTitle": "Submission received",
       "submissionReceivedDescription": "Submitted. Your teacher will release the grade when review is complete.",
       "submissionReceivedWithDateDescription": "Submitted on {date}. Your teacher will release the grade when review is complete.",
@@ -995,6 +998,17 @@
     "unsavedChanges": "Unsaved changes"
   },
   "Components": {
+    "SaveStateBadge": {
+      "unsaved": "Unsaved",
+      "saving": "Saving...",
+      "saveFailed": "Error",
+      "saved": "Saved"
+    },
+    "AttemptHistoryList": {
+      "attemptHistory": "Attempt History",
+      "noAttemptsYet": "No attempts yet",
+      "review": "Review"
+    },
     "AddUserGroup": {
       "createButton": "Create Group",
       "descriptionLabel": "Description",
@@ -7547,7 +7561,18 @@
           "yourAnswer": "Your Answer",
           "focus": "Focus",
           "exitFocus": "Exit focus mode",
-          "submit": "Submit"
+          "submit": "Submit",
+          "saveStateSaved": "Saved",
+          "saveStateSaving": "Saving...",
+          "saveStateUnsaved": "Unsaved",
+          "saveStateError": "Error",
+          "saveStateReturned": "Returned",
+          "recoverLocalDraft": "Recover local draft",
+          "recoverLocalDraftWithTime": "Recover local draft from {time}",
+          "resolveDraftConflict": "Resolve draft conflict",
+          "draftConflictAvailable": "A newer version of your answers was found on the server.",
+          "keepMyLocalVersion": "Keep my local version",
+          "useLatestSavedVersion": "Use latest saved version"
         },
         "CodeChallenge": {
           "actualOutput": "Your Output",

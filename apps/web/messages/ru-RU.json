@@ -142,7 +142,13 @@
       "submitFile": "Отправить файл",
       "uploadFailed": "Не удалось загрузить файл",
       "attemptNumber": "Попытка #{number}",
-      "latestSubmission": "Последняя отправка"
+      "latestSubmission": "Последняя отправка",
+      "itemsLabel": "Задания",
+      "timeLimit": "Ограничение времени",
+      "unlimited": "Неограниченно",
+      "attemptsLabel": "Попытки",
+      "readyToBegin": "Готовы начать",
+      "noEditableDraft": "Нет доступного для редактирования черновика"
     },
     "CodeChallenges": {
       "actualOutput": "Ваш вывод",
@@ -982,6 +988,17 @@
     "unsavedChanges": "Несохраненные изменения"
   },
   "Components": {
+    "SaveStateBadge": {
+      "unsaved": "Не сохранено",
+      "saving": "Сохранение...",
+      "saveFailed": "Ошибка",
+      "saved": "Сохранено"
+    },
+    "AttemptHistoryList": {
+      "attemptHistory": "История попыток",
+      "noAttemptsYet": "Попыток еще нет",
+      "review": "Просмотр"
+    },
     "AddUserGroup": {
       "createButton": "Создать группу",
       "descriptionLabel": "Описание",
@@ -7558,7 +7575,18 @@
           "yourAnswer": "Ваш ответ",
           "focus": "Фокус",
           "exitFocus": "Выйти из режима фокуса",
-          "submit": "Отправить"
+          "submit": "Отправить",
+          "saveStateSaved": "Сохранено",
+          "saveStateSaving": "Сохранение...",
+          "saveStateUnsaved": "Не сохранено",
+          "saveStateError": "Ошибка сохранения",
+          "saveStateReturned": "Возвращено",
+          "recoverLocalDraft": "Восстановить локальный черновик",
+          "recoverLocalDraftWithTime": "Восстановить локальный черновик от {time}",
+          "resolveDraftConflict": "Разрешить конфликт черновиков",
+          "draftConflictAvailable": "На сервере найдена более новая версия ваших ответов.",
+          "keepMyLocalVersion": "Оставить мою локальную версию",
+          "useLatestSavedVersion": "Использовать последнюю сохраненную версию"
         },
         "CodeChallenge": {
           "actualOutput": "Ваш вывод",

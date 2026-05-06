@@ -12,6 +12,7 @@ from src.services.ai.exceptions import (
     AIServiceException,
     AITimeoutError,
     ChatSessionError,
+    ContentModerationError,
     RetrievalError,
 )
 from src.services.ai.models import ErrorEvent
@@ -31,6 +32,8 @@ def _map_ai_errors_to_http(exc: Exception) -> HTTPException:
         return HTTPException(status_code=404, detail=exc.message)
     if isinstance(exc, AITimeoutError):
         return HTTPException(status_code=504, detail=exc.message)
+    if isinstance(exc, ContentModerationError):
+        return HTTPException(status_code=400, detail=exc.message)
     if isinstance(exc, (AIProcessingError, RetrievalError, ChatSessionError)):
         return HTTPException(
             status_code=500, detail=f"AI processing failed: {exc.message}"
@@ -49,6 +52,10 @@ def _map_ai_error_to_sse(exc: Exception) -> str:
     if isinstance(exc, AITimeoutError):
         return format_sse_message(
             ErrorEvent(error=exc.message, error_code=exc.error_code, status=504)
+        )
+    if isinstance(exc, ContentModerationError):
+        return format_sse_message(
+            ErrorEvent(error=exc.message, error_code=exc.error_code, status=400)
         )
     if isinstance(exc, (AIProcessingError, RetrievalError, ChatSessionError)):
         return format_sse_message(
@@ -90,7 +97,7 @@ async def ai_start_activity_chat_session(
             raise
         raise _map_ai_errors_to_http(exc) from exc
     except Exception as exc:
-        logger.exception("Unexpected error in AI start: %s", exc)
+        logger.exception("Unexpected error in AI start")
         raise HTTPException(
             status_code=500,
             detail="An unexpected error occurred. Please try again later.",
@@ -120,7 +127,7 @@ async def ai_send_activity_chat_message(
             raise
         raise _map_ai_errors_to_http(exc) from exc
     except Exception as exc:
-        logger.exception("Unexpected error sending AI message: %s", exc)
+        logger.exception("Unexpected error sending AI message")
         raise HTTPException(
             status_code=500,
             detail="An unexpected error occurred. Please try again later.",
@@ -149,7 +156,7 @@ async def ai_start_activity_chat_session_stream(
     except AIServiceException as exc:
         yield _map_ai_error_to_sse(exc)
     except Exception as exc:
-        logger.exception("Unexpected error in streaming AI chat: %s", exc)
+        logger.exception("Unexpected error in streaming AI chat")
         yield _map_ai_error_to_sse(exc)
 
 
@@ -175,5 +182,5 @@ async def ai_send_activity_chat_message_stream(
     except AIServiceException as exc:
         yield _map_ai_error_to_sse(exc)
     except Exception as exc:
-        logger.exception("Unexpected error in streaming AI chat: %s", exc)
+        logger.exception("Unexpected error in streaming AI chat")
         yield _map_ai_error_to_sse(exc)

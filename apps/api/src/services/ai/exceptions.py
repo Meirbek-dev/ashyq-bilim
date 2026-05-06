@@ -35,6 +35,17 @@ class AIProcessingError(AIServiceException):
         super().__init__(message, "AI_PROCESSING_ERROR", details)
 
 
+class ContentModerationError(AIServiceException):
+    """Raised when a user message is blocked by content moderation."""
+
+    def __init__(self, details: dict[str, Any] | None = None) -> None:
+        super().__init__(
+            "Message blocked by content safety policy",
+            "CONTENT_MODERATION_BLOCKED",
+            details,
+        )
+
+
 class AITimeoutError(AIServiceException):
     """Raised when AI processing times out (maps to HTTP 504)."""
 

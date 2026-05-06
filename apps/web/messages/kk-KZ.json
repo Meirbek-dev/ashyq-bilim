@@ -142,7 +142,13 @@
       "submitFile": "Файлды жіберу",
       "uploadFailed": "Файлды жүктеу мүмкін болмады",
       "attemptNumber": "Әрекет #{number}",
-      "latestSubmission": "Соңғы жіберілім"
+      "latestSubmission": "Соңғы жіберілім",
+      "itemsLabel": "Тапсырмалар",
+      "timeLimit": "Уақыт шектеуі",
+      "unlimited": "Шектеусіз",
+      "attemptsLabel": "Талпыныстар",
+      "readyToBegin": "Бастауға дайын",
+      "noEditableDraft": "Өңдеуге болатын жоба жоқ"
     },
     "CodeChallenges": {
       "actualOutput": "Сіздің шығаруыңыз",
@@ -981,6 +987,17 @@
     "unsavedChanges": "Сақталмаған өзгерістер"
   },
   "Components": {
+    "SaveStateBadge": {
+      "unsaved": "Сақталмады",
+      "saving": "Сақталуда...",
+      "saveFailed": "Қате",
+      "saved": "Сақталды"
+    },
+    "AttemptHistoryList": {
+      "attemptHistory": "Талпыныстар тарихы",
+      "noAttemptsYet": "Әлі талпыныстар жоқ",
+      "review": "Қарау"
+    },
     "AddUserGroup": {
       "createButton": "Топ жасау",
       "descriptionLabel": "Сипаттамасы",
@@ -7394,7 +7411,18 @@
           "yourAnswer": "Сіздің жауабыңыз",
           "focus": "Фокус",
           "exitFocus": "Фокус режимінен шығу",
-          "submit": "Жіберу"
+          "submit": "Жіберу",
+          "saveStateSaved": "Сақталды",
+          "saveStateSaving": "Сақталуда...",
+          "saveStateUnsaved": "Сақталмады",
+          "saveStateError": "Сақтау қатесі",
+          "saveStateReturned": "Қайтарылды",
+          "recoverLocalDraft": "Жергілікті жобаны қалпына келтіру",
+          "recoverLocalDraftWithTime": "{time} уақытындағы жергілікті жобаны қалпына келтіру",
+          "resolveDraftConflict": "Жобалар қайшылығын шешу",
+          "draftConflictAvailable": "Серверде жауаптарыңыздың жаңа нұсқасы табылды.",
+          "keepMyLocalVersion": "Менің жергілікті нұсқамды қалдыру",
+          "useLatestSavedVersion": "Соңғы сақталған нұсқаны пайдалану"
         },
         "CodeChallenge": {
           "actualOutput": "Сіздің шығаруыңыз",

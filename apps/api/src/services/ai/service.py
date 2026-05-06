@@ -4,8 +4,10 @@ import time
 from collections.abc import AsyncGenerator
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import cast
 
 from fastapi import Request
+from pydantic_ai.messages import ModelMessage
 from sqlmodel import Session, select
 
 from config.config import get_settings
@@ -17,6 +19,7 @@ from src.services.ai.exceptions import (
     ActivityNotFoundError,
     AIProcessingError,
     AITimeoutError,
+    ContentModerationError,
     RetrievalError,
 )
 from src.services.ai.models import (
@@ -24,8 +27,10 @@ from src.services.ai.models import (
     AgentDependencies,
     DeltaEvent,
     FinalEvent,
+    RetrievedChunk,
     StatusEvent,
 )
+from src.services.ai.moderation import moderate_text_input
 from src.services.ai.retrieval import retrieve_chunks
 from src.services.ai.schemas.ai import ActivityAIChatSessionResponse
 from src.services.ai.session_store import (
@@ -72,6 +77,7 @@ _INSTRUCTIONAL_HINTS = (
 _STATUS_MESSAGES = {
     "en-US": {
         "processing": "Preparing your request.",
+        "moderating": "Checking content safety.",
         "retrieving": "Retrieving relevant course context.",
         "analyzing": "Analyzing your request without additional retrieval.",
         "generating": "Generating the response.",
@@ -80,6 +86,7 @@ _STATUS_MESSAGES = {
     },
     "ru-RU": {
         "processing": "Подготавливаем ваш запрос.",
+        "moderating": "Проверяем безопасность запроса.",
         "retrieving": "Подбираем релевантный контекст курса.",
         "analyzing": "Анализируем ваш запрос без дополнительного поиска.",
         "generating": "Формируем ответ.",
@@ -88,6 +95,7 @@ _STATUS_MESSAGES = {
     },
     "kk-KZ": {
         "processing": "Сұрағыңызды дайындап жатырмыз.",
+        "moderating": "Сұрау қауіпсіздігін тексеріп жатырмыз.",
         "retrieving": "Курс контекстін іздеп жатырмыз.",
         "analyzing": "Сұрағыңызды қосымша іздеусіз талдап жатырмыз.",
         "generating": "Жауапты құрастырып жатырмыз.",
@@ -114,7 +122,7 @@ class _ChatContext:
     course: CourseRead
     documents: list[str]
     session_id: str
-    session_history: list
+    session_history: list[ModelMessage]
     conversation_summary: str | None
     user_id: int | None
     request_id: str | None
@@ -245,6 +253,8 @@ def _status_message(status: str, *, retrieval_enabled: bool, locale: str) -> str
 
     if status == "processing":
         return messages["processing"]
+    if status == "moderating":
+        return messages["moderating"]
     if status == "retrieving":
         return messages["retrieving"]
     if status == "analyzing":
@@ -264,7 +274,7 @@ async def _retrieve_chunks_for_policy(
     question: str,
     embedding_model_name: str,
     retrieval_enabled: bool,
-) -> tuple[list, float]:
+) -> tuple[list[RetrievedChunk], float]:
     if not retrieval_enabled:
         return [], 0.0
 
@@ -297,7 +307,7 @@ async def _get_activity_data(
     cached_pair = cache_manager.db_cache.get(cache_key)
     if cached_pair:
         logger.info("Activity data cache HIT: %s", activity_uuid)
-        return cached_pair
+        return cast(tuple[ActivityRead, CourseRead], cached_pair)
 
     try:
         activity = db_session.exec(
@@ -313,7 +323,7 @@ async def _get_activity_data(
             )
 
         cache_manager.db_cache.set(cache_key, (activity, course))
-        return activity, course
+        return cast(ActivityRead, activity), cast(CourseRead, course)
     except ActivityNotFoundError, RetrievalError:
         raise
     except Exception as exc:
@@ -384,7 +394,7 @@ async def build_chat_context(
 def _build_agent_deps(
     ctx: _ChatContext,
     policy: _RequestPolicy,
-    retrieved_chunks: list,
+    retrieved_chunks: list[RetrievedChunk],
 ) -> AgentDependencies:
     return AgentDependencies(
         activity_uuid=ctx.activity.activity_uuid,
@@ -417,6 +427,7 @@ async def generate_chat_answer(
 
     try:
         async with asyncio.timeout(timeout_seconds):
+            await moderate_text_input(question, stage="input")
             policy = _build_request_policy(ctx, question)
             logger.info(
                 "AI request policy: session=%s mode=%s retrieval=%s summary=%s question_chars=%d",
@@ -453,7 +464,7 @@ async def generate_chat_answer(
         ) from exc
     except ActivityNotFoundError:
         raise
-    except AITimeoutError, RetrievalError:
+    except AITimeoutError, ContentModerationError, RetrievalError:
         raise
     except Exception as exc:
         msg = f"Unexpected error during AI processing: {exc!s}"
@@ -511,6 +522,15 @@ async def stream_chat_answer(
 
     try:
         async with asyncio.timeout(timeout_seconds):
+            yield StatusEvent(
+                status="moderating",
+                aichat_uuid=ctx.session_id,
+                activity_uuid=ctx.activity.activity_uuid,
+                message=_status_message(
+                    "moderating", retrieval_enabled=True, locale=ctx.locale
+                ),
+            )
+            await moderate_text_input(question, stage="input")
             policy = _build_request_policy(ctx, question)
             logger.info(
                 "AI streaming request policy: session=%s mode=%s retrieval=%s summary=%s question_chars=%d",
@@ -602,7 +622,7 @@ async def stream_chat_answer(
         raise AITimeoutError(
             timeout_seconds, details={"activity_uuid": ctx.activity.activity_uuid}
         ) from exc
-    except AITimeoutError:
+    except AITimeoutError, ContentModerationError:
         raise
     except Exception as exc:
         msg = f"Unexpected error during AI streaming: {exc!s}"

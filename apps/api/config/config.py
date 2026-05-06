@@ -147,6 +147,14 @@ class AIConfig(PlatformSectionSettings):
         default="text-embedding-3-small",
         validation_alias="PLATFORM_AI_EMBEDDING_MODEL",
     )
+    moderation_enabled: bool = Field(
+        default=True,
+        validation_alias="PLATFORM_AI_MODERATION_ENABLED",
+    )
+    moderation_model: str = Field(
+        default="omni-moderation-latest",
+        validation_alias="PLATFORM_AI_MODERATION_MODEL",
+    )
     embedding_dimensions: int = Field(
         default=512,
         validation_alias="PLATFORM_AI_EMBEDDING_DIMENSIONS",
@@ -225,6 +233,7 @@ class AIConfig(PlatformSectionSettings):
         "openrouter_api_key",
         "chat_model",
         "embedding_model",
+        "moderation_model",
         mode="before",
     )
     @classmethod
