@@ -6303,9 +6303,31 @@
       "itemScore": "Баллы",
       "itemFeedback": "Комментарий",
       "itemFeedbackPlaceholder": "Добавьте комментарий к этому пункту...",
-      "correctAnswer": "Правильный ответ"
-    },
-    "Batch": {
+      "correctAnswer": "Правильный ответ",
+      "grade": "Оценка",
+      "gradeDescription": "Установите итоговый балл и оставьте отзыв.",
+      "releaseStateHidden": "Скрыто",
+      "releaseStateAwaitingRelease": "Ожидает публикации",
+      "releaseStateVisible": "Видно",
+      "releaseStateReturned": "Возвращено",
+      "staleDraftTitle": "Несохраненный локальный черновик",
+      "staleDraft": {
+        "serverScoreLabel": "Балл на сервере:",
+        "yourDraftLabel": "Ваш черновик:"
+      },
+      "useServerValues": "Использовать значения с сервера",
+      "keepMyDraft": "Оставить мой черновик",
+      "saveDraftGrade": "Сохранить как черновик",
+      "returnForRevision": "Вернуть на доработку",
+      "publishPrerequisite": "Необходимо оценить хотя бы один элемент перед публикацией.",
+      "keyboardHintNextKey": "j",
+      "keyboardHintPrevKey": "k",
+      "keyboardHintForward": "Следующий студент",
+      "keyboardHintBackward": "Предыдущий студент",
+      "keyboardHint": "Горячие клавиши",
+      "loadingSubmission": "Загрузка работы...",
+      "formUnavailable": "Форма оценивания недоступна."
+      },    "Batch": {
       "title": "Пакетное оценивание ({count} работ)",
       "subtitle": "Изменено черновиков: {count}",
       "close": "Закрыть панель пакетного оценивания",
@@ -7118,6 +7140,31 @@
           "action": "Действие",
           "unsubmitted": "Не отправлено"
         },
+        "submissionInspector": {
+          "selectSubmission": "Выберите работу, чтобы начать проверку.",
+          "loadingSubmission": "Загрузка работы...",
+          "unavailable": "Данные о работе недоступны.",
+          "attemptNumber": "Попытка №{number}",
+          "late": "С опозданием",
+          "releaseState": "Статус публикации",
+          "studentVisibility": "Видимость для студента",
+          "visibleNow": "Видно сейчас",
+          "hiddenUntilRelease": "Скрыто до публикации",
+          "score": "Балл",
+          "submittedWork": "Отправленная работа",
+          "violations": "Нарушения",
+          "noViolations": "Нарушений не зафиксировано.",
+          "violationCount": "Нарушений: {count}",
+          "attemptHistory": "История попыток",
+          "started": "Начато",
+          "submitted": "Отправлено",
+          "graded": "Проверено",
+          "version": "Версия",
+          "noCanonicalProjection": "Каноническая проекция недоступна для этого типа элементов.",
+          "noAnswerPayload": "Данные об ответе не зафиксированы.",
+          "itemLabel": "Элемент {index}",
+          "rubricGuidance": "Критерии оценивания"
+        },
         "bulkActions": {
           "selectedCount": "{count} выбрано",
           "hiddenCount": "{count} скрыто",
@@ -7842,6 +7889,63 @@
         }
       },
       "Studio": {
+        "NativeItemStudio": {
+          "outlineTitle": "Структура {itemNoun}",
+          "outlinePoints": "Всего баллов: {points}",
+          "outlineDescription": "Добавьте {itemNoun}, чтобы начать.",
+          "kindLabels": {
+            "choice": "Выбор",
+            "openText": "Открытый текст",
+            "fileUpload": "Загрузка файла",
+            "form": "Форма",
+            "matching": "Сопоставление"
+          },
+          "addKind": "Добавить {kind}",
+          "outlineEmptyMessage": "Добавьте {itemNoun}, чтобы начать.",
+          "noItemSelectedTitle": "{itemNoun} не выбран",
+          "noItemSelectedDescription": "Создайте или выберите {itemNoun} из списка.",
+          "untitledItem": "Элемент без названия ({itemNoun})",
+          "itemCreated": "{itemNoun} создан",
+          "itemDeleted": "{itemNoun} удален",
+          "itemDuplicated": "{itemNoun} дублирован",
+          "createFailed": "Не удалось создать {itemNoun}",
+          "deleteFailed": "Не удалось удалить {itemNoun}",
+          "duplicateFailed": "Не удалось дублировать {itemNoun}",
+          "copyOfItem": "Копия {itemNoun}",
+          "assessmentDetailsTitle": "Детали активности",
+          "assessmentDetailsExamDescription": "Название, инструкции, расписание и политика экзамена.",
+          "assessmentDetailsAssignmentDescription": "Название, инструкции, расписание и настройки оценивания.",
+          "itemMetadataTitle": "Метаданные {itemNoun}",
+          "itemMetadataDescription": "Общее название, инструкция и количество баллов.",
+          "titleLabel": "Название",
+          "pointsLabel": "Баллы",
+          "itemContentTitle": "Содержимое {itemNoun}",
+          "itemContentDescription": "Редактирование содержимого.",
+          "pointsAbbreviation": "б.",
+          "weightLabel": "вес",
+          "dueDateLabel": "Срок сдачи",
+          "gradingModeLabel": "Режим оценивания",
+          "gradingModeNumeric": "Числовой",
+          "gradingModePercentage": "Процентный",
+          "examPolicyTitle": "Политика экзамена",
+          "attemptLimitLabel": "Лимит попыток",
+          "timeLimitLabel": "Лимит времени, мин.",
+          "violationThresholdLabel": "Порог нарушений",
+          "copyPasteProtectionLabel": "Защита от копирования/вставки",
+          "tabSwitchDetectionLabel": "Детекция переключения вкладок",
+          "devtoolsDetectionLabel": "Детекция инструментов разработчика",
+          "rightClickDisabledLabel": "Правый клик отключен",
+          "fullscreenEnforcementLabel": "Принудительный полноэкранный режим",
+          "allowResultReviewLabel": "Разрешить просмотр результатов",
+          "showCorrectAnswersLabel": "Показывать правильные ответы",
+          "readOnlyBadge": "Только чтение",
+          "validation": {
+            "titleRequired": "Название обязательно.",
+            "maxAttemptsRange": "Лимит попыток должен быть не менее 1.",
+            "timeLimitRange": "Ограничение по времени должно быть больше нуля.",
+            "violationThresholdRange": "Порог нарушений должен быть не менее 1."
+          }
+        },
         "loading": "Загрузка студии",
         "unavailable": "Студия недоступна для этой активности.",
         "lifecycle": {
@@ -7896,6 +8000,7 @@
           }
         },
         "FileUpload": {
+          "prompt": "Формулировка",
           "maxFiles": "Макс. файлов",
           "maxSizeMb": "Макс. размер, МБ",
           "noLimit": "Без ограничений",
@@ -7920,6 +8025,18 @@
         "Form": {
           "title": "Элемент формы",
           "description": "Создавайте поля с пропусками и необязательными правильными ответами.",
+          "prompt": "Формулировка",
+          "fieldHeader": "Поле {number}",
+          "fieldLabel": "Метка",
+          "fieldType": "Тип",
+          "fieldTypes": {
+            "text": "Текст",
+            "textarea": "Текстовая область",
+            "number": "Число",
+            "date": "Дата"
+          },
+          "addField": "Добавить поле",
+          "unsupportedKind": "Неподдерживаемый тип элемента.",
           "questionBadge": "В{number}",
           "questionPlaceholder": "Вопрос или инструкция",
           "fieldLabelPlaceholder": "Название поля для студента",
@@ -7938,15 +8055,26 @@
           "rightLabel": "Справа (соответствие)",
           "termPlaceholder": "Термин {number}",
           "matchPlaceholder": "Соответствие {number}",
+          "selectMatch": "Выберите соответствие",
           "removePair": "Удалить пару",
           "addPair": "Добавить пару"
         },
         "OpenText": {
           "title": "Элемент с открытым ответом",
           "description": "Инструкция для письменного ответа, который проверяется вручную.",
+          "prompt": "Формулировка",
           "promptPlaceholder": "Инструкция",
+          "minWords": "Минимум слов",
+          "rubric": "Критерии оценивания",
+          "rubricGuidance": "Критерии оценивания",
           "noTextRecorded": "Текст не сохранён"
-        }
+        },
+        "Code": {
+          "language": "Язык",
+          "languageValue": "Язык {language}"
+        },
+        "unsupportedItem": "Неподдерживаемый элемент.",
+        "unsupported": "Неподдерживается"
       },
       "Review": {
         "Gradebook": {

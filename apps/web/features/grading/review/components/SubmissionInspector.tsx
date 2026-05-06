@@ -12,7 +12,7 @@ import SubmissionStatusBadge from '@/features/assessments/shared/components/Subm
 import type { KindReviewDetailProps } from '@/features/assessments/registry';
 import { useAssessmentAttempt } from '@/features/assessments/hooks/useAssessment';
 import type { AssessmentItem, ItemAnswer } from '@/features/assessments/domain/items';
-import { renderCanonicalReviewAnswer } from '@/features/assessments/shared/canonical-item-rendering';
+import { CanonicalReviewAnswer } from '@/features/assessments/shared/canonical-item-rendering';
 import { useGradingPanel } from '@/hooks/useGradingPanel';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -69,7 +69,7 @@ export default function SubmissionInspector({
             <div>
               <h2 className="text-xl font-semibold">{getSubmissionDisplayName(current)}</h2>
               <p className="text-muted-foreground text-sm">
-                Attempt #{current.attempt_number} · {formatDate(current.submitted_at)}
+                {t('submissionInspector.attemptNumber', { number: current.attempt_number })} · {formatDate(current.submitted_at)}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -278,7 +278,10 @@ export function SubmittedAnswers({
               {item.title ||
                 ('prompt' in item.body ? item.body.prompt : t('submissionInspector.itemLabel', { index: index + 1 }))}
             </p>
-            {renderCanonicalReviewAnswer(item, canonicalAnswers[item.item_uuid])}
+            <CanonicalReviewAnswer
+              item={item}
+              answer={canonicalAnswers[item.item_uuid]}
+            />
             {item.body.kind === 'OPEN_TEXT' && item.body.rubric ? <RubricSummary rubric={item.body.rubric} /> : null}
           </div>
         ))

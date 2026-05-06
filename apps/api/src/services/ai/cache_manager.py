@@ -10,7 +10,7 @@ import logging
 from threading import Lock
 from typing import Any
 
-from cachetools import TTLCache
+from cachebox import TTLCache
 
 from config.config import get_settings
 
@@ -18,12 +18,12 @@ logger = logging.getLogger(__name__)
 
 
 class _Cache:
-    """Thread-safe TTL cache wrapper (thin — no metrics, no async indirection)."""
+    """Thin cachebox TTL cache wrapper with a stable local API."""
 
     __slots__ = ("_cache", "_lock")
 
     def __init__(self, maxsize: int, ttl: int) -> None:
-        self._cache: TTLCache = TTLCache(maxsize=maxsize, ttl=ttl)
+        self._cache: TTLCache[str, Any] = TTLCache(maxsize=maxsize, ttl=ttl)
         self._lock = Lock()
 
     def get(self, key: str) -> Any | None:

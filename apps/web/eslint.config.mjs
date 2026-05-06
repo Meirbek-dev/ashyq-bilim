@@ -217,4 +217,16 @@ export default defineConfig(
       'app/(platform)/(withmenu)/courses/**/*.{ts,tsx}',
     ],
   },
+
+  /* ------------------------------------------------------------------------ */
+  /* Tests                                                                    */
+  /* ------------------------------------------------------------------------ */
+
+  {
+    name: 'tests',
+    files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', 'tests/**/*.{ts,tsx}'],
+    rules: {
+      'i18next/no-literal-string': 'off',
+    },
+  },
 );

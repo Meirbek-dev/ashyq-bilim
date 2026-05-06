@@ -16,7 +16,7 @@ import { useAssessmentAttempt } from '@/features/assessments/shell/hooks/useAsse
 import { useAssessmentSubmission } from '@/features/assessments/hooks/useAssessmentSubmission';
 import type { AssessmentItem, ItemAnswer } from '@/features/assessments/domain/items';
 import type { AttemptSaveState } from '@/features/assessments/shell';
-import { renderCanonicalAttemptItem } from '@/features/assessments/shared/canonical-item-rendering';
+import { CanonicalAttemptItem } from '@/features/assessments/shared/canonical-item-rendering';
 import { apiFetch } from '@/lib/api-client';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 import type { KindAttemptProps } from './index';
@@ -396,7 +396,15 @@ function ItemAttemptRenderer({
   assessmentUuid: string;
   onChange: (answer: ItemAnswer) => void;
 }) {
-  return renderCanonicalAttemptItem({ item, answer, disabled, assessmentUuid, onChange });
+  return (
+    <CanonicalAttemptItem
+      item={item}
+      answer={answer}
+      disabled={disabled}
+      assessmentUuid={assessmentUuid}
+      onChange={onChange}
+    />
+  );
 }
 
 function formatDateTime(value: string): string {

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,7 +11,7 @@ import { normalizeFormItem } from '@/features/assessments/items/form';
 import { getItemKindModule } from '@/features/assessments/items/registry';
 import type { AssessmentItem, ItemAnswer, MatchPair } from '@/features/assessments/domain/items';
 
-export function renderCanonicalAttemptItem({
+export function CanonicalAttemptItem({
   item,
   answer,
   disabled,
@@ -24,6 +25,7 @@ export function renderCanonicalAttemptItem({
   onChange: (answer: ItemAnswer) => void;
 }) {
   const { body } = item;
+  const t = useTranslations('Features.Assessments.Items');
 
   if (body.kind === 'CHOICE') {
     const choiceModule = getItemKindModule(body.multiple ? 'CHOICE_MULTIPLE' : 'CHOICE_SINGLE');
@@ -195,7 +197,7 @@ export function renderCanonicalAttemptItem({
               onChange={(event) => updateMatch(pair.left, event.target.value)}
               className="sm:max-w-xs"
             >
-              <NativeSelectOption value="">Select match</NativeSelectOption>
+              <NativeSelectOption value="">{t('Matching.selectMatch')}</NativeSelectOption>
               {rightOptions.map((option) => (
                 <NativeSelectOption
                   key={option}
@@ -220,7 +222,7 @@ export function renderCanonicalAttemptItem({
       <div className="space-y-4">
         {body.prompt ? <p className="text-sm">{body.prompt}</p> : null}
         <div className="space-y-2">
-          <Label htmlFor={`${item.item_uuid}-language`}>Language</Label>
+          <Label htmlFor={`${item.item_uuid}-language`}>{t('Code.language')}</Label>
           <NativeSelect
             id={`${item.item_uuid}-language`}
             value={String(currentAnswer.language)}
@@ -239,7 +241,7 @@ export function renderCanonicalAttemptItem({
                 key={language}
                 value={String(language)}
               >
-                Language {language}
+                {t('Code.languageValue', { language })}
               </NativeSelectOption>
             ))}
           </NativeSelect>
@@ -261,11 +263,18 @@ export function renderCanonicalAttemptItem({
     );
   }
 
-  return <div className="text-muted-foreground rounded-md border border-dashed p-4 text-sm">Unsupported item.</div>;
+  return <div className="text-muted-foreground rounded-md border border-dashed p-4 text-sm">{t('unsupportedItem')}</div>;
 }
 
-export function renderCanonicalReviewAnswer(item: AssessmentItem, answer: ItemAnswer | null | undefined) {
+export function CanonicalReviewAnswer({
+  item,
+  answer,
+}: {
+  item: AssessmentItem;
+  answer: ItemAnswer | null | undefined;
+}) {
   const { body } = item;
+  const t = useTranslations('Features.Assessments.Items');
 
   if (body.kind === 'CHOICE') {
     const choiceModule = getItemKindModule(body.multiple ? 'CHOICE_MULTIPLE' : 'CHOICE_SINGLE');
@@ -306,7 +315,7 @@ export function renderCanonicalReviewAnswer(item: AssessmentItem, answer: ItemAn
         />
         {body.rubric ? (
           <div className="rounded-md border border-sky-200 bg-sky-50/70 p-3 text-xs text-sky-950">
-            <div className="mb-1 font-medium">Rubric guidance</div>
+            <div className="mb-1 font-medium">{t('OpenText.rubricGuidance')}</div>
             <pre className="whitespace-pre-wrap">{body.rubric}</pre>
           </div>
         ) : null}
@@ -372,7 +381,7 @@ export function renderCanonicalReviewAnswer(item: AssessmentItem, answer: ItemAn
   return (
     <div className="bg-card rounded-md border p-3 text-sm">
       <div className="mb-2 flex items-center gap-2">
-        <Badge variant="outline">Unsupported</Badge>
+        <Badge variant="outline">{t('unsupported')}</Badge>
       </div>
       <pre className="bg-muted max-h-80 overflow-auto rounded-md p-3 text-xs">
         {JSON.stringify(answer ?? {}, null, 2)}

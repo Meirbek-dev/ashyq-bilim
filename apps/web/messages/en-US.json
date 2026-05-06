@@ -6302,9 +6302,31 @@
       "itemScore": "Score",
       "itemFeedback": "Feedback",
       "itemFeedbackPlaceholder": "Add item-level feedback...",
-      "correctAnswer": "Correct answer"
-    },
-    "Batch": {
+      "correctAnswer": "Correct answer",
+      "grade": "Grade",
+      "gradeDescription": "Set final score and provide feedback.",
+      "releaseStateHidden": "Hidden",
+      "releaseStateAwaitingRelease": "Awaiting release",
+      "releaseStateVisible": "Visible",
+      "releaseStateReturned": "Returned",
+      "staleDraftTitle": "Unsaved local draft",
+      "staleDraft": {
+        "serverScoreLabel": "Server score:",
+        "yourDraftLabel": "Your draft:"
+      },
+      "useServerValues": "Use server values",
+      "keepMyDraft": "Keep my draft",
+      "saveDraftGrade": "Save as draft",
+      "returnForRevision": "Return for revision",
+      "publishPrerequisite": "At least one item must be graded before publishing.",
+      "keyboardHintNextKey": "j",
+      "keyboardHintPrevKey": "k",
+      "keyboardHintForward": "Next student",
+      "keyboardHintBackward": "Previous student",
+      "keyboardHint": "Keyboard shortcuts",
+      "loadingSubmission": "Loading submission...",
+      "formUnavailable": "Grading form is unavailable."
+    },    "Batch": {
       "title": "Batch Grade ({count} submissions)",
       "subtitle": "{count} drafts edited",
       "close": "Close batch grading panel",
@@ -7107,6 +7129,31 @@
           "action": "Action",
           "unsubmitted": "Unsubmitted"
         },
+        "submissionInspector": {
+          "selectSubmission": "Select a submission to begin reviewing.",
+          "loadingSubmission": "Loading submission...",
+          "unavailable": "Submission data is unavailable.",
+          "attemptNumber": "Attempt #{number}",
+          "late": "Late",
+          "releaseState": "Release state",
+          "studentVisibility": "Student visibility",
+          "visibleNow": "Visible now",
+          "hiddenUntilRelease": "Hidden until release",
+          "score": "Score",
+          "submittedWork": "Submitted work",
+          "violations": "Violations",
+          "noViolations": "No violations recorded.",
+          "violationCount": "{count} violations",
+          "attemptHistory": "Attempt history",
+          "started": "Started",
+          "submitted": "Submitted",
+          "graded": "Graded",
+          "version": "Version",
+          "noCanonicalProjection": "No canonical projection available for this item type.",
+          "noAnswerPayload": "No answer payload recorded.",
+          "itemLabel": "Item {index}",
+          "rubricGuidance": "Rubric guidance"
+        },
         "bulkActions": {
           "selectedCount": "{count} selected",
           "hiddenCount": "{count} hidden",
@@ -7826,7 +7873,13 @@
           "fullscreenEnforcementLabel": "Fullscreen enforcement",
           "allowResultReviewLabel": "Allow result review",
           "showCorrectAnswersLabel": "Show correct answers",
-          "readOnlyBadge": "Read only"
+          "readOnlyBadge": "Read only",
+          "validation": {
+            "titleRequired": "Assessment title is required.",
+            "maxAttemptsRange": "Attempt limit must be at least 1.",
+            "timeLimitRange": "Time limit must be greater than zero.",
+            "violationThresholdRange": "Violation threshold must be at least 1."
+          }
         },
         "loading": "Loading studio",
         "unavailable": "Studio is unavailable for this activity.",
@@ -7937,6 +7990,7 @@
           "rightLabel": "Right (match)",
           "termPlaceholder": "Term {number}",
           "matchPlaceholder": "Match {number}",
+          "selectMatch": "Select match",
           "removePair": "Remove pair",
           "addPair": "Add pair"
         },
@@ -7947,8 +8001,15 @@
           "promptPlaceholder": "Prompt",
           "minWords": "Minimum words",
           "rubric": "Rubric",
+          "rubricGuidance": "Rubric guidance",
           "noTextRecorded": "No text recorded"
-        }
+        },
+        "Code": {
+          "language": "Language",
+          "languageValue": "Language {language}"
+        },
+        "unsupportedItem": "Unsupported item.",
+        "unsupported": "Unsupported"
       },
       "Review": {
         "Gradebook": {

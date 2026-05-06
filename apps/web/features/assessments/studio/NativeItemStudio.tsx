@@ -534,7 +534,7 @@ export function NativeItemAuthor({ mode, itemNoun }: NativeItemAuthorProps) {
         ...localItemValidationIssues(itemState),
       ]).map(classifyValidationIssue)
     : [];
-  const assessmentIssues = getAssessmentEditorIssues(mode, assessmentState).map(classifyValidationIssue);
+  const assessmentIssues = getAssessmentEditorIssues(mode, assessmentState, t).map(classifyValidationIssue);
   const itemMetadataIssues = itemIssues.filter((issue) => issue.area === 'item-metadata');
   const itemContentIssues = itemIssues.filter((issue) => issue.area === 'item-content' || issue.area === 'item-kind');
 
@@ -894,6 +894,7 @@ function NativeItemBodyEditor({
   issues: ReturnType<typeof classifyValidationIssue>[];
   onChange: (nextItem: EditableItem) => void;
 }) {
+  const t = useTranslations('Features.Assessments.Studio.Items');
   const hasIssue = (code: string) => issues.some((issue) => issue.code === code);
 
   if (item.body.kind === 'CHOICE' || item.body.kind === 'MATCHING') {
@@ -925,7 +926,7 @@ function NativeItemBodyEditor({
     return (
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="open-text-prompt">Prompt</Label>
+          <Label htmlFor="open-text-prompt">{t('OpenText.prompt')}</Label>
           <Textarea
             id="open-text-prompt"
             value={body.prompt}
@@ -939,7 +940,7 @@ function NativeItemBodyEditor({
         </div>
         <div className="grid gap-4 md:grid-cols-[12rem_1fr]">
           <div className="space-y-2">
-            <Label htmlFor="open-text-min-words">Minimum words</Label>
+            <Label htmlFor="open-text-min-words">{t('OpenText.minWords')}</Label>
             <Input
               id="open-text-min-words"
               type="number"
@@ -960,7 +961,7 @@ function NativeItemBodyEditor({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="open-text-rubric">Rubric</Label>
+            <Label htmlFor="open-text-rubric">{t('OpenText.rubric')}</Label>
             <Textarea
               id="open-text-rubric"
               value={body.rubric ?? ''}
@@ -989,7 +990,7 @@ function NativeItemBodyEditor({
     return (
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="file-upload-prompt">Prompt</Label>
+          <Label htmlFor="file-upload-prompt">{t('FileUpload.prompt')}</Label>
           <Textarea
             id="file-upload-prompt"
             value={body.prompt}
@@ -1027,7 +1028,7 @@ function NativeItemBodyEditor({
     return (
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="form-prompt">Prompt</Label>
+          <Label htmlFor="form-prompt">{t('Form.prompt')}</Label>
           <Textarea
             id="form-prompt"
             value={body.prompt}
@@ -1046,8 +1047,8 @@ function NativeItemBodyEditor({
               key={field.id}
               className="rounded-lg border p-3"
             >
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <span className="text-sm font-medium">Field {index + 1}</span>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">{t('Form.fieldHeader', { number: index + 1 })}</span>
                 <Button
                   type="button"
                   variant="ghost"
@@ -1069,8 +1070,8 @@ function NativeItemBodyEditor({
               </div>
 
               <div className="grid gap-4 md:grid-cols-[1fr_12rem_auto]">
-                <div className="space-y-2">
-                  <Label htmlFor={`form-field-label-${field.id}`}>Label</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor={`form-field-label-${field.id}`}>{t('Form.fieldLabel')}</Label>
                   <Input
                     id={`form-field-label-${field.id}`}
                     value={field.label}
@@ -1090,8 +1091,8 @@ function NativeItemBodyEditor({
                     }
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`form-field-type-${field.id}`}>Type</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor={`form-field-type-${field.id}`}>{t('Form.fieldType')}</Label>
                   <NativeSelect
                     id={`form-field-type-${field.id}`}
                     value={field.field_type}
@@ -1115,10 +1116,10 @@ function NativeItemBodyEditor({
                       })
                     }
                   >
-                    <NativeSelectOption value="text">Text</NativeSelectOption>
-                    <NativeSelectOption value="textarea">Textarea</NativeSelectOption>
-                    <NativeSelectOption value="number">Number</NativeSelectOption>
-                    <NativeSelectOption value="date">Date</NativeSelectOption>
+                    <NativeSelectOption value="text">{t('Form.fieldTypes.text')}</NativeSelectOption>
+                    <NativeSelectOption value="textarea">{t('Form.fieldTypes.textarea')}</NativeSelectOption>
+                    <NativeSelectOption value="number">{t('Form.fieldTypes.number')}</NativeSelectOption>
+                    <NativeSelectOption value="date">{t('Form.fieldTypes.date')}</NativeSelectOption>
                   </NativeSelect>
                 </div>
                 <div className="flex items-end">
@@ -1160,13 +1161,13 @@ function NativeItemBodyEditor({
             })
           }
         >
-          Add field
+          {t('Form.addField')}
         </Button>
       </div>
     );
   }
 
-  return <div className="text-muted-foreground text-sm">Unsupported item kind.</div>;
+  return <div className="text-muted-foreground text-sm">{t('Form.unsupportedKind')}</div>;
 }
 
 function buildDefaultItemPayload(kind: SupportedStudioItemKind) {
@@ -1414,32 +1415,36 @@ function InlineIssueList({ issues }: { issues: ReturnType<typeof classifyValidat
   );
 }
 
-function getAssessmentEditorIssues(mode: StudioMode, state: AssessmentEditorState): ValidationIssue[] {
+function getAssessmentEditorIssues(
+  mode: StudioMode,
+  state: AssessmentEditorState,
+  t: (key: string, values?: any) => string,
+): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
 
   if (!state.title.trim()) {
-    issues.push({ code: 'assessment.title_missing', message: 'Assessment title is required.' });
+    issues.push({ code: 'assessment.title_missing', message: t('validation.titleRequired') });
   }
 
   if (mode === 'exam') {
     if (state.maxAttempts && Number(state.maxAttempts) < 1) {
       issues.push({
         code: 'policy.max_attempts_invalid',
-        message: 'Attempt limit must be at least 1.',
+        message: t('validation.maxAttemptsRange'),
         field: 'maxAttempts',
       });
     }
     if (state.timeLimitMinutes && Number(state.timeLimitMinutes) < 1) {
       issues.push({
         code: 'policy.time_limit_invalid',
-        message: 'Time limit must be greater than zero.',
+        message: t('validation.timeLimitRange'),
         field: 'timeLimitMinutes',
       });
     }
     if (state.violationThreshold && Number(state.violationThreshold) < 1) {
       issues.push({
         code: 'policy.violation_threshold_invalid',
-        message: 'Violation threshold must be at least 1.',
+        message: t('validation.violationThresholdRange'),
         field: 'violationThreshold',
       });
     }
