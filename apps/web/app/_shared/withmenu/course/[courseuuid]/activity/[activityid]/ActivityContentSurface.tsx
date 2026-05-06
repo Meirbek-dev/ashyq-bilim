@@ -80,7 +80,7 @@ export function ActivityContent({ activity, course }: { activity: Activity; cour
     default: {
       return (
         <div className="text-muted-foreground text-sm">
-          {t('unsupportedActivityType', { type: activity.activity_type })}
+          {t('unsupportedActivityType', { type: activity.activity_type ?? 'unknown' })}
         </div>
       );
     }

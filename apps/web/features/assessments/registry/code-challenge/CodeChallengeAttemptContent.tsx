@@ -35,7 +35,7 @@ interface CodeChallengeActivitySettings {
 }
 
 export default function CodeChallengeAttemptContent({ activityUuid, vm }: KindAttemptProps) {
-  const t = useTranslations('CodeChallenges');
+  const t = useTranslations('Activities.CodeChallenges');
   const normalizedActivityUuid = activityUuid.replace(/^activity_/, '');
   const queryClient = useQueryClient();
   const { data: settings, isLoading } = useCodeChallengeSettings<CodeChallengeActivitySettings>(normalizedActivityUuid);

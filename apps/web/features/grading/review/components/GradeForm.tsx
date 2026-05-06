@@ -52,7 +52,7 @@ export default function GradeForm({
   navigation: ReviewNavigationState;
 }) {
   const { submission, isLoading, mutate } = useGradingPanel(submissionUuid, assessmentUuid);
-  const t = useTranslations('Features.Grading.Review.Panel');
+  const t = useTranslations('Grading.Panel');
   const [draft, setDraft] = useState<GradeDraft>({ score: '', feedback: '' });
   const [isSaving, startSaving] = useTransition();
   const [staleDraft, setStaleDraft] = useState<{ server: Submission; local: GradeDraft } | null>(null);
@@ -300,7 +300,7 @@ export default function GradeForm({
 }
 
 function KeyboardHint() {
-  const t = useTranslations('Features.Grading.Review.Panel');
+  const t = useTranslations('Grading.Panel');
   const [open, setOpen] = useState(false);
 
   useEffect(() => {

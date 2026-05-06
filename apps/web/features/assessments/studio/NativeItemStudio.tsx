@@ -621,7 +621,7 @@ export function NativeItemAuthor({ mode, itemNoun }: NativeItemAuthorProps) {
 
           <section className="bg-card rounded-lg border p-4 md:p-5">
             <div className="mb-4">
-              <h3 className="text-sm font-semibold">{t('itemMetadataTitle')}</h3>
+              <h3 className="text-sm font-semibold">{t('itemMetadataTitle', { itemNoun })}</h3>
               <p className="text-muted-foreground text-xs">{t('itemMetadataDescription')}</p>
             </div>
             <div className="grid gap-4">
@@ -667,7 +667,7 @@ export function NativeItemAuthor({ mode, itemNoun }: NativeItemAuthorProps) {
 
           <section className="bg-card rounded-lg border p-4 md:p-5">
             <div className="mb-4">
-              <h3 className="text-sm font-semibold">{t('itemContentTitle')}</h3>
+              <h3 className="text-sm font-semibold">{t('itemContentTitle', { itemNoun })}</h3>
               <p className="text-muted-foreground text-xs">{t('itemContentDescription')}</p>
             </div>
             {itemContentIssues.length > 0 ? <InlineIssueList issues={itemContentIssues} /> : null}

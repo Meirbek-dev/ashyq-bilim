@@ -11,7 +11,7 @@ import { JUDGE0_LANGUAGES } from '@/components/features/courses/code-challenges/
 import type { CodeChallengeSettingsForm } from './CodeChallengeStudio';
 
 export default function StarterCodeTabs() {
-  const t = useTranslations('CodeChallenges.form');
+  const t = useTranslations('Activities.CodeChallenges.form');
   const form = useFormContext<CodeChallengeSettingsForm>();
   const watchedLanguages = useWatch({ control: form.control, name: 'allowed_languages' });
   const languages = useMemo(
