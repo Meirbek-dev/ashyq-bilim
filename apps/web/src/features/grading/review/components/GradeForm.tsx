@@ -16,12 +16,7 @@ import { useEffect, useMemo, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 
-import {
-  canPublishGrade,
-  canReturnSubmission,
-  canTeacherEditGrade,
-  getReleaseState,
-} from '@/features/grading/domain';
+import { canPublishGrade, canReturnSubmission, canTeacherEditGrade, getReleaseState } from '@/features/grading/domain';
 import type { GradedItem, Submission, TeacherGradeInput } from '@/features/grading/domain';
 import { saveGrade } from '@/services/grading/grading';
 import { StaleGradeError } from '@/services/grading/errors';
@@ -82,10 +77,7 @@ export default function GradeForm({
     }, 0);
   }, [hasItemGrading, gradedItems, itemDrafts]);
 
-  const maxPossible = useMemo(
-    () => gradedItems.reduce((acc, item) => acc + item.max_score, 0),
-    [gradedItems],
-  );
+  const maxPossible = useMemo(() => gradedItems.reduce((acc, item) => acc + item.max_score, 0), [gradedItems]);
 
   useEffect(() => {
     // Sync overall draft from server
@@ -113,7 +105,12 @@ export default function GradeForm({
   const patchItemDraft = (itemId: string, field: keyof ItemDraftEntry, value: string) => {
     setItemDrafts((prev) => ({
       ...prev,
-      [itemId]: { ...prev[itemId], score: prev[itemId]?.score ?? '0', feedback: prev[itemId]?.feedback ?? '', [field]: value },
+      [itemId]: {
+        ...prev[itemId],
+        score: prev[itemId]?.score ?? '0',
+        feedback: prev[itemId]?.feedback ?? '',
+        [field]: value,
+      },
     }));
   };
 
@@ -155,9 +152,11 @@ export default function GradeForm({
           submission.version,
         );
         toast.success(
-          status === 'publish' ? tItemGrading('toasts.published')
-            : status === 'return' ? tItemGrading('toasts.returned')
-            : tItemGrading('toasts.saved'),
+          status === 'publish'
+            ? tItemGrading('toasts.published')
+            : status === 'return'
+              ? tItemGrading('toasts.returned')
+              : tItemGrading('toasts.saved'),
         );
         setStaleDraft(null);
         await Promise.all([mutate(), onSaved()]);
@@ -358,9 +357,7 @@ export default function GradeForm({
                       onChange={(e) => patchItemDraft(item.item_id, 'score', e.target.value)}
                     />
                     <span className="text-muted-foreground text-xs">/ {item.max_score}</span>
-                    {item.needs_manual_review && (
-                      <span className="ml-auto text-xs text-amber-600">needs review</span>
-                    )}
+                    {item.needs_manual_review && <span className="ml-auto text-xs text-amber-600">needs review</span>}
                   </div>
                   <Textarea
                     placeholder={tItemGrading('itemFeedback')}
@@ -383,7 +380,10 @@ export default function GradeForm({
                 onCheckedChange={setOverrideScore}
                 disabled={!editable}
               />
-              <Label htmlFor="override-score-switch" className="text-sm">
+              <Label
+                htmlFor="override-score-switch"
+                className="text-sm"
+              >
                 {tItemGrading('overrideScore')}
               </Label>
             </div>

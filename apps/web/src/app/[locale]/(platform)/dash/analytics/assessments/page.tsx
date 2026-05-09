@@ -5,7 +5,7 @@ import TeacherFilterBar from '@components/Dashboard/Analytics/TeacherFilterBar';
 import { Card, CardContent } from '@/components/ui/card';
 import { getTranslations } from 'next-intl/server';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 export default function PlatformAnalyticsAssessmentsPage(props: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;

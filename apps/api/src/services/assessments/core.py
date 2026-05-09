@@ -982,7 +982,9 @@ async def get_attempt_state(
     )
     return AssessmentAttemptProjection(
         assessment_uuid=assessment.assessment_uuid,
-        submission_uuid=active_submission.submission_uuid if active_submission else None,
+        submission_uuid=active_submission.submission_uuid
+        if active_submission
+        else None,
         submission_status=submission_status.value if submission_status else None,
         release_state=_release_state_for_submission(active_submission, db_session),
         can_edit=bool(state["can_edit"]),
@@ -1008,7 +1010,9 @@ async def get_attempt_state(
         due_at=state["due_at"],
         time_remaining_seconds=state["time_remaining_seconds"],
         content_version=_content_version(assessment),
-        policy_version=_policy_version(_get_policy_for_assessment(assessment, db_session)),
+        policy_version=_policy_version(
+            _get_policy_for_assessment(assessment, db_session)
+        ),
     )
 
 
@@ -1280,6 +1284,7 @@ async def save_grading_draft(
 
     # Build TeacherGradeInput for the existing grade save pipeline
     from src.db.grading.submissions import ItemFeedback, TeacherGradeInput
+
     grade_input = TeacherGradeInput(
         final_score=final_score,
         feedback=payload.overall_feedback,
@@ -1356,6 +1361,7 @@ async def run_code_item(
 
     # Run against Judge0
     from src.services.code_challenges import judge0
+
     run_id = f"run_{ULID()}"
     try:
         run_result = await judge0.run_code(
@@ -1401,6 +1407,7 @@ async def run_code_item(
     ).first()
     if draft is not None:
         from src.db.grading.submissions import CodeRunRecord, merge_submission_metadata
+
         record = CodeRunRecord(
             run_id=run_id,
             language_id=payload.language,
@@ -1783,9 +1790,7 @@ def _build_attempt_state(
     can_start = not has_draft and not has_submitted and not reasons
     can_continue = has_draft and not reasons
     can_view_result = _is_result_visible(active_submission, db_session)
-    can_start_revision = (
-        active_status == SubmissionStatus.RETURNED and not reasons
-    )
+    can_start_revision = active_status == SubmissionStatus.RETURNED and not reasons
 
     # Recommended action and label key for the primary button
     if reasons:
@@ -1816,13 +1821,17 @@ def _build_attempt_state(
     timer_expires_at: datetime | None = None
     if draft is not None and draft.started_at:
         raw_started = draft.started_at
-        started_at = raw_started if raw_started.tzinfo else raw_started.replace(tzinfo=UTC)
+        started_at = (
+            raw_started if raw_started.tzinfo else raw_started.replace(tzinfo=UTC)
+        )
         if time_limit_seconds:
             timer_started_at = started_at
             timer_expires_at = started_at + timedelta(seconds=int(time_limit_seconds))
     elif latest is not None and latest.started_at:
         raw_started = latest.started_at
-        started_at = raw_started if raw_started.tzinfo else raw_started.replace(tzinfo=UTC)
+        started_at = (
+            raw_started if raw_started.tzinfo else raw_started.replace(tzinfo=UTC)
+        )
 
     return {
         "active_submission": active_submission,

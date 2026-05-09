@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { ClipboardList, Loader2, Minimize2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 import type { Activity, CourseStructure } from '@components/Contexts/CourseContext';
 import CourseEndView from '@components/Pages/Activity/CourseEndView';

@@ -4,8 +4,7 @@ import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { updateUserLocale } from '@/lib/users/client';
 import { useSession } from '@/hooks/useSession';
 import { useLocale, useTranslations } from 'next-intl';
-import { setUserLocale } from '@/i18n/locale';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/config';
 import { Languages } from 'lucide-react';
 import { locales } from '@/i18n/config';
@@ -19,6 +18,7 @@ interface LocaleSwitcherProps {
 
 export const LocaleSwitcher = ({ className, isMobile }: LocaleSwitcherProps) => {
   const router = useRouter();
+  const pathname = usePathname();
   const currentLocale = useLocale();
   const [isPending, startTransition] = useTransition();
   const t = useTranslations('Components.LocaleSwitcher');
@@ -31,8 +31,6 @@ export const LocaleSwitcher = ({ className, isMobile }: LocaleSwitcherProps) => 
 
   const handleLocaleChange = (newLocale: Locale) => {
     startTransition(async () => {
-      await setUserLocale(newLocale);
-
       // Sync to database if user is logged in
       if (viewer?.id) {
         try {
@@ -42,7 +40,8 @@ export const LocaleSwitcher = ({ className, isMobile }: LocaleSwitcherProps) => 
         }
       }
 
-      router.refresh();
+      const search = typeof window === 'undefined' ? '' : window.location.search;
+      router.replace(`${pathname}${search}`, { locale: newLocale });
     });
   };
 

@@ -146,7 +146,11 @@ export function localItemValidationIssues(
 
   if (item.body.kind === 'MATCHING') {
     if (!item.body.prompt.trim()) {
-      issues.push({ code: 'matching.prompt_missing', message: 'Matching prompt is required.', itemUuid: item.item_uuid });
+      issues.push({
+        code: 'matching.prompt_missing',
+        message: 'Matching prompt is required.',
+        itemUuid: item.item_uuid,
+      });
     }
     if (!item.body.pairs.length) {
       issues.push({
@@ -182,7 +186,11 @@ export function localItemValidationIssues(
 
   if (item.body.kind === 'OPEN_TEXT') {
     if (!item.body.prompt.trim()) {
-      issues.push({ code: 'open_text.prompt_missing', message: 'Open-text prompt is required.', itemUuid: item.item_uuid });
+      issues.push({
+        code: 'open_text.prompt_missing',
+        message: 'Open-text prompt is required.',
+        itemUuid: item.item_uuid,
+      });
     }
     if (item.body.min_words !== null && item.body.min_words !== undefined && item.body.min_words < 0) {
       issues.push({

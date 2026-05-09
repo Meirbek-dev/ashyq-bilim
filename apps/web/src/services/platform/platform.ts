@@ -1,5 +1,4 @@
 'use server';
-import { requireSession } from '@/lib/auth/session';
 
 import { errorHandling, getResponseMetadata } from '@/lib/api-client';
 import { apiFetch } from '@/lib/api-client';
@@ -7,6 +6,7 @@ import type { CustomResponseTyping } from '@/lib/api-client';
 import { getServerAPIUrl } from '@services/config/config';
 import type { components } from '@/lib/api/generated';
 import { tags } from '@/lib/cacheTags';
+import { requireSession } from '@/lib/auth/session';
 
 type PlatformRead = components['schemas']['PlatformRead'];
 type PlatformDetailResponse = components['schemas']['PlatformDetailResponse'];
@@ -34,8 +34,12 @@ async function fetchPlatform(): Promise<PlatformRead | null> {
   }
 }
 
+/**
+ * Get the single platform configuration.
+ * This is a PUBLIC endpoint used for bootstrapping the UI.
+ */
 export async function getPlatform() {
-  await requireSession();
+  console.log('[DEBUG] getPlatform called');
   return fetchPlatform();
 }
 

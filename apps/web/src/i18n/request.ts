@@ -1,17 +1,21 @@
+import { hasLocale } from 'next-intl';
 import { getRequestConfig } from 'next-intl/server';
-import { defaultLocale, defaultTimeZone } from './config';
-import { cookies } from 'next/headers';
-import type { Locale } from './config';
+import { defaultTimeZone } from './config';
+import { routing } from './routing';
 
-const COOKIE_NAME = 'NEXT_LOCALE';
+const messagesByLocale = {
+  'ru-RU': () => import('../messages/ru-RU.json'),
+  'kk-KZ': () => import('../messages/kk-KZ.json'),
+  'en-US': () => import('../messages/en-US.json'),
+} satisfies Record<(typeof routing.locales)[number], () => Promise<{ default: unknown }>>;
 
-export default getRequestConfig(async () => {
-  const cookieStore = await cookies();
-  const locale = (cookieStore.get(COOKIE_NAME)?.value as Locale) || defaultLocale;
+export default getRequestConfig(async ({ requestLocale }) => {
+  const requested = await requestLocale;
+  const locale = hasLocale(routing.locales, requested) ? requested : routing.defaultLocale;
 
   return {
     locale,
-    messages: (await import(`../messages/${locale}.json`)).default,
+    messages: (await messagesByLocale[locale]()).default,
     timeZone: defaultTimeZone,
   };
 });

@@ -35,11 +35,7 @@ interface CodeChallengeActivityModalProps {
   closeModal?: () => void;
 }
 
-export default function CodeChallengeActivityModal({
-  chapterId,
-  course,
-  closeModal,
-}: CodeChallengeActivityModalProps) {
+export default function CodeChallengeActivityModal({ chapterId, course, closeModal }: CodeChallengeActivityModalProps) {
   const t = useTranslations('Components.NewActivity.CodeChallenge');
 
   const validationSchema = createValidationSchema(t);

@@ -3,7 +3,7 @@ import AdminHeaderClient from '@/app/_shared/dash/admin/AdminHeaderClient';
 import { getTranslations } from 'next-intl/server';
 import { Shield, Users } from 'lucide-react';
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('DashPage.Admin.Index');

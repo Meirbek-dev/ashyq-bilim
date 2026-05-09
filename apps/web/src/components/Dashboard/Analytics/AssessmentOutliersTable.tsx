@@ -7,7 +7,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import AnalyticsDataTable from './AnalyticsDataTable';
 import { Badge } from '@/components/ui/badge';
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 interface AssessmentOutliersTableProps {
   rows: AssessmentOutlierRow[];

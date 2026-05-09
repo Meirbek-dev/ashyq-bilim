@@ -4,7 +4,8 @@ import { getCourseUserRights } from '@services/courses/courses';
 import { requireSession } from '@/lib/auth/session';
 import { sessionCan } from '@/lib/auth/permissions';
 import { cleanCourseUuid } from '@/lib/course-management';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/navigation';
+import { getLocale } from 'next-intl/server';
 
 export interface CourseWorkspaceCapabilities {
   canViewWorkspace: boolean;
@@ -68,7 +69,8 @@ export async function getCourseWorkspaceCapabilitiesForCourse(
   const capabilities = mapCourseRightsToCapabilities(session, rights);
 
   if (!capabilities.canViewWorkspace) {
-    redirect('/unauthorized');
+    const locale = await getLocale();
+    redirect({ href: '/unauthorized', locale });
   }
 
   return capabilities;
@@ -92,7 +94,8 @@ export async function requireCourseWorkspaceStageAccess(
   };
 
   if (!allowedByStage[stage]) {
-    redirect('/unauthorized');
+    const locale = await getLocale();
+    redirect({ href: '/unauthorized', locale });
   }
 
   return capabilities;

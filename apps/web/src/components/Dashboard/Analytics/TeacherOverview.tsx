@@ -11,7 +11,7 @@ import TeacherFilterBar from './TeacherFilterBar';
 import { Badge } from '@/components/ui/badge';
 import { useRouter } from 'next/navigation';
 import { lazy, Suspense } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 const AnalyticsRiskDistributionChart = lazy(() => import('./AnalyticsRiskDistributionChart'));
 const AnalyticsMultiSeriesTrendChart = lazy(() => import('./AnalyticsMultiSeriesTrendChart'));

@@ -313,9 +313,7 @@ async def _migrate_legacy_assessments_task(*, dry_run: bool) -> None:
 
             for activity in activities:
                 existing = db_session.exec(
-                    select(Assessment).where(
-                        Assessment.activity_id == activity.id
-                    )
+                    select(Assessment).where(Assessment.activity_id == activity.id)
                 ).first()
                 if existing is not None:
                     skipped += 1

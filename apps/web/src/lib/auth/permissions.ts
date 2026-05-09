@@ -3,7 +3,8 @@ import type { Session } from './types';
 import { AUTH_PERMISSION_WILDCARD } from './types';
 import { perm } from '@/types/permissions';
 import { requireSession } from './session';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/i18n/navigation';
+import { getLocale } from 'next-intl/server';
 
 export function sessionCan(
   session: Pick<Session, 'permissions'> | undefined,
@@ -20,7 +21,8 @@ export async function requirePermission(action: Action, resource: Resource, scop
   const session = await requireSession();
   const perms = new Set<string>(session.permissions);
   if (!sessionCan(session, resource, action, scope, perms)) {
-    redirect(redirectTo ?? '/unauthorized');
+    const locale = await getLocale();
+    redirect({ href: redirectTo ?? '/unauthorized', locale });
   }
   return session;
 }
@@ -32,6 +34,9 @@ export async function requireAnyPermission(
   const session = await requireSession();
   const perms = new Set<string>(session.permissions);
   const hasAny = checks.some((c) => sessionCan(session, c.resource, c.action, c.scope, perms));
-  if (!hasAny) redirect(redirectTo ?? '/unauthorized');
+  if (!hasAny) {
+    const locale = await getLocale();
+    redirect({ href: redirectTo ?? '/unauthorized', locale });
+  }
   return session;
 }

@@ -1,7 +1,9 @@
 import 'server-only';
 import { cache } from 'react';
 import { headers } from 'next/headers';
-import { redirect, unstable_rethrow } from 'next/navigation';
+import { unstable_rethrow } from 'next/navigation';
+import { getLocale } from 'next-intl/server';
+import { redirect } from '@/i18n/navigation';
 import { apiFetch } from '@/lib/api-client';
 import type { Session, UserSessionResponse } from './types';
 
@@ -45,8 +47,9 @@ export async function requireSession(): Promise<Session> {
   const session = await getSession();
   if (!session) {
     const headersList = await headers();
+    const locale = await getLocale();
     const returnTo = headersList.get('x-pathname') ?? '/';
-    redirect(`/login?returnTo=${encodeURIComponent(returnTo)}`);
+    return redirect({ href: `/login?returnTo=${encodeURIComponent(returnTo)}`, locale });
   }
   return session;
 }

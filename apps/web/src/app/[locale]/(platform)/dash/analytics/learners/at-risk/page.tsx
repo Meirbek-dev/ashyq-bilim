@@ -1,27 +1,27 @@
-import { getTeacherCourseList, normalizeAnalyticsQuery } from '@services/analytics/teacher';
+import { getAtRiskLearners, normalizeAnalyticsQuery } from '@services/analytics/teacher';
+import AtRiskLearnersTable from '@components/Dashboard/Analytics/AtRiskLearnersTable';
 import AnalyticsEmptyState from '@components/Dashboard/Analytics/AnalyticsEmptyState';
-import CourseHealthTable from '@components/Dashboard/Analytics/CourseHealthTable';
 import TeacherFilterBar from '@components/Dashboard/Analytics/TeacherFilterBar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { getTranslations } from 'next-intl/server';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
-export default function PlatformAnalyticsCoursesPage(props: {
+export default function PlatformAnalyticsAtRiskPage(props: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  return <PlatformAnalyticsCoursesPageInner searchParams={props.searchParams} />;
+  return <PlatformAnalyticsAtRiskPageInner searchParams={props.searchParams} />;
 }
 
-async function PlatformAnalyticsCoursesPageInner(props: {
+async function PlatformAnalyticsAtRiskPageInner(props: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const query = normalizeAnalyticsQuery(await props.searchParams);
   const t = await getTranslations('TeacherAnalytics');
 
   try {
-    const courseList = await getTeacherCourseList(query);
-    const totalPages = Math.max(1, Math.ceil(courseList.total / courseList.page_size));
+    const risk = await getAtRiskLearners(query);
+    const totalPages = Math.max(1, Math.ceil(risk.total / risk.page_size));
     const params = new URLSearchParams();
     if (query.window) params.set('window', query.window);
     if (query.compare) params.set('compare', query.compare);
@@ -34,35 +34,32 @@ async function PlatformAnalyticsCoursesPageInner(props: {
 
     return (
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-4 py-6 md:px-6 xl:px-8">
-        <Card className="border-slate-200 bg-white/90 shadow-sm">
-          <CardHeader>
-            <CardTitle>{t('pages.courseRankingTitle')}</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-slate-600">{t('pages.courseRankingDescription')}</CardContent>
-        </Card>
         <Card className="bg-background border-slate-200 shadow-sm">
           <CardContent>
             <TeacherFilterBar
-              path="/dash/analytics/courses"
+              path="/dash/analytics/learners/at-risk"
               query={query}
-              courseCount={courseList.total}
-              courseOptions={courseList.course_options}
-              cohortOptions={courseList.cohort_options}
+              courseCount={risk.course_options.length}
+              courseOptions={risk.course_options}
+              cohortOptions={risk.cohort_options}
             />
           </CardContent>
         </Card>
         <div className="flex items-center justify-between text-sm text-slate-500">
           <span>
             {t('table.showingRows', {
-              from: (courseList.page - 1) * courseList.page_size + 1,
-              to: Math.min(courseList.page * courseList.page_size, courseList.total),
-              total: courseList.total,
+              from: (risk.page - 1) * risk.page_size + 1,
+              to: Math.min(risk.page * risk.page_size, risk.total),
+              total: risk.total,
             })}
           </span>
         </div>
-        <CourseHealthTable
-          rows={courseList.items}
-          storageKey="courses-page"
+        <AtRiskLearnersTable
+          rows={risk.items}
+          query={query}
+          title={t('pages.atRiskPageTitle')}
+          description={t('pages.atRiskPageDescription', { total: risk.total })}
+          storageKey="at-risk-page"
           serverPaginated
         />
         {totalPages > 1 ? (
@@ -70,25 +67,25 @@ async function PlatformAnalyticsCoursesPageInner(props: {
             <Button
               variant="outline"
               size="sm"
-              disabled={courseList.page <= 1}
+              disabled={risk.page <= 1}
+              nativeButton={false}
               render={
                 <Link
-                  href={`/dash/analytics/courses?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(Math.max(1, courseList.page - 1)), page_size: String(courseList.page_size) }).toString()}`}
+                  href={`/dash/analytics/learners/at-risk?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(Math.max(1, risk.page - 1)), page_size: String(risk.page_size) }).toString()}`}
                 />
               }
             >
               {t('table.prev')}
             </Button>
-            <span className="text-sm text-slate-600">
-              {t('table.page', { current: courseList.page, total: totalPages })}
-            </span>
+            <span className="text-sm text-slate-600">{t('table.page', { current: risk.page, total: totalPages })}</span>
             <Button
               variant="outline"
               size="sm"
-              disabled={courseList.page >= totalPages}
+              disabled={risk.page >= totalPages}
+              nativeButton={false}
               render={
                 <Link
-                  href={`/dash/analytics/courses?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(Math.min(totalPages, courseList.page + 1)), page_size: String(courseList.page_size) }).toString()}`}
+                  href={`/dash/analytics/learners/at-risk?${new URLSearchParams({ ...Object.fromEntries(params.entries()), page: String(Math.min(totalPages, risk.page + 1)), page_size: String(risk.page_size) }).toString()}`}
                 />
               }
             >
@@ -101,8 +98,8 @@ async function PlatformAnalyticsCoursesPageInner(props: {
   } catch (error) {
     return (
       <AnalyticsEmptyState
-        title={t('pages.coursesUnavailableTitle')}
-        description={error instanceof Error ? error.message : t('pages.coursesLoadError')}
+        title={t('pages.atRiskUnavailableTitle')}
+        description={error instanceof Error ? error.message : t('pages.atRiskLoadError')}
       />
     );
   }

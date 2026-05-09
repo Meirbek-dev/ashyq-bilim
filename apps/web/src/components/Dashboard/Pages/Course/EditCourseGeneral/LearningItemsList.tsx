@@ -299,7 +299,7 @@ const LearningItemsList = ({ value, onChange, error }: LearningItemsListProps) =
 
       <div
         ref={scrollContainerRef}
-        className={`space-y-2 ${isScrollable ? 'scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent max-h-[350px] overflow-y-auto pr-1' : ''}`}
+        className={`space-y-2 ${isScrollable ? 'scrollbar-thumb-border max-h-[350px] scrollbar-thin scrollbar-track-transparent overflow-y-auto pr-1' : ''}`}
       >
         {items.map((item) => (
           <div

@@ -214,11 +214,7 @@ export function AssessmentActionBar({ controls, returned, primaryButtonLabelKey 
             ) : (
               <SendHorizonal className="size-4" />
             )}
-            {primaryButtonLabelKey
-              ? tAttemptActions(primaryButtonLabelKey)
-              : returned
-                ? t('submitAgain')
-                : t('submit')}
+            {primaryButtonLabelKey ? tAttemptActions(primaryButtonLabelKey) : returned ? t('submitAgain') : t('submit')}
           </Button>
         </div>
       </div>

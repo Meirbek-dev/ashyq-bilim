@@ -439,9 +439,7 @@ class Submission(SubmissionBase, table=True):
     )
     policy_version: int = SQLField(
         default=1,
-        sa_column=Column(
-            "policy_version", Integer, nullable=False, server_default="1"
-        ),
+        sa_column=Column("policy_version", Integer, nullable=False, server_default="1"),
     )
     items_snapshot: dict | None = SQLField(
         default=None,

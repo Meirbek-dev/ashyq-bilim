@@ -11,10 +11,7 @@ import {
   listStudentPolicyOverrides,
   updateStudentPolicyOverride,
 } from '@/services/assessments/assessment-actions';
-import type {
-  StudentPolicyOverride,
-  StudentPolicyOverrideCreate,
-} from '@/services/assessments/assessment-actions';
+import type { StudentPolicyOverride, StudentPolicyOverrideCreate } from '@/services/assessments/assessment-actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,14 +24,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
 
 interface StudentOverridesPanelProps {
@@ -84,9 +74,7 @@ export default function StudentOverridesPanel({ assessmentUuid }: StudentOverrid
     setForm({
       user_id: String(override.user_id),
       max_attempts_override: override.max_attempts_override !== null ? String(override.max_attempts_override) : '',
-      due_at_override: override.due_at_override
-        ? new Date(override.due_at_override).toISOString().slice(0, 16)
-        : '',
+      due_at_override: override.due_at_override ? new Date(override.due_at_override).toISOString().slice(0, 16) : '',
       waive_late_penalty: override.waive_late_penalty,
       note: override.note,
     });
@@ -153,8 +141,8 @@ export default function StudentOverridesPanel({ assessmentUuid }: StudentOverrid
               />
             }
           >
-              <Plus className="size-4" />
-              {t('addOverride')}
+            <Plus className="size-4" />
+            {t('addOverride')}
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -259,9 +247,7 @@ export default function StudentOverridesPanel({ assessmentUuid }: StudentOverrid
                 <TableCell className="font-mono text-xs">{override.user_id}</TableCell>
                 <TableCell>{override.max_attempts_override ?? '—'}</TableCell>
                 <TableCell className="text-xs">
-                  {override.due_at_override
-                    ? new Date(override.due_at_override).toLocaleString()
-                    : '—'}
+                  {override.due_at_override ? new Date(override.due_at_override).toLocaleString() : '—'}
                 </TableCell>
                 <TableCell>{override.waive_late_penalty ? '✓' : '—'}</TableCell>
                 <TableCell>

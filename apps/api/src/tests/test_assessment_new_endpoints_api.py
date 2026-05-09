@@ -277,6 +277,7 @@ def _seed_assessment(db_session_factory) -> tuple[str, int]:
 
 # ── attempt-state ─────────────────────────────────────────────────────────────
 
+
 class TestAttemptState:
     def test_returns_attempt_state(self, db_session_factory, student_user, monkeypatch):
         uuid, _ = _seed_assessment(db_session_factory)
@@ -302,9 +303,12 @@ class TestAttemptState:
 
 # ── policy-preset ─────────────────────────────────────────────────────────────
 
+
 class TestPolicyPreset:
     @pytest.mark.parametrize("kind", ["EXAM", "QUIZ", "ASSIGNMENT", "CODE_CHALLENGE"])
-    def test_returns_preset_for_kind(self, db_session_factory, teacher_user, monkeypatch, kind):
+    def test_returns_preset_for_kind(
+        self, db_session_factory, teacher_user, monkeypatch, kind
+    ):
         client = _make_api_client(db_session_factory, teacher_user, monkeypatch)
         resp = client.get(f"/assessments/policy-preset/{kind}")
         assert resp.status_code == 200, resp.text
@@ -321,6 +325,7 @@ class TestPolicyPreset:
 
 # ── student overrides CRUD ────────────────────────────────────────────────────
 
+
 class TestStudentOverrides:
     def test_list_empty(self, db_session_factory, teacher_user, monkeypatch):
         uuid, _ = _seed_assessment(db_session_factory)
@@ -334,7 +339,11 @@ class TestStudentOverrides:
         uuid, _ = _seed_assessment(db_session_factory)
         client = _make_api_client(db_session_factory, teacher_user, monkeypatch)
 
-        payload = {"user_id": STUDENT_ID, "max_attempts_override": 5, "waive_late_penalty": True}
+        payload = {
+            "user_id": STUDENT_ID,
+            "max_attempts_override": 5,
+            "waive_late_penalty": True,
+        }
         resp = client.post(f"/assessments/{uuid}/overrides", json=payload)
         assert resp.status_code == 201, resp.text
         data = resp.json()
@@ -346,7 +355,10 @@ class TestStudentOverrides:
         uuid, _ = _seed_assessment(db_session_factory)
         client = _make_api_client(db_session_factory, teacher_user, monkeypatch)
 
-        client.post(f"/assessments/{uuid}/overrides", json={"user_id": STUDENT_ID, "waive_late_penalty": True})
+        client.post(
+            f"/assessments/{uuid}/overrides",
+            json={"user_id": STUDENT_ID, "waive_late_penalty": True},
+        )
         resp = client.get(f"/assessments/{uuid}/overrides")
         assert resp.status_code == 200
         assert len(resp.json()) == 1
@@ -355,7 +367,10 @@ class TestStudentOverrides:
         uuid, _ = _seed_assessment(db_session_factory)
         client = _make_api_client(db_session_factory, teacher_user, monkeypatch)
 
-        client.post(f"/assessments/{uuid}/overrides", json={"user_id": STUDENT_ID, "max_attempts_override": 2})
+        client.post(
+            f"/assessments/{uuid}/overrides",
+            json={"user_id": STUDENT_ID, "max_attempts_override": 2},
+        )
         resp = client.patch(
             f"/assessments/{uuid}/overrides/{STUDENT_ID}",
             json={"max_attempts_override": 10},
@@ -374,7 +389,9 @@ class TestStudentOverrides:
         list_resp = client.get(f"/assessments/{uuid}/overrides")
         assert list_resp.json() == []
 
-    def test_404_assessment_not_found(self, db_session_factory, teacher_user, monkeypatch):
+    def test_404_assessment_not_found(
+        self, db_session_factory, teacher_user, monkeypatch
+    ):
         _seed_assessment(db_session_factory)
         client = _make_api_client(db_session_factory, teacher_user, monkeypatch)
 

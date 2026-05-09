@@ -208,7 +208,9 @@ async def run_code(
             "memory": last_memory,
         })
 
-    score = round(passed / total * 100, 2) if total > 0 and custom_input is None else None
+    score = (
+        round(passed / total * 100, 2) if total > 0 and custom_input is None else None
+    )
     return {
         "status": overall_status,
         "passed": passed,

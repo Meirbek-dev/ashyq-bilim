@@ -364,7 +364,7 @@ const ScenariosModal: React.FC<ScenariosModalProps> = ({
 
       {/* Scenarios List */}
       <div className="min-h-0 flex-1 overflow-hidden">
-        <div className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 h-full overflow-y-auto pr-1">
+        <div className="h-full scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent overflow-y-auto pr-1 hover:scrollbar-thumb-gray-400">
           <div className="space-y-4 pb-4">
             {scenarios.map((scenario, scenarioIndex) => (
               <div

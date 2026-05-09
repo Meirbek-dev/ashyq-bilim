@@ -65,12 +65,8 @@ def upgrade() -> None:
                 server_default="1",
             )
         )
-        batch_op.add_column(
-            sa.Column("items_snapshot", sa.JSON(), nullable=True)
-        )
-        batch_op.add_column(
-            sa.Column("policy_snapshot", sa.JSON(), nullable=True)
-        )
+        batch_op.add_column(sa.Column("items_snapshot", sa.JSON(), nullable=True))
+        batch_op.add_column(sa.Column("policy_snapshot", sa.JSON(), nullable=True))
 
 
 def downgrade() -> None:
