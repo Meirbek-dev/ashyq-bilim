@@ -117,8 +117,8 @@ async def get_unified_dashboard(
             leaderboard=leaderboard,
         )
 
-    except Exception as e:
-        logger.exception("Dashboard error for user %s: %s", user.id, e)
+    except Exception:
+        logger.exception("Dashboard error for user %s", user.id)
         raise HTTPException(status_code=500, detail="Failed to get dashboard")
 
 
@@ -172,8 +172,8 @@ async def award_xp(
         raise HTTPException(status_code=400, detail=str(e))
     except HTTPException:
         raise
-    except Exception as e:
-        logger.exception("Award XP error for user %s: %s", user.id, e)
+    except Exception:
+        logger.exception("Award XP error for user %s", user.id)
         raise HTTPException(status_code=500, detail="Failed to award XP")
 
 
@@ -200,8 +200,8 @@ async def update_streak(
         )
     except GamificationError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        logger.exception("Update streak error for user %s: %s", user.id, e)
+    except Exception:
+        logger.exception("Update streak error for user %s", user.id)
         raise HTTPException(status_code=500, detail="Failed to update streak")
 
 
@@ -216,8 +216,8 @@ async def update_preferences(
     try:
         profile = service.update_preferences(db, user.id, data)
         return _profile_to_read(profile)
-    except Exception as e:
-        logger.exception("Update preferences error for user %s: %s", user.id, e)
+    except Exception:
+        logger.exception("Update preferences error for user %s", user.id)
         raise HTTPException(status_code=500, detail="Failed to update preferences")
 
 
@@ -230,8 +230,8 @@ async def get_leaderboard(
 ):
     try:
         return service.get_leaderboard_read(db, limit=limit, offset=offset)
-    except Exception as e:
-        logger.exception("Leaderboard error: %s", e)
+    except Exception:
+        logger.exception("Leaderboard error")
         raise HTTPException(status_code=500, detail="Failed to get leaderboard")
 
 
@@ -247,6 +247,6 @@ async def get_user_rank(
             service.get_profile(db, user.id)
             rank = service.get_user_rank(db, user.id)
         return UserRankRead(user_id=user.id, rank=rank)
-    except Exception as e:
-        logger.exception("User rank error for user %s: %s", user.id, e)
+    except Exception:
+        logger.exception("User rank error for user %s", user.id)
         raise HTTPException(status_code=500, detail="Failed to get user rank")

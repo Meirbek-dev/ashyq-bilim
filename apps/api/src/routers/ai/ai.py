@@ -45,7 +45,7 @@ def _rate_limit_key(request: Request) -> str:
                 token = parts[1]
                 return f"token:{hashlib.sha256(token.encode()).hexdigest()}"
             return f"auth:{hashlib.sha256(auth.encode()).hexdigest()}"
-        except IndexError, AttributeError:
+        except (IndexError, AttributeError):
             pass
 
     # Fallback to remote address
@@ -105,9 +105,9 @@ async def api_ai_start_activity_chat_session(
         )
     except HTTPException:
         raise
-    except Exception as e:
-        logger.exception("Unexpected error in AI start endpoint: %s", e)
-        raise HTTPException(status_code=500, detail="Internal server error") from e
+    except Exception:
+        logger.exception("Unexpected error in AI start endpoint")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post(
@@ -142,9 +142,9 @@ async def api_ai_send_activity_chat_message(
         )
     except HTTPException:
         raise
-    except Exception as e:
-        logger.exception("Unexpected error in AI send endpoint: %s", e)
-        raise HTTPException(status_code=500, detail="Internal server error") from e
+    except Exception:
+        logger.exception("Unexpected error in AI send endpoint")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("/start/activity_chat_session_stream")
@@ -210,8 +210,8 @@ async def api_ai_start_activity_chat_session_stream(
                     if cancel_event.is_set():
                         return
                     yield sse_string
-            except Exception as e:
-                logger.exception("Error in streaming generator: %s", e)
+            except Exception:
+                logger.exception("Error in streaming generator")
                 yield format_sse_message({
                     "type": "error",
                     "error": "Внутренняя ошибка.",
@@ -235,9 +235,9 @@ async def api_ai_start_activity_chat_session_stream(
 
     except HTTPException:
         raise
-    except Exception as e:
-        logger.exception("Unexpected error in AI streaming endpoint: %s", e)
-        raise HTTPException(status_code=500, detail="Internal server error") from e
+    except Exception:
+        logger.exception("Unexpected error in AI streaming endpoint")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("/send/activity_chat_message_stream")
@@ -283,8 +283,8 @@ async def api_ai_send_activity_chat_message_stream(
                     if cancel_event.is_set():
                         return
                     yield sse_string
-            except Exception as e:
-                logger.exception("Error in streaming generator: %s", e)
+            except Exception:
+                logger.exception("Error in streaming generator")
                 yield format_sse_message({
                     "type": "error",
                     "error": "Внутренняя ошибка.",
@@ -308,6 +308,6 @@ async def api_ai_send_activity_chat_message_stream(
 
     except HTTPException:
         raise
-    except Exception as e:
-        logger.exception("Unexpected error in AI streaming endpoint: %s", e)
-        raise HTTPException(status_code=500, detail="Internal server error") from e
+    except Exception:
+        logger.exception("Unexpected error in AI streaming endpoint")
+        raise HTTPException(status_code=500, detail="Internal server error")

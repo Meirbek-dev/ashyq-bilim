@@ -120,13 +120,13 @@ def update_user(
             if getattr(user, "username", None):
                 keys.append(f"user:username:{user.username.lower()}")
             redis_client.delete_keys(*keys)
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
         # Try to return a validated `UserRead`; if validation fails (e.g., test stubs),
         # return the raw user object to keep behavior simple and test-friendly.
         try:
             return UserRead.model_validate(user)
-        except Exception:  # noqa: BLE001
+        except Exception:
             return user
 
     # RBAC check (only for real updates)
@@ -161,7 +161,7 @@ def update_user(
         if getattr(user, "username", None):
             keys.append(f"user:username:{user.username.lower()}")
         redis_client.delete_keys(*keys)
-    except Exception:  # noqa: BLE001
+    except Exception:
         pass
 
     return UserRead.model_validate(user)
@@ -202,7 +202,7 @@ def update_user_preferences(
         if getattr(user, "username", None):
             keys.append(f"user:username:{user.username.lower()}")
         redis_client.delete_keys(*keys)
-    except Exception:  # noqa: BLE001
+    except Exception:
         pass
 
     return UserRead.model_validate(user)
@@ -245,7 +245,7 @@ async def update_user_avatar(
         if getattr(user, "username", None):
             keys.append(f"user:username:{user.username.lower()}")
         redis_client.delete_keys(*keys)
-    except Exception:  # noqa: BLE001
+    except Exception:
         pass
 
     return UserRead.model_validate(user)
@@ -385,7 +385,7 @@ def delete_user_by_id(
         if getattr(user, "username", None):
             keys.append(f"user:username:{user.username.lower()}")
         redis_client.delete_keys(*keys)
-    except Exception:  # noqa: BLE001
+    except Exception:
         pass
 
     return "User deleted"
@@ -529,12 +529,12 @@ def _get_user_by_field(
                 return None
             try:
                 return User.model_validate(cached)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 # Cached payload may be partial (e.g., only id/username); return a simple object
                 if isinstance(cached, dict):
                     return SimpleNamespace(**cached)
                 return None
-        except Exception:  # noqa: BLE001
+        except Exception:
             return None
 
     def _try_cache_set(user_obj: User) -> None:
@@ -546,7 +546,7 @@ def _get_user_by_field(
                 redis_client.set_json(
                     f"user:username:{user_obj.username.lower()}", data, USER_CACHE_TTL
                 )
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
     # Try cache lookup first (only when allowed)

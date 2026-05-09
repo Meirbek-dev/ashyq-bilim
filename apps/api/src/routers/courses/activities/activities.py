@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Form, Request, UploadFile
+from sqlmodel import Session
 
 from src.auth.users import get_optional_public_user, get_public_user
 from src.db.courses.activities import (
@@ -12,7 +13,6 @@ from src.db.courses.activities import (
 from src.db.strict_base_model import PydanticStrictBaseModel
 from src.db.users import AnonymousUser, PublicUser
 from src.infra.db.session import get_db_session
-from sqlmodel import Session
 from src.services.courses.activities.activities import (
     create_activity,
     delete_activity,
@@ -78,7 +78,7 @@ async def api_delete_activity(
     request: Request,
     activity_uuid: str,
     current_user: Annotated[PublicUser, Depends(get_public_user)],
-    db_session=Depends(get_db_session),
+    db_session: Annotated[Session, Depends(get_db_session)] = None,
 ) -> dict:
     return await delete_activity(request, activity_uuid, current_user, db_session)
 
@@ -92,7 +92,7 @@ async def api_create_video_activity(
     name: Annotated[str, Form()],
     chapter_id: Annotated[int, Form()],
     current_user: Annotated[PublicUser, Depends(get_public_user)],
-    db_session=Depends(get_db_session),
+    db_session: Annotated[Session, Depends(get_db_session)] = None,
     details: Annotated[str, Form()] = "{}",
     video_file: UploadFile | None = None,
     video_uploaded_path: Annotated[str | None, Form()] = None,
@@ -118,7 +118,7 @@ async def api_create_external_video_activity(
     request: Request,
     external_video: ExternalVideo,
     current_user: Annotated[PublicUser, Depends(get_public_user)],
-    db_session=Depends(get_db_session),
+    db_session: Annotated[Session, Depends(get_db_session)] = None,
 ) -> ActivityRead:
     return await create_external_video_activity(
         request, current_user, external_video, db_session
@@ -131,7 +131,7 @@ async def api_create_documentpdf_activity(
     name: Annotated[str, Form()],
     chapter_id: Annotated[int, Form()],
     current_user: Annotated[PublicUser, Depends(get_public_user)],
-    db_session=Depends(get_db_session),
+    db_session: Annotated[Session, Depends(get_db_session)] = None,
     pdf_file: UploadFile | None = None,
     pdf_uploaded_path: Annotated[str | None, Form()] = None,
 ) -> ActivityRead:

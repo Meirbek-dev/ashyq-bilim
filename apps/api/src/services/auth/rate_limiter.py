@@ -54,7 +54,7 @@ async def check_rate_limit(
             # Expire the set after the window to avoid unbounded growth
             await pipe.expire(redis_key, window_seconds + 1)
             results = await pipe.execute()
-    except Exception:  # noqa: BLE001
+    except Exception:
         return  # Redis error – fail open, same as unavailable
 
     current_count = results[1]

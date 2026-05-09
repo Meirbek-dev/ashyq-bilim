@@ -114,9 +114,9 @@ class CourseUserRightsResponse(PydanticStrictBaseModel):
 @router.post("")
 async def api_create_course(
     request: Request,
-    name: Annotated[str, Form()] = None,
-    description: Annotated[str, Form()] = None,
-    public: Annotated[bool, Form()] = None,
+    name: Annotated[str | None, Form()] = None,
+    description: Annotated[str | None, Form()] = None,
+    public: Annotated[bool | None, Form()] = None,
     learnings: Annotated[str | None, Form()] = None,
     tags: Annotated[str | None, Form()] = None,
     about: Annotated[str | None, Form()] = None,

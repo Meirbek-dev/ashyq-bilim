@@ -1,7 +1,7 @@
 """UserManager — business logic layer (fastapi-users)."""
 
 import logging
-from typing import Any, Annotated
+from typing import Annotated, Any
 
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, IntegerIDMixin

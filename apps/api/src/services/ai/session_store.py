@@ -58,7 +58,7 @@ def _get_redis_client() -> Redis | None:
                 except RedisError as exc:
                     logger.warning("Redis unavailable for AI session store: %s", exc)
                     _redis_client = None
-                except Exception as exc:  # noqa: BLE001
+                except Exception as exc:
                     logger.warning("Unexpected error connecting to Redis: %s", exc)
                     _redis_client = None
     return _redis_client

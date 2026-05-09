@@ -698,7 +698,7 @@ async def get_courses(
     # load and avoid upstream rate limits. Uses Redis if available.
     try:
         from src.services.cache.redis_client import get_json, set_json
-    except Exception:  # noqa: BLE001
+    except Exception:
         get_json = None  # type: ignore
         set_json = None  # type: ignore
 
@@ -820,10 +820,10 @@ async def get_courses(
             try:
                 serialised = [cr.model_dump() for cr in course_reads]
                 set_json(cache_key, serialised, ttl=60)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 # Swallow redis set errors
                 pass
-    except Exception:  # noqa: BLE001
+    except Exception:
         # Ignore caching errors
         pass
 

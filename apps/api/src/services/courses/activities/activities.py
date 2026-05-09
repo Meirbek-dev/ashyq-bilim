@@ -201,7 +201,7 @@ async def update_activity(
         from src.services.ai.cache_manager import get_ai_cache_manager
 
         get_ai_cache_manager().invalidate_activity_cache(activity_uuid)
-    except Exception as inv_err:  # noqa: BLE001
+    except Exception as inv_err:
         logger.warning(
             "AI cache invalidation failed for %s: %s", activity_uuid, inv_err
         )
@@ -308,7 +308,7 @@ async def delete_activity(
         from src.services.ai.cache_manager import get_ai_cache_manager
 
         get_ai_cache_manager().invalidate_activity_cache(activity_uuid)
-    except Exception as inv_err:  # noqa: BLE001
+    except Exception as inv_err:
         logger.warning(
             "AI cache invalidation failed for %s: %s", activity_uuid, inv_err
         )

@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Form, Request, UploadFile
+from sqlmodel import Session
 
 from src.auth.users import get_optional_public_user, get_public_user
 from src.db.courses.blocks import BlockRead
@@ -38,7 +39,7 @@ async def api_create_image_file_block(
     request: Request,
     file_object: UploadFile,
     activity_uuid: Annotated[str, Form()],
-    db_session=Depends(get_db_session),
+    db_session: Annotated[Session, Depends(get_db_session)] = None,
     current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
 ) -> BlockRead:
     """
@@ -51,7 +52,7 @@ async def api_create_image_file_block(
 async def api_get_image_file_block(
     request: Request,
     block_uuid: str,
-    db_session=Depends(get_db_session),
+    db_session: Annotated[Session, Depends(get_db_session)] = None,
     current_user: Annotated[
         PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ] = None,
@@ -72,7 +73,7 @@ async def api_create_video_file_block(
     request: Request,
     file_object: UploadFile,
     activity_uuid: Annotated[str, Form()],
-    db_session=Depends(get_db_session),
+    db_session: Annotated[Session, Depends(get_db_session)] = None,
     current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
 ) -> BlockRead:
     """
@@ -85,7 +86,7 @@ async def api_create_video_file_block(
 async def api_get_video_file_block(
     request: Request,
     block_uuid: str,
-    db_session=Depends(get_db_session),
+    db_session: Annotated[Session, Depends(get_db_session)] = None,
     current_user: Annotated[
         PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ] = None,
@@ -106,7 +107,7 @@ async def api_create_pdf_file_block(
     request: Request,
     file_object: UploadFile,
     activity_uuid: Annotated[str, Form()],
-    db_session=Depends(get_db_session),
+    db_session: Annotated[Session, Depends(get_db_session)] = None,
     current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
 ) -> BlockRead:
     """
@@ -119,7 +120,7 @@ async def api_create_pdf_file_block(
 async def api_get_pdf_file_block(
     request: Request,
     block_uuid: str,
-    db_session=Depends(get_db_session),
+    db_session: Annotated[Session, Depends(get_db_session)] = None,
     current_user: Annotated[
         PublicUser | AnonymousUser, Depends(get_optional_public_user)
     ] = None,
@@ -140,7 +141,7 @@ async def api_submit_quiz(
     request: Request,
     activity_id: int,
     submission: QuizSubmissionRequest,
-    db_session=Depends(get_db_session),
+    db_session: Annotated[Session, Depends(get_db_session)] = None,
     current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
 ):
     """

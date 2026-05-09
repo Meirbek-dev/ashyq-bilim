@@ -8,7 +8,7 @@ so this is thread-safe.
 """
 
 import asyncio
-from typing import Any, Annotated
+from typing import Annotated, Any
 
 from fastapi import Depends
 from fastapi_users.db import BaseUserDatabase

@@ -695,7 +695,7 @@ def _award_xp_safe(
             idempotency_key=f"submission_{submission_uuid}",
         )
         db_session.commit()
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         logger.warning("Failed to award XP for submission %s: %s", submission_uuid, e)
         db_session.rollback()
 
