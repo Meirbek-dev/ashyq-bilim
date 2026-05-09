@@ -155,19 +155,19 @@ requires-dist = [
     { name = "alembic", specifier = ">=1.18.4" },
     { name = "alembic-postgresql-enum", specifier = ">=1.10.0" },
     { name = "cachebox", specifier = ">=5.2.3" },
-    { name = "cryptography", specifier = ">=47.0.0" },
+    { name = "cryptography", specifier = ">=48.0.0" },
     { name = "fastapi", extras = ["standard-no-fastapi-cloud-cli"], specifier = ">=0.136.1" },
     { name = "fastapi-users", extras = ["sqlalchemy"], specifier = ">=15.0.5" },
     { name = "logfire", extras = ["fastapi", "sqlalchemy"], specifier = ">=4.32.1" },
     { name = "pgvector", specifier = ">=0.4.2" },
     { name = "psycopg", extras = ["binary", "pool"], specifier = ">=3.3.4" },
-    { name = "pydantic", extras = ["email"], specifier = ">=2.13.3" },
-    { name = "pydantic-ai-slim", extras = ["logfire", "evals", "openai"], specifier = ">=1.89.1" },
-    { name = "pydantic-settings", specifier = ">=2.14.0" },
+    { name = "pydantic", extras = ["email"], specifier = ">=2.13.4" },
+    { name = "pydantic-ai-slim", extras = ["logfire", "evals", "openai"], specifier = ">=1.93.0" },
+    { name = "pydantic-settings", specifier = ">=2.14.1" },
     { name = "python-ulid", specifier = ">=3.1.0" },
-    { name = "redis", specifier = ">=7.4.0" },
-    { name = "resend", specifier = ">=2.29.0" },
-    { name = "selectolax", specifier = ">=0.4.7" },
+    { name = "redis", specifier = ">=8.0.0b2" },
+    { name = "resend", specifier = ">=2.30.0" },
+    { name = "selectolax", specifier = ">=0.4.8" },
     { name = "slowapi", specifier = ">=0.1.9" },
     { name = "sqlmodel", specifier = ">=0.0.38" },
     { name = "tokenizers", specifier = ">=0.23.1" },
@@ -1759,11 +1759,11 @@ wheels = [
 
 [[package]]
 name = "redis"
-version = "7.4.0"
+version = "8.0.0b2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/7b/7f/3759b1d0d72b7c92f0d70ffd9dc962b7b7b5ee74e135f9d7d8ab06b8a318/redis-7.4.0.tar.gz", hash = "sha256:64a6ea7bf567ad43c964d2c30d82853f8df927c5c9017766c55a1d1ed95d18ad", size = 4943913, upload-time = "2026-03-24T09:14:37.53Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a1/15/f317519141009b48588be86f56f8b13ac2ac7c989fc7c4f947ab2f48971d/redis-8.0.0b2.tar.gz", hash = "sha256:f25e73786741f8112ad3b82c797e7c6e980776f81b4bf321738999415835762e", size = 5008201, upload-time = "2026-04-17T07:38:39.143Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/74/3a/95deec7db1eb53979973ebd156f3369a72732208d1391cd2e5d127062a32/redis-7.4.0-py3-none-any.whl", hash = "sha256:a9c74a5c893a5ef8455a5adb793a31bb70feb821c86eccb62eebef5a19c429ec", size = 409772, upload-time = "2026-03-24T09:14:35.968Z" },
+    { url = "https://files.pythonhosted.org/packages/d4/9d/a5ee647958d841e1b5e1487b6a90781f10faa3be6028b87b014b76894099/redis-8.0.0b2-py3-none-any.whl", hash = "sha256:89df17f1d5e913a4b2a5b793c6dfbeff17ebd407d9b008f9232f51284e0b2d57", size = 461031, upload-time = "2026-04-17T07:38:37.047Z" },
 ]
 
 [[package]]

@@ -161,7 +161,7 @@ services:
   # Cache
   # ---------------------------------------------------------------------------
   redis:
-    image: redis:8.6.2-alpine
+    image: redis:8.8-m03-alpine
     restart: unless-stopped
     ports:
       - "6379:6379"
