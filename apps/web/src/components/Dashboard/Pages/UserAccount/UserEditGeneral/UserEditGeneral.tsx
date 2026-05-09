@@ -44,11 +44,16 @@ import { Input } from '@components/ui/input';
 import type { Locale } from '@/i18n/config';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import * as v from 'valibot';
 
 const SUPPORTED_FILES = constructAcceptValue(['jpg', 'png', 'webp', 'gif', 'avif']);
+const SUPPORTED_AVATAR_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif']);
+const MAX_AVATAR_UPLOAD_BYTES = 2 * 1024 * 1024;
+const MAX_AVATAR_SOURCE_BYTES = 10 * 1024 * 1024;
+const AVATAR_EXPORT_SIZE = 512;
+const AVATAR_EXPORT_QUALITY = 0.88;
 
 const iconComponentMap = {
   'briefcase': Briefcase,
@@ -110,6 +115,54 @@ const createValidationSchema = (t: (key: string, values?: any) => string) =>
       }),
     ),
   });
+
+async function optimizeAvatarFile(file: File): Promise<File> {
+  if (
+    typeof document === 'undefined' ||
+    typeof window === 'undefined' ||
+    !('createImageBitmap' in window) ||
+    file.type === 'image/gif' ||
+    file.type === 'image/avif'
+  ) {
+    return file;
+  }
+
+  const bitmap = await createImageBitmap(file).catch(() => null);
+  if (!bitmap) return file;
+
+  try {
+    const scale = Math.min(1, AVATAR_EXPORT_SIZE / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+
+    if (scale === 1 && file.type === 'image/webp' && file.size <= MAX_AVATAR_UPLOAD_BYTES) {
+      return file;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext('2d');
+    if (!context) return file;
+
+    context.drawImage(bitmap, 0, 0, width, height);
+
+    const blob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob(resolve, 'image/webp', AVATAR_EXPORT_QUALITY);
+    });
+
+    if (!blob || (blob.size >= file.size && file.size <= MAX_AVATAR_UPLOAD_BYTES)) {
+      return file;
+    }
+
+    return new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), {
+      type: 'image/webp',
+      lastModified: Date.now(),
+    });
+  } finally {
+    bitmap.close();
+  }
+}
 
 const DetailCard = ({
   id,
@@ -246,12 +299,14 @@ interface UserEditFormProps {
     success: string;
     isLoading: boolean;
     localAvatar: File | null;
+    previewUrl: string | null;
     handleFileChange: (event: ChangeEvent<HTMLInputElement>) => Promise<void>;
   };
 }
 
 // Form component to handle the details section
 const UserEditForm = ({ form, profilePicture }: UserEditFormProps) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const tIcons = useTranslations('Components.UserProfilePopup.Icons');
   const tTemplates = useTranslations('DashPage.UserAccountSettings.generalSection.detailTemplateLabels');
   const t = useTranslations('DashPage.UserAccountSettings.generalSection');
@@ -573,20 +628,13 @@ const UserEditForm = ({ form, profilePicture }: UserEditFormProps) => {
               )}
 
               <div className="relative">
-                {profilePicture.localAvatar ? (
-                  <UserAvatar
-                    size="3xl"
-                    variant="outline"
-                    avatar_url={URL.createObjectURL(profilePicture.localAvatar)}
-                    className="ring-background shadow-xl ring-4"
-                  />
-                ) : (
-                  <UserAvatar
-                    size="3xl"
-                    variant="outline"
-                    className="ring-background shadow-xl ring-4"
-                  />
-                )}
+                <UserAvatar
+                  size="3xl"
+                  variant="outline"
+                  avatar_url={profilePicture.previewUrl ?? undefined}
+                  className="ring-background shadow-xl ring-4"
+                  imageProps={{ loading: 'eager' }}
+                />
                 {profilePicture.isLoading && (
                   <div className="bg-background/60 absolute inset-0 flex items-center justify-center rounded-full backdrop-blur-sm">
                     <Loader2 className="text-primary h-8 w-8 animate-spin" />
@@ -596,6 +644,7 @@ const UserEditForm = ({ form, profilePicture }: UserEditFormProps) => {
 
               <div className="w-full space-y-3">
                 <input
+                  ref={fileInputRef}
                   type="file"
                   id="fileInput"
                   accept={SUPPORTED_FILES}
@@ -607,7 +656,7 @@ const UserEditForm = ({ form, profilePicture }: UserEditFormProps) => {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => document.getElementById('fileInput')?.click()}
+                  onClick={() => fileInputRef.current?.click()}
                   className="w-full"
                   disabled={profilePicture.isLoading}
                 >
@@ -650,6 +699,7 @@ const UserEditGeneral = () => {
   const router = useRouter();
   const { user: me } = useSession();
   const [localAvatar, setLocalAvatar] = useState<File | null>(null);
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState('');
@@ -709,23 +759,54 @@ const UserEditGeneral = () => {
     fetchData();
   }, [form, me]);
 
+  useEffect(() => {
+    if (!localAvatar) {
+      setAvatarPreviewUrl(null);
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(localAvatar);
+    setAvatarPreviewUrl(previewUrl);
+
+    return () => {
+      URL.revokeObjectURL(previewUrl);
+    };
+  }, [localAvatar]);
+
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setLocalAvatar(file);
     setIsLoading(true);
     setError(undefined);
     setSuccess('');
+    event.currentTarget.value = '';
 
     if (!me?.id) {
       setError(t('avatarError'));
       setIsLoading(false);
       return;
     }
+    if (!SUPPORTED_AVATAR_MIME_TYPES.has(file.type) || file.name.toLowerCase().endsWith('.svg')) {
+      setError(t('avatarError'));
+      setIsLoading(false);
+      return;
+    }
+    if (file.size > MAX_AVATAR_SOURCE_BYTES) {
+      setError(t('avatarError'));
+      setIsLoading(false);
+      return;
+    }
 
     try {
-      const res = await updateUserAvatar(me.id, file);
+      const uploadFile = await optimizeAvatarFile(file);
+      if (uploadFile.size > MAX_AVATAR_UPLOAD_BYTES) {
+        setError(t('avatarError'));
+        return;
+      }
+
+      setLocalAvatar(uploadFile);
+      const res = await updateUserAvatar(me.id, uploadFile);
       if (!res.success) {
         setError(res.HTTPmessage || t('avatarError'));
       } else {
@@ -803,6 +884,7 @@ const UserEditGeneral = () => {
             success,
             isLoading,
             localAvatar,
+            previewUrl: avatarPreviewUrl,
             handleFileChange,
           }}
         />

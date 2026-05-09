@@ -83,6 +83,9 @@ export async function updateUserAvatar(userId: number, avatarFile: File): Promis
 
   if (response.ok) {
     await getQueryClient().invalidateQueries({ queryKey: userKeys.byId(userId) });
+    if (data?.username) {
+      await getQueryClient().invalidateQueries({ queryKey: userKeys.byUsername(data.username) });
+    }
   }
 
   return {

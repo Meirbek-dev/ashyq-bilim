@@ -1,6 +1,6 @@
 import { PLATFORM_THUMBNAIL_IMAGE_PATH } from '@/lib/constants';
 import { getPublicConfig } from '@services/config/env';
-import { isExternalUrl, normalizeAvatarUrl } from './avatar';
+import { resolveAvatarUrl } from './avatar';
 
 const getMediaUrl = () => getPublicConfig().mediaUrl;
 
@@ -13,9 +13,7 @@ export function getLandingMediaDirectory(fileId: string): string {
 }
 
 export function getUserAvatarMediaDirectory(userUUID: string, fileId: string): string {
-  if (isExternalUrl(fileId)) return normalizeAvatarUrl(fileId);
-
-  return `${getMediaUrl()}content/users/${userUUID}/avatars/${fileId}`;
+  return resolveAvatarUrl({ avatarUrl: fileId, user: { user_uuid: userUUID } });
 }
 
 export interface ActivityBlockMediaDirectoryParams {

@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { normalizeAvatarUrl } from '@/services/media/avatar';
+import { getAvatarInitials, normalizeAvatarUrl, resolveAvatarUrl } from '@/services/media/avatar';
+
+process.env.NEXT_PUBLIC_SITE_URL = 'https://app.test';
+process.env.NEXT_PUBLIC_API_URL = 'https://api.test';
+process.env.NEXT_PUBLIC_MEDIA_URL = 'https://media.test/static/';
 
 describe('avatar URL normalization', () => {
   it('proxies Google profile image URLs through the app', () => {
@@ -26,5 +30,30 @@ describe('avatar URL normalization', () => {
     const externalUrl = 'https://example.com/avatar.png';
 
     expect(normalizeAvatarUrl(externalUrl)).toBe(externalUrl);
+  });
+
+  it('resolves stored avatar filenames from the user media directory', () => {
+    expect(
+      resolveAvatarUrl({
+        user: {
+          user_uuid: 'user-1',
+          avatar_image: 'avatar.webp',
+        },
+      }),
+    ).toBe('https://media.test/static/content/users/user-1/avatars/avatar.webp');
+  });
+
+  it('keeps public fallback paths out of the media directory', () => {
+    expect(
+      resolveAvatarUrl({
+        avatarUrl: '/empty_avatar.avif',
+        user: { user_uuid: 'user-1' },
+      }),
+    ).toBe('/empty_avatar.avif');
+  });
+
+  it('creates initials from names before username fallback', () => {
+    expect(getAvatarInitials({ first_name: 'Ada', last_name: 'Lovelace', username: 'ada' })).toBe('AL');
+    expect(getAvatarInitials({ username: 'student' })).toBe('S');
   });
 });

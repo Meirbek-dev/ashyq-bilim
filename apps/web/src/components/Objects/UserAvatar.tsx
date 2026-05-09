@@ -3,46 +3,54 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
 import { useSession } from '@/hooks/useSession';
 import { useUserByUsername } from '@/lib/users/client';
-import { getUserAvatarMediaDirectory } from '@services/media/media';
-import { getAbsoluteUrl } from '@services/config/config';
-import { isExternalUrl, normalizeAvatarUrl } from '@services/media/avatar';
+import { DEFAULT_AVATAR_PATH, getAvatarInitials, resolveAvatarUrl } from '@services/media/avatar';
 import { useTranslations } from 'next-intl';
-import { User } from 'lucide-react';
+import { Bot, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { memo, useMemo } from 'react';
+import type { AvatarUser, PredefinedAvatar } from '@services/media/avatar';
+import type { ComponentProps } from 'react';
 
 import UserProfilePopup from './UserProfilePopup';
 
 export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
 export type AvatarVariant = 'default' | 'outline' | 'ghost';
 
-interface UserAvatarProps {
+export interface UserAvatarProps {
   size?: AvatarSize;
   variant?: AvatarVariant;
   avatar_url?: string;
   use_with_session?: boolean;
-  predefined_avatar?: 'ai' | 'empty';
+  predefined_avatar?: PredefinedAvatar;
   showProfilePopup?: boolean;
   userId?: number;
   username?: string;
+  user?: AvatarUser | null;
   className?: string;
   fallbackText?: string;
+  imageProps?: Pick<ComponentProps<typeof AvatarImage>, 'loading' | 'decoding' | 'referrerPolicy'>;
 }
 
 const sizeVariants = {
-  'xs': 'h-6 w-6 text-[10px]',
-  'sm': 'h-8 w-8 text-xs',
-  'md': 'h-10 w-10 text-sm',
-  'lg': 'h-12 w-12 text-base',
-  'xl': 'h-16 w-16 text-lg',
+  xs: 'h-6 w-6 text-[10px]',
+  sm: 'h-8 w-8 text-xs',
+  md: 'h-10 w-10 text-sm',
+  lg: 'h-12 w-12 text-base',
+  xl: 'h-16 w-16 text-lg',
   '2xl': 'h-20 w-20 text-xl',
   '3xl': 'h-32 w-32 text-2xl',
 };
 
 const variantStyles = {
-  default: 'border-2 border-background shadow-md',
-  outline: 'border-2 border-border',
+  default: 'ring-2 ring-background shadow-sm',
+  outline: 'ring-1 ring-border',
   ghost: 'border-0',
 };
+
+const predefinedIcon = {
+  ai: Bot,
+  empty: User,
+} satisfies Record<PredefinedAvatar, typeof User>;
 
 const UserAvatar = (props: UserAvatarProps) => {
   const t = useTranslations('Components.UserAvatar');
@@ -52,69 +60,58 @@ const UserAvatar = (props: UserAvatarProps) => {
     size = 'md',
     variant = 'default',
     avatar_url,
+    use_with_session = true,
     predefined_avatar,
     showProfilePopup,
     userId,
     username,
+    user,
     className,
     fallbackText,
+    imageProps,
   } = props;
 
-  // Shared query caching deduplicates identical username lookups across components.
   const { data: userData } = useUserByUsername(username);
 
-  const getAvatarUrl = (): string => {
-    if (predefined_avatar) {
-      const avatarType = predefined_avatar === 'ai' ? 'platform_logo_light.svg' : 'empty_avatar.avif';
-      return getAbsoluteUrl(`/${avatarType}`);
-    }
+  const resolvedUser = useMemo<AvatarUser | null>(() => {
+    if (user) return user;
+    if (userData) return userData;
+    if (username) return { username };
+    return use_with_session ? currentUser : null;
+  }, [currentUser, use_with_session, user, userData, username]);
 
-    if (avatar_url) {
-      return normalizeAvatarUrl(avatar_url);
-    }
+  const avatarUrl = useMemo(
+    () =>
+      resolveAvatarUrl({
+        avatarUrl: avatar_url,
+        predefinedAvatar: predefined_avatar,
+        user: resolvedUser,
+      }),
+    [avatar_url, predefined_avatar, resolvedUser],
+  );
 
-    if (userData?.avatar_image) {
-      const url = userData.avatar_image;
-      return isExternalUrl(url) ? normalizeAvatarUrl(url) : getUserAvatarMediaDirectory(userData.user_uuid, url);
-    }
-
-    // Username given but no data yet — show empty rather than falling through to session user.
-    if (username) return getAbsoluteUrl('/empty_avatar.avif');
-
-    // No username — show the current session user's avatar.
-    if (currentUser?.avatar_image) {
-      const url = currentUser.avatar_image;
-      return isExternalUrl(url) ? normalizeAvatarUrl(url) : getUserAvatarMediaDirectory(currentUser.user_uuid, url);
-    }
-
-    return getAbsoluteUrl('/empty_avatar.avif');
-  };
-
-  const getFallbackText = (): string => {
-    if (fallbackText) return fallbackText;
-
-    if (userData?.first_name && userData?.last_name) {
-      return `${userData.first_name[0]}${userData.last_name[0]}`.toUpperCase();
-    }
-
-    if (username) return username.charAt(0).toUpperCase();
-
-    if (currentUser?.first_name && currentUser?.last_name) {
-      return `${currentUser.first_name[0]}${currentUser.last_name[0]}`.toUpperCase();
-    }
-
-    return userData?.username?.[0]?.toUpperCase() ?? currentUser?.username?.[0]?.toUpperCase() ?? '?';
-  };
+  const fallback = useMemo(() => getAvatarInitials(resolvedUser, fallbackText), [fallbackText, resolvedUser]);
+  const PredefinedIcon = predefined_avatar ? predefinedIcon[predefined_avatar] : null;
 
   const avatarElement = (
-    <Avatar className={cn(sizeVariants[size], variantStyles[variant], 'bg-background', className)}>
+    <Avatar
+      className={cn(
+        sizeVariants[size],
+        variantStyles[variant],
+        'bg-muted text-foreground transition-colors',
+        className,
+      )}
+    >
       <AvatarImage
-        src={getAvatarUrl()}
+        src={avatarUrl}
         alt={t('altText')}
-        className="bg-background"
+        className="bg-muted"
+        decoding={imageProps?.decoding ?? 'async'}
+        loading={imageProps?.loading ?? (avatarUrl === DEFAULT_AVATAR_PATH ? 'eager' : 'lazy')}
+        referrerPolicy={imageProps?.referrerPolicy ?? 'no-referrer'}
       />
-      <AvatarFallback className="bg-muted text-muted-foreground">
-        {predefined_avatar === 'ai' ? <User className="h-[60%] w-[60%]" /> : getFallbackText()}
+      <AvatarFallback className="bg-muted text-muted-foreground font-medium">
+        {PredefinedIcon ? <PredefinedIcon className="h-[55%] w-[55%]" /> : fallback}
       </AvatarFallback>
     </Avatar>
   );
@@ -128,4 +125,4 @@ const UserAvatar = (props: UserAvatarProps) => {
   return avatarElement;
 };
 
-export default UserAvatar;
+export default memo(UserAvatar);
