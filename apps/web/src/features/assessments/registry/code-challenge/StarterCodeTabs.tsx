@@ -52,7 +52,7 @@ export default function StarterCodeTabs() {
                     value={field.value ?? ''}
                     onChange={field.onChange}
                     className="min-h-48 font-mono text-sm"
-                    placeholder={`Starter code for ${language!.name}`}
+                    placeholder={t('starterCodePlaceholder', { language: language!.name })}
                   />
                 )}
               />

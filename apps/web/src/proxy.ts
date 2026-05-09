@@ -25,6 +25,7 @@ const PROTECTED_PREFIXES = [
   '/analytics',
   '/editor',
   '/certificates',
+  '/assessments',
 ] as const;
 
 export const config = {
@@ -69,6 +70,7 @@ function buildRequestHeaders(req: NextRequest, requestId: string, locale?: strin
   headers.set('x-forwarded-proto', req.headers.get('x-forwarded-proto') ?? req.nextUrl.protocol.replace(':', ''));
   headers.set('x-request-id', requestId);
   headers.set('x-pathname', req.nextUrl.pathname);
+  headers.set('x-search', req.nextUrl.search);
 
   if (locale) {
     headers.set('x-next-intl-locale', locale);

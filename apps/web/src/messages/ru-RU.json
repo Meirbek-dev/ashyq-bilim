@@ -238,7 +238,8 @@
         "title": "Название задачи",
         "titlePlaceholder": "напр., Сумма двух чисел",
         "unlimitedSubmissions": "Неограниченно",
-        "visible": "Видимый"
+        "visible": "Видимый",
+        "starterCodePlaceholder": "Начальный код для {language}"
       },
       "generalSettings": "Общие настройки",
       "generalSettingsDescription": "Настройте базовые параметры задачи",
@@ -7877,6 +7878,7 @@
           "releaseStepLabel": "Публикация",
           "releaseStepDescription": "Проверьте предпросмотр, расписание или публикацию после успешных проверок.",
           "validation": {
+            "assessment_empty": "Оценка не содержит заданий.",
             "assessment_title_missing": "Название обязательно.",
             "policy_max_attempts_invalid": "Лимит попыток должен быть не менее 1.",
             "policy_time_limit_invalid": "Ограничение по времени должно быть больше нуля.",
@@ -7929,6 +7931,12 @@
         "breadcrumb": {
           "curriculum": "Учебный план",
           "studio": "Студия"
+        },
+        "kinds": {
+          "ASSIGNMENT": "Задание",
+          "EXAM": "Тест",
+          "CODE_CHALLENGE": "Код задача",
+          "QUIZ": "Квиз"
         },
         "issueCount": "{count} проблем",
         "preview": "Предпросмотр",

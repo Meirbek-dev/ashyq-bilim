@@ -228,6 +228,7 @@
         "selectLanguages": "Select languages",
         "starterCode": "Starter Code",
         "starterCodeHint": "Optional template code provided to students",
+        "starterCodePlaceholder": "Starter code for {language}",
         "testCases": "Test Cases",
         "testCasesDescription": "Add test cases to validate solutions. Visible tests are shown to students.",
         "testDescription": "Description (optional)",
@@ -7777,6 +7778,12 @@
         }
       },
       "Studio": {
+        "kinds": {
+          "ASSIGNMENT": "Assignment",
+          "EXAM": "Exam",
+          "CODE_CHALLENGE": "Code Challenge",
+          "QUIZ": "Quiz"
+        },
         "NativeItemStudio": {
           "outlineTitle": "{itemNoun} outline",
           "outlinePoints": "{points} total points",
@@ -7843,6 +7850,7 @@
           "releaseStepLabel": "Release",
           "releaseStepDescription": "Preview, schedule, or publish when checks pass.",
           "validation": {
+            "assessment_empty": "Assessment has no items.",
             "assessment_title_missing": "Assessment title is required.",
             "policy_max_attempts_invalid": "Attempt limit must be at least 1.",
             "policy_time_limit_invalid": "Time limit must be greater than zero.",
@@ -7895,6 +7903,12 @@
         "breadcrumb": {
           "curriculum": "Curriculum",
           "studio": "Studio"
+        },
+        "kinds": {
+          "ASSIGNMENT": "Assignment",
+          "EXAM": "Exam",
+          "CODE_CHALLENGE": "Code Challenge",
+          "QUIZ": "Quiz"
         },
         "issueCount": "{count} issues",
         "preview": "Preview",

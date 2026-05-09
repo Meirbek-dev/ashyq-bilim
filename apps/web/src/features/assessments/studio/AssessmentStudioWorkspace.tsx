@@ -172,7 +172,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
                 {t('breadcrumb.curriculum')}
               </Link>
               <span>/</span>
-              <span>{kindModule?.label ?? studio.kind}</span>
+              <span>{t(`kinds.${studio.kind}`)}</span>
               <span>/</span>
               <span>{t('breadcrumb.studio')}</span>
             </div>
@@ -393,7 +393,7 @@ export default function AssessmentStudioWorkspace({ courseUuid, activityUuid }: 
                 ) : (
                   <PolicyInspector
                     policy={studio.policy}
-                    title={t('policyTitle', { kind: kindModule?.label ?? t('assessmentLabel') })}
+                    title={t('policyTitle', { kind: t(`kinds.${studio.kind}`) })}
                   />
                 )}
 
