@@ -138,7 +138,7 @@ def get_admin_analytics(
             AdminAnalyticsCohortRow(
                 cohort_id=cohort_id,
                 cohort_name=context.usergroup_names_by_id.get(
-                    cohort_id, f"Cohort {cohort_id}"
+                    cohort_id, f"Когорта {cohort_id}"
                 ),
                 learners=len(user_ids),
                 retained_learners=len(retained),
@@ -168,9 +168,9 @@ def get_admin_analytics(
         program_rows.append(
             AdminAnalyticsProgramRow(
                 program_id=creator_id,
-                program_name=f"{display_name(teacher)} courses"
+                program_name=f"Курсы: {display_name(teacher)}"
                 if teacher is not None
-                else "Unassigned courses",
+                else "Нераспределенные курсы",
                 course_count=len(rows),
                 learner_count=learner_count,
                 completion_rate=round(

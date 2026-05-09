@@ -71,7 +71,7 @@ def build_data_quality(
             DataQualityIssue(
                 id="missing-event-sources",
                 severity="warning",
-                title="Some event sources have no data",
+                title="Некоторые источники событий не содержат данных",
                 detail=", ".join(missing_sources),
                 source="events",
             )
@@ -81,8 +81,8 @@ def build_data_quality(
             DataQualityIssue(
                 id="thin-course-data",
                 severity="warning",
-                title="Some courses have too little data for high-confidence insights",
-                detail=f"{len(courses_without_enough_data)} courses have fewer than 5 learners.",
+                title="В некоторых курсах слишком мало данных для высокодостоверных выводов",
+                detail=f"В {len(courses_without_enough_data)} курсах менее 5 учащихся.",
                 source="enrollment",
             )
         )
@@ -91,8 +91,8 @@ def build_data_quality(
             DataQualityIssue(
                 id="stale-rollup",
                 severity="critical",
-                title="Rollup data is older than 24 hours",
-                detail="Refresh analytics rollups before using this view for operational decisions.",
+                title="Агрегированные данные старше 24 часов",
+                detail="Обновите агрегаты аналитики перед использованием этого представления для принятия оперативных решений.",
                 source="rollups",
             )
         )

@@ -357,7 +357,7 @@ export default function GradeForm({
                       onChange={(e) => patchItemDraft(item.item_id, 'score', e.target.value)}
                     />
                     <span className="text-muted-foreground text-xs">/ {item.max_score}</span>
-                    {item.needs_manual_review && <span className="ml-auto text-xs text-amber-600">needs review</span>}
+                    {item.needs_manual_review && <span className="ml-auto text-xs text-amber-600">{t('needsReview')}</span>}
                   </div>
                   <Textarea
                     placeholder={tItemGrading('itemFeedback')}

@@ -129,7 +129,7 @@ def build_content_bottlenecks(
                     completed_learners=completed,
                     avg_time_seconds=avg_time,
                     exit_count=exit_count,
-                    note="Learners spend substantial time here, but fewer than expected complete it.",
+                    note="Учащиеся проводят здесь много времени, но завершают задание реже, чем ожидалось.",
                 )
             )
 
@@ -148,7 +148,7 @@ def build_content_bottlenecks(
                     completed_learners=completed,
                     avg_time_seconds=avg_time,
                     exit_count=exit_count,
-                    note="Many learners open this activity and leave before completing it.",
+                    note="Многие учащиеся открывают это задание и покидают его, не завершив.",
                 )
             )
 
@@ -179,7 +179,7 @@ def build_content_bottlenecks(
                     avg_time_seconds=avg_time,
                     exit_count=exit_count,
                     failed_assessments=failed,
-                    note="Assessment performance drops around this activity.",
+                    note="Результаты оценивания снижаются в районе этого задания.",
                 )
             )
 
@@ -215,7 +215,7 @@ def build_content_bottlenecks(
                     avg_time_seconds=avg_time,
                     exit_count=exit_count,
                     stale_days=stale_days,
-                    note="Older content is correlated with lower progress or assessment outcomes.",
+                    note="Устаревший контент коррелирует с более низким прогрессом или результатами оценивания.",
                 )
             )
 

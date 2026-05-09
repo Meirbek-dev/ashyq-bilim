@@ -76,16 +76,16 @@ def _confidence_level(
 
 def _why_now(reason_codes: list[str], top_factor: str | None) -> str:
     if "grading_block" in reason_codes:
-        return "Open teacher grading is currently blocking progress."
+        return "Текущая проверка преподавателем блокирует прогресс."
     if "inactive_7d" in reason_codes:
-        return "Recent inactivity crossed the seven-day intervention threshold."
+        return "Недавняя неактивность превысила семидневный порог для вмешательства."
     if "repeated_failures" in reason_codes:
-        return "Recent assessment outcomes show repeated failures."
+        return "Последние результаты оценивания показывают повторяющиеся неудачи."
     if "missing_required_assessments" in reason_codes:
-        return "Required assessments are now missing for this learner."
+        return "У этого учащегося теперь отсутствуют обязательные оценивания."
     if top_factor == "progress":
-        return "Progress is materially behind the course baseline."
-    return "Multiple risk signals are active in the current analytics window."
+        return "Прогресс существенно отстает от базового уровня курса."
+    return "В текущем окне аналитики активно несколько сигналов риска."
 
 
 def _previous_snapshots(

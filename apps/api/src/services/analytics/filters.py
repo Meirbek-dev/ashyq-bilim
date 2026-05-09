@@ -41,7 +41,7 @@ def _parse_csv_ints(value: str | None) -> list[int]:
             items.append(int(chunk))
         except ValueError as exc:
             raise HTTPException(
-                status_code=422, detail=f"Invalid integer list value: {chunk}"
+                status_code=422, detail=f"Некорректное значение списка целых чисел: {chunk}"
             ) from exc
     return items
 

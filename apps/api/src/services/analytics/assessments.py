@@ -478,7 +478,7 @@ def _build_slo_snapshot(
             observed_p90_hours=None,
             backlog_count=0,
             overdue_backlog_count=0,
-            note="This assessment does not currently rely on a teacher grading SLA.",
+            note="Это оценивание в настоящее время не зависит от регламента проверки преподавателем.",
         )
 
     observed_p50 = percentile(latencies, 0.5)
@@ -496,11 +496,11 @@ def _build_slo_snapshot(
         status = "healthy"
 
     if status == "breached":
-        note = "The assessment backlog is outside the 72-hour grading target."
+        note = "Очередь проверки оценивания выходит за пределы 72-часовой цели."
     elif status == "warning":
-        note = "The assessment backlog is trending toward the 72-hour grading target."
+        note = "Очередь проверки оценивания приближается к 72-часовой цели."
     else:
-        note = "The assessment grading backlog is within the target envelope."
+        note = "Очередь проверки оценивания находится в пределах целевого диапазона."
 
     return AssessmentSloSnapshot(
         status=status,
@@ -584,9 +584,9 @@ def _load_audit_history(
                 occurred_at=to_iso(occurred_at) or "",
                 status="published" if published else "draft_saved",
                 summary=(
-                    f"Published {entry.final_score:.1f}%"
+                    f"Опубликовано {entry.final_score:.1f}%"
                     if published
-                    else f"Saved draft grade {entry.final_score:.1f}%"
+                    else f"Сохранен черновик оценки {entry.final_score:.1f}%"
                 ),
                 affected_count=1,
                 submission_id=entry.submission_id,
@@ -683,38 +683,38 @@ def _build_workflow_item_rows(
     definitions = [
         (
             "awaiting_grading",
-            "Awaiting teacher grading",
+            "Ожидает проверки преподавателем",
             diagnostics.awaiting_grading,
             "critical" if diagnostics.stale_backlog else "watch",
-            "Manual review is still pending for these learners.",
+            "Ручная проверка этих учащихся все еще ожидается.",
         ),
         (
             "returned_for_resubmission",
-            "Returned for resubmission",
+            "Возвращено на доработку",
             diagnostics.returned_for_resubmission,
             "watch",
-            "Learners still need to resubmit after teacher feedback.",
+            "Учащимся все еще нужно повторно отправить работу после обратной связи преподавателя.",
         ),
         (
             "late_submissions",
-            "Late submissions",
+            "Просроченные отправки",
             diagnostics.late_submissions,
             "watch",
-            "Late work may need deadline or policy follow-up.",
+            "Просроченные работы могут требовать уточнения сроков или политики.",
         ),
         (
             "suspicious_attempts",
-            "Suspicious attempts",
+            "Подозрительные попытки",
             diagnostics.suspicious_attempts,
             "critical",
-            "Integrity signals were recorded for these attempts.",
+            "Для этих попыток были зафиксированы сигналы нарушения целостности.",
         ),
         (
             "missing_scores",
-            "Missing scores",
+            "Отсутствующие баллы",
             diagnostics.missing_scores,
             "critical",
-            "A submission exists without a score that support can verify.",
+            "Существует отправка без балла, которую служба поддержки может проверить.",
         ),
     ]
     rows = [
@@ -861,7 +861,7 @@ def _build_support_diagnostics(
             AssessmentSupportAlertRow(
                 code="grading_slo_breached",
                 severity="critical",
-                summary="Grading latency is outside the current service target.",
+                summary="Задержка проверки выходит за пределы текущей цели обслуживания.",
             )
         )
     elif slo.status == "warning":
@@ -869,7 +869,7 @@ def _build_support_diagnostics(
             AssessmentSupportAlertRow(
                 code="grading_slo_warning",
                 severity="warning",
-                summary="Grading latency is approaching the service target.",
+                summary="Задержка проверки приближается к цели обслуживания.",
             )
         )
     if diagnostics.suspicious_attempts > 0:
@@ -877,7 +877,7 @@ def _build_support_diagnostics(
             AssessmentSupportAlertRow(
                 code="suspicious_attempts",
                 severity="warning",
-                summary="Integrity signals were detected in the current support scope.",
+                summary="Сигналы нарушения целостности были обнаружены в текущем охвате поддержки.",
             )
         )
     if diagnostics.missing_scores > 0:
@@ -885,7 +885,7 @@ def _build_support_diagnostics(
             AssessmentSupportAlertRow(
                 code="missing_scores",
                 severity="critical",
-                summary="One or more scoped attempts are missing a score.",
+                summary="В одной или нескольких попытках в охвате отсутствует балл.",
             )
         )
     if not migration.cutover_ready:
@@ -894,14 +894,14 @@ def _build_support_diagnostics(
             AssessmentSupportAlertRow(
                 code="cutover_blocked",
                 severity="warning",
-                summary="Compatibility reads still block a full cutover to canonical analytics.",
+                summary="Чтение совместимости по-прежнему блокирует полный переход на каноническую аналитику.",
             )
         )
 
     note = (
-        "Support follow-up is recommended for the active alerts and cutover blockers."
+        "Рекомендуется последующее наблюдение со стороны службы поддержки для активных оповещений и блокировщиков перехода."
         if alerts or cutover_blockers
-        else "Support diagnostics are within the current operational envelope."
+        else "Диагностика поддержки находится в пределах текущего операционного диапазона."
     )
 
     return AssessmentSupportDiagnostics(
@@ -1852,7 +1852,7 @@ def get_teacher_assessment_detail(
             item_analytics.append(
                 AssessmentItemAnalyticsRow(
                     item_key=stat.question_id,
-                    item_label=f"Question {stat.question_id}",
+                    item_label=f"Вопрос {stat.question_id}",
                     item_type="question",
                     population_count=stat.total_attempts,
                     impacted_count=max(0, stat.total_attempts - stat.correct_count),
@@ -1862,13 +1862,12 @@ def get_teacher_assessment_detail(
                     ),
                     signal=signal,
                     note=(
-                        f"Accuracy {accuracy_pct:.1f}%"
+                        f"Точность {accuracy_pct:.1f}%"
                         if accuracy_pct is not None
-                        else "Accuracy is not available yet."
+                        else "Точность пока недоступна."
                     ),
                 )
-            )
-        item_analytics.sort(
+            )        item_analytics.sort(
             key=lambda item: (
                 item.impact_rate if item.impact_rate is not None else -1,
                 item.impacted_count,

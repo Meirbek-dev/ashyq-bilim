@@ -61,8 +61,8 @@ def build_forecasts(
                     id=f"completion-target-miss-{course.course_id}",
                     type="completion_target_miss",
                     severity="critical" if len(unlikely) >= 10 else "warning",
-                    title=f"{course.course_name}: learners likely to miss completion target",
-                    prediction=f"{len(unlikely)} learners are inactive or below 70% progress.",
+                    title=f"{course.course_name}: учащиеся, вероятно, не достигнут цели завершения",
+                    prediction=f"{len(unlikely)} учащихся неактивны или имеют прогресс ниже 70%.",
                     confidence_level="medium" if len(course_snapshots) >= 10 else "low",
                     course_id=course.course_id,
                     course_name=course.course_name,
@@ -94,8 +94,8 @@ def build_forecasts(
                     severity="warning"
                     if expected_completion < max(60, current_completion)
                     else "info",
-                    title=f"{course.course_name}: projected 14-day completion",
-                    prediction=f"Expected completion is {expected_completion}% if current pace continues.",
+                    title=f"{course.course_name}: прогноз завершения через 14 дней",
+                    prediction=f"Ожидаемый уровень завершения — {expected_completion}%, если текущий темп сохранится.",
                     confidence_level="medium" if len(completion_events) >= 5 else "low",
                     course_id=course.course_id,
                     course_name=course.course_name,
@@ -114,8 +114,8 @@ def build_forecasts(
             else "warning"
             if workload.forecast_backlog_7d > workload.backlog_total
             else "info",
-            title="Expected grading backlog in 7 days",
-            prediction=f"Backlog is forecast to reach {workload.forecast_backlog_7d} submissions.",
+            title="Ожидаемая очередь проверки через 7 дней",
+            prediction=f"Прогнозируется, что очередь достигнет {workload.forecast_backlog_7d} отправок.",
             confidence_level="medium",
             learner_count=workload.forecast_backlog_7d,
             expected_value=float(workload.forecast_backlog_7d),
@@ -132,8 +132,8 @@ def build_forecasts(
                 id=f"assessment-failure-risk-{assessment.assessment_type}-{assessment.assessment_id}",
                 type="assessment_failure_risk",
                 severity="critical" if assessment.pass_rate < 50 else "warning",
-                title=f"{assessment.title}: elevated failure risk",
-                prediction=f"Expected failure rate is {round(100 - assessment.pass_rate, 1)}% before the next due date.",
+                title=f"{assessment.title}: повышенный риск неудачи",
+                prediction=f"Ожидаемый уровень неудач составляет {round(100 - assessment.pass_rate, 1)}% до следующего срока сдачи.",
                 confidence_level="high"
                 if assessment.submission_rate is not None
                 and assessment.submission_rate >= 50

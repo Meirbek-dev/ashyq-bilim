@@ -33,8 +33,8 @@ def build_insight_feed(
                 category="risk",
                 severity="critical" if len(learners) >= 10 else "warning",
                 priority=95 + min(20, len(learners)),
-                title=f"{course_name} has {len(learners)} newly at-risk learners.",
-                body="Risk increased against each learner's previous baseline; review the watchlist before the next session.",
+                title=f"В курсе {course_name} появилось {len(learners)} новых учащихся в зоне риска.",
+                body="Риск увеличился по сравнению с предыдущим базовым уровнем каждого учащегося; просмотрите список наблюдения перед следующим занятием.",
                 course_id=course_id,
                 learner_count=len(learners),
                 href="/dash/analytics/learners/at-risk",
@@ -45,9 +45,9 @@ def build_insight_feed(
         if row.pass_rate is None or row.pass_rate >= 65:
             continue
         reason = (
-            "quality diagnostics"
+            "диагностикой качества"
             if row.discrimination_index is not None
-            else "low pass rate"
+            else "низким уровнем прохождения"
         )
         items.append(
             InsightFeedItem(
@@ -55,8 +55,8 @@ def build_insight_feed(
                 category="assessment",
                 severity="critical" if row.pass_rate < 45 else "warning",
                 priority=80 + int(65 - row.pass_rate),
-                title=f"{row.title} pass rate is {row.pass_rate}%.",
-                body=f"The outlier is driven by {reason}; open the assessment diagnostics before reusing it.",
+                title=f"Уровень прохождения {row.title} составляет {row.pass_rate}%.",
+                body=f"Аномалия вызвана {reason}; откройте диагностику оценивания перед повторным использованием.",
                 course_id=row.course_id,
                 activity_id=row.activity_id,
                 assessment_type=row.assessment_type,
@@ -73,7 +73,7 @@ def build_insight_feed(
             priority=70
             + (20 if bottleneck.severity == "critical" else 10)
             + min(10, bottleneck.exit_count),
-            title=f"{bottleneck.activity_name} is a content bottleneck.",
+            title=f"{bottleneck.activity_name} является узким местом контента.",
             body=bottleneck.note,
             course_id=bottleneck.course_id,
             activity_id=bottleneck.activity_id,
@@ -90,8 +90,8 @@ def build_insight_feed(
                 category="workload",
                 severity="critical" if workload.sla_breaches else "warning",
                 priority=85 + min(25, workload.sla_breaches),
-                title=f"{workload.backlog_total} submissions are awaiting review.",
-                body=f"{workload.sla_breaches} have breached the {72}h grading SLA; forecast is {workload.forecast_backlog_7d} in 7 days.",
+                title=f"{workload.backlog_total} отправок ожидают проверки.",
+                body=f"{workload.sla_breaches} нарушили 72-часовой регламент проверки; прогноз через 7 дней — {workload.forecast_backlog_7d}.",
                 href="/dash/analytics?drill=backlog",
             )
         )
@@ -108,8 +108,8 @@ def build_insight_feed(
             category="completion",
             severity="info",
             priority=45 + int(row.historical_completion_delta_pct or 0),
-            title=f"{row.course_name} completion improved by {row.historical_completion_delta_pct} points.",
-            body="This cohort is outperforming the course historical baseline.",
+            title=f"Завершаемость курса {row.course_name} улучшилась на {row.historical_completion_delta_pct} п.п.",
+            body="Эта когорта превосходит исторический базовый уровень курса.",
             course_id=row.course_id,
             href=f"/dash/analytics/courses/{row.course_uuid}",
         )

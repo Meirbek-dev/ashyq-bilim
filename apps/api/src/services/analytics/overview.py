@@ -213,7 +213,7 @@ def _build_grading_slo_alerts(workload) -> list[AlertItem]:
 
     for row in breached_rows[:3]:
         oldest_age = (
-            f"; oldest submission is {row.age_hours:.1f}h old"
+            f"; старейшая отправка сделана {row.age_hours:.1f}ч назад"
             if row.age_hours is not None
             else ""
         )
@@ -222,10 +222,10 @@ def _build_grading_slo_alerts(workload) -> list[AlertItem]:
                 id=f"grading-slo-{row.assessment_id}",
                 type="grading_slo",
                 severity="critical" if row.sla_breaches >= 3 else "warning",
-                title=f"{row.title} is outside the grading SLA",
+                title=f"{row.title} вне регламента проверки",
                 body=(
-                    f"{row.sla_breaches} submission(s) in {row.course_name} exceeded the "
-                    f"{int(GRADING_SLA_HOURS)}-hour grading target; {row.awaiting_review} remain in backlog"
+                    f"{row.sla_breaches} отправок в {row.course_name} превысили "
+                    f"{int(GRADING_SLA_HOURS)}-часовую цель проверки; {row.awaiting_review} остаются в очереди"
                     f"{oldest_age}."
                 ),
                 href=f"/dash/analytics/assessments/{row.assessment_type}/{row.assessment_id}",
@@ -251,11 +251,11 @@ def _build_grading_slo_alerts(workload) -> list[AlertItem]:
                 id=f"grading-slo-watch-{leading_backlog.assessment_id}",
                 type="grading_slo",
                 severity="warning",
-                title=f"{leading_backlog.title} is trending toward the grading SLA",
+                title=f"{leading_backlog.title} приближается к нарушению регламента проверки",
                 body=(
-                    f"{leading_backlog.awaiting_review} submission(s) are waiting in {leading_backlog.course_name}; "
-                    f"the oldest has been open for {leading_backlog.age_hours:.1f} hours against a "
-                    f"{int(GRADING_SLA_HOURS)}-hour target."
+                    f"{leading_backlog.awaiting_review} отправок ожидают в {leading_backlog.course_name}; "
+                    f"самая старая открыта уже {leading_backlog.age_hours:.1f} ч при цели в "
+                    f"{int(GRADING_SLA_HOURS)} ч."
                 ),
                 href=(
                     f"/dash/analytics/assessments/"
