@@ -145,8 +145,6 @@ interface CodeAssessmentRead {
   items?: AssessmentItem[];
 }
 
-const CODE_RUN_UNAVAILABLE_ERROR = 'Code challenge test runs are not mounted on the unified assessment API yet.';
-
 function decodeLegacyEditorPayload(value: string) {
   const normalized = value.trim();
 
@@ -183,6 +181,21 @@ async function loadCodeAssessment(activityUuid: string): Promise<CodeAssessmentR
 function getCodeAssessmentItem(assessment: CodeAssessmentRead | null): CodeAssessmentItem | null {
   const item = assessment?.items?.find((entry) => entry.kind === 'CODE');
   return (item as CodeAssessmentItem | undefined) ?? null;
+}
+
+function codeRunIdempotencyKey(
+  assessmentUuid: string,
+  itemUuid: string,
+  languageId: number,
+  sourceCode: string,
+  customInput?: string,
+) {
+  const raw = `${assessmentUuid}:${itemUuid}:${languageId}:${sourceCode}:${customInput ?? ''}`;
+  let hash = 0;
+  for (let index = 0; index < raw.length; index += 1) {
+    hash = Math.imul(31, hash) + raw.charCodeAt(index);
+  }
+  return `code-run-${Math.abs(hash)}`;
 }
 
 function toReadableTestCase(test: TestCase): TestCase {
@@ -473,18 +486,51 @@ export async function submitCode(
 }
 
 export async function runTests(
-  _activityUuid: string,
-  _sourceCode: string,
-  _languageId: number,
+  activityUuid: string,
+  sourceCode: string,
+  languageId: number,
 ): Promise<{ results: TestCaseResult[] }> {
-  throw new Error(CODE_RUN_UNAVAILABLE_ERROR);
+  const assessment = await loadCodeAssessment(activityUuid);
+  if (!assessment) {
+    throw new Error('Code challenge assessment not found');
+  }
+
+  const codeItem = getCodeAssessmentItem(assessment);
+  if (!codeItem) {
+    throw new Error('Code challenge item is not configured');
+  }
+
+  const decodedSource = decodeLegacyEditorPayload(sourceCode);
+  const response = await apiFetch(`assessments/${assessment.assessment_uuid}/items/${codeItem.item_uuid}/runs`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      language: languageId,
+      source: decodedSource,
+      idempotency_key: codeRunIdempotencyKey(assessment.assessment_uuid, codeItem.item_uuid, languageId, decodedSource),
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.detail?.message || error.detail || 'Failed to run code challenge tests');
+  }
+
+  const run = (await response.json()) as CanonicalCodeRunResponse;
+  if (run.status === 'DEGRADED') {
+    throw new Error(run.error_message || 'Code runner is temporarily unavailable');
+  }
+
+  return {
+    results: run.visible_results.map((result, index) => toTestCaseResult(result, index, run)),
+  };
 }
 
 export async function runCustomTest(
-  _activityUuid: string,
-  _sourceCode: string,
-  _languageId: number,
-  _stdin: string,
+  activityUuid: string,
+  sourceCode: string,
+  languageId: number,
+  stdin: string,
 ): Promise<{
   stdout?: string;
   stderr?: string;
@@ -494,7 +540,54 @@ export async function runCustomTest(
   time_ms?: number;
   memory_kb?: number;
 }> {
-  throw new Error(CODE_RUN_UNAVAILABLE_ERROR);
+  const assessment = await loadCodeAssessment(activityUuid);
+  if (!assessment) {
+    throw new Error('Code challenge assessment not found');
+  }
+
+  const codeItem = getCodeAssessmentItem(assessment);
+  if (!codeItem) {
+    throw new Error('Code challenge item is not configured');
+  }
+
+  const decodedSource = decodeLegacyEditorPayload(sourceCode);
+  const decodedStdin = decodeLegacyEditorPayload(stdin);
+  const response = await apiFetch(`assessments/${assessment.assessment_uuid}/items/${codeItem.item_uuid}/runs`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      language: languageId,
+      source: decodedSource,
+      custom_input: decodedStdin,
+      idempotency_key: codeRunIdempotencyKey(
+        assessment.assessment_uuid,
+        codeItem.item_uuid,
+        languageId,
+        decodedSource,
+        decodedStdin,
+      ),
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.detail?.message || error.detail || 'Failed to run custom test');
+  }
+
+  const run = (await response.json()) as CanonicalCodeRunResponse;
+  if (run.status === 'DEGRADED') {
+    throw new Error(run.error_message || 'Code runner is temporarily unavailable');
+  }
+
+  return {
+    stdout: run.stdout ?? undefined,
+    stderr: run.stderr ?? undefined,
+    compile_output: run.compile_output ?? undefined,
+    status: runStatusCode(run.status, run.passed, run.total),
+    status_description: run.status,
+    time_ms: typeof run.time === 'number' ? Math.round(run.time * 1000) : undefined,
+    memory_kb: typeof run.memory === 'number' ? run.memory : undefined,
+  };
 }
 
 export async function getSubmission(submissionUuid: string): Promise<CodeSubmission> {
@@ -522,4 +615,54 @@ export async function getSubmissions(activityUuid: string): Promise<CodeSubmissi
   return ((await response.json()) as CanonicalSubmissionRead[] as unknown as GradingSubmission[]).map(
     mapCanonicalCodeSubmission,
   );
+}
+
+interface CanonicalCodeRunTestResult {
+  test_id: string;
+  passed: boolean;
+  stdin?: string | null;
+  expected?: string | null;
+  actual?: string | null;
+  time?: number | null;
+  memory?: number | null;
+}
+
+interface CanonicalCodeRunResponse {
+  status: string;
+  passed: number;
+  total: number;
+  stdout?: string | null;
+  stderr?: string | null;
+  compile_output?: string | null;
+  time?: number | null;
+  memory?: number | null;
+  visible_results: CanonicalCodeRunTestResult[];
+  error_message?: string | null;
+}
+
+function toTestCaseResult(
+  result: CanonicalCodeRunTestResult,
+  index: number,
+  run: CanonicalCodeRunResponse,
+): TestCaseResult {
+  return {
+    test_case_id: result.test_id || `visible_${index + 1}`,
+    status: result.passed ? 3 : runStatusCode(run.status, run.passed, run.total),
+    status_description: result.passed ? 'Accepted' : run.status,
+    passed: result.passed,
+    time_ms: typeof result.time === 'number' ? Math.round(result.time * 1000) : null,
+    memory_kb: typeof result.memory === 'number' ? result.memory : null,
+    stdout: result.actual ?? run.stdout ?? null,
+    stderr: run.stderr ?? null,
+    compile_output: run.compile_output ?? null,
+  };
+}
+
+function runStatusCode(status: string, passed: number, total: number) {
+  const normalized = status.toUpperCase();
+  if (normalized.includes('COMPILE')) return 6;
+  if (normalized.includes('TIMEOUT')) return 5;
+  if (normalized.includes('RUNTIME')) return 11;
+  if (total > 0 && passed < total) return 4;
+  return 3;
 }

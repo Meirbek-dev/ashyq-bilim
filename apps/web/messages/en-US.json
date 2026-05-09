@@ -377,6 +377,7 @@
       "appealLinkText": "Appeal or contact your teacher",
       "attemptNumber": "Attempt #{number}",
       "attemptsRemaining": "Attempts Remaining",
+      "noEditableDraft": "No editable draft available",
       "autoSubmitting": "Auto-submitting exam: {reason}",
       "autoSubmittingReason": {
         "timeExpired": "time expired",
@@ -7445,6 +7446,7 @@
           "answersRecovered": "Your previous answers have been recovered",
           "antiCheatingDescription": "Violations are being monitored. After {threshold} violations, your exam will be auto-submitted.",
           "antiCheatingEnabled": "Anti-Cheating Protection Enabled",
+          "attemptIntegrityChecksActive": "Integrity checks are active",
           "appealLinkText": "Appeal or contact your teacher",
           "attemptNumber": "Attempt #{number}",
           "attemptsRemaining": "Attempts Remaining",
@@ -7500,6 +7502,7 @@
           "navigationError": "Failed to navigate to next activity",
           "next": "Next",
           "noAttemptsRemaining": "You have no attempts remaining for this exam",
+          "noEditableDraft": "No editable draft available",
           "noNextActivity": "No next activity",
           "notAnswered": "Not answered",
           "notSet": "Not set",

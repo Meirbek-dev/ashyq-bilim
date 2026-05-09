@@ -7,6 +7,7 @@ import type { CodeChallengeSubmitControl } from '@/components/features/courses/c
 import { Skeleton } from '@/components/ui/skeleton';
 import { registerItemKind, UnsupportedItemAuthor } from '../registry';
 import type { ItemAttemptProps, ItemReviewDetailProps } from '../registry';
+import type { ItemAnswer } from '@/features/assessments/domain/items';
 
 export interface CodeItemSettings {
   uuid?: string;
@@ -44,19 +45,30 @@ export interface CodeAttemptItem {
   initialCode?: string;
   initialLanguageId: number;
   onSubmitControlChange?: (control: CodeChallengeSubmitControl | null) => void;
+  onSubmit?: () => Promise<void> | void;
 }
 
-export function CodeItemAttempt({ item }: ItemAttemptProps<CodeAttemptItem>) {
+export function CodeItemAttempt({
+  item,
+  answer,
+  disabled,
+  onAnswerChange,
+}: ItemAttemptProps<CodeAttemptItem, Extract<ItemAnswer, { kind: 'CODE' }> | undefined>) {
   return (
     <div className="bg-card min-h-[650px] overflow-hidden rounded-md border">
       <CodeChallengeEditor
         activityUuid={item.activityUuid}
         settings={item.settings}
-        initialCode={item.initialCode}
-        initialLanguageId={item.initialLanguageId}
+        initialCode={answer?.source ?? item.initialCode}
+        initialLanguageId={answer?.language ?? item.initialLanguageId}
+        answer={answer}
+        onAnswerChange={onAnswerChange}
+        onSubmit={item.onSubmit}
+        disabled={disabled}
         challengeTitle={item.title}
         challengeDescription={item.description}
         hideHeader
+        hideSubmitButton={disabled}
         onSubmitControlChange={item.onSubmitControlChange}
       />
     </div>

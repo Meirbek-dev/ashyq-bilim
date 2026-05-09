@@ -7477,9 +7477,11 @@
           "answersRecovered": "Ваши предыдущие ответы восстановлены",
           "antiCheatingDescription": "Нарушения отслеживаются. После {threshold} нарушений ваш тест будет автоматически завершён.",
           "antiCheatingEnabled": "Включена защита от списывания",
+          "attemptIntegrityChecksActive": "Выполняются проверки целостности",
           "appealLinkText": "Подайте апелляцию или свяжитесь со своим учителем",
           "attemptNumber": "Попытка №{number}",
           "attemptsRemaining": "Осталось попыток",
+          "noEditableDraft": "Нет доступного для редактирования черновика",
           "autoSubmitting": "Автоматическая отправка теста: {reason}",
           "autoSubmittingReason": {
             "timeExpired": "время истекло",

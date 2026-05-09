@@ -8,6 +8,7 @@ import * as v from 'valibot';
 
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
+import { apiFetch } from '@/lib/api-client';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,14 +29,13 @@ interface FormValues {
 }
 
 interface CodeChallengeActivityModalProps {
-  submitActivity: (data: any) => Promise<void>;
+  submitActivity?: (data: any) => Promise<void>;
   chapterId: number;
   course: any;
   closeModal?: () => void;
 }
 
 export default function CodeChallengeActivityModal({
-  submitActivity,
   chapterId,
   course,
   closeModal,
@@ -57,19 +57,38 @@ export default function CodeChallengeActivityModal({
   });
 
   const handleSubmit = async (values: ValidationOutput) => {
-    const activityData = {
-      name: values.name,
-      activity_type: 'TYPE_CODE_CHALLENGE',
-      activity_sub_type: values.subtype === 'competitive' ? 'SUBTYPE_CODE_COMPETITIVE' : 'SUBTYPE_CODE_GENERAL',
-      chapter_id: chapterId,
-      published: false,
-      content: {
-        description: values.description,
-        difficulty: values.difficulty,
-      },
-    };
+    const courseId = course?.courseStructure?.id ?? course?.id;
+    if (typeof courseId !== 'number') {
+      throw new Error('Course metadata is missing for code challenge creation');
+    }
 
-    await submitActivity(activityData);
+    const response = await apiFetch('assessments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        kind: 'CODE_CHALLENGE',
+        title: values.name,
+        description: values.description,
+        course_id: courseId,
+        chapter_id: chapterId,
+        grading_type: 'PERCENTAGE',
+        policy: {
+          settings_json: {
+            difficulty: values.difficulty.toUpperCase(),
+            code_challenge_subtype: values.subtype,
+            grading_strategy: 'PARTIAL_CREDIT',
+            execution_mode: 'COMPLETE_FEEDBACK',
+            allow_custom_input: true,
+          },
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.detail?.message || error.detail || 'Failed to create code challenge');
+    }
+
     closeModal?.();
   };
 

@@ -22,6 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 
 import AttemptHistoryList from '@/features/assessments/shared/AttemptHistoryList';
+import type { ItemAnswer } from '@/features/assessments/domain/items';
 import type { SubmissionStatus } from '@/features/grading/domain';
 import { JUDGE0_LANGUAGES, LanguageSelector } from './LanguageSelector';
 import type { TestCaseResult } from './TestCaseCard';
@@ -82,6 +83,10 @@ interface CodeChallengeEditorProps {
   settings?: CodeChallengeSettings;
   initialCode?: string;
   initialLanguageId?: number;
+  answer?: Extract<ItemAnswer, { kind: 'CODE' }>;
+  onAnswerChange?: (answer: Extract<ItemAnswer, { kind: 'CODE' }>) => void;
+  onSubmit?: () => Promise<void> | void;
+  disabled?: boolean;
   hideHeader?: boolean;
   hideSubmitButton?: boolean;
   onSubmitControlChange?: (control: CodeChallengeSubmitControl | null) => void;
@@ -91,7 +96,7 @@ interface CodeChallengeEditorProps {
 export interface CodeChallengeSubmitControl {
   canSubmit: boolean;
   isSubmitting: boolean;
-  submit: () => void;
+  submit: () => Promise<void> | void;
 }
 
 export function CodeChallengeEditor({
@@ -101,6 +106,10 @@ export function CodeChallengeEditor({
   settings,
   initialCode = '',
   initialLanguageId,
+  answer,
+  onAnswerChange,
+  onSubmit,
+  disabled = false,
   hideHeader = false,
   hideSubmitButton = false,
   onSubmitControlChange,
@@ -108,9 +117,9 @@ export function CodeChallengeEditor({
 }: CodeChallengeEditorProps) {
   const t = useTranslations('Activities.CodeChallenges');
   // State
-  const [code, setCode] = useState(initialCode);
+  const [code, setCode] = useState(answer?.source ?? initialCode);
   const [selectedLanguageId, setSelectedLanguageId] = useState(
-    initialLanguageId ?? settings?.allowed_languages?.[0] ?? 71, // Default to Python
+    answer?.language ?? initialLanguageId ?? settings?.allowed_languages?.[0] ?? 71, // Default to Python
   );
   const [customInput, setCustomInput] = useState('');
   const [customOutput, setCustomOutput] = useState('');
@@ -132,6 +141,18 @@ export function CodeChallengeEditor({
     refetchInterval: activeSubmissionId ? 1000 : false,
   });
   const activeSubmission = activeSubmissionData as Submission | null | undefined;
+
+  useEffect(() => {
+    if (answer?.source !== undefined && answer.source !== code) {
+      setCode(answer.source);
+    }
+  }, [answer?.source, code]);
+
+  useEffect(() => {
+    if (answer?.language !== undefined && answer.language !== selectedLanguageId) {
+      setSelectedLanguageId(answer.language);
+    }
+  }, [answer?.language, selectedLanguageId]);
 
   // Handle submission completion
   useEffect(() => {
@@ -159,9 +180,41 @@ export function CodeChallengeEditor({
       const starterCode = settings.starter_code[selectedLanguageId.toString()];
       if (starterCode) {
         setCode(starterCode);
+        onAnswerChange?.({
+          kind: 'CODE',
+          language: selectedLanguageId,
+          source: starterCode,
+          latest_run: answer?.latest_run,
+        });
       }
     }
-  }, [settings, selectedLanguageId, code]);
+  }, [answer?.latest_run, code, onAnswerChange, selectedLanguageId, settings]);
+
+  const updateCode = useCallback(
+    (nextCode: string) => {
+      setCode(nextCode);
+      onAnswerChange?.({
+        kind: 'CODE',
+        language: selectedLanguageId,
+        source: nextCode,
+        latest_run: answer?.latest_run,
+      });
+    },
+    [answer?.latest_run, onAnswerChange, selectedLanguageId],
+  );
+
+  const updateLanguage = useCallback(
+    (nextLanguageId: number) => {
+      setSelectedLanguageId(nextLanguageId);
+      onAnswerChange?.({
+        kind: 'CODE',
+        language: nextLanguageId,
+        source: code,
+        latest_run: answer?.latest_run,
+      });
+    },
+    [answer?.latest_run, code, onAnswerChange],
+  );
 
   // Run custom test
   const handleRunTest = useCallback(async () => {
@@ -218,6 +271,13 @@ export function CodeChallengeEditor({
     setTestResults(null);
 
     try {
+      if (onSubmit) {
+        await onSubmit();
+        toast.info(t('submissionQueued'));
+        setIsSubmitting(false);
+        return;
+      }
+
       const submission = await submitCodeChallengeMutation.mutateAsync({
         sourceCode: btoa(code),
         languageId: selectedLanguageId,
@@ -232,17 +292,17 @@ export function CodeChallengeEditor({
       setIsSubmitting(false);
       toast.error(error instanceof Error ? error.message : t('submissionFailed'));
     }
-  }, [code, selectedLanguageId, submitCodeChallengeMutation, t]);
+  }, [code, onSubmit, selectedLanguageId, submitCodeChallengeMutation, t]);
 
   useEffect(() => {
     onSubmitControlChange?.({
-      canSubmit: Boolean(code.trim()) && !isRunning && !isSubmitting,
+      canSubmit: !disabled && Boolean(code.trim()) && !isRunning && !isSubmitting,
       isSubmitting,
       submit: handleSubmit,
     });
 
     return () => onSubmitControlChange?.(null);
-  }, [code, handleSubmit, isRunning, isSubmitting, onSubmitControlChange]);
+  }, [code, disabled, handleSubmit, isRunning, isSubmitting, onSubmitControlChange]);
 
   // Get language name from ID
   const getLanguageName = (languageId: number): string => {
@@ -266,8 +326,9 @@ export function CodeChallengeEditor({
             <LanguageSelector
               languages={JUDGE0_LANGUAGES}
               selectedId={selectedLanguageId}
-              onSelect={setSelectedLanguageId}
+              onSelect={updateLanguage}
               allowedLanguages={settings?.allowed_languages}
+              disabled={disabled}
             />
           </div>
         </div>
@@ -276,8 +337,9 @@ export function CodeChallengeEditor({
           <LanguageSelector
             languages={JUDGE0_LANGUAGES}
             selectedId={selectedLanguageId}
-            onSelect={setSelectedLanguageId}
+            onSelect={updateLanguage}
             allowedLanguages={settings?.allowed_languages}
+            disabled={disabled}
           />
         </div>
       )}
@@ -295,8 +357,9 @@ export function CodeChallengeEditor({
           <div className="flex h-full flex-col">
             <CodeEditor
               value={code}
-              onChange={setCode}
+              onChange={updateCode}
               languageId={selectedLanguageId}
+              readOnly={disabled}
               className="flex-1"
             />
 
@@ -307,7 +370,7 @@ export function CodeChallengeEditor({
                   variant="outline"
                   size="sm"
                   onClick={handleRunTest}
-                  disabled={isRunning || isSubmitting}
+                  disabled={disabled || isRunning || isSubmitting}
                 >
                   {isRunning ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -320,7 +383,7 @@ export function CodeChallengeEditor({
                   variant="outline"
                   size="sm"
                   onClick={handleTestAgainstSamples}
-                  disabled={isRunning || isSubmitting || visibleTestCases.length === 0}
+                  disabled={disabled || isRunning || isSubmitting || visibleTestCases.length === 0}
                 >
                   <Play className="mr-2 h-4 w-4" />
                   {t('runTests')}
@@ -330,7 +393,7 @@ export function CodeChallengeEditor({
                 <Button
                   size="sm"
                   onClick={handleSubmit}
-                  disabled={isRunning || isSubmitting}
+                  disabled={disabled || isRunning || isSubmitting}
                 >
                   {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                   {t('submit')}

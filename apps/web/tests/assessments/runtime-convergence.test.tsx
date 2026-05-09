@@ -162,10 +162,19 @@ function createAttemptVm(overrides: Partial<AttemptViewModel> = {}): AttemptView
     canEdit: true,
     canSaveDraft: true,
     canSubmit: true,
+    canStart: true,
+    canContinue: false,
+    canViewResult: false,
+    canStartRevision: true,
+    recommendedAction: 'startRevision',
+    primaryButtonLabelKey: 'startRevision',
     isReturnedForRevision: true,
     isResultVisible: true,
     disabledActionReasons: [],
     serverNow: null,
+    startedAt: null,
+    timerStartedAt: null,
+    timerExpiresAt: null,
     availableAt: null,
     closesAt: null,
     timeRemainingSeconds: null,
@@ -197,14 +206,14 @@ describe('assessment runtime convergence', () => {
       />,
     );
 
-    expect(await screen.findByText('Resolve draft conflict')).toBeInTheDocument();
-    expect(screen.getByText(/newer draft version \(7\) was saved/i)).toBeInTheDocument();
-    expect(screen.getByText(/local draft has 3 answered items/i)).toBeInTheDocument();
+    expect(await screen.findByText('resolveDraftConflict')).toBeInTheDocument();
+    expect(screen.getByText('draftConflictDescription')).toBeInTheDocument();
+    expect(screen.getByText('draftConflictAnswerCounts')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Keep my local version' }));
+    fireEvent.click(screen.getByRole('button', { name: 'keepMyLocalVersion' }));
     expect(mocks.keepLocalMock).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Use latest saved version' }));
+    fireEvent.click(screen.getByRole('button', { name: 'useLatestSavedVersion' }));
     expect(mocks.applyServerMock).toHaveBeenCalledTimes(1);
   });
 
@@ -244,11 +253,11 @@ describe('assessment runtime convergence', () => {
       />,
     );
 
-    expect(screen.getByText('Ready to revise')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Start revision' })).toBeInTheDocument();
-    expect(screen.getByText(/returned for revision/i)).toBeInTheDocument();
+    expect(screen.getByText('readyToRevise')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'startRevision' })).toBeInTheDocument();
+    expect(screen.getByText('readyToReviseDescription')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Start revision' }));
+    fireEvent.click(screen.getByRole('button', { name: 'startRevision' }));
 
     await waitFor(() => {
       expect(mocks.apiFetchMock).toHaveBeenCalledWith(
@@ -256,6 +265,6 @@ describe('assessment runtime convergence', () => {
         expect.objectContaining({ method: 'POST' }),
       );
     });
-    expect(mocks.toastSuccessMock).toHaveBeenCalledWith('Revision draft created');
+    expect(mocks.toastSuccessMock).toHaveBeenCalledWith('revisionDraftCreated');
   });
 });

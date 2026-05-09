@@ -83,7 +83,7 @@ export default function StudentOverridesPanel({ assessmentUuid }: StudentOverrid
   const openEdit = (override: StudentPolicyOverride) => {
     setForm({
       user_id: String(override.user_id),
-      max_attempts_override: override.max_attempts_override != null ? String(override.max_attempts_override) : '',
+      max_attempts_override: override.max_attempts_override !== null ? String(override.max_attempts_override) : '',
       due_at_override: override.due_at_override
         ? new Date(override.due_at_override).toISOString().slice(0, 16)
         : '',
@@ -105,7 +105,7 @@ export default function StudentOverridesPanel({ assessmentUuid }: StudentOverrid
           note: form.note || undefined,
         };
 
-        if (editingId != null) {
+        if (editingId !== null) {
           await updateStudentPolicyOverride(assessmentUuid, editingId, payload);
           toast.success(t('toasts.updated'));
         } else {
@@ -144,26 +144,28 @@ export default function StudentOverridesPanel({ assessmentUuid }: StudentOverrid
           open={dialogOpen}
           onOpenChange={setDialogOpen}
         >
-          <DialogTrigger asChild>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={openCreate}
-            >
+          <DialogTrigger
+            render={
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={openCreate}
+              />
+            }
+          >
               <Plus className="size-4" />
               {t('addOverride')}
-            </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingId != null ? t('editOverride') : t('addOverride')}</DialogTitle>
+              <DialogTitle>{editingId !== null ? t('editOverride') : t('addOverride')}</DialogTitle>
               <DialogDescription>{t('description')}</DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4 py-2">
-              {editingId == null ? (
+              {editingId === null ? (
                 <div className="space-y-1">
-                  <Label htmlFor="override-user-id">{t('student')} (ID)</Label>
+                  <Label htmlFor="override-user-id">{t('student')}</Label>
                   <Input
                     id="override-user-id"
                     type="number"
@@ -227,7 +229,7 @@ export default function StudentOverridesPanel({ assessmentUuid }: StudentOverrid
                 onClick={handleSave}
                 disabled={isPending || !form.user_id}
               >
-                {editingId != null ? t('editOverride') : t('addOverride')}
+                {editingId !== null ? t('editOverride') : t('addOverride')}
               </Button>
             </DialogFooter>
           </DialogContent>

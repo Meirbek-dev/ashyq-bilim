@@ -12,6 +12,7 @@ import NewActivityModal from '@components/Objects/Modals/Activities/Create/NewAc
 import { useActivityMutations } from '@/hooks/mutations/useActivityMutations';
 import { cleanActivityUuid, cleanCourseUuid } from '@/lib/course-management';
 import { useCourse } from '@components/Contexts/CourseContext';
+import { apiFetch } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -96,25 +97,59 @@ const NewActivityButton = (props: NewActivityButtonProps) => {
   };
 
   const createAndOpenActivity = async (kind: 'dynamic' | 'codechallenge') => {
-    const activityPayload =
-      kind === 'dynamic'
-        ? {
-            name: t('quickCreate.dynamicPageName'),
+    if (kind === 'codechallenge') {
+      const toast_loading = toast.loading(tNotify('creatingActivity'));
+      try {
+        const courseId = course.courseStructure.id;
+        const response = await apiFetch('assessments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            kind: 'CODE_CHALLENGE',
+            title: t('quickCreate.codeChallengeName'),
+            description: '',
+            course_id: courseId,
             chapter_id: props.chapterId,
-            activity_type: 'TYPE_DYNAMIC',
-            activity_sub_type: 'SUBTYPE_DYNAMIC_PAGE',
-          }
-        : {
-            name: t('quickCreate.codeChallengeName'),
-            chapter_id: props.chapterId,
-            activity_type: 'TYPE_CODE_CHALLENGE',
-            activity_sub_type: 'SUBTYPE_CODE_GENERAL',
-            published: false,
-            content: {
-              description: '',
-              difficulty: 'medium',
+            grading_type: 'PERCENTAGE',
+            policy: {
+              settings_json: {
+                difficulty: 'MEDIUM',
+                grading_strategy: 'PARTIAL_CREDIT',
+                execution_mode: 'COMPLETE_FEEDBACK',
+                allow_custom_input: true,
+              },
             },
-          };
+          }),
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload.detail?.message || payload.detail || tNotify('uploadFailed'));
+        }
+
+        toast.success(tNotify('activityCreatedSuccess'));
+        setNewActivityModal(false);
+
+        const createdActivityUuid = payload.activity_uuid;
+        if (!createdActivityUuid) return;
+
+        const cleanCourse = cleanCourseUuid(course.courseStructure.course_uuid);
+        const cleanActivity = cleanActivityUuid(createdActivityUuid);
+        router.push(`/dash/courses/${cleanCourse}/activity/${cleanActivity}/studio`);
+      } catch (error: any) {
+        toast.error(error?.message || tNotify('uploadFailed'));
+        throw error;
+      } finally {
+        toast.dismiss(toast_loading);
+      }
+      return;
+    }
+
+    const activityPayload = {
+      name: t('quickCreate.dynamicPageName'),
+      chapter_id: props.chapterId,
+      activity_type: 'TYPE_DYNAMIC',
+      activity_sub_type: 'SUBTYPE_DYNAMIC_PAGE',
+    };
 
     const response = await submitActivity(activityPayload);
     const createdActivityUuid = response?.data?.activity_uuid;
@@ -125,10 +160,7 @@ const NewActivityButton = (props: NewActivityButtonProps) => {
 
     const cleanCourse = cleanCourseUuid(course.courseStructure.course_uuid);
     const cleanActivity = cleanActivityUuid(createdActivityUuid);
-    const destination =
-      kind === 'dynamic'
-        ? `/course/${cleanCourse}/activity/${cleanActivity}/edit`
-        : `/dash/courses/${cleanCourse}/activity/${cleanActivity}/studio`;
+    const destination = `/course/${cleanCourse}/activity/${cleanActivity}/edit`;
 
     router.push(destination);
   };

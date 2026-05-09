@@ -200,6 +200,7 @@ export default function ExamAttemptContent({ courseUuid, vm }: KindAttemptProps)
       onComplete={handleComplete}
       canSaveDraft={vm.canSaveDraft}
       canSubmit={vm.canSubmit}
+      timerExpiresAt={vm.timerExpiresAt}
       latestCompletedSubmission={latestCompletedSubmission}
       historyItems={historyItems as any}
     />
@@ -215,6 +216,7 @@ function ExamTakingContent({
   onComplete,
   canSaveDraft,
   canSubmit,
+  timerExpiresAt,
   latestCompletedSubmission,
   historyItems,
 }: {
@@ -226,6 +228,7 @@ function ExamTakingContent({
   onComplete: () => void | Promise<void>;
   canSaveDraft: boolean;
   canSubmit: boolean;
+  timerExpiresAt: string | null;
   latestCompletedSubmission: ReturnType<typeof useAssessmentSubmission>['submission'];
   historyItems: {
     id: string;
@@ -369,9 +372,9 @@ function ExamTakingContent({
       },
       timer: policy.timeLimitSeconds
         ? {
-            startedAt: attempt.created_at,
+            startedAt: attempt.started_at ?? attempt.created_at,
             timeLimitMinutes: Math.max(1, Math.ceil(policy.timeLimitSeconds / 60)),
-            expiresAt: vm?.timerExpiresAt ?? null,
+            expiresAt: timerExpiresAt,
             onExpire: () => {
               toast.error(t('autoSubmitting', { reason: t('autoSubmittingReason.timeExpired') }));
               void handleSubmit(true);
@@ -422,6 +425,7 @@ function ExamTakingContent({
       canSubmit,
       answeredCount,
       attempt.created_at,
+      attempt.started_at,
       currentIndex,
       handleOpenSubmitConfirmation,
       handleSubmit,
@@ -433,6 +437,7 @@ function ExamTakingContent({
       showRecoveryDialog,
       submissionState,
       t,
+      timerExpiresAt,
     ],
   );
 

@@ -1450,44 +1450,6 @@ async def run_code_item(
         visible_results=visible_results,
     )
 
-    state = _build_attempt_state(assessment, activity, current_user, db_session)
-    active_submission = state["active_submission"]
-    submission_status = (
-        SubmissionStatus(active_submission.status)
-        if active_submission is not None
-        else None
-    )
-    return AssessmentAttemptProjection(
-        assessment_uuid=assessment.assessment_uuid,
-        submission_uuid=active_submission.submission_uuid if active_submission else None,
-        submission_status=submission_status.value if submission_status else None,
-        release_state=_release_state_for_submission(active_submission, db_session),
-        can_edit=bool(state["can_edit"]),
-        can_save_draft=bool(state["can_save_draft"]),
-        can_submit=bool(state["can_submit"]),
-        can_start=bool(state["can_start"]),
-        can_continue=bool(state["can_continue"]),
-        can_view_result=bool(state["can_view_result"]),
-        can_start_revision=bool(state["can_start_revision"]),
-        recommended_action=str(state["recommended_action"]),
-        primary_button_label_key=str(state["primary_button_label_key"]),
-        is_returned_for_revision=submission_status == SubmissionStatus.RETURNED,
-        is_result_visible=_is_result_visible(active_submission, db_session),
-        score=_score_projection_from_submission(active_submission, db_session),
-        disabled_action_reasons=list(state["disabled_action_reasons"]),
-        effective_policy=state["effective_policy"],
-        server_now=state["server_now"],
-        started_at=state["started_at"],
-        timer_started_at=state["timer_started_at"],
-        timer_expires_at=state["timer_expires_at"],
-        available_at=state["available_at"],
-        closes_at=state["closes_at"],
-        due_at=state["due_at"],
-        time_remaining_seconds=state["time_remaining_seconds"],
-        content_version=_content_version(assessment),
-        policy_version=_policy_version(_get_policy_for_assessment(assessment, db_session)),
-    )
-
 
 # ── Readiness ─────────────────────────────────────────────────────────────────
 
@@ -1820,7 +1782,6 @@ def _build_attempt_state(
     has_submitted = latest is not None and active_status != SubmissionStatus.DRAFT
     can_start = not has_draft and not has_submitted and not reasons
     can_continue = has_draft and not reasons
-    can_submit = can_edit
     can_view_result = _is_result_visible(active_submission, db_session)
     can_start_revision = (
         active_status == SubmissionStatus.RETURNED and not reasons
