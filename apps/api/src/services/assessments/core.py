@@ -38,7 +38,6 @@ from src.db.assessments import (
     AssessmentUpdate,
     CodeRunRequest,
     CodeRunResponse,
-    CodeRunTestResult,
     GradingDraftSave,
     ItemGradeEntry,
     ItemKind,
@@ -51,6 +50,7 @@ from src.db.assessments import (
     StudentSubmissionRead,
     TeacherSubmissionRead,
 )
+from src.db.code_execution import CodeRunPurpose, CodeRunStatus
 from src.db.courses.activities import (
     Activity,
     ActivityAssessmentPolicyRead,
@@ -82,6 +82,7 @@ from src.db.uploads import Upload, UploadStatus
 from src.db.users import AnonymousUser, PublicUser, User
 from src.security.rbac import PermissionChecker
 from src.services.assessments.settings import validate_settings
+from src.services.code_execution import get_code_execution_service
 from src.services.courses._utils import _next_activity_order
 from src.services.courses.access import user_has_course_access
 from src.services.grading.assignment_breakdown import build_effective_grading_breakdown
@@ -904,7 +905,7 @@ async def get_assessment_submission(
     if submission is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Отправка не найдена",
+            detail="Submission not found",
         )
 
     result = _build_teacher_submission_read(submission, assessment, db_session)
@@ -1364,67 +1365,59 @@ async def run_code_item(
     # Collect visible test cases
     visible_tests = [t for t in body.tests if t.is_visible]
 
-    # Run against Judge0
-    from src.services.code_challenges import judge0
-
-    run_id = f"run_{ULID()}"
-    try:
-        run_result = await judge0.run_code(
-            language_id=payload.language,
-            source_code=payload.source,
-            test_cases=[
-                {"input": t.input, "expected_output": t.expected_output, "id": t.id}
-                for t in visible_tests
-            ],
-            custom_input=payload.custom_input,
-            time_limit=body.time_limit_seconds,
-            memory_limit=body.memory_limit_mb,
-            idempotency_key=payload.idempotency_key,
-        )
-    except judge0.Judge0DegradedError as exc:
+    service = get_code_execution_service()
+    purpose = CodeRunPurpose.CUSTOM if payload.custom_input is not None else CodeRunPurpose.VISIBLE
+    result = await service.run(
+        db_session=db_session,
+        assessment_uuid=assessment_uuid,
+        item_uuid=item_uuid,
+        user_id=current_user.id,
+        purpose=purpose,
+        language_id=payload.language,
+        source_code=payload.source,
+        test_cases=visible_tests,
+        custom_input=payload.custom_input,
+        idempotency_key=payload.idempotency_key,
+        time_limit_seconds=body.time_limit_seconds,
+        memory_limit_mb=body.memory_limit_mb,
+    )
+    if result.status == CodeRunStatus.DEGRADED:
         logger.warning(
             "ASSESSMENT_SUPPORT_ALERT Judge0 degraded assessment_uuid=%s item_uuid=%s: %s",
             assessment_uuid,
             item_uuid,
-            exc,
+            result.error_message,
         )
         return CodeRunResponse(
-            run_id=run_id,
-            status="DEGRADED",
-            error_message=str(exc),
+            run_id=result.run_uuid,
+            status=result.status.value,
+            error_message=result.error_message,
             is_retryable=True,
         )
-    except Exception:
-        logger.exception(
-            "ASSESSMENT_SUPPORT_ALERT code run failed assessment_uuid=%s item_uuid=%s",
-            assessment_uuid,
-            item_uuid,
-        )
-        raise
 
-    # Persist run in draft metadata
-    draft = db_session.exec(
+    # Persist latest visible/custom run in draft metadata for recovery and diagnostics.
+    if draft := db_session.exec(
         select(Submission).where(
             Submission.activity_id == activity.id,
             Submission.user_id == current_user.id,
             Submission.status == SubmissionStatus.DRAFT,
         )
-    ).first()
-    if draft is not None:
+    ).first():
         from src.db.grading.submissions import CodeRunRecord, merge_submission_metadata
 
         record = CodeRunRecord(
-            run_id=run_id,
+            run_id=result.run_uuid,
             language_id=payload.language,
-            status=run_result.get("status", "DONE"),
-            passed=run_result.get("passed", 0),
-            total=run_result.get("total", len(visible_tests)),
-            score=run_result.get("score"),
-            stdout=run_result.get("stdout"),
-            stderr=run_result.get("stderr"),
-            time=run_result.get("time"),
-            memory=run_result.get("memory"),
-            details=run_result.get("details", []),
+            status=result.status.value,
+            passed=result.passed,
+            total=result.total,
+            score=result.score,
+            stdout=result.stdout,
+            stderr=result.stderr,
+            compile_output=result.compile_output,
+            time=result.time,
+            memory=result.memory,
+            details=result.grading_details(),
             created_at=datetime.now(UTC),
         )
         draft.metadata_json = merge_submission_metadata(
@@ -1434,32 +1427,59 @@ async def run_code_item(
         db_session.add(draft)
         db_session.commit()
 
-    visible_results = [
-        CodeRunTestResult(
-            test_id=t.id,
-            passed=r.get("passed", False),
-            stdin=t.input,
-            expected=t.expected_output,
-            actual=r.get("actual"),
-            is_visible=True,
-            time=r.get("time"),
-            memory=r.get("memory"),
-        )
-        for t, r in zip(visible_tests, run_result.get("details", []), strict=False)
-    ]
-
     return CodeRunResponse(
-        run_id=run_id,
-        status=str(run_result.get("status", "DONE")),
-        passed=int(run_result.get("passed", 0)),
-        total=int(run_result.get("total", len(visible_tests))),
-        score=run_result.get("score"),
-        stdout=run_result.get("stdout"),
-        stderr=run_result.get("stderr"),
-        compile_output=run_result.get("compile_output"),
-        time=run_result.get("time"),
-        memory=run_result.get("memory"),
-        visible_results=visible_results,
+        run_id=result.run_uuid,
+        status=result.status.value,
+        passed=result.passed,
+        total=result.total,
+        score=result.score,
+        stdout=result.stdout,
+        stderr=result.stderr,
+        compile_output=result.compile_output,
+        time=result.time,
+        memory=result.memory,
+        visible_results=result.visible_response_results(),
+    )
+
+
+async def get_code_item_run(
+    assessment_uuid: str,
+    item_uuid: str,
+    run_uuid: str,
+    current_user: PublicUser,
+    db_session: Session,
+) -> CodeRunResponse:
+    assessment = _get_assessment_by_uuid_or_404(assessment_uuid, db_session)
+    activity, course = _get_activity_and_course(assessment, db_session)
+    _require_submit_access(current_user, activity, course, db_session)
+    item = _get_item_or_404(assessment, item_uuid, db_session)
+    if item.kind != ItemKind.CODE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This endpoint is only available for CODE items",
+        )
+    result = get_code_execution_service().get_run(
+        db_session=db_session,
+        run_uuid=run_uuid,
+        user_id=current_user.id,
+        item_uuid=item_uuid,
+    )
+    if result is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Code run not found")
+    return CodeRunResponse(
+        run_id=result.run_uuid,
+        status=result.status.value,
+        passed=result.passed,
+        total=result.total,
+        score=result.score,
+        stdout=result.stdout,
+        stderr=result.stderr,
+        compile_output=result.compile_output,
+        time=result.time,
+        memory=result.memory,
+        visible_results=result.visible_response_results(),
+        error_message=result.error_message,
+        is_retryable=result.status == CodeRunStatus.DEGRADED,
     )
 
 
@@ -2045,7 +2065,7 @@ def _get_assessment_submission_or_404(
     if submission is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Отправка не найдена",
+            detail="Submission not found",
         )
     return submission
 

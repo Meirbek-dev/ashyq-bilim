@@ -1,10 +1,4 @@
-"""
-Code-challenge grading logic.
-
-Routes test-case results through a strategy pattern. Imported from the
-existing code_challenges grading logic and re-exported through the unified
-grading interface.
-"""
+"""Canonical code-challenge grading logic."""
 
 from typing import Any
 

@@ -52,7 +52,7 @@ export default function CodeChallengeActivity({ activity }: CodeChallengeActivit
     activity?.content?.starter_code ||
     '';
 
-  const initialLanguageId = primaryLanguageId || 71; // Default to Python
+  const initialLanguageId = primaryLanguageId ?? 0;
 
   if (isLoading) {
     return (

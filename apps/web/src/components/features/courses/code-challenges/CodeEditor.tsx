@@ -3,16 +3,13 @@
 import { useCallback, useMemo, useRef } from 'react';
 import type { OnChange, OnMount } from '@monaco-editor/react';
 import { loader } from '@monaco-editor/react';
+import * as monaco from 'monaco-editor';
 import dynamic from 'next/dynamic';
 
 import { useTheme } from '@/components/providers/theme-provider';
 import { cn } from '@/lib/utils';
 
-loader.config({
-  paths: {
-    vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs',
-  },
-});
+loader.config({ monaco });
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then((mod) => mod.Editor), { ssr: false });
 
@@ -22,32 +19,15 @@ export interface Language {
   monacoLanguage?: string;
 }
 
-// Map Judge0 language IDs to Monaco language identifiers
-const JUDGE0_TO_MONACO: Record<number, string> = {
-  71: 'python', // Python (3.8.1)
-  50: 'c', // C (GCC 9.2.0)
-  54: 'cpp', // C++ (GCC 9.2.0)
-  51: 'csharp', // C# (Mono 6.6.0.161)
-  62: 'java', // Java (OpenJDK 13.0.1)
-  63: 'javascript', // JavaScript (Node.js 12.14.0)
-  73: 'rust', // Rust (1.40.0)
-  82: 'sql', // SQL (SQLite 3.27.2)
-  74: 'typescript', // TypeScript (3.7.4)
-  // 60: 'go', // Go (1.13.5)
-  // 78: 'kotlin', // Kotlin (1.3.70)
-  68: 'php', // PHP (7.4.1)
-  83: 'swift', // Swift (5.2.3)
-};
-
-function getMonacoLanguage(languageId: number): string {
-  // Default to Python if the language ID is unknown to provide a sensible default
-  return JUDGE0_TO_MONACO[languageId] || 'python';
+function getMonacoLanguage(_languageId: number): string {
+  return 'plaintext';
 }
 
 interface CodeEditorProps {
   value: string;
   onChange: (value: string) => void;
   languageId: number;
+  monacoLanguage?: string;
   readOnly?: boolean;
   height?: string | number;
   className?: string;
@@ -62,6 +42,7 @@ export function CodeEditor({
   value,
   onChange,
   languageId,
+  monacoLanguage,
   readOnly = false,
   height = '400px',
   className,
@@ -122,7 +103,7 @@ export function CodeEditor({
       ) : null}
       <MonacoEditor
         height={height}
-        language={getMonacoLanguage(languageId)}
+        language={monacoLanguage ?? getMonacoLanguage(languageId)}
         value={value}
         onChange={handleChange}
         onMount={handleMount}

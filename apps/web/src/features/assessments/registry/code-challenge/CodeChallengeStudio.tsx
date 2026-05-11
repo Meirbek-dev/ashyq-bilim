@@ -55,7 +55,7 @@ interface CodeChallengeStudioProps {
 
 const DEFAULT_VALUES: CodeChallengeSettingsForm = {
   difficulty: 'EASY',
-  allowed_languages: [71],
+  allowed_languages: [],
   time_limit: 2,
   memory_limit: 256,
   grading_strategy: 'PARTIAL_CREDIT',
@@ -82,7 +82,7 @@ export default function CodeChallengeStudio({ activityUuid }: CodeChallengeStudi
       ...settings,
       allowed_languages: settings.allowed_languages?.length
         ? settings.allowed_languages
-        : DEFAULT_VALUES.allowed_languages,
+        : [],
       visible_tests: normalizeTests(settings.visible_tests, true, DEFAULT_VALUES.visible_tests),
       hidden_tests: normalizeTests(settings.hidden_tests, false, []),
       hints: (settings.hints ?? []).map((hint, index) => ({

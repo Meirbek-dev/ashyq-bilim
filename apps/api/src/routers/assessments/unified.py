@@ -55,6 +55,7 @@ from src.services.assessments.core import (
     get_assessment_submission_stats,
     get_assessment_submissions,
     get_attempt_state,
+    get_code_item_run,
     get_my_assessment_draft,
     get_my_assessment_submissions,
     get_policy_preset,
@@ -394,6 +395,23 @@ async def api_run_code_item(
     """Run student code against visible test cases (does not affect grade)."""
     return await run_code_item(
         assessment_uuid, item_uuid, payload, current_user, db_session
+    )
+
+
+@router.get(
+    "/{assessment_uuid}/items/{item_uuid}/runs/{run_uuid}",
+    response_model=CodeRunResponse,
+)
+async def api_get_code_item_run(
+    assessment_uuid: str,
+    item_uuid: str,
+    run_uuid: str,
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
+    db_session: Annotated[Session, Depends(get_db_session)],
+) -> CodeRunResponse:
+    """Fetch a previously-created student-safe code run."""
+    return await get_code_item_run(
+        assessment_uuid, item_uuid, run_uuid, current_user, db_session
     )
 
 

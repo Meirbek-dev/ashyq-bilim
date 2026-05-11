@@ -6,17 +6,18 @@ import { useTranslations } from 'next-intl';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { JUDGE0_LANGUAGES } from '@/components/features/courses/code-challenges/LanguageSelector';
+import { CodeEditor } from '@/components/features/courses/code-challenges/CodeEditor';
+import { useJudge0Languages } from '@/features/assessments/hooks/code-challenge';
 import type { CodeChallengeSettingsForm } from './CodeChallengeStudio';
 
 export default function StarterCodeTabs() {
   const t = useTranslations('Activities.CodeChallenges.form');
   const form = useFormContext<CodeChallengeSettingsForm>();
+  const { data: judge0Languages = [] } = useJudge0Languages();
   const watchedLanguages = useWatch({ control: form.control, name: 'allowed_languages' });
   const languages = useMemo(
-    () => (watchedLanguages ?? []).map((id) => JUDGE0_LANGUAGES.find((language) => language.id === id)).filter(Boolean),
-    [watchedLanguages],
+    () => (watchedLanguages ?? []).map((id) => judge0Languages.find((language) => language.id === id)).filter(Boolean),
+    [judge0Languages, watchedLanguages],
   );
 
   if (!languages.length) return null;
@@ -48,11 +49,13 @@ export default function StarterCodeTabs() {
                 control={form.control}
                 name={`starter_code.${language!.id}`}
                 render={({ field }) => (
-                  <Textarea
+                  <CodeEditor
                     value={field.value ?? ''}
                     onChange={field.onChange}
-                    className="min-h-48 font-mono text-sm"
-                    placeholder={t('starterCodePlaceholder', { language: language!.name })}
+                    languageId={language!.id}
+                    monacoLanguage={language!.monaco_language}
+                    height={260}
+                    options={{ minimap: { enabled: false } }}
                   />
                 )}
               />

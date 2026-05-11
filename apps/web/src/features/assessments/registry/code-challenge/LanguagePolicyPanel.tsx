@@ -10,12 +10,13 @@ import { Field, FieldDescription, FieldLabel } from '@/components/ui/field';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { JUDGE0_LANGUAGES } from '@/components/features/courses/code-challenges/LanguageSelector';
+import { useJudge0Languages } from '@/features/assessments/hooks/code-challenge';
 import type { CodeChallengeSettingsForm } from './CodeChallengeStudio';
 
 export default function LanguagePolicyPanel() {
   const t = useTranslations('Activities.CodeChallenges');
   const form = useFormContext<CodeChallengeSettingsForm>();
+  const { data: judge0Languages = [] } = useJudge0Languages();
 
   return (
     <Card>
@@ -31,7 +32,7 @@ export default function LanguagePolicyPanel() {
             <Field>
               <FieldLabel>{t('allowedLanguages')}</FieldLabel>
               <ComboboxMultiple<{ id: number; name: string }>
-                options={JUDGE0_LANGUAGES}
+                options={judge0Languages}
                 value={field.value}
                 onChange={(values) => field.onChange(values.map(Number))}
                 getOptionValue={(option) => option.id}
@@ -45,7 +46,7 @@ export default function LanguagePolicyPanel() {
                   type="button"
                   size="sm"
                   variant="outline"
-                  onClick={() => field.onChange(JUDGE0_LANGUAGES.map((l) => l.id))}
+                  onClick={() => field.onChange(judge0Languages.map((l) => l.id))}
                 >
                   {t('selectAll')}
                 </Button>

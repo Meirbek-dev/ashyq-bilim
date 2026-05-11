@@ -18,7 +18,13 @@ from sqlmodel import Session, select
 from ulid import ULID
 
 import src.services.integrations.plagiarism
-from src.db.assessments import ITEM_ANSWER_ADAPTER
+from src.db.assessments import (
+    ITEM_ANSWER_ADAPTER,
+    Assessment,
+    CodeItemAnswer,
+    CodeRunResult,
+)
+from src.db.code_execution import CodeRunPurpose, CodeRunStatus
 from src.db.courses.activities import Activity
 from src.db.gamification import XPSource
 from src.db.grading.entries import GradingEntry
@@ -36,6 +42,7 @@ from src.db.grading.submissions import (
 )
 from src.db.users import PublicUser
 from src.security.rbac import PermissionChecker
+from src.services.code_execution import get_code_execution_service
 from src.services.gamification.service import award_xp as _gamification_award_xp
 from src.services.grading.assignment_breakdown import build_effective_grading_breakdown
 from src.services.grading.grader import grade_submission
@@ -186,6 +193,16 @@ async def submit_assessment(
         test_results,
         code_strategy,
     ) = _parse_answers(assessment_type, answers_payload)
+
+    if assessment_type == AssessmentType.CODE_CHALLENGE:
+        answers_by_item_uuid, answers_payload = await _run_final_code_answers(
+            db_session=db_session,
+            settings=settings,
+            answers_by_item_uuid=answers_by_item_uuid,
+            answers_payload=answers_payload,
+            current_user=current_user,
+            draft=draft,
+        )
 
     result = grade_submission(
         assessment_type=assessment_type,
@@ -443,10 +460,120 @@ def _parse_answers(
             exam_answers = {int(k): v for k, v in raw.items() if str(k).isdigit()}
 
     elif assessment_type == AssessmentType.CODE_CHALLENGE:
-        test_results = answers_payload.get("test_results", [])
         code_strategy = answers_payload.get("code_strategy", "BEST_SUBMISSION")
+        if not answers_by_item_uuid:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Code challenge submissions must use canonical CODE answers",
+            )
 
     return answers_by_item_uuid, user_answers, exam_answers, test_results, code_strategy
+
+
+async def _run_final_code_answers(
+    *,
+    db_session: Session,
+    settings: AssessmentSettings,
+    answers_by_item_uuid: dict[str, Any],
+    answers_payload: dict,
+    current_user: PublicUser,
+    draft: Submission,
+) -> tuple[dict[str, Any], dict]:
+    """Run final Judge0 grading for canonical CODE answers server-side."""
+
+    code_items = [item for item in settings.items if item.body.kind == "CODE"]
+    if not code_items:
+        return answers_by_item_uuid, answers_payload
+
+    service = get_code_execution_service()
+    assessment = db_session.exec(
+        select(Assessment).where(Assessment.activity_id == draft.activity_id)
+    ).first()
+    assessment_uuid = (
+        assessment.assessment_uuid if assessment is not None else f"activity_{draft.activity_id}"
+    )
+    enriched_answers = dict(answers_by_item_uuid)
+    for item in code_items:
+        raw_answer = answers_by_item_uuid.get(item.item_uuid)
+        answer = _coerce_code_answer(raw_answer)
+        if answer is None:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=f"Missing CODE answer for item {item.item_uuid}",
+            )
+        if item.body.languages and answer.language not in item.body.languages:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "code": "LANGUAGE_NOT_ALLOWED",
+                    "message": f"Language {answer.language} is not allowed for this code challenge.",
+                    "allowed_languages": item.body.languages,
+                },
+            )
+
+        result = await service.run(
+            db_session=db_session,
+            assessment_uuid=assessment_uuid,
+            item_uuid=item.item_uuid,
+            submission_uuid=draft.submission_uuid,
+            user_id=current_user.id,
+            purpose=CodeRunPurpose.FINAL,
+            language_id=answer.language,
+            source_code=answer.source,
+            test_cases=item.body.tests,
+            idempotency_key=f"final:{draft.submission_uuid}:{item.item_uuid}:{answer.language}",
+            time_limit_seconds=item.body.time_limit_seconds,
+            memory_limit_mb=item.body.memory_limit_mb,
+        )
+        if result.status == CodeRunStatus.DEGRADED:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail={
+                    "code": "CODE_RUNNER_DEGRADED",
+                    "message": result.error_message
+                    or "Code runner is temporarily unavailable. Retry without losing your draft.",
+                    "is_retryable": True,
+                },
+            )
+
+        enriched_answers[item.item_uuid] = CodeItemAnswer(
+            kind="CODE",
+            language=answer.language,
+            source=answer.source,
+            latest_run=CodeRunResult(
+                passed=result.passed,
+                total=result.total,
+                score=result.score,
+                details=result.grading_details(),
+            ),
+        )
+
+    return enriched_answers, _replace_payload_answers(answers_payload, enriched_answers)
+
+
+def _coerce_code_answer(raw_answer: Any) -> CodeItemAnswer | None:
+    if isinstance(raw_answer, CodeItemAnswer):
+        return raw_answer
+    if isinstance(raw_answer, dict):
+        try:
+            return CodeItemAnswer.model_validate(raw_answer)
+        except Exception:
+            return None
+    return None
+
+
+def _replace_payload_answers(answers_payload: dict, answers_by_item_uuid: dict[str, Any]) -> dict:
+    next_payload = dict(answers_payload)
+    next_payload["answers"] = [
+        {
+            "item_uuid": item_uuid,
+            "answer": answer.model_dump(mode="json")
+            if hasattr(answer, "model_dump")
+            else answer,
+        }
+        for item_uuid, answer in answers_by_item_uuid.items()
+    ]
+    return next_payload
 
 
 def _extract_canonical_answers(answers_payload: object) -> dict[str, Any]:

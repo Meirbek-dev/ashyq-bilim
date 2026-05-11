@@ -21,6 +21,8 @@ async function PlatformAnalyticsAtRiskPageInner(props: {
 
   try {
     const risk = await getAtRiskLearners(query);
+    const courseOptions = risk.course_options ?? [];
+    const cohortOptions = risk.cohort_options ?? [];
     const totalPages = Math.max(1, Math.ceil(risk.total / risk.page_size));
     const params = new URLSearchParams();
     if (query.window) params.set('window', query.window);
@@ -39,9 +41,9 @@ async function PlatformAnalyticsAtRiskPageInner(props: {
             <TeacherFilterBar
               path="/dash/analytics/learners/at-risk"
               query={query}
-              courseCount={risk.course_options.length}
-              courseOptions={risk.course_options}
-              cohortOptions={risk.cohort_options}
+              courseCount={courseOptions.length}
+              courseOptions={courseOptions}
+              cohortOptions={cohortOptions}
             />
           </CardContent>
         </Card>

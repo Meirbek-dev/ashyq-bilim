@@ -12,6 +12,8 @@ import { cn } from '@/lib/utils';
 export interface Language {
   id: number;
   name: string;
+  monaco_language?: string;
+  is_archived?: boolean;
 }
 
 interface LanguageSelectorProps {
@@ -22,24 +24,6 @@ interface LanguageSelectorProps {
   disabled?: boolean;
   className?: string;
 }
-
-// Export a canonical list of Judge0 languages for consumers that expect it
-// Python is the canonical default language and is intentionally placed first
-export const JUDGE0_LANGUAGES: Language[] = [
-  { id: 71, name: 'Python (3.8.1)' },
-  { id: 50, name: 'C (GCC 9.2.0)' },
-  { id: 54, name: 'C++ (GCC 9.2.0)' },
-  { id: 51, name: 'C# (Mono 6.6.0.161)' },
-  // { id: 60, name: 'Go (1.13.5)' },
-  { id: 62, name: 'Java (OpenJDK 13.0.1)' },
-  { id: 63, name: 'JavaScript (Node.js 12.14.0)' },
-  // { id: 78, name: 'Kotlin (1.3.70)' },
-  { id: 68, name: 'PHP (7.4.1)' },
-  { id: 73, name: 'Rust (1.40.0)' },
-  { id: 82, name: 'SQL (SQLite 3.27.2)' },
-  { id: 83, name: 'Swift (5.2.3)' },
-  { id: 74, name: 'TypeScript (3.7.4)' },
-];
 
 export function LanguageSelector({
   languages,
@@ -53,10 +37,11 @@ export function LanguageSelector({
 
   // Filter languages if allowedLanguages is specified
   const availableLanguages = useMemo(() => {
+    const activeLanguages = languages.filter((language) => language.is_archived !== true);
     if (!allowedLanguages || allowedLanguages.length === 0) {
-      return languages;
+      return activeLanguages;
     }
-    return languages.filter((lang) => allowedLanguages.includes(lang.id));
+    return activeLanguages.filter((lang) => allowedLanguages.includes(lang.id));
   }, [languages, allowedLanguages]);
 
   // Sort languages alphabetically

@@ -118,7 +118,13 @@ export default function AtRiskLearnersTable({
       header: t('atRisk.colRisk'),
       cell: ({ row }) => {
         const riskRow = row.original as EnhancedAtRiskLearnerRow;
-        const c = riskRow.risk_components;
+        const c = riskRow.risk_components ?? {
+          inactivity: 0,
+          progress: 0,
+          failures: 0,
+          missing: 0,
+          grading: 0,
+        };
         return (
           <div className="space-y-1">
             <Badge variant={riskVariant(riskRow.risk_level)}>

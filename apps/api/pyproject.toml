@@ -24,6 +24,7 @@ dependencies = [
   "fastapi-users[sqlalchemy]>=15.0.5",
   "cachebox>=5.2.3",
   "tokenizers>=0.23.1",
+  "judge0>=0.0.8",
 ]
 
 [dependency-groups]

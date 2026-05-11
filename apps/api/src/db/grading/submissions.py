@@ -36,6 +36,7 @@ class CodeRunRecord(PydanticStrictBaseModel):
     score: float | None = None
     stdout: str | None = None
     stderr: str | None = None
+    compile_output: str | None = None
     time: float | None = None
     memory: int | None = None
     details: list[dict] = Field(default_factory=list)

@@ -5,6 +5,7 @@ from src.db.users import UserCreate, UserRead
 from src.routers import (
     analytics,
     auth,
+    code_execution,
     dev,
     gamification,
     health,
@@ -88,6 +89,11 @@ v1_router.include_router(
     tags=["gamification"],
 )
 v1_router.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
+v1_router.include_router(
+    code_execution.router,
+    prefix="/code-execution",
+    tags=["code-execution"],
+)
 
 # Unified grading system (replaces fragmented assignment/quiz grading)
 v1_router.include_router(grading_submit_router, prefix="/grading", tags=["grading"])

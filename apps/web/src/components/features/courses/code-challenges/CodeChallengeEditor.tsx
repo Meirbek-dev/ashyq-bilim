@@ -1,11 +1,12 @@
 'use client';
 
 import { History, Loader2, Play, Send, Terminal } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   useCodeChallengeSubmission,
   useCodeChallengeSubmissions,
+  useJudge0Languages,
   useRunCodeChallengeTests,
   useRunCustomTest,
   useSubmitCodeChallenge,
@@ -24,7 +25,7 @@ import { toast } from 'sonner';
 import AttemptHistoryList from '@/features/assessments/shared/AttemptHistoryList';
 import type { ItemAnswer } from '@/features/assessments/domain/items';
 import type { SubmissionStatus } from '@/features/grading/domain';
-import { JUDGE0_LANGUAGES, LanguageSelector } from './LanguageSelector';
+import { LanguageSelector } from './LanguageSelector';
 import type { TestCaseResult } from './TestCaseCard';
 import { TestResultsList } from './TestCaseCard';
 import { CodeEditor } from './CodeEditor';
@@ -116,11 +117,13 @@ export function CodeChallengeEditor({
   onSubmissionComplete,
 }: CodeChallengeEditorProps) {
   const t = useTranslations('Activities.CodeChallenges');
+  const initialSelectedLanguageId = answer?.language ?? initialLanguageId ?? settings?.allowed_languages?.[0] ?? 0;
   // State
   const [code, setCode] = useState(answer?.source ?? initialCode);
-  const [selectedLanguageId, setSelectedLanguageId] = useState(
-    answer?.language ?? initialLanguageId ?? settings?.allowed_languages?.[0] ?? 71, // Default to Python
+  const [codeByLanguage, setCodeByLanguage] = useState<Record<number, string>>(() =>
+    initialSelectedLanguageId > 0 ? { [initialSelectedLanguageId]: answer?.source ?? initialCode } : {},
   );
+  const [selectedLanguageId, setSelectedLanguageId] = useState(initialSelectedLanguageId);
   const [customInput, setCustomInput] = useState('');
   const [customOutput, setCustomOutput] = useState('');
   const [testResults, setTestResults] = useState<TestCaseResult[] | null>(null);
@@ -130,7 +133,13 @@ export function CodeChallengeEditor({
   const runCustomTestMutation = useRunCustomTest(activityUuid);
   const runCodeChallengeTestsMutation = useRunCodeChallengeTests(activityUuid);
   const submitCodeChallengeMutation = useSubmitCodeChallenge(activityUuid);
+  const { data: judge0Languages = [] } = useJudge0Languages();
   const isRunning = runCustomTestMutation.isPending || runCodeChallengeTestsMutation.isPending;
+  const availableLanguages = useMemo(() => {
+    const allowed = settings?.allowed_languages ?? [];
+    return allowed.length > 0 ? judge0Languages.filter((language) => allowed.includes(language.id)) : judge0Languages;
+  }, [judge0Languages, settings?.allowed_languages]);
+  const selectedLanguage = availableLanguages.find((language) => language.id === selectedLanguageId);
 
   // Fetch submissions history
   const { data: submissionsData, refetch: refreshSubmissions } = useCodeChallengeSubmissions(activityUuid);
@@ -145,14 +154,22 @@ export function CodeChallengeEditor({
   useEffect(() => {
     if (answer?.source !== undefined && answer.source !== code) {
       setCode(answer.source);
+      if (answer.language > 0) {
+        setCodeByLanguage((current) => ({ ...current, [answer.language]: answer.source }));
+      }
     }
-  }, [answer?.source, code]);
+  }, [answer?.language, answer?.source, code]);
 
   useEffect(() => {
     if (answer?.language !== undefined && answer.language !== selectedLanguageId) {
       setSelectedLanguageId(answer.language);
     }
   }, [answer?.language, selectedLanguageId]);
+
+  useEffect(() => {
+    if (selectedLanguageId !== 0 || availableLanguages.length === 0) return;
+    setSelectedLanguageId(availableLanguages[0]!.id);
+  }, [availableLanguages, selectedLanguageId]);
 
   // Handle submission completion
   useEffect(() => {
@@ -180,6 +197,7 @@ export function CodeChallengeEditor({
       const starterCode = settings.starter_code[selectedLanguageId.toString()];
       if (starterCode) {
         setCode(starterCode);
+        setCodeByLanguage((current) => ({ ...current, [selectedLanguageId]: starterCode }));
         onAnswerChange?.({
           kind: 'CODE',
           language: selectedLanguageId,
@@ -193,6 +211,7 @@ export function CodeChallengeEditor({
   const updateCode = useCallback(
     (nextCode: string) => {
       setCode(nextCode);
+      setCodeByLanguage((current) => ({ ...current, [selectedLanguageId]: nextCode }));
       onAnswerChange?.({
         kind: 'CODE',
         language: selectedLanguageId,
@@ -205,15 +224,18 @@ export function CodeChallengeEditor({
 
   const updateLanguage = useCallback(
     (nextLanguageId: number) => {
+      const nextSource =
+        codeByLanguage[nextLanguageId] ?? settings?.starter_code?.[String(nextLanguageId)] ?? '';
       setSelectedLanguageId(nextLanguageId);
+      setCode(nextSource);
       onAnswerChange?.({
         kind: 'CODE',
         language: nextLanguageId,
-        source: code,
+        source: nextSource,
         latest_run: answer?.latest_run,
       });
     },
-    [answer?.latest_run, code, onAnswerChange],
+    [answer?.latest_run, codeByLanguage, onAnswerChange, settings?.starter_code],
   );
 
   // Run custom test
@@ -228,9 +250,9 @@ export function CodeChallengeEditor({
 
     try {
       const result = await runCustomTestMutation.mutateAsync({
-        sourceCode: btoa(code),
+        sourceCode: code,
         languageId: selectedLanguageId,
-        stdin: btoa(customInput),
+        stdin: customInput,
       });
       setCustomOutput(result.compile_output || result.stderr || result.stdout || t('noOutput'));
     } catch (error) {
@@ -251,7 +273,7 @@ export function CodeChallengeEditor({
 
     try {
       const result = await runCodeChallengeTestsMutation.mutateAsync({
-        sourceCode: btoa(code),
+        sourceCode: code,
         languageId: selectedLanguageId,
       });
       setTestResults(result.results);
@@ -279,7 +301,7 @@ export function CodeChallengeEditor({
       }
 
       const submission = await submitCodeChallengeMutation.mutateAsync({
-        sourceCode: btoa(code),
+        sourceCode: code,
         languageId: selectedLanguageId,
       });
       const nextSubmissionId =
@@ -296,17 +318,17 @@ export function CodeChallengeEditor({
 
   useEffect(() => {
     onSubmitControlChange?.({
-      canSubmit: !disabled && Boolean(code.trim()) && !isRunning && !isSubmitting,
+      canSubmit: !disabled && selectedLanguageId > 0 && Boolean(code.trim()) && !isRunning && !isSubmitting,
       isSubmitting,
       submit: handleSubmit,
     });
 
     return () => onSubmitControlChange?.(null);
-  }, [code, disabled, handleSubmit, isRunning, isSubmitting, onSubmitControlChange]);
+  }, [code, disabled, handleSubmit, isRunning, isSubmitting, onSubmitControlChange, selectedLanguageId]);
 
   // Get language name from ID
   const getLanguageName = (languageId: number): string => {
-    const lang = JUDGE0_LANGUAGES.find((l) => l.id === languageId);
+    const lang = judge0Languages.find((l) => l.id === languageId);
     return lang?.name ?? `Language ${languageId}`;
   };
 
@@ -324,7 +346,7 @@ export function CodeChallengeEditor({
           </div>
           <div className="flex items-center gap-2">
             <LanguageSelector
-              languages={JUDGE0_LANGUAGES}
+              languages={availableLanguages}
               selectedId={selectedLanguageId}
               onSelect={updateLanguage}
               allowedLanguages={settings?.allowed_languages}
@@ -335,7 +357,7 @@ export function CodeChallengeEditor({
       ) : (
         <div className="flex items-center justify-end border-b p-3">
           <LanguageSelector
-            languages={JUDGE0_LANGUAGES}
+            languages={availableLanguages}
             selectedId={selectedLanguageId}
             onSelect={updateLanguage}
             allowedLanguages={settings?.allowed_languages}
@@ -359,6 +381,7 @@ export function CodeChallengeEditor({
               value={code}
               onChange={updateCode}
               languageId={selectedLanguageId}
+              monacoLanguage={selectedLanguage?.monaco_language}
               readOnly={disabled}
               readOnlyMessage={disabled ? t('editorReadOnly') : undefined}
               className="flex-1"
@@ -371,7 +394,7 @@ export function CodeChallengeEditor({
                   variant="outline"
                   size="sm"
                   onClick={handleRunTest}
-                  disabled={disabled || isRunning || isSubmitting}
+                  disabled={disabled || selectedLanguageId <= 0 || isRunning || isSubmitting}
                 >
                   {isRunning ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -384,7 +407,7 @@ export function CodeChallengeEditor({
                   variant="outline"
                   size="sm"
                   onClick={handleTestAgainstSamples}
-                  disabled={disabled || isRunning || isSubmitting || visibleTestCases.length === 0}
+                  disabled={disabled || selectedLanguageId <= 0 || isRunning || isSubmitting || visibleTestCases.length === 0}
                 >
                   <Play className="mr-2 h-4 w-4" />
                   {t('runTests')}
@@ -394,7 +417,7 @@ export function CodeChallengeEditor({
                 <Button
                   size="sm"
                   onClick={handleSubmit}
-                  disabled={disabled || isRunning || isSubmitting}
+                  disabled={disabled || selectedLanguageId <= 0 || isRunning || isSubmitting}
                 >
                   {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                   {t('submit')}

@@ -21,6 +21,8 @@ async function PlatformAnalyticsAssessmentsPageInner(props: {
 
   try {
     const assessments = await getTeacherAssessmentList(query);
+    const courseOptions = assessments.course_options ?? [];
+    const cohortOptions = assessments.cohort_options ?? [];
     const totalPages = Math.max(1, Math.ceil(assessments.total / assessments.page_size));
     const params = new URLSearchParams();
     if (query.window) params.set('window', query.window);
@@ -43,9 +45,9 @@ async function PlatformAnalyticsAssessmentsPageInner(props: {
             <TeacherFilterBar
               path="/dash/analytics/assessments"
               query={query}
-              courseCount={assessments.course_options.length}
-              courseOptions={assessments.course_options}
-              cohortOptions={assessments.cohort_options}
+              courseCount={courseOptions.length}
+              courseOptions={courseOptions}
+              cohortOptions={cohortOptions}
             />
             <div
               className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300"

@@ -424,6 +424,21 @@ class Judge0Config(PlatformSectionSettings):
         default="http://judge0-server:2358",
         validation_alias="JUDGE0_URL",
     )
+    api_key: str | None = Field(default=None, validation_alias="JUDGE0_API_KEY")
+    request_timeout_seconds: float = Field(
+        default=30.0,
+        validation_alias="JUDGE0_REQUEST_TIMEOUT_SECONDS",
+    )
+    poll_interval_seconds: float = Field(
+        default=0.5,
+        validation_alias="JUDGE0_POLL_INTERVAL_SECONDS",
+    )
+    poll_max_wait_seconds: float = Field(
+        default=30.0,
+        validation_alias="JUDGE0_POLL_MAX_WAIT_SECONDS",
+    )
+    max_source_bytes: int = Field(default=200_000, validation_alias="JUDGE0_MAX_SOURCE_BYTES")
+    max_stdin_bytes: int = Field(default=50_000, validation_alias="JUDGE0_MAX_STDIN_BYTES")
 
     @field_validator("base_url", mode="before")
     @classmethod
@@ -436,6 +451,11 @@ class Judge0Config(PlatformSectionSettings):
             raise ValueError("JUDGE0_URL must not be empty")
 
         return stripped.rstrip("/")
+
+    @field_validator("api_key", mode="before")
+    @classmethod
+    def normalize_api_key(cls, value: str | None) -> str | None:
+        return _strip_optional_string(value)
 
 
 class PlatformConfig(PydanticStrictBaseModel):

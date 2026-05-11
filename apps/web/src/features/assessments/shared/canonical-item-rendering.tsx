@@ -217,7 +217,7 @@ export function CanonicalAttemptItem({
     const currentAnswer =
       answer?.kind === 'CODE'
         ? answer
-        : { kind: 'CODE' as const, language: body.languages[0] ?? 71, source: '', latest_run: undefined };
+        : { kind: 'CODE' as const, language: body.languages[0] ?? 0, source: '', latest_run: undefined };
     return (
       <div className="space-y-4">
         {body.prompt ? <p className="text-sm">{body.prompt}</p> : null}

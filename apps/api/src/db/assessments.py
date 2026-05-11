@@ -104,16 +104,28 @@ class CodeTestCase(PydanticStrictBaseModel):
     is_visible: bool = True
     weight: int = 1
     description: str | None = None
+    match_mode: Literal["EXACT"] = "EXACT"
 
 
 class CodeItemBody(PydanticStrictBaseModel):
     kind: Literal["CODE"] = "CODE"
     prompt: str = ""
+    input_spec: str = ""
+    output_spec: str = ""
+    constraints: list[str] = Field(default_factory=list)
     languages: list[int] = Field(default_factory=list)
     starter_code: dict[str, str] = Field(default_factory=dict)
+    reference_solutions: dict[str, str] = Field(default_factory=dict)
     tests: list[CodeTestCase] = Field(default_factory=list)
     time_limit_seconds: int | None = None
     memory_limit_mb: int | None = None
+    max_output_kb: int | None = None
+    scoring_strategy: Literal[
+        "PARTIAL_CREDIT",
+        "ALL_OR_NOTHING",
+        "BEST_SUBMISSION",
+        "LATEST_SUBMISSION",
+    ] = "PARTIAL_CREDIT"
 
 
 class MatchPair(PydanticStrictBaseModel):
@@ -173,7 +185,7 @@ class CodeRunResult(PydanticStrictBaseModel):
     passed: int = 0
     total: int = 0
     score: float | None = None
-    details: dict[str, object] = Field(default_factory=dict)
+    details: list[dict[str, object]] = Field(default_factory=list)
 
 
 class CodeItemAnswer(PydanticStrictBaseModel):
@@ -452,6 +464,13 @@ class AssessmentReadItem(PydanticStrictBaseModel):
     created_at: datetime
     updated_at: datetime
 
+    @field_validator("kind", mode="before")
+    @classmethod
+    def validate_kind(cls, value: object) -> object:
+        if isinstance(value, str):
+            return ItemKind(value)
+        return value
+
 
 class AssessmentScoreProjection(PydanticStrictBaseModel):
     percent: float | None = None
@@ -469,6 +488,13 @@ class AssessmentEffectivePolicy(PydanticStrictBaseModel):
     grade_release_mode: GradeReleaseMode = GradeReleaseMode.IMMEDIATE
     anti_cheat_json: dict[str, object] = Field(default_factory=dict)
     settings_json: dict[str, object] = Field(default_factory=dict)
+
+    @field_validator("grade_release_mode", mode="before")
+    @classmethod
+    def validate_grade_release_mode(cls, value: object) -> object:
+        if isinstance(value, str):
+            return GradeReleaseMode(value)
+        return value
 
 
 class AttemptStateRead(PydanticStrictBaseModel):
@@ -556,6 +582,13 @@ class AssessmentReviewProjection(PydanticStrictBaseModel):
         )
     )
 
+    @field_validator("kind", mode="before")
+    @classmethod
+    def validate_kind(cls, value: object) -> object:
+        if isinstance(value, str):
+            return AssessmentType(value)
+        return value
+
 
 class AssessmentDetailRead(PydanticStrictBaseModel):
     model_config = ConfigDict(use_enum_values=True)
@@ -585,6 +618,27 @@ class AssessmentDetailRead(PydanticStrictBaseModel):
     policy_version: int = 1
     created_at: datetime
     updated_at: datetime
+
+    @field_validator("kind", mode="before")
+    @classmethod
+    def validate_kind(cls, value: object) -> object:
+        if isinstance(value, str):
+            return AssessmentType(value)
+        return value
+
+    @field_validator("lifecycle", mode="before")
+    @classmethod
+    def validate_lifecycle(cls, value: object) -> object:
+        if isinstance(value, str):
+            return AssessmentLifecycle(value)
+        return value
+
+    @field_validator("grading_type", mode="before")
+    @classmethod
+    def validate_grading_type(cls, value: object) -> object:
+        if isinstance(value, str):
+            return AssessmentGradingType(value)
+        return value
 
 
 class AssessmentRead(AssessmentDetailRead):
@@ -763,7 +817,7 @@ class CodeRunResponse(PydanticStrictBaseModel):
     """Response body for POST /assessments/{uuid}/items/{item_uuid}/runs."""
 
     run_id: str
-    # QUEUED | RUNNING | DONE | COMPILE_ERROR | RUNTIME_ERROR | TIMEOUT | DEGRADED
+    # QUEUED | RUNNING | ACCEPTED | WRONG_ANSWER | COMPILE_ERROR | RUNTIME_ERROR | TIME_LIMIT | DEGRADED
     status: str
     passed: int = 0
     total: int = 0
@@ -777,6 +831,13 @@ class CodeRunResponse(PydanticStrictBaseModel):
     error_message: str | None = None
     # True when the runner is unavailable and the client should retry
     is_retryable: bool = False
+
+
+class Judge0LanguageRead(PydanticStrictBaseModel):
+    id: int
+    name: str
+    monaco_language: str
+    is_archived: bool = False
 
 
 # ── Item-level grading ────────────────────────────────────────────────────────

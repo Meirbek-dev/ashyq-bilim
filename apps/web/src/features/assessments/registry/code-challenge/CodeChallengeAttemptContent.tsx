@@ -114,9 +114,9 @@ export default function CodeChallengeAttemptContent({ activityUuid, vm }: KindAt
   useEffect(() => {
     if (!codeItem || !submissionState.draft || codeAnswer) return;
     submissionState.setItemAnswer(codeItem.item_uuid, {
-      kind: 'CODE',
-      language: primaryLanguageId ?? 71,
-      source: initialCode,
+        kind: 'CODE',
+        language: primaryLanguageId ?? 0,
+        source: initialCode,
     });
   }, [codeAnswer, codeItem, initialCode, primaryLanguageId, submissionState]);
 
@@ -154,7 +154,7 @@ export default function CodeChallengeAttemptContent({ activityUuid, vm }: KindAt
         activityUuid: normalizedActivityUuid,
         settings,
         initialCode: codeAnswer?.source ?? initialCode,
-        initialLanguageId: codeAnswer?.language ?? primaryLanguageId ?? 71,
+        initialLanguageId: codeAnswer?.language ?? primaryLanguageId ?? 0,
         title: vm?.title,
         description: vm?.description ?? undefined,
         onSubmitControlChange: handleSubmitControlChange,

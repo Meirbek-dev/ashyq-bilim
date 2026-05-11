@@ -8,4 +8,5 @@ export {
   useRunCodeChallengeTests,
   useSubmitCodeChallenge,
   useSaveCodeChallengeSettings,
+  useJudge0Languages,
 } from '@/features/assessments/registry/code-challenge/hooks';

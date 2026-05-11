@@ -11,6 +11,7 @@ import {
   codeChallengeSettingsQueryOptions,
   codeChallengeSubmissionQueryOptions,
   codeChallengeSubmissionsQueryOptions,
+  judge0LanguagesQueryOptions,
 } from './queries';
 
 function codeChallengeSettingsHookOptions<TSettings = unknown>(activityUuid: string | null | undefined) {
@@ -46,6 +47,10 @@ function codeChallengeSubmissionHookOptions(
 
 export function useCodeChallengeSettings<TSettings = unknown>(activityUuid: string | null | undefined) {
   return useQuery(codeChallengeSettingsHookOptions<TSettings>(activityUuid));
+}
+
+export function useJudge0Languages() {
+  return useQuery(judge0LanguagesQueryOptions());
 }
 
 export function useCodeChallengeSubmissions(activityUuid: string | null | undefined) {

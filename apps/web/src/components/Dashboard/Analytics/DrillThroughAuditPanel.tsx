@@ -61,7 +61,8 @@ export default function DrillThroughAuditPanel({ query, assessmentPreview }: Dri
     }
   };
 
-  const columns = result?.items[0] ? Object.keys(result.items[0]).slice(0, 6) : [];
+  const resultItems = result?.items ?? [];
+  const columns = resultItems[0] ? Object.keys(resultItems[0]).slice(0, 6) : [];
 
   return (
     <Card className="shadow-sm">
@@ -113,7 +114,7 @@ export default function DrillThroughAuditPanel({ query, assessmentPreview }: Dri
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {result.items.slice(0, 8).map((item, index) => (
+                {resultItems.slice(0, 8).map((item, index) => (
                   <TableRow key={`${result.metric}-${index}`}>
                     {columns.map((column) => (
                       <TableCell
@@ -125,7 +126,7 @@ export default function DrillThroughAuditPanel({ query, assessmentPreview }: Dri
                     ))}
                   </TableRow>
                 ))}
-                {!result.items.length ? (
+                {!resultItems.length ? (
                   <TableRow>
                     <TableCell
                       colSpan={Math.max(columns.length, 1)}

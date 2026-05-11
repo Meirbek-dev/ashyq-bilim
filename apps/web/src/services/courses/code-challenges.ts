@@ -111,6 +111,8 @@ export interface TestCaseResult {
 export interface Judge0Language {
   id: number;
   name: string;
+  monaco_language: string;
+  is_archived: boolean;
 }
 
 interface CodeAssessmentItemBody {
@@ -145,23 +147,16 @@ interface CodeAssessmentRead {
   items?: AssessmentItem[];
 }
 
-function decodeLegacyEditorPayload(value: string) {
-  const normalized = value.trim();
-
-  if (!normalized || normalized.length % 4 !== 0 || !/^[A-Za-z0-9+/=]+$/.test(normalized)) {
-    return value;
-  }
-
-  try {
-    const decoded = atob(normalized);
-    return btoa(decoded) === normalized ? decoded : value;
-  } catch {
-    return value;
-  }
-}
-
 function normalizeActivityUuid(activityUuid: string) {
   return activityUuid.startsWith('activity_') ? activityUuid : `activity_${activityUuid}`;
+}
+
+export async function getJudge0Languages(): Promise<Judge0Language[]> {
+  const response = await apiFetch('code-execution/languages');
+  if (!response.ok) {
+    throw new Error('Failed to fetch code execution languages');
+  }
+  return (await response.json()) as Judge0Language[];
 }
 
 async function loadCodeAssessment(activityUuid: string): Promise<CodeAssessmentRead | null> {
@@ -474,7 +469,7 @@ export async function submitCode(
           answer: {
             kind: 'CODE',
             language: languageId,
-            source: decodeLegacyEditorPayload(sourceCode),
+            source: sourceCode,
           },
         },
       ],
@@ -504,14 +499,13 @@ export async function runTests(
     throw new Error('Code challenge item is not configured');
   }
 
-  const decodedSource = decodeLegacyEditorPayload(sourceCode);
   const response = await apiFetch(`assessments/${assessment.assessment_uuid}/items/${codeItem.item_uuid}/runs`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       language: languageId,
-      source: decodedSource,
-      idempotency_key: codeRunIdempotencyKey(assessment.assessment_uuid, codeItem.item_uuid, languageId, decodedSource),
+      source: sourceCode,
+      idempotency_key: codeRunIdempotencyKey(assessment.assessment_uuid, codeItem.item_uuid, languageId, sourceCode),
     }),
   });
 
@@ -554,21 +548,19 @@ export async function runCustomTest(
     throw new Error('Code challenge item is not configured');
   }
 
-  const decodedSource = decodeLegacyEditorPayload(sourceCode);
-  const decodedStdin = decodeLegacyEditorPayload(stdin);
   const response = await apiFetch(`assessments/${assessment.assessment_uuid}/items/${codeItem.item_uuid}/runs`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       language: languageId,
-      source: decodedSource,
-      custom_input: decodedStdin,
+      source: sourceCode,
+      custom_input: stdin,
       idempotency_key: codeRunIdempotencyKey(
         assessment.assessment_uuid,
         codeItem.item_uuid,
         languageId,
-        decodedSource,
-        decodedStdin,
+        sourceCode,
+        stdin,
       ),
     }),
   });
@@ -665,7 +657,7 @@ function toTestCaseResult(
 function runStatusCode(status: string, passed: number, total: number) {
   const normalized = status.toUpperCase();
   if (normalized.includes('COMPILE')) return 6;
-  if (normalized.includes('TIMEOUT')) return 5;
+  if (normalized.includes('TIMEOUT') || normalized.includes('TIME_LIMIT')) return 5;
   if (normalized.includes('RUNTIME')) return 11;
   if (total > 0 && passed < total) return 4;
   return 3;

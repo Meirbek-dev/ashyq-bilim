@@ -3469,7 +3469,6 @@
             "additionalProperties": {
               "type": "number"
             },
-            "default": {},
             "title": "Risk Components",
             "type": "object"
           },
@@ -3560,7 +3559,6 @@
       "AtRiskLearnersResponse": {
         "properties": {
           "cohort_options": {
-            "default": [],
             "items": {
               "$ref": "#/components/schemas/AnalyticsFilterOption"
             },
@@ -3568,7 +3566,6 @@
             "type": "array"
           },
           "course_options": {
-            "default": [],
             "items": {
               "$ref": "#/components/schemas/AnalyticsFilterOption"
             },
@@ -3885,8 +3882,15 @@
             "title": "About"
           },
           "description": {
-            "title": "Description",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
           },
           "learnings": {
             "anyOf": [
@@ -3900,12 +3904,26 @@
             "title": "Learnings"
           },
           "name": {
-            "title": "Name",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
           },
           "public": {
-            "title": "Public",
-            "type": "boolean"
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Public"
           },
           "tags": {
             "anyOf": [
@@ -3946,11 +3964,6 @@
             "default": "image"
           }
         },
-        "required": [
-          "name",
-          "description",
-          "public"
-        ],
         "title": "Body_api_create_course_api_v1_courses_post",
         "type": "object"
       },
@@ -5166,6 +5179,18 @@
       },
       "CodeItemBody": {
         "properties": {
+          "constraints": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Constraints",
+            "type": "array"
+          },
+          "input_spec": {
+            "default": "",
+            "title": "Input Spec",
+            "type": "string"
+          },
           "kind": {
             "const": "CODE",
             "default": "CODE",
@@ -5179,6 +5204,17 @@
             "title": "Languages",
             "type": "array"
           },
+          "max_output_kb": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Output Kb"
+          },
           "memory_limit_mb": {
             "anyOf": [
               {
@@ -5190,9 +5226,32 @@
             ],
             "title": "Memory Limit Mb"
           },
+          "output_spec": {
+            "default": "",
+            "title": "Output Spec",
+            "type": "string"
+          },
           "prompt": {
             "default": "",
             "title": "Prompt",
+            "type": "string"
+          },
+          "reference_solutions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Reference Solutions",
+            "type": "object"
+          },
+          "scoring_strategy": {
+            "default": "PARTIAL_CREDIT",
+            "enum": [
+              "PARTIAL_CREDIT",
+              "ALL_OR_NOTHING",
+              "BEST_SUBMISSION",
+              "LATEST_SUBMISSION"
+            ],
+            "title": "Scoring Strategy",
             "type": "string"
           },
           "starter_code": {
@@ -5386,9 +5445,12 @@
       "CodeRunResult": {
         "properties": {
           "details": {
-            "additionalProperties": true,
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
             "title": "Details",
-            "type": "object"
+            "type": "array"
           },
           "passed": {
             "default": 0,
@@ -5524,6 +5586,12 @@
             "default": true,
             "title": "Is Visible",
             "type": "boolean"
+          },
+          "match_mode": {
+            "const": "EXACT",
+            "default": "EXACT",
+            "title": "Match Mode",
+            "type": "string"
           },
           "weight": {
             "default": 1,
@@ -7196,7 +7264,6 @@
             "type": "string"
           },
           "items": {
-            "default": [],
             "items": {
               "additionalProperties": true,
               "type": "object"
@@ -8729,6 +8796,34 @@
         ],
         "title": "ItemKind",
         "type": "string"
+      },
+      "Judge0LanguageRead": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "is_archived": {
+            "default": false,
+            "title": "Is Archived",
+            "type": "boolean"
+          },
+          "monaco_language": {
+            "title": "Monaco Language",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "monaco_language"
+        ],
+        "title": "Judge0LanguageRead",
+        "type": "object"
       },
       "LatePolicy": {
         "discriminator": {
@@ -10355,7 +10450,6 @@
           },
           "query": {
             "additionalProperties": true,
-            "default": {},
             "title": "Query",
             "type": "object"
           },
@@ -11620,7 +11714,6 @@
       "TeacherAssessmentListResponse": {
         "properties": {
           "cohort_options": {
-            "default": [],
             "items": {
               "$ref": "#/components/schemas/AnalyticsFilterOption"
             },
@@ -11628,7 +11721,6 @@
             "type": "array"
           },
           "course_options": {
-            "default": [],
             "items": {
               "$ref": "#/components/schemas/AnalyticsFilterOption"
             },
@@ -11806,7 +11898,6 @@
       "TeacherCourseListResponse": {
         "properties": {
           "cohort_options": {
-            "default": [],
             "items": {
               "$ref": "#/components/schemas/AnalyticsFilterOption"
             },
@@ -11814,7 +11905,6 @@
             "type": "array"
           },
           "course_options": {
-            "default": [],
             "items": {
               "$ref": "#/components/schemas/AnalyticsFilterOption"
             },
@@ -12066,7 +12156,6 @@
           },
           "payload": {
             "additionalProperties": true,
-            "default": {},
             "title": "Payload",
             "type": "object"
           },
@@ -12263,7 +12352,6 @@
             "type": "integer"
           },
           "cohort_options": {
-            "default": [],
             "items": {
               "$ref": "#/components/schemas/AnalyticsFilterOption"
             },
@@ -12286,7 +12374,6 @@
             "type": "array"
           },
           "course_options": {
-            "default": [],
             "items": {
               "$ref": "#/components/schemas/AnalyticsFilterOption"
             },
@@ -13786,7 +13873,6 @@
             "title": "Expires At"
           },
           "permissions": {
-            "default": [],
             "items": {
               "type": "string"
             },
@@ -19288,6 +19374,72 @@
         ]
       }
     },
+    "/api/v1/assessments/{assessment_uuid}/items/{item_uuid}/runs/{run_uuid}": {
+      "get": {
+        "description": "Fetch a previously-created student-safe code run.",
+        "operationId": "api_get_code_item_run_api_v1_assessments__assessment_uuid__items__item_uuid__runs__run_uuid__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assessment_uuid",
+            "required": true,
+            "schema": {
+              "title": "Assessment Uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "item_uuid",
+            "required": true,
+            "schema": {
+              "title": "Item Uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_uuid",
+            "required": true,
+            "schema": {
+              "title": "Run Uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CodeRunResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Api Get Code Item Run",
+        "tags": [
+          "assessments"
+        ]
+      }
+    },
     "/api/v1/assessments/{assessment_uuid}/items:reorder": {
       "post": {
         "operationId": "api_reorder_items_api_v1_assessments__assessment_uuid__items_reorder_post",
@@ -21854,6 +22006,36 @@
         ]
       }
     },
+    "/api/v1/code-execution/languages": {
+      "get": {
+        "operationId": "api_get_code_execution_languages_api_v1_code_execution_languages_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Judge0LanguageRead"
+                  },
+                  "title": "Response Api Get Code Execution Languages Api V1 Code Execution Languages Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Api Get Code Execution Languages",
+        "tags": [
+          "code-execution"
+        ]
+      }
+    },
     "/api/v1/collections": {
       "post": {
         "description": "Create new Collection",
@@ -22121,8 +22303,7 @@
                 "$ref": "#/components/schemas/Body_api_create_course_api_v1_courses_post"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
