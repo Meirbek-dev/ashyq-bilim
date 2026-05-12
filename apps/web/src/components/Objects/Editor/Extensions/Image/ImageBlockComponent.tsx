@@ -507,9 +507,11 @@ export default function ImageBlockComponent({ node, updateAttributes, extension 
             className={cn('group relative', alignmentClass)}
             style={{ width }}
           >
-            <img
+            <NextImage
               src={imageUrl}
               alt=""
+              width={MAX_WIDTH}
+              height={Math.round(MAX_WIDTH * 0.5625)}
               className={cn(
                 'h-auto w-full rounded-lg shadow-sm transition-shadow',
                 isResizing && 'ring-2 ring-blue-400',
@@ -535,9 +537,11 @@ export default function ImageBlockComponent({ node, updateAttributes, extension 
             className={cn('group relative', alignmentClass)}
             style={{ width }}
           >
-            <img
+            <NextImage
               src={imageUrl}
               alt=""
+              width={MAX_WIDTH}
+              height={Math.round(MAX_WIDTH * 0.5625)}
               className="h-auto w-full rounded-lg shadow-sm"
             />
             <ViewerControls
@@ -559,9 +563,11 @@ export default function ImageBlockComponent({ node, updateAttributes, extension 
           minHeight="lg"
           dialogContent={
             <div className="flex items-center justify-center p-4">
-              <img
+              <NextImage
                 src={imageUrl}
                 alt=""
+                width={MAX_WIDTH}
+                height={Math.round(MAX_WIDTH * 0.75)}
                 className="max-h-[80vh] max-w-full rounded-lg object-contain shadow-lg"
               />
             </div>

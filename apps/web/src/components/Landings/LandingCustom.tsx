@@ -159,10 +159,12 @@ const LandingCustom = ({ landing, gamificationData }: LandingCustomProps) => {
                 <div className="relative mx-auto w-full max-w-[500px] px-4 md:px-8">
                   <div className="relative aspect-4/3 w-full">
                     {section.image.url && section.image.url.trim() !== '' ? (
-                      <img
+                      <NextImage
                         src={section.image.url}
                         alt={section.image.alt}
+                        fill
                         className="h-full w-full rounded-lg object-contain"
+                        sizes="(min-width: 768px) 50vw, 100vw"
                       />
                     ) : null}
                   </div>
@@ -189,9 +191,11 @@ const LandingCustom = ({ landing, gamificationData }: LandingCustomProps) => {
                     className="flex h-[120px] w-[220px] items-center justify-center"
                   >
                     {logo.url && logo.url.trim() !== '' ? (
-                      <img
+                      <NextImage
                         src={logo.url}
                         alt={logo.alt}
+                        width={200}
+                        height={96}
                         className="max-h-24 max-w-[200px] object-contain transition-opacity hover:opacity-80"
                       />
                     ) : null}
@@ -224,11 +228,15 @@ const LandingCustom = ({ landing, gamificationData }: LandingCustomProps) => {
                         showProfilePopup
                       />
                     ) : person.image_url && person.image_url.trim() !== '' ? (
-                      <img
-                        src={person.image_url}
-                        alt={person.name}
-                        className="soft-shadow h-full w-full rounded-full border-4 border-white object-cover"
-                      />
+                      <div className="relative h-full w-full">
+                        <NextImage
+                          src={person.image_url}
+                          alt={person.name}
+                          fill
+                          className="soft-shadow rounded-full border-4 border-white object-cover"
+                          sizes="96px"
+                        />
+                      </div>
                     ) : (
                       <div className="soft-shadow flex h-full w-full items-center justify-center rounded-full border-4 border-white bg-gray-200">
                         <span className="text-xs text-gray-400">{t('noImage')}</span>

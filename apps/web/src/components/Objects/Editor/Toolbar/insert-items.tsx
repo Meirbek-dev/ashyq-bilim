@@ -156,7 +156,7 @@ export function createInsertItems(t: ToolbarTranslator): InsertItem[] {
       icon: <BadgeHelp className="size-4" />,
       category: 'interactive',
       includeInToolbar: true,
-      run: (editor) => editor.commands.insertQuizBlock(),
+      run: (editor) => editor.commands.insertInlineQuiz(),
     },
     {
       id: 'flipcard',

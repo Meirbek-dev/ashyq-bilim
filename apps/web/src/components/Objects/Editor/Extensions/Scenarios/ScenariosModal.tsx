@@ -464,11 +464,13 @@ const ScenariosModal: React.FC<ScenariosModalProps> = ({
                         placeholder={t('imageUrlPlaceholder')}
                       />
                       {scenario.imageUrl && (
-                        <div className="mt-2">
-                          <img
+                        <div className="relative mt-2 h-32 w-full overflow-hidden rounded-lg border border-slate-200">
+                          <NextImage
                             src={scenario.imageUrl}
                             alt={t('scenarioPreviewAlt')}
-                            className="h-32 w-full rounded-lg border border-slate-200 object-cover"
+                            fill
+                            className="object-cover"
+                            sizes="(min-width: 1024px) 50vw, 100vw"
                             onError={(e) => {
                               e.currentTarget.style.display = 'none';
                             }}

@@ -22,7 +22,6 @@ import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
 import { apiFetch, apiFetcher } from '@/lib/api-client';
-import { getAPIUrl } from '@services/config/config';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 import type { KindAuthorProps } from '@/features/assessments/registry';
 import type { AssessmentItem } from '@/features/assessments/domain/items';
@@ -114,7 +113,7 @@ export function NativeItemStudioProvider({ activityUuid, children }: KindAuthorP
     queryOptions({
       queryKey: queryKeys.assessments.activity(normalizedActivityUuid),
       queryFn: () =>
-        apiFetcher(`${getAPIUrl()}assessments/activity/${normalizedActivityUuid}`) as Promise<AssessmentStudioDetail>,
+        apiFetcher<AssessmentStudioDetail>(`assessments/activity/${normalizedActivityUuid}`),
       enabled: Boolean(normalizedActivityUuid),
     }),
   );
@@ -124,8 +123,8 @@ export function NativeItemStudioProvider({ activityUuid, children }: KindAuthorP
     queryOptions({
       queryKey: queryKeys.assessments.readiness(assessment?.assessment_uuid ?? ''),
       queryFn: () =>
-        apiFetcher(
-          `${getAPIUrl()}assessments/${assessment?.assessment_uuid}/readiness`,
+        apiFetcher<ReadinessPayload>(
+          `assessments/${assessment?.assessment_uuid}/readiness`,
         ) as Promise<StudioReadinessPayload>,
       enabled: Boolean(assessment?.assessment_uuid),
       retry: false,

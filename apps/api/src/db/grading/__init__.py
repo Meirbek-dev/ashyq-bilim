@@ -23,16 +23,12 @@ from src.db.grading.progress import (
     GradeReleaseMode,
 )
 from src.db.grading.schemas import (
-    AssignmentAnswers,
-    AssignmentTaskAnswer,
     BatchGradeItem,
     BatchGradeRequest,
     BatchGradeResponse,
     BatchGradeResultItem,
     BulkPublishGradesResponse,
     DeadlineExtensionRequest,
-    QuizAnswer,
-    QuizAnswers,
 )
 from src.db.grading.submissions import (
     AssessmentType,
@@ -56,8 +52,6 @@ __all__ = [
     "AssessmentGradingMode",
     "AssessmentPolicy",
     "AssessmentType",
-    "AssignmentAnswers",
-    "AssignmentTaskAnswer",
     "BatchGradeItem",
     "BatchGradeRequest",
     "BatchGradeResponse",
@@ -80,8 +74,6 @@ __all__ = [
     "ItemFeedbackEntry",
     "ItemFeedbackRead",
     "ItemFeedbackUpdate",
-    "QuizAnswer",
-    "QuizAnswers",
     "StudentPolicyOverride",
     "StudentPolicyOverrideRead",
     "Submission",

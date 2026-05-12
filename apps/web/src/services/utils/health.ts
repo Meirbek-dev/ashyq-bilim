@@ -1,9 +1,8 @@
-import { RequestBody, getResponseMetadata } from '@/lib/api-client';
-import { getAPIUrl } from '@services/config/config';
+import { apiFetch, getResponseMetadata } from '@/lib/api-client';
 
 export async function checkHealth() {
   try {
-    const result = await fetch(`${getAPIUrl()}health`, RequestBody('GET', null, null));
+    const result = await apiFetch('health');
     if (!result.ok) {
       return {
         success: false,

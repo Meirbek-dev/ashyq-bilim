@@ -11,6 +11,7 @@ from src.services.grading.code_grader import (
     grade_code_challenge,
 )
 from src.services.grading.exam_grader import grade_exam_questions
+from src.services.grading.pipeline.context import GradingContext
 from src.services.grading.quiz_grader import (
     apply_attempt_penalty,
     grade_canonical_choice_items,
@@ -26,7 +27,7 @@ class GradingResult(BaseModel):
 
 class BaseGrader(ABC):
     @abstractmethod
-    def grade(self, **kwargs: Any) -> GradingResult:
+    def grade(self, ctx: GradingContext) -> GradingResult:
         """Grade an assessment attempt and return a normalized result."""
 
 
@@ -47,31 +48,29 @@ class GraderRegistry:
         return grader_cls()
 
     @classmethod
-    def grade(cls, assessment_type: AssessmentType, **kwargs: Any) -> GradingResult:
-        return cls.get(assessment_type).grade(**kwargs)
+    def grade(cls, assessment_type: AssessmentType, ctx: GradingContext) -> GradingResult:
+        return cls.get(assessment_type).grade(ctx)
 
 
 @GraderRegistry.register(AssessmentType.QUIZ)
 class QuizGrader(BaseGrader):
-    def grade(self, **kwargs: Any) -> GradingResult:
-        items = kwargs.get("items") or []
-        answers_by_item_uuid = kwargs.get("answers_by_item_uuid") or {}
-        if items:
+    def grade(self, ctx: GradingContext) -> GradingResult:
+        if ctx.items:
             raw_score, breakdown = grade_canonical_choice_items(
-                items=items,
-                answers_by_item_uuid=answers_by_item_uuid,
-                max_score=kwargs.get("max_score", 100.0),
+                items=ctx.items,
+                answers_by_item_uuid=ctx.answers_by_item_uuid,
+                max_score=ctx.max_score,
             )
         else:
             raw_score, breakdown = grade_quiz_questions(
-                questions=kwargs.get("questions") or [],
-                user_answers=kwargs.get("user_answers") or [],
-                max_score=kwargs.get("max_score", 100.0),
+                questions=[],
+                user_answers=[],
+                max_score=ctx.max_score,
             )
         penalized = apply_attempt_penalty(
             base_score=raw_score,
-            attempt_number=kwargs.get("attempt_number", 1),
-            max_score_penalty_per_attempt=kwargs.get("max_score_penalty_per_attempt"),
+            attempt_number=ctx.attempt_number,
+            max_score_penalty_per_attempt=ctx.max_score_penalty_per_attempt,
         )
         return GradingResult(
             auto_score=penalized,
@@ -82,20 +81,18 @@ class QuizGrader(BaseGrader):
 
 @GraderRegistry.register(AssessmentType.EXAM)
 class ExamGrader(BaseGrader):
-    def grade(self, **kwargs: Any) -> GradingResult:
-        items = kwargs.get("items") or []
-        answers_by_item_uuid = kwargs.get("answers_by_item_uuid") or {}
-        if items:
+    def grade(self, ctx: GradingContext) -> GradingResult:
+        if ctx.items:
             raw_score, breakdown = grade_canonical_choice_items(
-                items=items,
-                answers_by_item_uuid=answers_by_item_uuid,
-                max_score=kwargs.get("max_score", 100.0),
+                items=ctx.items,
+                answers_by_item_uuid=ctx.answers_by_item_uuid,
+                max_score=ctx.max_score,
             )
         else:
             raw_score, breakdown = grade_exam_questions(
-                questions=kwargs.get("questions") or [],
-                submitted_answers=kwargs.get("exam_answers") or {},
-                max_score=kwargs.get("max_score", 100.0),
+                questions=[],
+                submitted_answers={},
+                max_score=ctx.max_score,
             )
         return GradingResult(
             auto_score=raw_score,
@@ -106,19 +103,17 @@ class ExamGrader(BaseGrader):
 
 @GraderRegistry.register(AssessmentType.CODE_CHALLENGE)
 class CodeChallengeGrader(BaseGrader):
-    def grade(self, **kwargs: Any) -> GradingResult:
-        items = kwargs.get("items") or []
-        answers_by_item_uuid = kwargs.get("answers_by_item_uuid") or {}
-        if items:
+    def grade(self, ctx: GradingContext) -> GradingResult:
+        if ctx.items:
             auto_score, breakdown = grade_canonical_code_item(
-                items=items,
-                answers_by_item_uuid=answers_by_item_uuid,
-                strategy=kwargs.get("code_strategy", "BEST_SUBMISSION"),
+                items=ctx.items,
+                answers_by_item_uuid=ctx.answers_by_item_uuid,
+                strategy=ctx.code_strategy,
             )
         else:
             auto_score, breakdown = grade_code_challenge(
-                test_results=kwargs.get("test_results") or [],
-                strategy=kwargs.get("code_strategy", "BEST_SUBMISSION"),
+                test_results=[],
+                strategy=ctx.code_strategy,
             )
         return GradingResult(
             auto_score=auto_score,
@@ -129,10 +124,8 @@ class CodeChallengeGrader(BaseGrader):
 
 @GraderRegistry.register(AssessmentType.ASSIGNMENT)
 class ManualReviewGrader(BaseGrader):
-    def grade(self, **_kwargs: Any) -> GradingResult:
-        items = _kwargs.get("items") or []
-        answers_by_item_uuid = _kwargs.get("answers_by_item_uuid") or {}
-        if items:
+    def grade(self, ctx: GradingContext) -> GradingResult:
+        if ctx.items:
             empty_breakdown = GradingBreakdown(
                 items=[
                     GradedItem(
@@ -143,9 +136,9 @@ class ManualReviewGrader(BaseGrader):
                         correct=None,
                         feedback="",
                         needs_manual_review=True,
-                        user_answer=answers_by_item_uuid.get(item.item_uuid),
+                        user_answer=ctx.answers_by_item_uuid.get(item.item_uuid),
                     )
-                    for item in items
+                    for item in ctx.items
                 ],
                 needs_manual_review=True,
                 auto_graded=False,

@@ -431,6 +431,14 @@ class Submission(SubmissionBase, table=True):
         sa_column=Column("version", Integer, nullable=False, server_default="1"),
     )
 
+    # Student draft concurrency — incremented on every draft save.
+    # Separate from teacher `version` to avoid conflicts between student saves
+    # and teacher grading on the same row.
+    draft_version: int = SQLField(
+        default=1,
+        sa_column=Column("draft_version", Integer, nullable=False, server_default="1"),
+    )
+
     # Phase 3: Versioning — snapshot at submit time
     content_version: int = SQLField(
         default=1,

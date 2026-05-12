@@ -15,7 +15,7 @@ import { useSession } from '@/hooks/useSession';
 import { useContributorStatus } from '@/hooks/useContributorStatus';
 import { applyForContributor } from '@services/courses/courses';
 import CourseProgress from '../CourseProgress/CourseProgress';
-import { revalidateTags } from '@/lib/api-client';
+import { revalidateTags } from '@/lib/cache/revalidate';
 import { startCourse } from '@services/courses/activity';
 import { getAbsoluteUrl } from '@services/config/config';
 import { Card, CardContent } from '@/components/ui/card';

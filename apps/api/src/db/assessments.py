@@ -10,7 +10,7 @@ from enum import StrEnum
 from typing import Annotated, Literal, Self
 
 from pydantic import ConfigDict, Field, TypeAdapter, field_validator, model_validator
-from sqlalchemy import JSON, Column, DateTime, Float, ForeignKey, Index, Integer, String
+from sqlalchemy import JSON, Boolean, Column, DateTime, Float, ForeignKey, Index, Integer, String
 from sqlmodel import Field as SQLField
 from ulid import ULID
 
@@ -286,6 +286,23 @@ class Assessment(SQLModelStrictBaseModel, table=True):
             "policy_id",
             ForeignKey("assessment_policy.id", ondelete="SET NULL"),
             nullable=True,
+        ),
+    )
+    inline_parent_activity_id: int | None = SQLField(
+        default=None,
+        sa_column=Column(
+            "inline_parent_activity_id",
+            ForeignKey("activity.id", ondelete="SET NULL"),
+            nullable=True,
+        ),
+    )
+    is_inline: bool = SQLField(
+        default=False,
+        sa_column=Column(
+            "is_inline",
+            Boolean,
+            nullable=False,
+            server_default="false",
         ),
     )
     created_at: datetime = SQLField(

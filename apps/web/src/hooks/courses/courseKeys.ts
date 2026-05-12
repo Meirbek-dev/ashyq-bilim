@@ -1,7 +1,5 @@
 'use client';
 
-import { getAPIUrl } from '@services/config/config';
-
 const normalizeCourseUuid = (courseUuid: string) =>
   courseUuid.startsWith('course_') ? courseUuid : `course_${courseUuid}`;
 
@@ -43,23 +41,23 @@ const normalizeCourseListOptions = ({ page = 1, limit = 20, query, sortBy, prese
 
 export const courseEndpoints = {
   list: ({ page = 1, limit = 20, query, sortBy, preset }: CourseListKeyOptions = {}) =>
-    `${getAPIUrl()}courses/page/${page}/limit/${limit}${buildQueryString({ query, sort_by: sortBy, preset })}`,
+    `courses/page/${page}/limit/${limit}${buildQueryString({ query, sort_by: sortBy, preset })}`,
 
   editable: ({ page = 1, limit = 20, query, sortBy = 'updated', preset }: CourseListKeyOptions = {}) =>
-    `${getAPIUrl()}courses/editable/page/${page}/limit/${limit}${buildQueryString({ query, sort_by: sortBy, preset })}`,
+    `courses/editable/page/${page}/limit/${limit}${buildQueryString({ query, sort_by: sortBy, preset })}`,
 
-  detail: (courseUuid: string) => `${getAPIUrl()}courses/${normalizeCourseUuid(courseUuid)}`,
+  detail: (courseUuid: string) => `courses/${normalizeCourseUuid(courseUuid)}`,
 
   structure: (courseUuid: string, withUnpublishedActivities = false) =>
-    `${getAPIUrl()}courses/${normalizeCourseUuid(courseUuid)}/meta?with_unpublished_activities=${withUnpublishedActivities}`,
+    `courses/${normalizeCourseUuid(courseUuid)}/meta?with_unpublished_activities=${withUnpublishedActivities}`,
 
-  rights: (courseUuid: string) => `${getAPIUrl()}courses/${normalizeCourseUuid(courseUuid)}/rights`,
+  rights: (courseUuid: string) => `courses/${normalizeCourseUuid(courseUuid)}/rights`,
 
-  contributors: (courseUuid: string) => `${getAPIUrl()}courses/${normalizeCourseUuid(courseUuid)}/contributors`,
+  contributors: (courseUuid: string) => `courses/${normalizeCourseUuid(courseUuid)}/contributors`,
 
-  chapter: (chapterUuid: string) => `${getAPIUrl()}chapters/${chapterUuid}`,
+  chapter: (chapterUuid: string) => `chapters/${chapterUuid}`,
 
-  activity: (activityUuid: string) => `${getAPIUrl()}activities/${activityUuid}`,
+  activity: (activityUuid: string) => `activities/${activityUuid}`,
 };
 
 export const courseKeys = {

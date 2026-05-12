@@ -378,9 +378,12 @@ def _parse_answers(
     list[dict] | None,
     str,
 ]:
-    """Extract per-type answer fields from the raw payload."""
+    """Extract per-type answer fields from the raw payload.
+
+    Only the canonical answers_by_item_uuid path is supported.
+    """
     answers_by_item_uuid = _extract_canonical_answers(answers_payload)
-    user_answers: list[dict] = answers_payload.get("answers", [])
+    user_answers: list[dict] = answers_payload.get("answers", []) if isinstance(answers_payload.get("answers"), list) else []
     exam_answers: dict[int, dict] | None = None
     test_results: list[dict] | None = None
     code_strategy = "BEST_SUBMISSION"
@@ -394,12 +397,7 @@ def _parse_answers(
             code_strategy,
         )
 
-    if assessment_type == AssessmentType.EXAM:
-        raw = answers_payload.get("submitted_answers", {})
-        if isinstance(raw, dict):
-            exam_answers = {int(k): v for k, v in raw.items() if str(k).isdigit()}
-
-    elif assessment_type == AssessmentType.CODE_CHALLENGE:
+    if assessment_type == AssessmentType.CODE_CHALLENGE:
         code_strategy = answers_payload.get("code_strategy", "BEST_SUBMISSION")
         if not answers_by_item_uuid:
             raise HTTPException(

@@ -32,6 +32,10 @@ class LatePolicyNone(PydanticStrictBaseModel):
 
     kind: Literal["NONE"] = "NONE"
 
+    def apply(self, submitted_at: datetime, due_at: datetime) -> float:
+        """Always returns 0 — no penalty regardless of lateness."""
+        return 0.0
+
 
 class LatePolicyPenalty(PydanticStrictBaseModel):
     """Percentage deducted per day, up to a maximum number of days."""
@@ -40,12 +44,26 @@ class LatePolicyPenalty(PydanticStrictBaseModel):
     percent_per_day: float = PydanticField(ge=0, le=100)
     max_days: int = PydanticField(ge=1)
 
+    def apply(self, submitted_at: datetime, due_at: datetime) -> float:
+        """Return penalty percentage based on days late, capped at max_days."""
+        from math import ceil
+
+        if submitted_at <= due_at:
+            return 0.0
+        seconds_late = max(0.0, (submitted_at - due_at).total_seconds())
+        days_late = min(self.max_days, max(1, ceil(seconds_late / 86400)))
+        return min(100.0, days_late * self.percent_per_day)
+
 
 class LatePolicyCutoff(PydanticStrictBaseModel):
     """Submissions are rejected after this cutoff timestamp."""
 
     kind: Literal["CUTOFF"] = "CUTOFF"
     cutoff_at: datetime
+
+    def apply(self, submitted_at: datetime, due_at: datetime) -> float:
+        """Return 100% penalty if past cutoff, 0% otherwise."""
+        return 100.0 if submitted_at > self.cutoff_at else 0.0
 
 
 type LatePolicy = Annotated[

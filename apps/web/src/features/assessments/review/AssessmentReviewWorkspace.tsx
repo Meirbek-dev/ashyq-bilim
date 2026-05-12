@@ -6,7 +6,6 @@ import { LoaderCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { apiFetcher } from '@/lib/api-client';
-import { getAPIUrl } from '@services/config/config';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 import { assessmentTypeToKind } from '@/features/assessments/domain/view-models';
 import { loadKindModule } from '@/features/assessments/registry';
@@ -49,7 +48,7 @@ export default function AssessmentReviewWorkspace({
   } = useQuery(
     queryOptions({
       queryKey: queryKeys.assessments.activity(cleanUuid),
-      queryFn: () => apiFetcher(`${getAPIUrl()}assessments/activity/${cleanUuid}`) as Promise<AssessmentReviewDetail>,
+      queryFn: () => apiFetcher<AssessmentReviewDetail>(`assessments/activity/${cleanUuid}`),
       enabled: Boolean(cleanUuid),
     }),
   );

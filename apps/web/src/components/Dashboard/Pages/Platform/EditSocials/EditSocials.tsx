@@ -5,7 +5,7 @@ import { SiFacebook, SiInstagram, SiTiktok, SiX, SiYoutube } from '@icons-pack/r
 import { usePlatform } from '@/components/Contexts/PlatformContext';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 import { updatePlatform } from '@/services/settings/platform';
-import { revalidateTags } from '@/lib/api-client';
+import { revalidateTags } from '@/lib/cache/revalidate';
 import { Field, FieldLabel } from '@components/ui/field';
 import { Controller, useForm } from 'react-hook-form';
 import { Plus, X as XIcon } from 'lucide-react';

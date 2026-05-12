@@ -1,29 +1,31 @@
 'use client';
 
-import { HydrationBoundary, QueryClientProvider } from '@tanstack/react-query';
-import type { DehydratedState } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { createQueryPersister, getQueryClient } from './queryClient';
+import { createQueryPersister, getQueryClient, shouldPersistQuery } from './queryClient';
+import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
 interface ReactQueryProviderProps {
   children: ReactNode;
-  dehydratedState?: DehydratedState;
 }
 
 const PERSIST_MAX_AGE = 24 * 60 * 60 * 1000;
+const ReactQueryDevtools =
+  process.env.NODE_ENV === 'development'
+    ? dynamic(() => import('@tanstack/react-query-devtools').then((mod) => mod.ReactQueryDevtools), { ssr: false })
+    : null;
 
-export function ReactQueryProvider({ children, dehydratedState }: ReactQueryProviderProps) {
+export function ReactQueryProvider({ children }: ReactQueryProviderProps) {
   const [queryClient] = useState(() => getQueryClient());
   // Persister is created once on the client; null on the server (SSR).
   const persister = useMemo(() => createQueryPersister(), []);
 
   const inner = (
     <>
-      <HydrationBoundary state={dehydratedState}>{children}</HydrationBoundary>
-      {process.env.NODE_ENV === 'development' && <ReactQueryDevtools initialIsOpen={false} />}
+      {children}
+      {ReactQueryDevtools ? <ReactQueryDevtools initialIsOpen={false} /> : null}
     </>
   );
 
@@ -38,6 +40,9 @@ export function ReactQueryProvider({ children, dehydratedState }: ReactQueryProv
         persister,
         maxAge: PERSIST_MAX_AGE,
         buster: '1',
+        dehydrateOptions: {
+          shouldDehydrateQuery: shouldPersistQuery,
+        },
       }}
     >
       {inner}

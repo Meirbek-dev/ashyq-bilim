@@ -8,7 +8,7 @@ import { Field, FieldContent, FieldError, FieldLabel } from '@/components/ui/fie
 import { Controller, useForm } from 'react-hook-form';
 import { BarLoader } from '@components/Objects/Loaders/BarLoader';
 import { valibotResolver } from '@hookform/resolvers/valibot';
-import { revalidateTags } from '@/lib/api-client';
+import { revalidateTags } from '@/lib/cache/revalidate';
 import { de, enUS, es, fr, ru } from 'date-fns/locale';
 import { useLocale, useTranslations } from 'next-intl';
 import { Textarea } from '@/components/ui/textarea';

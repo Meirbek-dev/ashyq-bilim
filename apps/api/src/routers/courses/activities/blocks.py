@@ -5,10 +5,6 @@ from sqlmodel import Session
 
 from src.auth.users import get_optional_public_user, get_public_user
 from src.db.courses.blocks import BlockRead
-from src.db.courses.quiz import (
-    QuizSubmissionRequest,
-    QuizSubmissionResponse,
-)
 from src.db.users import AnonymousUser, PublicUser
 from src.infra.db.session import get_db_session
 from src.services.blocks.block_types.imageBlock.imageBlock import (
@@ -18,9 +14,6 @@ from src.services.blocks.block_types.imageBlock.imageBlock import (
 from src.services.blocks.block_types.pdfBlock.pdfBlock import (
     create_pdf_block,
     get_pdf_block,
-)
-from src.services.blocks.block_types.quizBlock.quizBlock import (
-    submit_quiz,
 )
 from src.services.blocks.block_types.videoBlock.videoBlock import (
     create_video_block,
@@ -131,26 +124,4 @@ async def api_get_pdf_file_block(
     return await get_pdf_block(request, block_uuid, current_user, db_session)
 
 
-####################
-# Quiz Block
-####################
 
-
-@router.post("/quiz/{activity_id}", response_model=QuizSubmissionResponse)
-async def api_submit_quiz(
-    request: Request,
-    activity_id: int,
-    submission: QuizSubmissionRequest,
-    db_session: Annotated[Session, Depends(get_db_session)] = None,
-    current_user: Annotated[PublicUser, Depends(get_public_user)] = None,
-):
-    """
-    Submit a quiz attempt and receive grading results.
-    """
-    return await submit_quiz(
-        request=request,
-        activity_id=activity_id,
-        submission=submission,
-        current_user=current_user,
-        db_session=db_session,
-    )

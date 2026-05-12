@@ -168,17 +168,8 @@ def _grade_multiple_choice(
         if is_correct and opt_id:
             correct_option_ids.add(str(opt_id))
 
-    # TODO: consolidate to a single canonical field name once all clients are
-    # updated to send `selected_option_ids` only. These aliases exist due to
-    # accumulated schema drift across prior quiz block implementations.
-    raw_selected: Any = (
-        user_answer.get("selected_option_ids")  # canonical — use this going forward
-        or user_answer.get("selected_option_id")
-        or user_answer.get("selected_options")
-        or user_answer.get("selected_options_id")
-        or user_answer.get("answer_id")
-        or user_answer.get("selected_option")
-    )
+    # Canonical field — the only accepted format.
+    raw_selected: Any = user_answer.get("selected_option_ids")
 
     if not raw_selected:
         return GradedItem(

@@ -174,43 +174,11 @@ export default function GradeForm({
     });
   };
 
-  // Legacy overall-score save (used when no items present)
-  const saveLegacy = (status: TeacherGradeInput['status']) => {
-    if (!submission) return;
-    const score = Number.parseFloat(draft.score);
-    if (Number.isNaN(score) || score < 0 || score > 100) {
-      toast.error(t('invalidScore'));
-      return;
-    }
-
-    const localDraftSnapshot = { ...draft };
-    startSaving(async () => {
-      try {
-        await saveGrade(
-          submission.submission_uuid,
-          {
-            final_score: score,
-            feedback: draft.feedback,
-            status,
-            item_feedback: [],
-          },
-          submission.version,
-          assessmentUuid,
-        );
-        toast.success(
-          status === 'PUBLISHED' ? t('gradePublished') : status === 'RETURNED' ? t('returned') : t('gradeSaved'),
-        );
-        setStaleDraft(null);
-        await Promise.all([mutate(), onSaved()]);
-      } catch (error) {
-        if (error instanceof StaleGradeError) {
-          setStaleDraft({ server: error.serverSubmission, local: localDraftSnapshot });
-          await mutate();
-        } else {
-          toast.error(error instanceof Error ? error.message : t('saveFailed'));
-        }
-      }
-    });
+  // All grading now goes through the item-level GradingDraftSave endpoint.
+  // The legacy overall-score-only path has been removed.
+  const saveOverallScore = (status: TeacherGradeInput['status']) => {
+    // Redirect to item-level grading with a single "overall" item
+    saveWithItemGrading(status === 'PUBLISHED' ? 'publish' : status === 'RETURNED' ? 'return' : 'save');
   };
 
   if (!submissionUuid) {
@@ -467,7 +435,7 @@ export default function GradeForm({
           </div>
         </div>
       ) : (
-        /* ── Legacy overall-score grading ─────────────────────────────── */
+        /* ── Overall-score grading (no items — uses item-level endpoint) ── */
         <>
           <div className="space-y-2 border-t pt-4">
             <Label htmlFor="review-score">{t('finalScore')}</Label>
@@ -519,7 +487,7 @@ export default function GradeForm({
               type="button"
               variant="outline"
               disabled={!editable || isSaving}
-              onClick={() => saveLegacy('GRADED')}
+              onClick={() => saveOverallScore('GRADED')}
             >
               {isSaving ? <LoaderCircle className="size-4 animate-spin" /> : <BookOpenCheck className="size-4" />}
               {t('saveDraftGrade')}
@@ -527,7 +495,7 @@ export default function GradeForm({
             <Button
               type="button"
               disabled={!editable || isSaving || !canPublishNow}
-              onClick={() => saveLegacy('PUBLISHED')}
+              onClick={() => saveOverallScore('PUBLISHED')}
             >
               <Send className="size-4" />
               {t('publishGrade')}
@@ -536,7 +504,7 @@ export default function GradeForm({
               type="button"
               variant="outline"
               disabled={!editable || isSaving || !canReturnNow}
-              onClick={() => saveLegacy('RETURNED')}
+              onClick={() => saveOverallScore('RETURNED')}
             >
               <RotateCcw className="size-4" />
               {t('returnForRevision')}

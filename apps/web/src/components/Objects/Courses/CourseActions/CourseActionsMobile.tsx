@@ -4,7 +4,7 @@ import { BookOpen, Loader2, LogIn } from 'lucide-react';
 import { useSession } from '@/hooks/useSession';
 import { getUserAvatarMediaDirectory } from '@services/media/media';
 import { useState, useTransition } from 'react';
-import { revalidateTags } from '@/lib/api-client';
+import { revalidateTags } from '@/lib/cache/revalidate';
 import { startCourse } from '@services/courses/activity';
 import { getAbsoluteUrl } from '@services/config/config';
 import { useRouter } from 'next/navigation';

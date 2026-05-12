@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { CheckCircle2, Globe, Image as ImageIcon, Loader2, Lock, Search } from 'lucide-react';
 import { getCourseThumbnailMediaDirectory } from '@services/media/media';
 import { createCollection } from '@services/courses/collections';
-import { revalidateTags } from '@/lib/api-client';
+import { revalidateTags } from '@/lib/cache/revalidate';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { getAbsoluteUrl } from '@services/config/config';
 import { useMemo, useState, useTransition } from 'react';

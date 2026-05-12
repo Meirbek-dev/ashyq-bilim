@@ -1,9 +1,20 @@
 'use client';
 
-import { environmentManager, QueryClient } from '@tanstack/react-query';
+import { environmentManager, QueryClient, QueryCache, MutationCache } from '@tanstack/react-query';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
+import type { Query } from '@tanstack/react-query';
+import { isAuthRoute } from '@/lib/auth/redirect';
 
 const FIVE_MINUTES = 5 * 60 * 1000;
+
+function handle401(error: unknown): void {
+  const status = typeof error === 'object' && error !== null && 'status' in error ? Number((error as any).status) : undefined;
+  if (status !== 401 || environmentManager.isServer()) return;
+  const { pathname, search } = globalThis.location;
+  if (!isAuthRoute(pathname)) {
+    globalThis.location.assign(`/api/auth/refresh?returnTo=${encodeURIComponent(pathname + search)}`);
+  }
+}
 
 function shouldRetry(failureCount: number, error: unknown) {
   const status = typeof error === 'object' && error !== null && 'status' in error ? Number(error.status) : undefined;
@@ -17,6 +28,8 @@ function shouldRetry(failureCount: number, error: unknown) {
 
 function makeQueryClient() {
   return new QueryClient({
+    queryCache: new QueryCache({ onError: handle401 }),
+    mutationCache: new MutationCache({ onError: handle401 }),
     defaultOptions: {
       queries: {
         gcTime: FIVE_MINUTES,
@@ -56,4 +69,8 @@ export function createQueryPersister() {
     storage: window.sessionStorage,
     key: 'tanstack-query-cache',
   });
+}
+
+export function shouldPersistQuery(query: Query) {
+  return query.meta?.persist === true && query.state.status === 'success';
 }

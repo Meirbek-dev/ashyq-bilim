@@ -15,7 +15,7 @@ import { PermissionTooltip } from '@/components/Utils/PermissionTooltip';
 import { getCourseThumbnailMediaDirectory } from '@services/media/media';
 import { deleteCollection } from '@services/courses/collections';
 import { Crown, Layers, Loader2, Trash2 } from 'lucide-react';
-import { revalidateTags } from '@/lib/api-client';
+import { revalidateTags } from '@/lib/cache/revalidate';
 import { getAbsoluteUrl } from '@services/config/config';
 import { useState, useTransition } from 'react';
 import { Badge } from '@components/ui/badge';

@@ -20,9 +20,9 @@ import reactCompiler from 'eslint-plugin-react-compiler';
 
 const COMMON_RULES = {
   /* Next.js */
-  '@next/next/no-img-element': 'off',
-  '@next/next/no-sync-scripts': 'off',
-  '@next/next/no-page-custom-font': 'off',
+  '@next/next/no-img-element': 'warn',
+  '@next/next/no-sync-scripts': 'warn',
+  '@next/next/no-page-custom-font': 'warn',
 
   /* React Compiler */
   'react-compiler/react-compiler': 'error',

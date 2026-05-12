@@ -513,3 +513,62 @@ async def api_delete_override(
     return await delete_student_policy_override(
         assessment_uuid, user_id, current_user, db_session
     )
+
+
+# ── Inline quiz ────────────────────────────────────────────────────────────────
+
+
+@router.post("/inline-quiz")
+async def api_create_inline_quiz(
+    payload: "InlineQuizCreate",
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
+    db_session: Annotated[Session, Depends(get_db_session)],
+):
+    """Create a new inline quiz assessment linked to a parent activity."""
+    from src.services.assessments.inline_quiz import InlineQuizCreate, create_inline_quiz
+
+    validated = InlineQuizCreate.model_validate(payload)
+    return await create_inline_quiz(validated, current_user, db_session)
+
+
+# ── Audit trail ────────────────────────────────────────────────────────────────
+
+
+@router.get("/{assessment_uuid}/audit")
+async def api_get_audit_trail(
+    assessment_uuid: str,
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
+    db_session: Annotated[Session, Depends(get_db_session)],
+    page: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1, le=100)] = 50,
+):
+    """List audit events for an assessment (teacher-only)."""
+    from sqlmodel import select
+    from sqlalchemy import desc, func
+
+    from src.db.audit import AuditEvent, AuditEventRead
+    from src.services.assessments.core import (
+        _get_assessment_by_uuid_or_404,
+        _get_activity_and_course,
+        _require_grade,
+    )
+
+    assessment = _get_assessment_by_uuid_or_404(assessment_uuid, db_session)
+    _activity, course = _get_activity_and_course(assessment, db_session)
+    _require_grade(current_user, course, db_session)
+
+    query = (
+        select(AuditEvent)
+        .where(AuditEvent.target_uuid == assessment_uuid)
+        .order_by(desc(AuditEvent.created_at))
+    )
+    total = db_session.exec(select(func.count()).select_from(query.subquery())).one()
+    offset = (page - 1) * page_size
+    rows = db_session.exec(query.offset(offset).limit(page_size)).all()
+
+    return {
+        "items": [AuditEventRead.model_validate(row) for row in rows],
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+    }

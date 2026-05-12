@@ -39,7 +39,7 @@ interface ReadinessPayload {
 function assessmentByActivityQueryOptions(activityUuid: string) {
   return queryOptions({
     queryKey: queryKeys.assessments.activity(activityUuid),
-    queryFn: () => apiFetcher(`${getAPIUrl()}assessments/activity/${activityUuid}`) as Promise<AssessmentDetail>,
+    queryFn: () => apiFetcher<AssessmentDetail>(`assessments/activity/${activityUuid}`),
     enabled: Boolean(activityUuid),
   });
 }
@@ -47,7 +47,7 @@ function assessmentByActivityQueryOptions(activityUuid: string) {
 function readinessQueryOptions(assessmentUuid: string, enabled: boolean) {
   return queryOptions({
     queryKey: queryKeys.assessments.readiness(assessmentUuid),
-    queryFn: () => apiFetcher(`${getAPIUrl()}assessments/${assessmentUuid}/readiness`) as Promise<ReadinessPayload>,
+    queryFn: () => apiFetcher<ReadinessPayload>(`assessments/${assessmentUuid}/readiness`),
     enabled,
     retry: false,
   });

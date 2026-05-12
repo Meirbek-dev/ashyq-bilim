@@ -3,7 +3,6 @@
 import { getCourseEditorBundle } from '@services/courses/editor';
 import { getAssignmentFromActivityUUID } from '@services/courses/assignments';
 import { getCourses } from '@services/courses/courses';
-import { getAPIUrl } from '@services/config/config';
 import { apiFetcher, apiFetcherWithHeaders, fetchResponseMetadata } from '@/lib/api-client';
 import { queryOptions } from '@tanstack/react-query';
 import type { CourseListKeyOptions } from '@/hooks/courses/courseKeys';
@@ -24,14 +23,14 @@ interface CourseListResponse<TCourse> {
 export function courseQueryOptions<TCourse = unknown>(courseUuid: string) {
   return queryOptions({
     queryKey: courseKeys.detail(courseUuid),
-    queryFn: () => apiFetcher(courseEndpoints.detail(courseUuid)) as Promise<TCourse>,
+    queryFn: () => apiFetcher<TCourse>(courseEndpoints.detail(courseUuid)),
   });
 }
 
 export function courseMetadataQueryOptions<TCourse = unknown>(courseUuid: string) {
   return queryOptions({
     queryKey: queryKeys.courses.metadata(courseUuid),
-    queryFn: () => apiFetcher(courseEndpoints.detail(courseUuid)) as Promise<TCourse>,
+    queryFn: () => apiFetcher<TCourse>(courseEndpoints.detail(courseUuid)),
   });
 }
 
@@ -42,7 +41,7 @@ export function courseStructureQueryOptions<TCourseStructure = unknown>(
   return queryOptions({
     queryKey: courseKeys.structure(courseUuid, withUnpublishedActivities),
     queryFn: () =>
-      apiFetcher(courseEndpoints.structure(courseUuid, withUnpublishedActivities)) as Promise<TCourseStructure>,
+      apiFetcher<TCourseStructure>(courseEndpoints.structure(courseUuid, withUnpublishedActivities)),
     staleTime: 5000,
   });
 }
@@ -50,7 +49,7 @@ export function courseStructureQueryOptions<TCourseStructure = unknown>(
 export function courseRightsQueryOptions<TRights = unknown>(courseUuid: string) {
   return queryOptions({
     queryKey: courseKeys.rights(courseUuid),
-    queryFn: () => apiFetcher(courseEndpoints.rights(courseUuid)) as Promise<TRights>,
+    queryFn: () => apiFetcher<TRights>(courseEndpoints.rights(courseUuid)),
   });
 }
 
@@ -123,42 +122,42 @@ export function courseDiscussionsQueryOptions(
 export function trailCurrentQueryOptions() {
   return queryOptions({
     queryKey: queryKeys.trail.current(),
-    queryFn: () => apiFetcher(`${getAPIUrl()}trail`),
+    queryFn: () => apiFetcher(`trail`),
   });
 }
 
 export function trailLeaderboardQueryOptions(limit = 10) {
   return queryOptions({
     queryKey: queryKeys.trail.leaderboard(limit),
-    queryFn: () => apiFetcher(`${getAPIUrl()}gamification/leaderboard?limit=${limit}`),
+    queryFn: () => apiFetcher(`gamification/leaderboard?limit=${limit}`),
   });
 }
 
 export function userCertificatesQueryOptions() {
   return queryOptions({
     queryKey: queryKeys.certifications.userAll(),
-    queryFn: () => apiFetcher(`${getAPIUrl()}certifications/user/all`),
+    queryFn: () => apiFetcher(`certifications/user/all`),
   });
 }
 
 export function userCourseCertificatesQueryOptions(courseUuid: string) {
   return queryOptions({
     queryKey: queryKeys.certifications.course(courseUuid),
-    queryFn: () => fetchResponseMetadata(`${getAPIUrl()}certifications/user/course/${courseUuid}`),
+    queryFn: () => fetchResponseMetadata(`certifications/user/course/${courseUuid}`),
   });
 }
 
 export function certificateDetailQueryOptions(certificateUuid: string) {
   return queryOptions({
     queryKey: queryKeys.certifications.detail(certificateUuid),
-    queryFn: () => fetchResponseMetadata(`${getAPIUrl()}certifications/certificate/${certificateUuid}`),
+    queryFn: () => fetchResponseMetadata(`certifications/certificate/${certificateUuid}`),
   });
 }
 
 export function courseContributorsQueryOptions(courseUuid: string) {
   return queryOptions({
     queryKey: queryKeys.courses.contributors(courseUuid),
-    queryFn: () => fetchResponseMetadata(`${getAPIUrl()}courses/${courseUuid}/contributors`),
+    queryFn: () => fetchResponseMetadata(`courses/${courseUuid}/contributors`),
   });
 }
 

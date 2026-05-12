@@ -62,6 +62,9 @@ async function getServerCookieHeader(): Promise<string> {
 
 const DEFAULT_TIMEOUT_MS = 30_000; // 30 seconds
 
+/** Prevents multiple concurrent 401 responses from racing to redirect. */
+let authRedirectPending = false;
+
 function createTimeoutReason(timeoutMs: number): Error {
   const error = new Error(`Request timed out after ${Math.round(timeoutMs / 1000)} seconds`);
   error.name = 'TimeoutError';
@@ -143,9 +146,10 @@ export async function apiFetch(path: string, init: ApiFetchInit = {}): Promise<R
       signal: combinedSignal?.signal,
     });
 
-    if (!isServer && response.status === 401) {
+    if (!isServer && response.status === 401 && !authRedirectPending) {
       const { pathname, search } = globalThis.location;
       if (!isAuthRoute(pathname)) {
+        authRedirectPending = true;
         globalThis.location.assign(`/api/auth/refresh?returnTo=${encodeURIComponent(pathname + search)}`);
       }
     }
@@ -157,74 +161,9 @@ export async function apiFetch(path: string, init: ApiFetchInit = {}): Promise<R
   }
 }
 
-// ── Request utilities (migrated from services/utils/ts/requests.ts) ───────────
-
-type FetchCacheConfig =
-  | {
-      revalidate?: number | null | undefined;
-      tags?: string[];
-      cache?: RequestCache | null | undefined;
-      [key: string]: any;
-    }
-  | undefined;
-
-const sanitizeFetchConfig = (config: FetchCacheConfig): { next?: Record<string, any>; cache?: RequestCache } => {
-  if (!config) return {};
-
-  const sanitized: Record<string, any> = { ...config };
-  let cache: RequestCache | undefined;
-
-  if ('cache' in sanitized) {
-    const cacheValue = sanitized.cache;
-    if (cacheValue === 'no-store' || cacheValue === 'force-cache' || cacheValue === 'only-if-cached') {
-      cache = cacheValue;
-    }
-    delete sanitized.cache;
-  }
-
-  if (sanitized.revalidate !== undefined && sanitized.revalidate !== null) {
-    const parsed = Number(sanitized.revalidate);
-    if (!Number.isFinite(parsed) || parsed <= 0) {
-      cache = 'no-store';
-      delete sanitized.revalidate;
-    } else {
-      sanitized.revalidate = parsed;
-    }
-  }
-
-  if (Object.keys(sanitized).length === 0) {
-    return cache ? { cache } : {};
-  }
-
-  return cache ? { next: sanitized, cache } : { next: sanitized };
-};
-
-export const RequestBody = (method: string, data: any, next: any) => {
-  const headers: Record<string, string> = {};
-  const options: RequestInit & { next?: any } = {
-    method,
-    redirect: 'follow',
-    credentials: 'include',
-    headers,
-  };
-
-  const { next: sanitizedNext, cache } = sanitizeFetchConfig(next);
-  if (cache) options.cache = cache;
-  if (sanitizedNext) options.next = sanitizedNext;
-
-  if (data !== null) {
-    headers['Content-Type'] = 'application/json';
-    options.body = JSON.stringify(data);
-  }
-
-  return options;
-};
-
-export const apiFetcher = async (url: string) => {
-  const response = await apiFetch(url, {
-    method: 'GET',
-  });
-  return errorHandling(response);
+export const apiFetcher = async <T = unknown>(url: string): Promise<T> => {
+  const response = await apiFetch(url, { method: 'GET' });
+  return errorHandling<T>(response);
 };
 
 export const fetchResponseMetadata = async (url: string): Promise<CustomResponseTyping> => {
@@ -251,7 +190,7 @@ export const apiFetcherWithHeaders = async (url: string): Promise<{ data: any; h
   return { data, headers: resHeaders };
 };
 
-export const errorHandling = async (res: Response) => {
+export async function errorHandling<T = unknown>(res: Response): Promise<T> {
   if (!res.ok) {
     let data: any;
     try {
@@ -276,8 +215,8 @@ export const errorHandling = async (res: Response) => {
     error.detail = data?.detail;
     throw error;
   }
-  return res.json();
-};
+  return res.json() as Promise<T>;
+}
 
 export interface CustomResponseTyping {
   success: boolean;
@@ -299,43 +238,11 @@ export const getResponseMetadata = async (response: Response): Promise<CustomRes
   }
 
   return {
-    success: response.status === 200,
+    success: response.ok,
     data,
     status: response.status,
     HTTPmessage: response.statusText,
   };
 };
 
-export const revalidateTags = async (tags: string[]) => {
-  const uniqueTags = [...new Set(tags)]
-    .filter((tag): tag is string => typeof tag === 'string' && tag.trim().length > 0)
-    .map((tag) => tag.trim());
 
-  if (uniqueTags.length === 0) return;
-
-  const baseUrl = typeof globalThis.window !== 'undefined' ? globalThis.location.origin : '';
-  const endpoint = `${baseUrl}/api/revalidate`;
-
-  try {
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tags: uniqueTags }),
-    });
-    if (!response.ok) {
-      throw new Error(`Failed to revalidate tags (${response.status})`);
-    }
-  } catch (error) {
-    console.warn('Failed to revalidate tags via POST, falling back to per-tag requests', {
-      tags: uniqueTags,
-      error,
-    });
-    await Promise.all(
-      uniqueTags.map((tag) => {
-        const url = `${endpoint}?tag=${encodeURIComponent(tag)}`;
-        return fetch(url, { credentials: 'include' });
-      }),
-    );
-  }
-};

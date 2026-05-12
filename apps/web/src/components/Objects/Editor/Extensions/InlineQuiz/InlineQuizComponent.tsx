@@ -1,0 +1,48 @@
+'use client';
+
+/**
+ * InlineQuizComponent — NodeView for the InlineQuiz TipTap node.
+ *
+ * Renders either the author view (for teachers editing the lesson) or the
+ * attempt view (for students consuming the lesson).
+ */
+
+import { useCallback, useEffect, useState } from 'react';
+import type { TypedNodeViewProps } from '@components/Objects/Editor/core';
+import type { InlineQuizAttrs } from './types';
+import InlineQuizAuthor from './InlineQuizAuthor';
+import InlineQuizAttempt from './InlineQuizAttempt';
+
+const InlineQuizComponent = (props: TypedNodeViewProps<InlineQuizAttrs>) => {
+  const { node, updateAttributes, editor } = props;
+  const { assessmentUuid } = node.attrs;
+  const editable = editor.isEditable;
+
+  const handleAssessmentCreated = useCallback(
+    (uuid: string) => {
+      updateAttributes({ assessmentUuid: uuid });
+    },
+    [updateAttributes],
+  );
+
+  if (editable) {
+    return (
+      <InlineQuizAuthor
+        assessmentUuid={assessmentUuid}
+        onAssessmentCreated={handleAssessmentCreated}
+      />
+    );
+  }
+
+  if (!assessmentUuid) {
+    return (
+      <div className="rounded-lg border border-dashed border-muted-foreground/30 p-4 text-center text-sm text-muted-foreground">
+        Quiz not configured
+      </div>
+    );
+  }
+
+  return <InlineQuizAttempt assessmentUuid={assessmentUuid} />;
+};
+
+export default InlineQuizComponent;

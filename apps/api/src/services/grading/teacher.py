@@ -334,7 +334,24 @@ def export_grades_csv(
     buf = io.StringIO()
     writer = csv.writer(buf)
 
-    writer.writerow([
+    # Discover item columns from the first graded submission's breakdown
+    item_headers: list[str] = []
+    sample_submission = db_session.exec(
+        select(Submission).where(
+            Submission.activity_id == activity_id,
+            Submission.status != SubmissionStatus.DRAFT,
+            Submission.grading_json.is_not(None),
+        )
+    ).first()
+    if sample_submission and isinstance(sample_submission.grading_json, dict):
+        items = sample_submission.grading_json.get("items", [])
+        for item in items:
+            if isinstance(item, dict):
+                item_id = item.get("item_id", "")
+                item_text = item.get("item_text", item_id)
+                item_headers.append(item_text or item_id)
+
+    header = [
         "Student Name",
         "Email",
         "Attempt",
@@ -343,7 +360,9 @@ def export_grades_csv(
         "Submitted At",
         "Auto Score",
         "Final Score",
-    ])
+    ] + [f"Item: {h}" for h in item_headers]
+
+    writer.writerow(header)
     yield buf.getvalue()
     buf.truncate(0)
     buf.seek(0)
@@ -383,6 +402,27 @@ def export_grades_csv(
             email = ""
 
         submitted = s.submitted_at.isoformat() if s.submitted_at else ""
+
+        # Extract per-item scores from grading breakdown
+        item_scores: list[str] = []
+        if item_headers and isinstance(s.grading_json, dict):
+            items = s.grading_json.get("items", [])
+            scores_by_id = {
+                item.get("item_id", ""): item.get("score", "")
+                for item in items
+                if isinstance(item, dict)
+            }
+            # Match order from header discovery
+            if sample_submission and isinstance(sample_submission.grading_json, dict):
+                for item in sample_submission.grading_json.get("items", []):
+                    if isinstance(item, dict):
+                        item_id = item.get("item_id", "")
+                        item_scores.append(
+                            str(scores_by_id.get(item_id, ""))
+                        )
+        elif item_headers:
+            item_scores = [""] * len(item_headers)
+
         writer.writerow([
             name,
             email,
@@ -392,7 +432,7 @@ def export_grades_csv(
             submitted,
             s.auto_score if s.auto_score is not None else "",
             s.final_score if s.final_score is not None else "",
-        ])
+        ] + item_scores)
         yield buf.getvalue()
         buf.truncate(0)
         buf.seek(0)

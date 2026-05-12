@@ -6,6 +6,7 @@ import { useCertificateByUuid } from '@/features/certifications/hooks/useCertifi
 import { getCourseThumbnailMediaDirectory } from '@services/media/media';
 import { getAbsoluteUrl } from '@services/config/config';
 import { useLocale, useTranslations } from 'next-intl';
+import NextImage from '@components/ui/NextImage';
 import { Label } from '@/components/ui/label';
 import Link from '@components/ui/AppLink';
 import type React from 'react';
@@ -205,12 +206,14 @@ const CertificateVerificationPage: React.FC<CertificateVerificationPageProps> = 
                 <div className="shrink-0">
                   <div className="bg-muted ring-border h-12 w-20 overflow-hidden rounded-lg ring-1 ring-inset">
                     {certificateData.course.thumbnail_image ? (
-                      <img
+                      <NextImage
                         src={getCourseThumbnailMediaDirectory(
                           certificateData.course.course_uuid,
                           certificateData.course.thumbnail_image,
                         )}
                         alt={`${certificateData.course.name} ${t('courseThumbnailAlt')}`}
+                        width={160}
+                        height={96}
                         className="h-full w-full object-cover"
                       />
                     ) : (

@@ -44,7 +44,7 @@
       "@public/*": ["./public/*"],
       "@styles/*": ["./src/styles/*"],
       "@services/*": ["./src/services/*"],
-      "@hooks/*": ["./src/components/Hooks/*"],
+      "@hooks/*": ["./src/hooks/*"],
       "@editor/*": ["./src/components/Objects/Editor/*"],
       "@images/*": ["./public/img/*"]
     },

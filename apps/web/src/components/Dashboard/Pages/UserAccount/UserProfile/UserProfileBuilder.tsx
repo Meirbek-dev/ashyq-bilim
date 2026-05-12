@@ -27,6 +27,7 @@ import type { DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useDndAnnouncements } from '@/hooks/useDndAnnouncements';
+import NextImage from '@components/ui/NextImage';
 
 function SortableProfileSection({
   section,
@@ -890,11 +891,13 @@ const ImageGalleryEditor: FC<{
                   </Button>
                 </div>
                 {image.url ? (
-                  <div className="col-span-3">
-                    <img
+                  <div className="relative col-span-3 mt-2 h-32 w-full overflow-hidden rounded-lg">
+                    <NextImage
                       src={image.url}
                       alt={image.caption || ''}
-                      className="mt-2 max-h-32 rounded-lg object-cover"
+                      fill
+                      className="object-cover"
+                      sizes="(min-width: 1024px) 50vw, 100vw"
                     />
                   </div>
                 ) : null}
