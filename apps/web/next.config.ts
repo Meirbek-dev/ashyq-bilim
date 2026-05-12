@@ -1,6 +1,32 @@
 import createNextIntlPlugin from 'next-intl/plugin';
 import type { NextConfig } from 'next';
 
+type RemotePattern = NonNullable<NonNullable<NextConfig['images']>['remotePatterns']>[number];
+
+const createRemotePattern = (value: string | undefined, pathname: string): RemotePattern | null => {
+  const normalizedValue = value?.trim();
+  if (!normalizedValue) return null;
+
+  try {
+    const url = new URL(normalizedValue);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+
+    return {
+      protocol: url.protocol.replace(':', '') as 'http' | 'https',
+      hostname: url.hostname,
+      port: url.port,
+      pathname,
+    };
+  } catch {
+    return null;
+  }
+};
+
+const imageRemotePatterns = [
+  createRemotePattern(process.env.NEXT_PUBLIC_MEDIA_URL ?? process.env.NEXT_PUBLIC_SITE_URL, '/content/platform/**'),
+  createRemotePattern(process.env.NEXT_PUBLIC_SITE_URL, '/platform_logo_full.svg'),
+].filter((pattern): pattern is RemotePattern => pattern !== null);
+
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
   devIndicators: false,
@@ -17,6 +43,8 @@ const nextConfig: NextConfig = {
     qualities: [75, 100],
     // Optimized for avatars and course thumbnails
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
+    remotePatterns: imageRemotePatterns,
+    dangerouslyAllowLocalIP: process.env.NODE_ENV === 'development',
   },
 
   // Build & Environment
