@@ -18,7 +18,7 @@ from src.infra.db.engine import (
 )
 from src.infra.logging import configure_logging
 from src.infra.settings import AppSettings
-from src.tasks.assignment_scheduler import assignment_scheduler_loop
+from src.tasks.assessment_scheduler import assessment_scheduler_loop
 from src.tasks.upload_reaper import reap_orphan_uploads
 
 logger = logging.getLogger(__name__)
@@ -87,8 +87,8 @@ def create_lifespan(settings: AppSettings) -> Callable[[FastAPI], AsyncIterator[
             name="vector_ttl_sweep",
         )
         scheduler_task = asyncio.create_task(
-            assignment_scheduler_loop(settings),
-            name="assignment_scheduler",
+            assessment_scheduler_loop(settings),
+            name="assessment_scheduler",
         )
         upload_reaper_task = asyncio.create_task(
             _upload_reaper_loop(session_factory),

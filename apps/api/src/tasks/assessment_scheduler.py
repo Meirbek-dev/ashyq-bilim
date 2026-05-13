@@ -6,8 +6,8 @@ assessments whose ``scheduled_at`` is in the past and whose lifecycle is still
 
 Wire into app startup via ``lifespan.py``:
 
-    from src.tasks.assignment_scheduler import assignment_scheduler_loop
-    asyncio.create_task(assignment_scheduler_loop(settings), name="assignment_scheduler")
+    from src.tasks.assessment_scheduler import assessment_scheduler_loop
+    asyncio.create_task(assessment_scheduler_loop(settings), name="assessment_scheduler")
 """
 
 import asyncio
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 POLL_INTERVAL_SECONDS: int = 60
 
 
-async def assignment_scheduler_loop(settings: AppSettings) -> None:
+async def assessment_scheduler_loop(settings: AppSettings) -> None:
     """Periodic loop that auto-publishes SCHEDULED assessments."""
     logger.info(
         "Assessment scheduler started (poll interval: %ds)", POLL_INTERVAL_SECONDS

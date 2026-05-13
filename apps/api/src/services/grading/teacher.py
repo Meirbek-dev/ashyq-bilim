@@ -860,8 +860,6 @@ async def bulk_publish_grades(
             latest_entry.effective_breakdown
             if latest_entry is not None
             and isinstance(latest_entry.effective_breakdown, dict)
-            else latest_entry.breakdown
-            if latest_entry is not None and isinstance(latest_entry.breakdown, dict)
             else submission.grading_json
             if isinstance(submission.grading_json, dict)
             else {}

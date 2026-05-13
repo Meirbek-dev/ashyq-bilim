@@ -29,7 +29,7 @@ import {
   Video,
   X as XIcon,
 } from 'lucide-react';
-import { useActivityAssignmentUuid } from '@/features/courses/hooks/useCourseQueries';
+import { useActivityAssessmentUuid } from '@/features/courses/hooks/useCourseQueries';
 import { CourseWorkflowBadge } from '@components/Dashboard/Courses/courseWorkflowUi';
 import { useActivityMutations } from '@/hooks/mutations/useActivityMutations';
 import { cleanActivityUuid, cleanCourseUuid } from '@/lib/course-management';
@@ -137,7 +137,7 @@ const ActivityElement = ({
   const [isDeletingActivity, setIsDeletingActivity] = useState(false);
   const [fetchAssignment, setFetchAssignment] = useState(false);
 
-  const { data: assignmentUUID, isLoading: isAssignmentLoading } = useActivityAssignmentUuid(activity.activity_uuid, {
+  const { data: assignmentUUID, isLoading: isAssignmentLoading } = useActivityAssessmentUuid(activity.activity_uuid, {
     enabled: activity.activity_type === 'TYPE_ASSIGNMENT' && fetchAssignment,
   });
 

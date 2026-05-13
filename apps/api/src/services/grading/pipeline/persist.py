@@ -78,7 +78,6 @@ def persist_submission(
                 raw_score=float(result.auto_score),
                 penalty_pct=float(penalty.late_penalty_pct),
                 final_score=float(penalty.final_score),
-                breakdown=effective_breakdown,
                 raw_breakdown=raw_breakdown,
                 effective_breakdown=effective_breakdown,
                 overall_feedback=(

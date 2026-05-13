@@ -3,7 +3,7 @@
 import { queryOptions, useQuery } from '@tanstack/react-query';
 import type { CourseListKeyOptions } from '@/hooks/courses/courseKeys';
 import {
-  activityAssignmentUuidQueryOptions,
+  activityAssessmentUuidQueryOptions,
   courseListQueryOptions,
   courseMetadataQueryOptions,
   courseDiscussionsQueryOptions,
@@ -70,11 +70,11 @@ function courseListHookOptions<TCourse = unknown>(
   });
 }
 
-function activityAssignmentUuidHookOptions(activityUuid: string | null | undefined, enabled = true) {
+function activityAssessmentUuidHookOptions(activityUuid: string | null | undefined, enabled = true) {
   const normalizedActivityUuid = activityUuid ?? '';
 
   return queryOptions({
-    ...activityAssignmentUuidQueryOptions(normalizedActivityUuid),
+    ...activityAssessmentUuidQueryOptions(normalizedActivityUuid),
     enabled: enabled && Boolean(activityUuid),
   });
 }
@@ -98,6 +98,6 @@ export function useCourseListQuery<TCourse = unknown>(
   return useQuery(courseListHookOptions<TCourse>(options, queryConfig));
 }
 
-export function useActivityAssignmentUuid(activityUuid: string | null | undefined, options?: { enabled?: boolean }) {
-  return useQuery(activityAssignmentUuidHookOptions(activityUuid, options?.enabled ?? true));
+export function useActivityAssessmentUuid(activityUuid: string | null | undefined, options?: { enabled?: boolean }) {
+  return useQuery(activityAssessmentUuidHookOptions(activityUuid, options?.enabled ?? true));
 }

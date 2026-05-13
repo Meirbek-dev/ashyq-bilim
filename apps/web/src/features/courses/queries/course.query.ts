@@ -157,13 +157,13 @@ export function courseContributorsQueryOptions(courseUuid: string) {
   });
 }
 
-export function activityAssignmentUuidQueryOptions(activityUuid: string) {
+export function activityAssessmentUuidQueryOptions(activityUuid: string) {
   return queryOptions({
-    queryKey: queryKeys.assignments.activity(activityUuid),
+    queryKey: queryKeys.assessments.activity(activityUuid),
     queryFn: async () => {
       try {
         const data = await apiFetcher<{ assessment_uuid?: string }>(`assessments/activity/${activityUuid}`);
-        return data?.assessment_uuid?.replace('assignment_', '') ?? null;
+        return data?.assessment_uuid ?? null;
       } catch {
         return null;
       }

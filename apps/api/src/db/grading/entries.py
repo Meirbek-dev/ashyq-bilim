@@ -19,7 +19,6 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
-    String,
     Text,
     UniqueConstraint,
 )
@@ -68,12 +67,6 @@ class GradingEntry(SQLModelStrictBaseModel, table=True):
     )
     final_score: float = Field(sa_column=Column("final_score", Float, nullable=False))
 
-    # Legacy alias for effective grading detail. Keep populated while external
-    # contracts migrate to raw_breakdown/effective_breakdown.
-    breakdown: dict = Field(
-        default_factory=dict,
-        sa_column=Column(JSON, nullable=False, server_default="{}"),
-    )
     raw_breakdown: dict = Field(
         default_factory=dict,
         sa_column=Column("raw_breakdown", JSON, nullable=False, server_default="{}"),
@@ -122,7 +115,6 @@ class GradingEntryRead(SQLModelStrictBaseModel):
     raw_score: float
     penalty_pct: float
     final_score: float
-    breakdown: dict
     raw_breakdown: dict
     effective_breakdown: dict
     overall_feedback: str

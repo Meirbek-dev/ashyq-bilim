@@ -92,26 +92,3 @@ export interface BulkPublishGradesResponse {
   published_count: number;
   already_published_count: number;
 }
-
-/** Backward-compatible aliases for older imports while callers migrate. */
-export type GradebookCell = ActivityProgressCell;
-export type GradebookResponse = CourseGradebookResponse;
-
-// ── Answer payload shapes (frontend-only, not in OpenAPI schema) ──────────────
-
-// ── Status display helpers ────────────────────────────────────────────────────
-// Compatibility exports. New code should import from `features/grading/domain`.
-
-export {
-  ACTIVITY_PROGRESS_STATE_CLASSES,
-  ACTIVITY_PROGRESS_STATE_LABELS,
-  SUBMISSION_STATUS_COLORS as STATUS_COLORS,
-  SUBMISSION_STATUS_LABELS as STATUS_LABELS,
-  activityProgressNeedsTeacherAction,
-  canSelectForBatchGrading,
-  canTeacherEditGrade,
-  isActivityProgressComplete,
-  isActivityProgressOverdue,
-  isPublishedToStudent,
-  needsTeacherAction,
-} from '@/features/grading/domain';

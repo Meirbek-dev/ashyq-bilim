@@ -12,14 +12,6 @@ export const queryKeys = {
       ['assessments', 'draft', assessmentUuid || 'missing'] as const,
     readiness: (assessmentUuid: string) => ['assessments', 'readiness', assessmentUuid] as const,
   },
-  assignments: {
-    activity: (activityUuid: string) => ['assignments', 'activity', activityUuid] as const,
-    detail: (assignmentUuid: string) => ['assignments', 'detail', assignmentUuid] as const,
-    submissions: (assignmentUuid: string) => ['assignments', 'submissions', assignmentUuid] as const,
-    taskSubmission: (assignmentUuid: string, assignmentTaskUuid: string) =>
-      ['assignments', 'task-submission', assignmentUuid, assignmentTaskUuid] as const,
-    tasks: (assignmentUuid: string) => ['assignments', 'tasks', assignmentUuid] as const,
-  },
   codeChallenges: {
     languages: () => ['code-challenges', 'languages'] as const,
     settings: (activityUuid: string) => ['code-challenges', 'settings', activityUuid] as const,
