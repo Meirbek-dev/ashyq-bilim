@@ -40,16 +40,21 @@ async def get_course_gradebook(
     course = _get_course_or_404(course_uuid, db_session)
     _require_gradebook_access(course, current_user, db_session)
 
-    try:
-        backfill_activity_progress(db_session, course_id=course.id, commit=True)
-    except IntegrityError:
-        db_session.rollback()
-
     activities = _course_activities(course.id, db_session)
     students = _course_students(course, activities, db_session)
-    progress_by_pair = _progress_by_pair(course.id, db_session)
+    student_ids = [s.id for s in students]
+
+    # Optimized progress fetch: only for students in this course view
+    progress_rows = db_session.exec(
+        select(ActivityProgress).where(
+            ActivityProgress.course_id == course.id,
+            ActivityProgress.user_id.in_(student_ids),
+        )
+    ).all()
+    progress_by_pair = {(r.user_id, r.activity_id): r for r in progress_rows}
+
     submissions_by_id = _submissions_by_id(
-        {progress.latest_submission_id for progress in progress_by_pair.values()},
+        {progress.latest_submission_id for progress in progress_rows if progress.latest_submission_id},
         db_session,
     )
     policies_by_activity = _policies_by_activity(db_session)

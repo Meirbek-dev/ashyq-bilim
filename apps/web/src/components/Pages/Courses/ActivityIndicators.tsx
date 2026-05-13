@@ -341,12 +341,14 @@ const ActivityIndicators = (props: Props) => {
       return cleanRunCourseUuid === cleanCourseUuid;
     });
     return new Set(
-      (run?.steps ?? []).filter((step: any) => step.complete === true).map((step: any) => step.activity_id),
+      (run?.steps ?? [])
+        .filter((step: any) => step.complete === true)
+        .map((step: any) => Number(step.activity_id)),
     );
   }, [props.trailData, course.course_uuid]);
 
   function isActivityDone(activity: any) {
-    return completedActivityIds.has(activity.id);
+    return completedActivityIds.has(Number(activity.id));
   }
 
   function isActivityCurrent(activity: any) {

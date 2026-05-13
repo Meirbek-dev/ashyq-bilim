@@ -625,14 +625,17 @@ def _get_assessment_by_uuid_or_404(
 
 
 def _get_activity_by_uuid_or_404(activity_uuid: str, db_session: Session) -> Activity:
-    normalized = (
-        activity_uuid
-        if activity_uuid.startswith("activity_")
-        else f"activity_{activity_uuid}"
-    )
+    # Try multiple variations to be robust against different ID formats
+    variations = [activity_uuid]
+    if activity_uuid.startswith("activity_"):
+        variations.append(activity_uuid.removeprefix("activity_"))
+    else:
+        variations.append(f"activity_{activity_uuid}")
+
     activity = db_session.exec(
-        select(Activity).where(Activity.activity_uuid == normalized)
+        select(Activity).where(Activity.activity_uuid.in_(variations))
     ).first()
+
     if activity is None:
         raise HTTPException(status_code=404, detail="Активность не найдена")
     return activity
