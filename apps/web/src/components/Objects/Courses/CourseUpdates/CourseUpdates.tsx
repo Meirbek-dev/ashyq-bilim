@@ -274,9 +274,14 @@ const UpdatesListView = () => {
   const t = useTranslations('Courses.CourseUpdates');
   const locale = useDateFnsLocale();
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <div className="max-h-[400px] overflow-y-auto bg-white px-5">
-      {updates
+      {mounted && updates
         ? updates.map((update: any) => (
             <div
               key={update.id}
@@ -303,7 +308,7 @@ const UpdatesListView = () => {
             </div>
           ))
         : null}
-      {(!updates || updates.length === 0) && (
+      {mounted && (!updates || updates.length === 0) && (
         <div className="my-10 flex flex-col space-y-2 py-2 text-center text-gray-500">
           <TentTree
             className="mx-auto"

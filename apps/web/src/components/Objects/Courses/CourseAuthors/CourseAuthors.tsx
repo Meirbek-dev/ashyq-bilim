@@ -26,7 +26,7 @@ import { format, formatDistanceToNow } from 'date-fns';
 import { Controller, useForm } from 'react-hook-form';
 import { Textarea } from '@components/ui/textarea';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useState, useTransition } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { Button } from '@components/ui/button';
 import { Input } from '@components/ui/input';
 import { useTranslations } from 'next-intl';
@@ -328,17 +328,25 @@ const UpdatesListView = ({ courseUuid }: { courseUuid: string }) => {
   const t = useTranslations('Courses.CourseAuthors');
   const locale = useDateFnsLocale();
 
-  if (!updates || updates.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-neutral-200 bg-neutral-50/50 px-4 py-8 text-center">
-        <TentTree
-          size={28}
-          className="mb-2 text-neutral-400"
-        />
-        <p className="text-sm font-medium text-neutral-600">{t('noUpdatesYet')}</p>
-        <p className="mt-1 text-xs text-neutral-400">{t('updatesAppearHere')}</p>
-      </div>
-    );
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !updates || updates.length === 0) {
+    if (mounted && (!updates || updates.length === 0)) {
+      return (
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-neutral-200 bg-neutral-50/50 px-4 py-8 text-center">
+          <TentTree
+            size={28}
+            className="mb-2 text-neutral-400"
+          />
+          <p className="text-sm font-medium text-neutral-600">{t('noUpdatesYet')}</p>
+          <p className="mt-1 text-xs text-neutral-400">{t('updatesAppearHere')}</p>
+        </div>
+      );
+    }
+    return null; // Return nothing while mounting if no data yet to match server
   }
 
   return (

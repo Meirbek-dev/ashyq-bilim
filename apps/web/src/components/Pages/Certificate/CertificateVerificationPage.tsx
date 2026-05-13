@@ -6,6 +6,7 @@ import { useCertificateByUuid } from '@/features/certifications/hooks/useCertifi
 import { getCourseThumbnailMediaDirectory } from '@services/media/media';
 import { getAbsoluteUrl } from '@services/config/config';
 import { useLocale, useTranslations } from 'next-intl';
+import { useState, useEffect } from 'react';
 import NextImage from '@components/ui/NextImage';
 import { Label } from '@/components/ui/label';
 import Link from '@components/ui/AppLink';
@@ -18,15 +19,23 @@ interface CertificateVerificationPageProps {
 const CertificateVerificationPage: React.FC<CertificateVerificationPageProps> = ({ certificateUuid }) => {
   const locale = useLocale();
   const t = useTranslations('Certificates.CertificateVerificationPage');
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const certificateQuery = useCertificateByUuid(certificateUuid);
   const certificateData = certificateQuery.data?.data ?? null;
   const isLoading = certificateQuery.isPending;
+
   const error = certificateQuery.error
     ? t('verificationFailed')
-    : !isLoading && !certificateData
+    : mounted && !isLoading && !certificateData
       ? t('certificateNotFound')
       : null;
-  const verificationStatus: 'valid' | 'invalid' | 'loading' = isLoading
+
+  const verificationStatus: 'valid' | 'invalid' | 'loading' = !mounted || isLoading
     ? 'loading'
     : certificateData
       ? 'valid'
@@ -89,7 +98,7 @@ const CertificateVerificationPage: React.FC<CertificateVerificationPageProps> = 
     }
   };
 
-  if (isLoading) {
+  if (!mounted || isLoading) {
     return (
       <div className="bg-background text-foreground flex min-h-screen flex-col items-center justify-center">
         <div className="soft-shadow border-border bg-card text-card-foreground w-full max-w-4xl space-y-6 rounded-2xl border p-8 shadow-sm">

@@ -11,7 +11,7 @@ import SimpleAlertDialog from '@/components/ui/alert-dialog-simple';
 import { ArrowLeft, Download, Loader2 } from 'lucide-react';
 import { getAbsoluteUrl } from '@services/config/config';
 import { useLocale, useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from '@components/ui/AppLink';
 import type React from 'react';
 
@@ -25,13 +25,20 @@ const CertificatePage: React.FC<CertificatePageProps> = ({ courseid, qrCodeLink 
   const t = useTranslations('Certificates.CertificatePage');
   const [dialogAlertOpen, setDialogAlertOpen] = useState(false);
   const [dialogAlertMessage, setDialogAlertMessage] = useState('');
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const normalizedCourseId = courseid.startsWith('course_') ? courseid : `course_${courseid}`;
   const certificateQuery = useUserCertificateByCourse(normalizedCourseId);
   const userCertificate = certificateQuery.data?.data?.[0] ?? null;
   const isLoading = certificateQuery.isPending;
+
   const certificateError = certificateQuery.error
     ? t('error')
-    : !isLoading && !userCertificate
+    : mounted && !isLoading && !userCertificate
       ? t('noCertificate')
       : null;
 
@@ -85,7 +92,7 @@ const CertificatePage: React.FC<CertificatePageProps> = ({ courseid, qrCodeLink 
     }
   };
 
-  if (isLoading) {
+  if (!mounted || isLoading) {
     return (
       <div className="bg-background flex min-h-screen items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
