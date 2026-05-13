@@ -65,9 +65,9 @@ export function getQueryClient() {
  * Only created in the browser — returns null on the server.
  */
 export function createQueryPersister() {
-  if (typeof window === 'undefined') return null;
+  if (typeof globalThis.window === 'undefined') return null;
   return createAsyncStoragePersister({
-    storage: window.sessionStorage,
+    storage: globalThis.sessionStorage,
     key: 'tanstack-query-cache',
   });
 }

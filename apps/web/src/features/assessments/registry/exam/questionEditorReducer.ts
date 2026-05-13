@@ -36,24 +36,32 @@ export function createInitialEditorState(): EditorState {
 
 export function questionEditorReducer(state: EditorState, action: EditorAction): EditorState {
   switch (action.type) {
-    case 'START_INLINE_EDIT':
+    case 'START_INLINE_EDIT': {
       return { mode: 'editing-inline', question: action.question };
-    case 'START_MODAL_EDIT':
+    }
+    case 'START_MODAL_EDIT': {
       return { mode: 'editing-modal', question: action.question };
-    case 'START_DELETE':
+    }
+    case 'START_DELETE': {
       return { mode: 'deleting', questionUuid: action.questionUuid, isDeleting: false };
-    case 'CANCEL_DELETE':
+    }
+    case 'CANCEL_DELETE': {
       return { mode: 'idle' };
-    case 'CANCEL_EDIT':
+    }
+    case 'CANCEL_EDIT': {
       return { mode: 'idle' };
-    case 'CONFIRM_DELETE':
+    }
+    case 'CONFIRM_DELETE': {
       if (state.mode === 'deleting') {
         return { ...state, isDeleting: true };
       }
       return state;
-    case 'RESET_TO_IDLE':
+    }
+    case 'RESET_TO_IDLE': {
       return { mode: 'idle' };
-    default:
+    }
+    default: {
       return state;
+    }
   }
 }

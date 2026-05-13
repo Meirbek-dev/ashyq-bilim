@@ -348,7 +348,7 @@ async function fetchActivity(activity_uuid: string): Promise<ActivityReadWithPer
     baseUrl: getAPIUrl(),
     timeoutMs: 10_000,
   });
-  return (await errorHandling(result)) as ActivityReadWithPermissions;
+  return await errorHandling(result);
 }
 
 export async function getActivity(activity_uuid: string, _next?: any) {

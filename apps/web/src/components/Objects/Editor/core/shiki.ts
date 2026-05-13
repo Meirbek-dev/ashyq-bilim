@@ -40,8 +40,8 @@ export async function highlightCode(code: string, lang: string) {
   if (!highlighter.getLoadedLanguages().includes(lang)) {
     try {
       await highlighter.loadLanguage(lang as any);
-    } catch (e) {
-      console.warn(`Failed to load Shiki language: ${lang}. Falling back to plain text.`, e);
+    } catch (error) {
+      console.warn(`Failed to load Shiki language: ${lang}. Falling back to plain text.`, error);
       lang = 'text';
     }
   }

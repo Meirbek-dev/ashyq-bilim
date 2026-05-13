@@ -1,6 +1,7 @@
 'use server';
 
-import { apiFetch, errorHandling, getResponseMetadata, type CustomResponseTyping } from '@/lib/api-client';
+import { apiFetch, errorHandling, getResponseMetadata } from '@/lib/api-client';
+import type { CustomResponseTyping } from '@/lib/api-client';
 import { getAPIUrl } from '@services/config/config';
 
 export interface AssessmentSummary {
@@ -45,7 +46,7 @@ export async function getAssessmentByUuid(assessmentUuid: string): Promise<Asses
       timeoutMs: 8000,
     });
     if (result.status === 404) return null;
-    return (await errorHandling(result)) as AssessmentSummary;
+    return await errorHandling(result);
   } catch {
     return null;
   }
@@ -63,7 +64,7 @@ export async function getAssessmentByActivityUuid(activityUuid: string): Promise
       timeoutMs: 8000,
     });
     if (result.status === 404) return null;
-    return (await errorHandling(result)) as AssessmentSummary;
+    return await errorHandling(result);
   } catch {
     return null;
   }

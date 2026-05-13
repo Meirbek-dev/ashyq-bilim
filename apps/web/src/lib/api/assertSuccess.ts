@@ -31,7 +31,7 @@ export class APIError extends Error {
 
 function formatIssueDetail(detail: unknown): string | null {
   if (!detail || typeof detail !== 'object' || !('issues' in detail)) return null;
-  const issues = (detail as { issues?: unknown }).issues;
+  const { issues } = detail as { issues?: unknown };
   if (!Array.isArray(issues) || issues.length === 0) return null;
   const firstMessages = issues
     .map((issue) => (issue && typeof issue === 'object' ? (issue as { message?: unknown }).message : null))

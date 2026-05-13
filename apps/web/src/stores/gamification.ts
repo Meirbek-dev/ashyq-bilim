@@ -155,13 +155,13 @@ export const useGamificationStore = create<GamificationState & GamificationActio
                 if (!options.silent && result.transaction.amount > 0) {
                   newPendingXPToasts.push({ amount: result.transaction.amount, source: payload.source });
                   if (result.triggered_level_up) {
-                    newLevelUpQueue.push({ newLevel: result.profile!.level });
+                    newLevelUpQueue.push({ newLevel: result.profile.level });
                   }
                 }
 
                 return {
                   profile: result.profile,
-                  dashboard: s.dashboard ? { ...s.dashboard, profile: result.profile! } : s.dashboard,
+                  dashboard: s.dashboard ? { ...s.dashboard, profile: result.profile } : s.dashboard,
                   pendingXPToasts: newPendingXPToasts,
                   levelUpQueue: newLevelUpQueue,
                 };
@@ -257,7 +257,9 @@ export const useGamificationStore = create<GamificationState & GamificationActio
       }),
       {
         name: 'gamification-store',
-        storage: createJSONStorage(() => (typeof window !== 'undefined' ? window.sessionStorage : ({} as Storage))),
+        storage: createJSONStorage(() =>
+          typeof globalThis.window !== 'undefined' ? globalThis.sessionStorage : ({} as Storage),
+        ),
         // Only persist slow-changing profile/dashboard data — not transient UI state
         partialize: (state) => ({
           profile: state.profile,

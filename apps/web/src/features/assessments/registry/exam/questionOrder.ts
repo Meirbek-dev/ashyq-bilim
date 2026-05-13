@@ -1,4 +1,8 @@
-type QuestionLike = { id: string | number; question_uuid: string; order_index?: number };
+interface QuestionLike {
+  id: string | number;
+  question_uuid: string;
+  order_index?: number;
+}
 
 /**
  * Returns questions reordered according to `orderedIds`.
@@ -17,7 +21,7 @@ export function getOrderedExamQuestions<T extends QuestionLike>(
   questions: T[],
   orderedIds: (string | number)[] | null,
 ): T[] {
-  const sortedByOrderIndex = (): T[] => [...questions].sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
+  const sortedByOrderIndex = (): T[] => [...questions].toSorted((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
 
   if (orderedIds === null) {
     return [...questions];

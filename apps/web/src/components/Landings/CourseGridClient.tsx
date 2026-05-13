@@ -89,7 +89,7 @@ export default function CourseGridClient({ initialCourses, initialTotal }: Cours
       const bDate = new Date(b.creation_date || b.created_at || b.update_date || 0).getTime();
       return bDate - aDate;
     });
-  }, [courses, trailData]);
+  }, [courses, trailData, hasMounted]);
 
   // Only show loading state for authenticated users while the query is in-flight.
   // Using isLoading (not !trailData) so new users whose trail returns 404 don't

@@ -288,12 +288,12 @@ export async function getEditableCourses(page = 1, limit = 20, query = '', sortB
 
 export async function getCourseUserRights(course_uuid: string) {
   const result = await apiFetch(`courses/${course_uuid}/rights`);
-  return (await errorHandling(result)) as CourseUserRightsResponse;
+  return await errorHandling(result);
 }
 
 export async function searchCourses(query: string, page = 1, limit = 20, next: any) {
   const result = await apiFetch(`courses/search?query=${encodeURIComponent(query)}&page=${page}&limit=${limit}`);
-  return ((await errorHandling(result)) as CourseRead[]).map((course) => normalizeCourse(course));
+  return (await errorHandling(result)).map((course) => normalizeCourse(course));
 }
 
 /**
@@ -313,7 +313,7 @@ async function fetchCourseMetadata(
       timeoutMs: 10_000,
     },
   );
-  return normalizeFullCourse((await errorHandling(result)) as FullCourseRead);
+  return normalizeFullCourse(await errorHandling(result));
 }
 
 export async function getCourseMetadata(course_uuid: string, _next?: any, withUnpublishedActivities = false) {
@@ -388,7 +388,7 @@ async function fetchCourse(course_uuid: string): Promise<NormalizedCourse> {
     baseUrl: getAPIUrl(),
     timeoutMs: 10_000,
   });
-  return normalizeCourse((await errorHandling(result)) as CourseRead);
+  return normalizeCourse(await errorHandling(result));
 }
 
 export async function getCourse(course_uuid: string, _next?: any) {
@@ -474,7 +474,7 @@ export async function deleteCourseFromBackend(
   options?: Pick<CourseWriteOptions, 'includeEditableList' | 'includePublicList'>,
 ) {
   const result = await apiFetch(`courses/${course_uuid}`, { method: 'DELETE' });
-  const data = (await errorHandling(result)) as CourseDetailResponse;
+  const data = await errorHandling(result);
   const deletionSucceeded =
     result.ok &&
     (!('success' in (data as Record<string, unknown>)) || Boolean((data as { success?: unknown }).success));
@@ -579,5 +579,5 @@ export async function bulkRemoveContributors(
 
 export async function getCourseRights(course_uuid: string) {
   const result = await apiFetch(`courses/${course_uuid}/rights`);
-  return (await errorHandling(result)) as CourseUserRightsResponse;
+  return await errorHandling(result);
 }

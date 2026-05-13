@@ -16,7 +16,6 @@ import { queryOptions, useQuery } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { apiFetcher } from '@/lib/api-client';
 import type { components } from '@/lib/api/generated/schema';
-import { getAPIUrl } from '@services/config/config';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 import { reportClientError } from '@/services/telemetry/client';
 

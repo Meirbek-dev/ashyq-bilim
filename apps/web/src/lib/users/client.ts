@@ -1,6 +1,7 @@
 'use client';
 
-import { apiFetch, errorHandling, getResponseMetadata, type CustomResponseTyping } from '@/lib/api-client';
+import { apiFetch, errorHandling, getResponseMetadata } from '@/lib/api-client';
+import type { CustomResponseTyping } from '@/lib/api-client';
 import { getQueryClient } from '@/lib/react-query/queryClient';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 import type { components } from '@/lib/api/generated';
@@ -35,7 +36,7 @@ export async function getCurrentUserProfile(): Promise<UserRead> {
 
 export async function getCoursesByUser(userId: number): Promise<ResponseMetadata<CourseRead[]>> {
   const response = await apiFetch(`users/${userId}/courses`);
-  return getResponseMetadata(response) as Promise<ResponseMetadata<CourseRead[]>>;
+  return getResponseMetadata(response);
 }
 
 export async function updateUserAvatar(userId: number, avatarFile: File): Promise<ResponseMetadata<UserRead>> {
@@ -71,7 +72,7 @@ export async function updateUserTheme(userId: number, theme: string): Promise<vo
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ theme }),
   });
-  await errorHandling<unknown>(response);
+  await errorHandling(response);
   await getQueryClient().invalidateQueries({ queryKey: userKeys.byId(userId) });
 }
 

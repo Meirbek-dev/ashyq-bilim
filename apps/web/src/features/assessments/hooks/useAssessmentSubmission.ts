@@ -362,5 +362,5 @@ function cloneAnswers(answers: Record<string, ItemAnswer>): Record<string, ItemA
     return structuredClone(answers);
   }
   // Fallback for environments without structuredClone (e.g. older Safari/Node)
-  return JSON.parse(JSON.stringify(answers)) as Record<string, ItemAnswer>;
+  return structuredClone(answers);
 }

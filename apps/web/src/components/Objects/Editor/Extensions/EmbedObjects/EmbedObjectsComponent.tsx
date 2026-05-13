@@ -32,7 +32,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { NodeViewWrapper } from '@tiptap/react';
 import { useTranslations } from 'next-intl';
 import DOMPurify from 'dompurify';
-import { getYouTubeVideoId, isYouTubeUrl } from '@/lib/utils';
+import { getYouTubeVideoId } from '@/lib/utils';
 import type { TypedNodeViewProps } from '@components/Objects/Editor/core';
 
 // ============================================================================

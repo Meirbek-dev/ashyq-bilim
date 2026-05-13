@@ -36,10 +36,7 @@ async function PlatformAnalyticsAssessmentsPageInner(props: {
     if (query.bucket_start) params.set('bucket_start', query.bucket_start);
 
     return (
-      <main
-        role="main"
-        className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-4 py-6 md:px-6 xl:px-8"
-      >
+      <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-4 py-6 md:px-6 xl:px-8">
         <Card className="bg-card text-card-foreground border-slate-200 shadow-sm dark:border-slate-700 dark:bg-slate-800">
           <CardContent className="space-y-4">
             <TeacherFilterBar

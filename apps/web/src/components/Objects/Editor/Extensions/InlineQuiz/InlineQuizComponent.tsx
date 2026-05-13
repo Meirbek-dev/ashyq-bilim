@@ -7,7 +7,7 @@
  * attempt view (for students consuming the lesson).
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import type { TypedNodeViewProps } from '@components/Objects/Editor/core';
 import type { InlineQuizAttrs } from './types';
 import InlineQuizAuthor from './InlineQuizAuthor';

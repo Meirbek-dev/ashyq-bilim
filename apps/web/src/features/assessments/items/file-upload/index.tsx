@@ -203,7 +203,7 @@ export function FileUploadConstraintsEditor({ value, disabled, onChange }: ItemA
                 <Checkbox
                   checked={checked}
                   disabled={disabled}
-                  onCheckedChange={(nextChecked) => togglePreset(preset.mimes, nextChecked === true)}
+                  onCheckedChange={(nextChecked) => togglePreset(preset.mimes, nextChecked)}
                 />
                 <span className="min-w-0">
                   <span className="block text-sm font-medium">{t(`presets.${preset.id}.label` as any)}</span>

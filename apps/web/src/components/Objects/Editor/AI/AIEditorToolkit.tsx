@@ -459,7 +459,7 @@ function UserFeedbackModal({
 
           onUserInputEnabledChange(false);
           const response = await sendMessageAndGetResponse(prompt);
-          if (response) await typeText(response);
+          if (response) typeText(response);
           onUserInputEnabledChange(true);
           break;
         }
@@ -471,7 +471,7 @@ function UserFeedbackModal({
 
           const response = await sendMessageAndGetResponse(prompt);
           const cleanedResponse = removeOccurrences(selection, response);
-          if (cleanedResponse) await typeText(cleanedResponse);
+          if (cleanedResponse) typeText(cleanedResponse);
           break;
         }
 
@@ -481,7 +481,7 @@ function UserFeedbackModal({
           if (!prompt) return;
 
           const response = await sendMessageAndGetResponse(prompt);
-          if (response) await typeText(response, true);
+          if (response) typeText(response, true);
           break;
         }
 
@@ -511,7 +511,7 @@ function UserFeedbackModal({
           if (!prompt) return;
 
           const response = await sendMessageAndGetResponse(prompt);
-          if (response) await typeText(response, true);
+          if (response) typeText(response, true);
           break;
         }
       }

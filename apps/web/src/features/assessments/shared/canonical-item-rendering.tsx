@@ -86,7 +86,7 @@ export function CanonicalAttemptItem({
       <FileUploadAttemptModule
         item={{
           taskUuid: item.item_uuid,
-          assessmentUuid: assessmentUuid,
+          assessmentUuid,
           constraints: {
             kind: 'FILE_UPLOAD',
             allowed_mime_types: body.mimes,
