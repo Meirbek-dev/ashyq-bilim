@@ -249,6 +249,7 @@ class SubmissionRead(SubmissionBase):
     id: int
     submission_uuid: str
     answers_json: dict = SQLField(default_factory=dict)
+    raw_grading_json: GradingBreakdown = SQLField(default_factory=GradingBreakdown)
     grading_json: GradingBreakdown = SQLField(default_factory=GradingBreakdown)
     metadata_json: dict = SQLField(default_factory=dict)
     late_penalty_pct: float = 0.0
@@ -272,9 +273,9 @@ class SubmissionRead(SubmissionBase):
             )
         return self
 
-    @field_validator("grading_json", mode="before")
+    @field_validator("raw_grading_json", "grading_json", mode="before")
     @classmethod
-    def coerce_grading_json(cls, v: object) -> object:
+    def coerce_grading_breakdown(cls, v: object) -> object:
         """Coerce a raw dict from the DB into a GradingBreakdown model."""
         if isinstance(v, dict):
             return GradingBreakdown(**v) if v else GradingBreakdown()
@@ -293,6 +294,7 @@ class SubmissionUpdate(SQLModelStrictBaseModel):
 
     final_score: float | None = None
     status: SubmissionStatus | None = None
+    raw_grading_json: dict | None = None
     grading_json: dict | None = None
     graded_at: datetime | None = None
 
@@ -372,6 +374,10 @@ class Submission(SubmissionBase, table=True):
     grading_json: dict = SQLField(
         default_factory=dict,
         sa_column=Column(JSON),
+    )
+    raw_grading_json: dict = SQLField(
+        default_factory=dict,
+        sa_column=Column("raw_grading_json", JSON, nullable=False, server_default="{}"),
     )
     metadata_json: dict = SQLField(
         default_factory=dict,

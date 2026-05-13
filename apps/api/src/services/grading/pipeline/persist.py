@@ -40,13 +40,14 @@ def persist_submission(
     # Determine post-submission status
     new_status = _resolve_status(result)
 
+    raw_breakdown = result.breakdown.model_dump()
+
     # Write submission fields
     draft.answers_json = answers_payload
-    draft.grading_json = result.breakdown.model_dump()
-    # Merge with any existing item feedback from prior grading entries
-    draft.grading_json = build_effective_grading_breakdown(
-        draft, db_session
-    ).model_dump()
+    draft.raw_grading_json = raw_breakdown
+    draft.grading_json = raw_breakdown
+    effective_breakdown = build_effective_grading_breakdown(draft, db_session).model_dump()
+    draft.grading_json = effective_breakdown
     draft.auto_score = result.auto_score if not penalty.violation_zeroed else 0.0
     draft.late_penalty_pct = penalty.late_penalty_pct
     draft.final_score = penalty.final_score if not result.needs_manual_review else None
@@ -77,10 +78,12 @@ def persist_submission(
                 raw_score=float(result.auto_score),
                 penalty_pct=float(penalty.late_penalty_pct),
                 final_score=float(penalty.final_score),
-                breakdown=draft.grading_json,
+                breakdown=effective_breakdown,
+                raw_breakdown=raw_breakdown,
+                effective_breakdown=effective_breakdown,
                 overall_feedback=(
-                    draft.grading_json.get("feedback", "")
-                    if isinstance(draft.grading_json, dict)
+                    effective_breakdown.get("feedback", "")
+                    if isinstance(effective_breakdown, dict)
                     else ""
                 ),
                 grading_version=draft.grading_version,

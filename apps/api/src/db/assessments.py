@@ -10,7 +10,17 @@ from enum import StrEnum
 from typing import Annotated, Literal, Self
 
 from pydantic import ConfigDict, Field, TypeAdapter, field_validator, model_validator
-from sqlalchemy import JSON, Boolean, Column, DateTime, Float, ForeignKey, Index, Integer, String
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+)
 from sqlmodel import Field as SQLField
 from ulid import ULID
 

@@ -18,7 +18,6 @@ import { useTranslations } from 'next-intl';
 
 import { canPublishGrade, canReturnSubmission, canTeacherEditGrade, getReleaseState } from '@/features/grading/domain';
 import type { GradedItem, Submission, TeacherGradeInput } from '@/features/grading/domain';
-import { saveGrade } from '@/services/grading/grading';
 import { StaleGradeError } from '@/services/grading/errors';
 import { saveGradingDraft } from '@/services/assessments/assessment-actions';
 import type { ItemGradeEntry } from '@/services/assessments/assessment-actions';

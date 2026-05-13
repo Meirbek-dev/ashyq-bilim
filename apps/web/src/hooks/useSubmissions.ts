@@ -27,8 +27,7 @@ function submissionsHookOptions(
 ) {
   return queryOptions({
     ...submissionsQueryOptions({
-      activityId: activityId ?? 0,
-      assessmentUuid: assessmentUuid ?? undefined,
+      assessmentUuid: assessmentUuid ?? '',
       page,
       pageSize,
       search,
@@ -36,7 +35,7 @@ function submissionsHookOptions(
       sortDir,
       status,
     }),
-    enabled: Boolean(activityId),
+    enabled: Boolean(activityId && assessmentUuid),
   });
 }
 
@@ -56,8 +55,7 @@ export function useSubmissions({
   }, [activityId]);
 
   const queryParams = {
-    activityId: activityId ?? 0,
-    assessmentUuid: assessmentUuid ?? undefined,
+    assessmentUuid: assessmentUuid ?? '',
     page,
     pageSize,
     search: search ?? '',
@@ -80,7 +78,7 @@ export function useSubmissions({
     isLoading: query.isPending,
     error: query.error ?? null,
     mutate: async () => {
-      if (!activityId) return undefined;
+      if (!activityId || !assessmentUuid) return undefined;
       await queryClient.invalidateQueries({ queryKey });
       return queryClient.fetchQuery(submissionsQueryOptions(queryParams));
     },

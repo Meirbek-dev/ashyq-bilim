@@ -53,9 +53,11 @@ from src.services.assessments._shared import (
 )
 from src.services.code_execution import get_code_execution_service
 from src.services.grading.assignment_breakdown import build_effective_grading_breakdown
+from src.services.grading.pipeline.orchestrator import (
+    submit_assessment as submit_assessment_pipeline,
+)
 from src.services.grading.settings_loader import load_activity_settings
 from src.services.grading.submission import start_submission_v2
-from src.services.grading.submit import submit_assessment as submit_assessment_pipeline
 from src.services.grading.teacher import _save_teacher_grade
 from src.services.progress import submissions as progress_submissions
 
@@ -260,7 +262,6 @@ async def submit_assessment(
             activity.id, AssessmentType(assessment.kind), db_session
         )
         result = await submit_assessment_pipeline(
-            request=None,
             activity_id=activity.id,
             assessment_type=AssessmentType(assessment.kind),
             answers_payload=answers_payload,

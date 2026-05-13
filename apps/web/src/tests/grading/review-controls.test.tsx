@@ -8,12 +8,11 @@ import GradeForm from '@/features/grading/review/components/GradeForm';
 import type { Submission } from '@/features/grading/domain';
 
 const mocks = vi.hoisted(() => ({
-  batchGradeSubmissionsMock: vi.fn(),
-  extendDeadlineMock: vi.fn(),
   publishAssessmentGradesMock: vi.fn(),
-  publishActivityGradesMock: vi.fn(),
+  createStudentPolicyOverrideMock: vi.fn(),
   exportGradesCsvMock: vi.fn(),
   saveGradeMock: vi.fn(),
+  saveGradingDraftMock: vi.fn(),
   toastSuccessMock: vi.fn(),
   toastErrorMock: vi.fn(),
   mutateMock: vi.fn().mockResolvedValue(undefined),
@@ -55,12 +54,14 @@ vi.mock('next-intl', () => ({
 }));
 
 vi.mock('@/services/grading/grading', () => ({
-  batchGradeSubmissions: (...args: unknown[]) => mocks.batchGradeSubmissionsMock(...args),
-  extendDeadline: (...args: unknown[]) => mocks.extendDeadlineMock(...args),
   publishAssessmentGrades: (...args: unknown[]) => mocks.publishAssessmentGradesMock(...args),
-  publishActivityGrades: (...args: unknown[]) => mocks.publishActivityGradesMock(...args),
   exportGradesCSV: (...args: unknown[]) => mocks.exportGradesCsvMock(...args),
   saveGrade: (...args: unknown[]) => mocks.saveGradeMock(...args),
+}));
+
+vi.mock('@/services/assessments/assessment-actions', () => ({
+  createStudentPolicyOverride: (...args: unknown[]) => mocks.createStudentPolicyOverrideMock(...args),
+  saveGradingDraft: (...args: unknown[]) => mocks.saveGradingDraftMock(...args),
 }));
 
 vi.mock('@/hooks/useGradingPanel', () => ({
@@ -110,12 +111,11 @@ describe('teacher review controls', () => {
     globalThis.localStorage.clear();
     mocks.gradingPanelState.submission = null;
     mocks.gradingPanelState.isLoading = false;
-    mocks.batchGradeSubmissionsMock.mockResolvedValue({ succeeded: 1, failed: 0, errors: [] });
-    mocks.extendDeadlineMock.mockResolvedValue({ action_uuid: 'bulk_1', status: 'QUEUED' });
     mocks.publishAssessmentGradesMock.mockResolvedValue({ published_count: 2, already_published_count: 1 });
-    mocks.publishActivityGradesMock.mockResolvedValue({ published_count: 2, already_published_count: 1 });
+    mocks.createStudentPolicyOverrideMock.mockResolvedValue({ id: 1 });
     mocks.exportGradesCsvMock.mockResolvedValue('header\nvalue');
     mocks.saveGradeMock.mockResolvedValue(createSubmission({ status: 'PUBLISHED' }));
+    mocks.saveGradingDraftMock.mockResolvedValue(createSubmission({ status: 'PUBLISHED' }));
     mocks.mutateMock.mockResolvedValue(undefined);
   });
 
@@ -149,7 +149,6 @@ describe('teacher review controls', () => {
     await waitFor(() => {
       expect(mocks.saveGradeMock).toHaveBeenCalledTimes(2);
     });
-    expect(mocks.batchGradeSubmissionsMock).not.toHaveBeenCalled();
     expect(mocks.saveGradeMock).toHaveBeenNthCalledWith(
       1,
       'submission_ready',
@@ -184,6 +183,7 @@ describe('teacher review controls', () => {
     render(
       <ReviewBulkActionBar
         activityId={77}
+        assessmentUuid="assessment_review"
         disabled={false}
         onRefresh={onRefresh}
         submissions={[
@@ -225,11 +225,12 @@ describe('teacher review controls', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: 'queueExtension' }));
 
     await waitFor(() => {
-      expect(mocks.extendDeadlineMock).toHaveBeenCalledWith(77, {
-        user_uuids: ['user_a', 'user_b'],
-        new_due_at: new Date('2026-05-10T14:30').toISOString(),
-        reason: 'Medical extension',
-      });
+      expect(mocks.createStudentPolicyOverrideMock).toHaveBeenCalledTimes(2);
+    });
+    expect(mocks.createStudentPolicyOverrideMock).toHaveBeenNthCalledWith(1, 'assessment_review', {
+      user_id: 9,
+      due_at_override: new Date('2026-05-10T14:30').toISOString(),
+      note: 'Medical extension',
     });
     expect(mocks.toastSuccessMock).toHaveBeenCalledWith('toasts.deadlineQueued');
     expect(onRefresh).toHaveBeenCalledTimes(1);
@@ -262,7 +263,6 @@ describe('teacher review controls', () => {
     await waitFor(() => {
       expect(mocks.publishAssessmentGradesMock).toHaveBeenCalledWith('assessment_review');
     });
-    expect(mocks.publishActivityGradesMock).not.toHaveBeenCalled();
     expect(mocks.toastSuccessMock).toHaveBeenCalledWith('toasts.hiddenReleased');
     expect(await screen.findByText('summaries.releaseFinished')).toBeInTheDocument();
   });
@@ -307,19 +307,21 @@ describe('teacher review controls', () => {
     fireEvent.click(screen.getByRole('button', { name: 'publishGrade' }));
 
     await waitFor(() => {
-      expect(mocks.saveGradeMock).toHaveBeenCalledWith(
+      expect(mocks.saveGradingDraftMock).toHaveBeenCalledWith(
+        'assessment_review',
         'submission_review',
         {
-          final_score: 94,
-          feedback: 'Solid work.',
-          status: 'PUBLISHED',
-          item_feedback: [],
+          item_grades: [],
+          overall_feedback: 'Solid work.',
+          status: 'publish',
+          override_score: undefined,
+          final_score: undefined,
+          override_reason: undefined,
         },
         8,
-        'assessment_review',
       );
     });
-    expect(mocks.toastSuccessMock).toHaveBeenCalledWith('gradePublished');
+    expect(mocks.toastSuccessMock).toHaveBeenCalledWith('toasts.published');
     expect(onSaved).toHaveBeenCalledTimes(1);
   });
 

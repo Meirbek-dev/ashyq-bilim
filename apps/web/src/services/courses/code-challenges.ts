@@ -60,7 +60,6 @@ export interface CodeSubmission {
   language_id: number;
   created_at: string;
   results?: TestCaseResult[];
-  test_results?: { results?: TestCaseResult[] };
 }
 
 interface CanonicalRunRecord {
@@ -375,7 +374,6 @@ export function mapCanonicalCodeSubmission(raw: GradingSubmission): CodeSubmissi
           : 0,
     created_at: raw.created_at,
     results,
-    test_results: results ? { results } : undefined,
   };
 }
 
@@ -586,14 +584,13 @@ export async function runCustomTest(
   };
 }
 
-export async function getSubmission(submissionUuid: string): Promise<CodeSubmission> {
-  const response = await apiFetch(`grading/submissions/me/${submissionUuid}`);
-
-  if (!response.ok) {
+export async function getSubmission(activityUuid: string, submissionUuid: string): Promise<CodeSubmission> {
+  const submissions = await getSubmissions(activityUuid);
+  const submission = submissions.find((item) => item.submission_uuid === submissionUuid || item.uuid === submissionUuid);
+  if (!submission) {
     throw new Error('Failed to fetch submission');
   }
-
-  return mapCanonicalCodeSubmission((await response.json()) as GradingSubmission);
+  return submission;
 }
 
 export async function getSubmissions(activityUuid: string): Promise<CodeSubmission[]> {

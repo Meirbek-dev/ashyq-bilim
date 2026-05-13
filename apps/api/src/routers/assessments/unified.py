@@ -7,6 +7,7 @@ teacher submission lists.
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
+from fastapi.responses import StreamingResponse
 from sqlmodel import Session
 
 from src.auth.users import get_optional_public_user, get_public_user
@@ -78,6 +79,7 @@ from src.services.assessments.inline_quiz import (
     InlineQuizResponse,
     create_inline_quiz,
 )
+from src.services.grading.teacher import export_grades_csv
 
 router = APIRouter()
 
@@ -299,6 +301,28 @@ async def api_get_submission_stats(
         assessment_uuid,
         current_user,
         db_session,
+    )
+
+
+@router.get("/{assessment_uuid}/submissions/export")
+async def api_export_assessment_submissions_csv(
+    assessment_uuid: str,
+    current_user: Annotated[PublicUser, Depends(get_public_user)],
+    db_session: Annotated[Session, Depends(get_db_session)],
+) -> StreamingResponse:
+    assessment = await get_assessment(assessment_uuid, current_user, db_session)
+    return StreamingResponse(
+        export_grades_csv(
+            activity_id=assessment.activity_id,
+            current_user=current_user,
+            db_session=db_session,
+        ),
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": (
+                f"attachment; filename=grades-assessment-{assessment_uuid}.csv"
+            )
+        },
     )
 
 
@@ -545,13 +569,13 @@ async def api_get_audit_trail(
     page_size: Annotated[int, Query(ge=1, le=100)] = 50,
 ):
     """List audit events for an assessment (teacher-only)."""
-    from sqlmodel import select
     from sqlalchemy import desc, func
+    from sqlmodel import select
 
     from src.db.audit import AuditEvent, AuditEventRead
     from src.services.assessments.core import (
-        _get_assessment_by_uuid_or_404,
         _get_activity_and_course,
+        _get_assessment_by_uuid_or_404,
         _require_grade,
     )
 

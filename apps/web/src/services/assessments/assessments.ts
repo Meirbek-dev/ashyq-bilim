@@ -1,6 +1,6 @@
 'use server';
 
-import { apiFetch, errorHandling } from '@/lib/api-client';
+import { apiFetch, errorHandling, getResponseMetadata, type CustomResponseTyping } from '@/lib/api-client';
 import { getAPIUrl } from '@services/config/config';
 
 export interface AssessmentSummary {
@@ -18,6 +18,19 @@ export interface AssessmentSummary {
   scheduled_at?: string | null;
   published_at?: string | null;
   archived_at?: string | null;
+}
+
+export interface AssessmentMutationPayload {
+  title: string;
+  description?: string;
+  course_id?: number;
+  chapter_id?: number;
+  grading_type?: 'NUMERIC' | 'PERCENTAGE';
+  due_at?: string | null;
+}
+
+function normalizeAssessmentUuid(assessmentUuid: string): string {
+  return assessmentUuid.startsWith('assignment_') ? assessmentUuid : `assignment_${assessmentUuid}`;
 }
 
 /**
@@ -54,4 +67,44 @@ export async function getAssessmentByActivityUuid(activityUuid: string): Promise
   } catch {
     return null;
   }
+}
+
+export async function createAssignmentAssessment(body: AssessmentMutationPayload): Promise<CustomResponseTyping> {
+  const result = await apiFetch('assessments', {
+    method: 'POST',
+    baseUrl: getAPIUrl(),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      kind: 'ASSIGNMENT',
+      title: body.title,
+      description: body.description ?? '',
+      course_id: body.course_id,
+      chapter_id: body.chapter_id,
+      grading_type: body.grading_type ?? 'PERCENTAGE',
+      policy: {
+        due_at: body.due_at ?? null,
+      },
+    }),
+  });
+  return getResponseMetadata(result);
+}
+
+export async function updateAssignmentAssessment(
+  assessmentUuid: string,
+  body: AssessmentMutationPayload,
+): Promise<CustomResponseTyping> {
+  const result = await apiFetch(`assessments/${normalizeAssessmentUuid(assessmentUuid)}`, {
+    method: 'PATCH',
+    baseUrl: getAPIUrl(),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title: body.title,
+      description: body.description ?? '',
+      grading_type: body.grading_type ?? 'PERCENTAGE',
+      policy: {
+        due_at: body.due_at ?? null,
+      },
+    }),
+  });
+  return getResponseMetadata(result);
 }

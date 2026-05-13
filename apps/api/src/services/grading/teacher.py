@@ -16,6 +16,7 @@ from ulid import ULID
 from src.db.courses.activities import Activity
 from src.db.gamification import XPSource
 from src.db.grading.entries import GradingEntry
+from src.db.grading.progress import AssessmentPolicy
 from src.db.grading.schemas import (
     BatchGradeRequest,
     BatchGradeResponse,
@@ -673,9 +674,18 @@ def _save_teacher_grade(
     penalty_pct = float(submission.late_penalty_pct or 0)
     final_score = round(raw_score * (1 - min(100.0, max(0.0, penalty_pct)) / 100), 2)
 
+    raw_breakdown = (
+        submission.raw_grading_json
+        if isinstance(submission.raw_grading_json, dict)
+        else submission.grading_json
+        if isinstance(submission.grading_json, dict)
+        else {}
+    )
+    effective_breakdown = updated_grading.model_dump()
+
     submission.final_score = final_score
     submission.status = requested_status
-    submission.grading_json = updated_grading.model_dump()
+    submission.grading_json = effective_breakdown
     submission.graded_at = now
     submission.updated_at = now
     submission.version += 1  # bump optimistic lock version
@@ -692,7 +702,9 @@ def _save_teacher_grade(
                 raw_score=raw_score,
                 penalty_pct=penalty_pct,
                 final_score=final_score,
-                breakdown=updated_grading.model_dump(),
+                breakdown=effective_breakdown,
+                raw_breakdown=raw_breakdown,
+                effective_breakdown=effective_breakdown,
                 overall_feedback=grade_input.feedback,
                 grading_version=submission.grading_version,
                 created_at=now,
@@ -719,7 +731,7 @@ def _save_teacher_grade(
     if (
         current_status != SubmissionStatus.PUBLISHED
         and requested_status == SubmissionStatus.PUBLISHED
-        and final_score >= 50.0
+        and final_score >= _policy_passing_score_for_submission(submission, db_session)
     ):
         _award_xp_on_publish(
             user_id=submission.user_id,
@@ -837,6 +849,23 @@ async def bulk_publish_grades(
             continue
 
         latest_entry = latest_entries_by_submission.get(submission.id)
+        raw_breakdown = (
+            latest_entry.raw_breakdown
+            if latest_entry is not None and isinstance(latest_entry.raw_breakdown, dict)
+            else submission.raw_grading_json
+            if isinstance(submission.raw_grading_json, dict)
+            else {}
+        )
+        effective_breakdown = (
+            latest_entry.effective_breakdown
+            if latest_entry is not None
+            and isinstance(latest_entry.effective_breakdown, dict)
+            else latest_entry.breakdown
+            if latest_entry is not None and isinstance(latest_entry.breakdown, dict)
+            else submission.grading_json
+            if isinstance(submission.grading_json, dict)
+            else {}
+        )
 
         entry = GradingEntry(
             entry_uuid=f"entry_{ULID()}",
@@ -857,18 +886,14 @@ async def bulk_publish_grades(
                 if latest_entry is not None
                 else submission.final_score or submission.auto_score or 0
             ),
-            breakdown=(
-                latest_entry.breakdown
-                if latest_entry is not None
-                else submission.grading_json
-                if isinstance(submission.grading_json, dict)
-                else {}
-            ),
+            breakdown=effective_breakdown,
+            raw_breakdown=raw_breakdown,
+            effective_breakdown=effective_breakdown,
             overall_feedback=(
                 latest_entry.overall_feedback
                 if latest_entry is not None
-                else submission.grading_json.get("feedback", "")
-                if isinstance(submission.grading_json, dict)
+                else effective_breakdown.get("feedback", "")
+                if isinstance(effective_breakdown, dict)
                 else ""
             ),
             grading_version=submission.grading_version,
@@ -967,6 +992,22 @@ def _enrich(s: Submission, users_by_id: dict[int, User]) -> SubmissionRead:
     if user:
         base.user = _make_submission_user(user)
     return base
+
+
+def _policy_passing_score_for_submission(
+    submission: Submission,
+    db_session: Session,
+) -> float:
+    policy = None
+    if submission.assessment_policy_id is not None:
+        policy = db_session.get(AssessmentPolicy, submission.assessment_policy_id)
+    if policy is None:
+        policy = db_session.exec(
+            select(AssessmentPolicy).where(
+                AssessmentPolicy.activity_id == submission.activity_id
+            )
+        ).first()
+    return float(policy.passing_score) if policy is not None else 60.0
 
 
 def _award_xp_on_publish(

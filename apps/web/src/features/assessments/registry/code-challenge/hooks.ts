@@ -33,14 +33,16 @@ function codeChallengeSubmissionsHookOptions(activityUuid: string | null | undef
 }
 
 function codeChallengeSubmissionHookOptions(
+  activityUuid: string | null | undefined,
   submissionUuid: string | null,
   options?: { refetchInterval?: number | false },
 ) {
+  const normalizedActivityUuid = activityUuid ?? '';
   const normalizedSubmissionUuid = submissionUuid ?? '';
 
   return queryOptions({
-    ...codeChallengeSubmissionQueryOptions(normalizedSubmissionUuid),
-    enabled: Boolean(submissionUuid),
+    ...codeChallengeSubmissionQueryOptions(normalizedActivityUuid, normalizedSubmissionUuid),
+    enabled: Boolean(activityUuid && submissionUuid),
     refetchInterval: options?.refetchInterval,
   });
 }
@@ -58,10 +60,11 @@ export function useCodeChallengeSubmissions(activityUuid: string | null | undefi
 }
 
 export function useCodeChallengeSubmission(
+  activityUuid: string | null | undefined,
   submissionUuid: string | null,
   options?: { refetchInterval?: number | false },
 ) {
-  return useQuery(codeChallengeSubmissionHookOptions(submissionUuid, options));
+  return useQuery(codeChallengeSubmissionHookOptions(activityUuid, submissionUuid, options));
 }
 
 export function useRunCustomTest(activityUuid: string) {

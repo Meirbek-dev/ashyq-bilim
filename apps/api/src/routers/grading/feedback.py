@@ -107,6 +107,12 @@ def _latest_or_create_grading_entry(
         breakdown=submission.grading_json
         if isinstance(submission.grading_json, dict)
         else {},
+        raw_breakdown=submission.raw_grading_json
+        if isinstance(submission.raw_grading_json, dict)
+        else {},
+        effective_breakdown=submission.grading_json
+        if isinstance(submission.grading_json, dict)
+        else {},
         overall_feedback=(
             submission.grading_json.get("feedback", "")
             if isinstance(submission.grading_json, dict)

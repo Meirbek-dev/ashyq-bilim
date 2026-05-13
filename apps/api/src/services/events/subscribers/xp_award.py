@@ -21,8 +21,6 @@ _XP_SOURCE: dict[AssessmentType, XPSource] = {
     AssessmentType.CODE_CHALLENGE: XPSource.CODE_CHALLENGE_COMPLETION,
 }
 
-PASSING_SCORE = 50.0
-
 
 class XPAwardSubscriber:
     """Awards XP on grade publication for passing submissions."""
@@ -33,9 +31,6 @@ class XPAwardSubscriber:
         Errors are logged and swallowed — gamification failures must never
         prevent grade publication.
         """
-        if event.final_score < PASSING_SCORE:
-            return
-
         try:
             from src.infra.db.session import get_sync_session
             from src.services.gamification.service import award_xp
@@ -44,6 +39,7 @@ class XPAwardSubscriber:
                 # Determine assessment type from submission
                 from sqlmodel import select
 
+                from src.db.grading.progress import AssessmentPolicy
                 from src.db.grading.submissions import Submission
 
                 submission = db.exec(
@@ -52,6 +48,20 @@ class XPAwardSubscriber:
                     )
                 ).first()
                 if submission is None:
+                    return
+
+                policy = None
+                if submission.assessment_policy_id is not None:
+                    policy = db.get(AssessmentPolicy, submission.assessment_policy_id)
+                if policy is None:
+                    policy = db.exec(
+                        select(AssessmentPolicy).where(
+                            AssessmentPolicy.activity_id == submission.activity_id
+                        )
+                    ).first()
+
+                passing_score = float(policy.passing_score) if policy is not None else 60.0
+                if float(event.final_score) < passing_score:
                     return
 
                 xp_source = _XP_SOURCE.get(

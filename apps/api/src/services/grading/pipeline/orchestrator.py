@@ -20,7 +20,7 @@ from src.db.assessments import Assessment, CodeItemAnswer, CodeRunResult
 from src.db.code_execution import CodeRunPurpose, CodeRunStatus
 from src.db.courses.activities import Activity
 from src.db.grading.overrides import StudentPolicyOverride
-from src.db.grading.progress import AssessmentPolicy
+from src.db.grading.progress import AssessmentPolicy, GradeReleaseMode
 from src.db.grading.submissions import (
     AssessmentType,
     Submission,
@@ -30,7 +30,7 @@ from src.db.grading.submissions import (
 from src.db.users import PublicUser
 from src.security.rbac import PermissionChecker
 from src.services.code_execution import get_code_execution_service
-from src.services.grading.pipeline.context import EffectivePolicy, GradingContext
+from src.services.grading.pipeline.context import EffectivePolicy
 from src.services.grading.pipeline.emit import emit_submission_events
 from src.services.grading.pipeline.enforce import (
     check_violations,
@@ -93,7 +93,7 @@ async def submit_assessment(
     )
 
     # 3. Validate answers
-    parsed = validate_and_parse(answers_payload)
+    parsed = validate_and_parse(answers_payload, items=settings.items)
 
     # 4. Resolve effective policy
     policy = _get_assessment_policy(activity_id, db_session)
@@ -166,6 +166,17 @@ async def submit_assessment(
         draft,
         file_keys=_extract_file_keys(final_payload),
         violation_count=violation_count,
+        grade_published_at=(
+            now
+            if (
+                not result.needs_manual_review
+                and (
+                    policy is None
+                    or policy.grade_release_mode == GradeReleaseMode.IMMEDIATE
+                )
+            )
+            else None
+        ),
     )
 
     return SubmissionRead.model_validate(draft)

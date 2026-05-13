@@ -56,10 +56,8 @@ from src.infra.db.engine import build_engine, build_session_factory
 from src.infra.db.session import get_db_session
 from src.infra.settings import get_settings
 from src.routers.assessments.unified import router as assessments_router
-from src.routers.grading.submit import router as submit_router
 from src.security.rbac import PermissionChecker
 from src.services.assessments import core
-from src.services.grading import submit as submit_service
 from src.services.grading import submission as submission_service
 
 # ---------------------------------------------------------------------------
@@ -144,7 +142,6 @@ def _make_app(db_session_factory, current_user: PublicUser, monkeypatch) -> Fast
     """Build a minimal FastAPI app with both router groups and mocked dependencies."""
     app = FastAPI()
     app.include_router(assessments_router, prefix="/assessments")
-    app.include_router(submit_router, prefix="/grading")
 
     def override_get_db_session():
         session = db_session_factory()
@@ -166,11 +163,6 @@ def _make_app(db_session_factory, current_user: PublicUser, monkeypatch) -> Fast
     monkeypatch.setattr(PermissionChecker, "check", lambda *_a, **_kw: True)
 
     # Stub side-effects that require external services
-    monkeypatch.setattr(
-        submit_service,
-        "_award_xp_safe",
-        lambda *_a, **_kw: None,
-    )
     monkeypatch.setattr(
         submission_service,
         "_require_permission",
@@ -659,9 +651,7 @@ def test_resubmission_draft_created_from_returned(
     app = _make_app(db_session_factory, student_user, monkeypatch)
     client = TestClient(app)
 
-    response = client.post(
-        "/grading/submissions/submission_returned_1/resubmit",
-    )
+    response = client.post(f"/assessments/{assessment_uuid}/start")
 
     assert response.status_code == 200
     payload = response.json()
@@ -698,8 +688,6 @@ def test_attempt_limit_prevents_resubmission(
     app = _make_app(db_session_factory, student_user, monkeypatch)
     client = TestClient(app)
 
-    response = client.post(
-        "/grading/submissions/submission_returned_limit/resubmit",
-    )
+    response = client.post(f"/assessments/{assessment_uuid}/start")
 
     assert response.status_code == 403

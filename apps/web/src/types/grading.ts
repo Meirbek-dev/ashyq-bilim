@@ -99,58 +99,6 @@ export type GradebookResponse = CourseGradebookResponse;
 
 // ── Answer payload shapes (frontend-only, not in OpenAPI schema) ──────────────
 
-export interface QuizAnswer {
-  question_id: string;
-  selected_option_ids: string[];
-  text_answer?: string | null;
-}
-
-export interface QuizAnswers {
-  answers: QuizAnswer[];
-  started_at: string;
-  submitted_at: string;
-}
-
-export interface AssignmentTaskAnswer {
-  task_uuid: string;
-  content_type: 'file' | 'text' | 'form' | 'quiz' | 'other';
-  file_key?: string | null;
-  text_content?: string | null;
-  form_data?: Record<string, unknown> | null;
-  quiz_answers?: Record<string, unknown> | null;
-  answer_metadata?: Record<string, unknown>;
-}
-
-export interface AssignmentAnswers {
-  tasks: AssignmentTaskAnswer[];
-}
-
-export interface ExamQuestionAnswer {
-  question_id: number;
-  selected_option_ids: string[];
-  text_answer?: string | null;
-}
-
-export interface ExamAnswers {
-  submitted_answers: Record<number, ExamQuestionAnswer>;
-  started_at: string;
-  submitted_at: string;
-}
-
-export interface TestCaseResult {
-  test_id: string;
-  passed: boolean;
-  weight?: number;
-  description?: string;
-  message?: string;
-}
-
-export interface CodeChallengeAnswers {
-  test_results: TestCaseResult[];
-  code_strategy?: string;
-  source_code?: string;
-}
-
 // ── Status display helpers ────────────────────────────────────────────────────
 // Compatibility exports. New code should import from `features/grading/domain`.
 

@@ -30,7 +30,6 @@ from src.routers.courses import (
 from src.routers.courses.activities import activities, blocks
 from src.routers.grading.feedback import router as grading_feedback_router
 from src.routers.grading.sse import router as grading_sse_router
-from src.routers.grading.submit import router as grading_submit_router
 from src.routers.grading.teacher import router as grading_teacher_router
 from src.routers.uploads import chunked_upload
 from src.routers.utils import router as utils_router
@@ -99,7 +98,6 @@ v1_router.include_router(
 )
 
 # Unified grading system (replaces fragmented assignment/quiz grading)
-v1_router.include_router(grading_submit_router, prefix="/grading", tags=["grading"])
 v1_router.include_router(grading_teacher_router, prefix="/grading", tags=["grading"])
 v1_router.include_router(grading_feedback_router, prefix="/grading", tags=["grading"])
 v1_router.include_router(grading_sse_router, prefix="/grading", tags=["grading"])

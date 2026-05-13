@@ -5,7 +5,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Field, FieldContent, FieldError, FieldLabel } from '@/components/ui/field';
 import { Controller, useForm } from 'react-hook-form';
 import { BarLoader } from '@components/Objects/Loaders/BarLoader';
-import { updateAssignment } from '@services/courses/assignments';
+import { updateAssignmentAssessment } from '@services/assessments/assessments';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 import Modal from '@/components/Objects/Elements/Modal/Modal';
 import { valibotResolver } from '@hookform/resolvers/valibot';
@@ -103,7 +103,12 @@ const EditAssignmentForm: FC<EditAssignmentFormProps> = ({ onClose, assignment }
   const onSubmit = async (values: EditAssignmentOutput) => {
     const toastLoading = toast.loading(t('updateLoading'));
     try {
-      const res = await updateAssignment(values, assignment.assignment_uuid);
+      const res = await updateAssignmentAssessment(assignment.assignment_uuid, {
+        title: values.title,
+        description: values.description,
+        due_at: values.due_date || null,
+        grading_type: values.grading_type,
+      });
       if (res.success) {
         await queryClient.invalidateQueries({ queryKey: queryKeys.assignments.detail(assignment.assignment_uuid) });
         toast.success(t('updateSuccess'));

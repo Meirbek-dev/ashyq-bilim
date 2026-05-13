@@ -4504,7 +4504,7 @@
         "type": "string"
       },
       "BulkPublishGradesResponse": {
-        "description": "Response for POST /grading/activities/{activity_id}/publish-grades.",
+        "description": "Response for publishing held grades.",
         "properties": {
           "activity_id": {
             "title": "Activity Id",
@@ -10895,6 +10895,9 @@
             "title": "Metadata Json",
             "type": "object"
           },
+          "raw_grading_json": {
+            "$ref": "#/components/schemas/GradingBreakdown"
+          },
           "release_state": {
             "default": "HIDDEN",
             "enum": [
@@ -11108,6 +11111,9 @@
             "additionalProperties": true,
             "title": "Metadata Json",
             "type": "object"
+          },
+          "raw_grading_json": {
+            "$ref": "#/components/schemas/GradingBreakdown"
           },
           "started_at": {
             "anyOf": [
@@ -12581,6 +12587,9 @@
             "default": 1,
             "title": "Policy Version",
             "type": "integer"
+          },
+          "raw_grading_json": {
+            "$ref": "#/components/schemas/GradingBreakdown"
           },
           "release_state": {
             "default": "HIDDEN",
@@ -20131,6 +20140,51 @@
         ]
       }
     },
+    "/api/v1/assessments/{assessment_uuid}/submissions/export": {
+      "get": {
+        "operationId": "api_export_assessment_submissions_csv_api_v1_assessments__assessment_uuid__submissions_export_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assessment_uuid",
+            "required": true,
+            "schema": {
+              "title": "Assessment Uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "summary": "Api Export Assessment Submissions Csv",
+        "tags": [
+          "assessments"
+        ]
+      }
+    },
     "/api/v1/assessments/{assessment_uuid}/submissions/stats": {
       "get": {
         "operationId": "api_get_submission_stats_api_v1_assessments__assessment_uuid__submissions_stats_get",
@@ -24634,62 +24688,6 @@
         ]
       }
     },
-    "/api/v1/grading/start/v2/{activity_id}": {
-      "post": {
-        "description": "Create a DRAFT Submission and record the server-stamped start time.\n\nEnforces max_attempts from AssessmentPolicy (canonical DB source).\nMust be called before submitting a quiz or exam so the server controls\nthe start timestamp (prevents client falsification).",
-        "operationId": "api_start_submission_api_v1_grading_start_v2__activity_id__post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "activity_id",
-            "required": true,
-            "schema": {
-              "title": "Activity Id",
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "assessment_type",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/AssessmentType"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SubmissionRead"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ],
-        "summary": "Api Start Submission",
-        "tags": [
-          "grading"
-        ]
-      }
-    },
     "/api/v1/grading/submissions": {
       "get": {
         "description": "Paginated, filterable, searchable submissions list for a teacher.\n\nQuery params:\n- activity_id: required\n- status: DRAFT | PENDING | GRADED | PUBLISHED | RETURNED | NEEDS_GRADING (virtual)\n- late_only: filter PENDING submissions to only those submitted after the deadline\n- search: student name or email filter\n- sort_by: submitted_at | final_score | created_at | attempt_number\n- sort_dir: asc | desc\n- page, page_size: pagination",
@@ -24911,106 +24909,6 @@
           }
         ],
         "summary": "Api Export Submissions Csv",
-        "tags": [
-          "grading"
-        ]
-      }
-    },
-    "/api/v1/grading/submissions/me": {
-      "get": {
-        "description": "Get the current user's submissions for an activity (most-recent first).\n\nGrade details are hidden when the activity uses BATCH release mode and the\nteacher has not yet published grades for this submission.",
-        "operationId": "api_get_my_submissions_api_v1_grading_submissions_me_get",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "activity_id",
-            "required": true,
-            "schema": {
-              "title": "Activity Id",
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/SubmissionRead"
-                  },
-                  "title": "Response Api Get My Submissions Api V1 Grading Submissions Me Get",
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ],
-        "summary": "Api Get My Submissions",
-        "tags": [
-          "grading"
-        ]
-      }
-    },
-    "/api/v1/grading/submissions/me/{submission_uuid}": {
-      "get": {
-        "description": "Student fetches one of their own submissions to see grade/feedback.\n\nOwnership is enforced: only the submitting student can access this endpoint.\nGrade details are hidden when the activity uses BATCH release mode and the\nteacher has not yet published grades for this submission.",
-        "operationId": "api_get_my_submission_api_v1_grading_submissions_me__submission_uuid__get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "submission_uuid",
-            "required": true,
-            "schema": {
-              "title": "Submission Uuid",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SubmissionRead"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ],
-        "summary": "Api Get My Submission",
         "tags": [
           "grading"
         ]
@@ -25333,204 +25231,6 @@
           }
         ],
         "summary": "Api Feedback Stream",
-        "tags": [
-          "grading"
-        ]
-      }
-    },
-    "/api/v1/grading/submissions/{submission_uuid}/resubmit": {
-      "post": {
-        "description": "Create a new DRAFT from a RETURNED submission (resubmission flow).\n\nThe original RETURNED submission is preserved as the submission history.\nThe new DRAFT gets attempt_number = previous + 1 and a fresh started_at.\n\nReturns 422 if the submission is not in RETURNED state.\nReturns 403 if the student has exhausted max_attempts.",
-        "operationId": "api_resubmit_api_v1_grading_submissions__submission_uuid__resubmit_post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "submission_uuid",
-            "required": true,
-            "schema": {
-              "title": "Submission Uuid",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SubmissionRead"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ],
-        "summary": "Api Resubmit",
-        "tags": [
-          "grading"
-        ]
-      }
-    },
-    "/api/v1/grading/submissions/{submission_uuid}/submit": {
-      "post": {
-        "description": "Submit a specific DRAFT submission identified by UUID.\n\nFunctionally equivalent to POST /grading/submit/{activity_id} but uses the\nsubmission UUID as the primary key, making it safe for multi-attempt flows\nwhere a student may have more than one submission row for an activity.",
-        "operationId": "api_submit_by_uuid_api_v1_grading_submissions__submission_uuid__submit_post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "submission_uuid",
-            "required": true,
-            "schema": {
-              "title": "Submission Uuid",
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "violation_count",
-            "required": false,
-            "schema": {
-              "default": 0,
-              "minimum": 0,
-              "title": "Violation Count",
-              "type": "integer"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "additionalProperties": true,
-                "title": "Answers Payload",
-                "type": "object"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SubmissionRead"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ],
-        "summary": "Api Submit By Uuid",
-        "tags": [
-          "grading"
-        ]
-      }
-    },
-    "/api/v1/grading/submit/{activity_id}": {
-      "post": {
-        "description": "Submit an assessment attempt and receive auto-grading results.\n\nSettings (questions, time limits, due date) are loaded server-side\nfrom the Block content — not supplied by the client.",
-        "operationId": "api_submit_assessment_api_v1_grading_submit__activity_id__post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "activity_id",
-            "required": true,
-            "schema": {
-              "title": "Activity Id",
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "assessment_type",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/AssessmentType"
-            }
-          },
-          {
-            "in": "query",
-            "name": "violation_count",
-            "required": false,
-            "schema": {
-              "default": 0,
-              "minimum": 0,
-              "title": "Violation Count",
-              "type": "integer"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "additionalProperties": true,
-                "title": "Answers Payload",
-                "type": "object"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SubmissionRead"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ],
-        "summary": "Api Submit Assessment",
         "tags": [
           "grading"
         ]

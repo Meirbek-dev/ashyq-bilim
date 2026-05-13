@@ -74,7 +74,6 @@ interface Submission {
   language_id: number;
   created_at: string;
   results?: TestCaseResult[];
-  test_results?: { results?: TestCaseResult[] };
 }
 
 interface CodeChallengeEditorProps {
@@ -146,7 +145,7 @@ export function CodeChallengeEditor({
   const submissions = submissionsData as Submission[] | null | undefined;
 
   // Poll for active submission status
-  const { data: activeSubmissionData } = useCodeChallengeSubmission(activeSubmissionId, {
+  const { data: activeSubmissionData } = useCodeChallengeSubmission(activityUuid, activeSubmissionId, {
     refetchInterval: activeSubmissionId ? 1000 : false,
   });
   const activeSubmission = activeSubmissionData as Submission | null | undefined;
@@ -178,7 +177,7 @@ export function CodeChallengeEditor({
     if (status === 'COMPLETED' || status === 'FAILED') {
       setActiveSubmissionId(null);
       setIsSubmitting(false);
-      setTestResults(activeSubmission.results || activeSubmission.test_results?.results || null);
+      setTestResults(activeSubmission.results || null);
       setActiveTab('results');
       refreshSubmissions();
       onSubmissionComplete?.(activeSubmission);

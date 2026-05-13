@@ -35,10 +35,10 @@ export function codeChallengeSubmissionsQueryOptions<TSubmission = unknown>(acti
   });
 }
 
-export function codeChallengeSubmissionQueryOptions<TSubmission = unknown>(submissionUuid: string) {
+export function codeChallengeSubmissionQueryOptions<TSubmission = unknown>(activityUuid: string, submissionUuid: string) {
   return queryOptions({
     queryKey: queryKeys.codeChallenges.submission(submissionUuid),
-    queryFn: async () => (await getSubmission(submissionUuid)) as TSubmission,
+    queryFn: async () => (await getSubmission(activityUuid, submissionUuid)) as TSubmission,
     refetchOnWindowFocus: false,
   });
 }

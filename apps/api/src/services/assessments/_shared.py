@@ -3,8 +3,8 @@
 All private helpers used across multiple assessment service modules live here.
 """
 
-from datetime import UTC, datetime, timedelta
 import logging
+from datetime import UTC, datetime, timedelta
 
 from fastapi import HTTPException, status
 from pydantic import ValidationError
@@ -86,12 +86,13 @@ from src.services.code_execution import get_code_execution_service
 from src.services.courses._utils import _next_activity_order
 from src.services.courses.access import user_has_course_access
 from src.services.grading.assignment_breakdown import build_effective_grading_breakdown
+from src.services.grading.pipeline.orchestrator import (
+    submit_assessment as submit_assessment_pipeline,
+)
 from src.services.grading.settings_loader import load_activity_settings
 from src.services.grading.submission import start_submission_v2
-from src.services.grading.submit import submit_assessment as submit_assessment_pipeline
 from src.services.grading.teacher import _save_teacher_grade, bulk_publish_grades
 from src.services.progress import submissions as progress_submissions
-
 
 ASSESSABLE_ACTIVITY_TYPES = {
     ActivityTypeEnum.TYPE_ASSIGNMENT,

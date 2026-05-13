@@ -14,7 +14,6 @@ from src.services.grading.pipeline.context import GradingContext
 from src.services.grading.quiz_grader import (
     apply_attempt_penalty,
     grade_canonical_choice_items,
-    grade_quiz_questions,
 )
 
 
@@ -61,10 +60,9 @@ class QuizGrader(BaseGrader):
                 max_score=ctx.max_score,
             )
         else:
-            raw_score, breakdown = grade_quiz_questions(
-                questions=[],
-                user_answers=[],
-                max_score=ctx.max_score,
+            raw_score = 0.0
+            breakdown = GradingBreakdown(
+                items=[], needs_manual_review=True, auto_graded=False
             )
         penalized = apply_attempt_penalty(
             base_score=raw_score,
@@ -111,7 +109,7 @@ class CodeChallengeGrader(BaseGrader):
             )
         else:
             auto_score, breakdown = grade_code_challenge(
-                test_results=[],
+                run_results=[],
                 strategy=ctx.code_strategy,
             )
         return GradingResult(

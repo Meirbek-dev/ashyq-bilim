@@ -68,10 +68,21 @@ class GradingEntry(SQLModelStrictBaseModel, table=True):
     )
     final_score: float = Field(sa_column=Column("final_score", Float, nullable=False))
 
-    # Grading detail (per-item scores + feedback)
+    # Legacy alias for effective grading detail. Keep populated while external
+    # contracts migrate to raw_breakdown/effective_breakdown.
     breakdown: dict = Field(
         default_factory=dict,
         sa_column=Column(JSON, nullable=False, server_default="{}"),
+    )
+    raw_breakdown: dict = Field(
+        default_factory=dict,
+        sa_column=Column("raw_breakdown", JSON, nullable=False, server_default="{}"),
+    )
+    effective_breakdown: dict = Field(
+        default_factory=dict,
+        sa_column=Column(
+            "effective_breakdown", JSON, nullable=False, server_default="{}"
+        ),
     )
 
     # Teacher's overall comment — stored separately from per-item breakdown
@@ -112,6 +123,8 @@ class GradingEntryRead(SQLModelStrictBaseModel):
     penalty_pct: float
     final_score: float
     breakdown: dict
+    raw_breakdown: dict
+    effective_breakdown: dict
     overall_feedback: str
     grading_version: int
     created_at: datetime

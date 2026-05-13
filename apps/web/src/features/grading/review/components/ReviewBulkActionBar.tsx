@@ -9,12 +9,10 @@ import type { Submission } from '@/features/grading/domain';
 import { getReleaseState } from '@/features/grading/domain';
 import {
   exportGradesCSV,
-  batchGradeSubmissions,
-  extendDeadline,
   publishAssessmentGrades,
-  publishActivityGrades,
   saveGrade,
 } from '@/services/grading/grading';
+import { createStudentPolicyOverride } from '@/services/assessments/assessment-actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -56,9 +54,7 @@ export default function ReviewBulkActionBar({
   const [lastSummary, setLastSummary] = useState<BulkActionSummary | null>(null);
 
   const gradeable = submissions.filter((submission) => submission.final_score !== null);
-  const userUuids = submissions
-    .map((submission) => submission.user?.user_uuid)
-    .filter((uuid): uuid is string => Boolean(uuid));
+  const userIds = submissions.map((submission) => submission.user?.id).filter((id): id is number => Number.isFinite(id));
   const releaseSummary = useMemo(() => {
     let visible = 0;
     let hidden = 0;
@@ -81,19 +77,13 @@ export default function ReviewBulkActionBar({
       toast.error(t('toasts.needsSavedScores'));
       return;
     }
+    if (!assessmentUuid) {
+      toast.error(t('toasts.bulkActionFailed'));
+      return;
+    }
     startTransition(async () => {
       try {
-        const result = assessmentUuid
-          ? await saveGradesWithinAssessment(assessmentUuid, gradeable, status)
-          : await batchGradeSubmissions(
-              gradeable.map((submission) => ({
-                submission_uuid: submission.submission_uuid,
-                final_score: submission.final_score ?? 0,
-                status,
-                feedback: submission.grading_json?.feedback ?? null,
-                item_feedback: null,
-              })),
-            );
+        const result = await saveGradesWithinAssessment(assessmentUuid, gradeable, status);
         toast.success(status === 'PUBLISHED' ? t('toasts.published') : t('toasts.returned'));
         setLastSummary({
           label: status === 'PUBLISHED' ? t('summaries.publishFinished') : t('summaries.returnFinished'),
@@ -109,18 +99,22 @@ export default function ReviewBulkActionBar({
   };
 
   const applyDeadline = () => {
-    if (!deadlineLocal || userUuids.length === 0) return;
+    if (!deadlineLocal || userIds.length === 0 || !assessmentUuid) return;
     startTransition(async () => {
       try {
-        await extendDeadline(activityId, {
-          user_uuids: userUuids,
-          new_due_at: new Date(deadlineLocal).toISOString(),
-          reason,
-        });
+        await Promise.all(
+          userIds.map((userId) =>
+            createStudentPolicyOverride(assessmentUuid, {
+              user_id: userId,
+              due_at_override: new Date(deadlineLocal).toISOString(),
+              note: reason,
+            }),
+          ),
+        );
         toast.success(t('toasts.deadlineQueued'));
         setLastSummary({
           label: t('summaries.deadlineQueued'),
-          detail: t('summaries.deadlineDetail', { count: userUuids.length, reason: reason || '' }),
+          detail: t('summaries.deadlineDetail', { count: userIds.length, reason: reason || '' }),
           tone: 'success',
         });
         setDeadlineLocal('');
@@ -134,11 +128,13 @@ export default function ReviewBulkActionBar({
   };
 
   const releaseHiddenGrades = () => {
+    if (!assessmentUuid) {
+      toast.error(t('toasts.releaseFailed'));
+      return;
+    }
     startTransition(async () => {
       try {
-        const result = assessmentUuid
-          ? await publishAssessmentGrades(assessmentUuid)
-          : await publishActivityGrades(activityId);
+        const result = await publishAssessmentGrades(assessmentUuid);
         toast.success(t('toasts.hiddenReleased'));
         setLastSummary({
           label: t('summaries.releaseFinished'),
@@ -157,13 +153,17 @@ export default function ReviewBulkActionBar({
   };
 
   const exportCsv = () => {
+    if (!assessmentUuid) {
+      toast.error(t('toasts.bulkActionFailed'));
+      return;
+    }
     startTransition(async () => {
-      const csv = await exportGradesCSV(activityId);
+      const csv = await exportGradesCSV(assessmentUuid);
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.href = url;
-      anchor.download = `grades-activity-${activityId}.csv`;
+      anchor.download = `grades-assessment-${assessmentUuid}.csv`;
       anchor.click();
       URL.revokeObjectURL(url);
     });
@@ -231,7 +231,7 @@ export default function ReviewBulkActionBar({
       <Button
         variant="outline"
         size="sm"
-        disabled={disabled || isPending || !deadlineLocal || userUuids.length === 0}
+        disabled={disabled || isPending || !deadlineLocal || userIds.length === 0 || !assessmentUuid}
         onClick={() => setPendingAction('extend-deadline')}
       >
         <CalendarClock className="size-4" />
@@ -283,7 +283,7 @@ export default function ReviewBulkActionBar({
               <>
                 <PreviewRow
                   label={t('preview.learners')}
-                  value={String(userUuids.length)}
+                  value={String(userIds.length)}
                 />
                 <PreviewRow
                   label={t('preview.newDueDate')}

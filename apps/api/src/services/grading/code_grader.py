@@ -8,31 +8,31 @@ from src.services.grading.settings_loader import CanonicalAssessmentItem
 
 
 def grade_code_challenge(
-    test_results: list[dict],
+    run_results: list[dict],
     strategy: str = "BEST_SUBMISSION",
 ) -> tuple[float, GradingBreakdown]:
     """
     Grade a code challenge submission.
 
     Args:
-        test_results: List of {test_id, passed, weight} dicts from the test runner.
+        run_results: List of {test_id, passed, weight} dicts from the test runner.
         strategy:     Scoring strategy (BEST_SUBMISSION, ALL_OR_NOTHING,
                       LATEST_SUBMISSION, PARTIAL_CREDIT).
 
     Returns:
         (auto_score 0–100, GradingBreakdown)
     """
-    if not test_results:
+    if not run_results:
         return 0.0, GradingBreakdown(
             items=[], needs_manual_review=False, auto_graded=True
         )
 
-    total_weight = sum(float(t.get("weight", 1)) for t in test_results)
+    total_weight = sum(float(t.get("weight", 1)) for t in run_results)
     if total_weight == 0:
-        total_weight = len(test_results)
+        total_weight = len(run_results)
 
     earned_weight = sum(
-        float(t.get("weight", 1)) for t in test_results if t.get("passed", False)
+        float(t.get("weight", 1)) for t in run_results if t.get("passed", False)
     )
 
     raw_score = (earned_weight / total_weight) * 100
@@ -53,7 +53,7 @@ def grade_code_challenge(
             feedback=t.get("message", ""),
             needs_manual_review=False,
         )
-        for i, t in enumerate(test_results)
+        for i, t in enumerate(run_results)
     ]
 
     breakdown = GradingBreakdown(
@@ -117,8 +117,8 @@ def grade_canonical_code_item(
         )
 
     details = latest_run.get("details")
-    test_results = details if isinstance(details, list) else []
-    auto_score, breakdown = grade_code_challenge(test_results, strategy=strategy)
+    run_results = details if isinstance(details, list) else []
+    auto_score, breakdown = grade_code_challenge(run_results, strategy=strategy)
     if breakdown.items:
         return auto_score, breakdown
 

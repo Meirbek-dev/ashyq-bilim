@@ -6,10 +6,14 @@ never roll back the submission — they are handled by the event bus retry logic
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import datetime
 
-from src.db.grading.submissions import AssessmentType, Submission, SubmissionStatus
-from src.services.events import SubmissionSubmittedEvent, get_event_bus
+from src.db.grading.submissions import AssessmentType, Submission
+from src.services.events import (
+    GradePublishedEvent,
+    SubmissionSubmittedEvent,
+    get_event_bus,
+)
 
 
 async def emit_submission_events(
@@ -17,6 +21,7 @@ async def emit_submission_events(
     *,
     file_keys: list[str] | None = None,
     violation_count: int = 0,
+    grade_published_at: datetime | None = None,
 ) -> None:
     """Emit post-submission events to the bus."""
     bus = get_event_bus()
@@ -34,3 +39,14 @@ async def emit_submission_events(
     )
 
     await bus.emit(event)
+
+    if grade_published_at is not None and draft.final_score is not None:
+        await bus.emit(
+            GradePublishedEvent(
+                submission_uuid=draft.submission_uuid,
+                user_id=draft.user_id,
+                final_score=float(draft.final_score),
+                published_at=grade_published_at,
+                graded_by=None,
+            )
+        )

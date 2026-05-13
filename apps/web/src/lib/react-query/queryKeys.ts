@@ -55,12 +55,9 @@ export const queryKeys = {
     detail: (submissionUuid: string, assessmentUuid: string) =>
       ['grading', 'submission', assessmentUuid, submissionUuid] as const,
     gradebook: (courseUuid: string) => ['grading', 'gradebook', courseUuid] as const,
-    mine: (activityId: number) => ['grading', 'my-submissions', activityId] as const,
-    stats: (activityId: number, assessmentUuid: string) =>
-      ['grading', 'submission-stats', assessmentUuid, activityId] as const,
+    stats: (assessmentUuid: string) => ['grading', 'submission-stats', assessmentUuid] as const,
     submissions: (params: {
-      activityId: number;
-      assessmentUuid?: string | null;
+      assessmentUuid: string;
       page: number;
       pageSize: number;
       search: string;

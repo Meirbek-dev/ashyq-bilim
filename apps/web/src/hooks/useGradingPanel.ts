@@ -22,8 +22,8 @@ function gradingPanelHookOptionsWithAssessment(submissionUuid: string | null, as
   const normalizedSubmissionUuid = submissionUuid ?? '';
 
   return queryOptions({
-    ...gradingDetailQueryOptions(normalizedSubmissionUuid, assessmentUuid ?? undefined),
-    enabled: Boolean(submissionUuid),
+    ...gradingDetailQueryOptions(normalizedSubmissionUuid, assessmentUuid ?? ''),
+    enabled: Boolean(submissionUuid && assessmentUuid),
   });
 }
 
@@ -36,11 +36,11 @@ export function useGradingPanel(submissionUuid: string | null, assessmentUuid?: 
     isLoading: query.isPending,
     error: query.error ?? null,
     mutate: async () => {
-      if (!submissionUuid) return undefined;
+      if (!submissionUuid || !assessmentUuid) return undefined;
       await queryClient.invalidateQueries({
         queryKey: queryKeys.grading.detail(submissionUuid, assessmentUuid ?? ''),
       });
-      return queryClient.fetchQuery(gradingDetailQueryOptions(submissionUuid, assessmentUuid ?? undefined));
+      return queryClient.fetchQuery(gradingDetailQueryOptions(submissionUuid, assessmentUuid));
     },
   };
 }

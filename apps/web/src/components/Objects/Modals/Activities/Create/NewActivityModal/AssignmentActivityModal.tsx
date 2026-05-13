@@ -2,7 +2,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { createAssignmentWithActivity } from '@services/courses/assignments';
+import { createAssignmentAssessment } from '@services/assessments/assessments';
 import { courseKeys } from '@/hooks/courses/courseKeys';
 import { Field, FieldContent, FieldError, FieldLabel } from '@/components/ui/field';
 import { Controller, useForm } from 'react-hook-form';
@@ -39,7 +39,7 @@ interface FormValues {
 
 type AssignmentSubmitValues = v.InferOutput<ReturnType<typeof createValidationSchema>>;
 
-const NewAssignment = ({ submitActivity, chapterId, course, closeModal }: any) => {
+const NewAssignment = ({ chapterId, course, closeModal }: any) => {
   const queryClient = useQueryClient();
   const validationT = useTranslations('Validation');
   const t = useTranslations('Components.NewAssignmentModal');
@@ -88,17 +88,13 @@ const NewAssignment = ({ submitActivity, chapterId, course, closeModal }: any) =
   const onSubmit = async (values: AssignmentSubmitValues) => {
     const toastLoading = toast.loading(t('creatingAssignment'));
     try {
-      const res = await createAssignmentWithActivity({
-        body: {
-          title: values.name,
-          description: values.description,
-          due_at: values.dueDate || null,
-          grading_type: values.gradingType,
-          course_id: course?.courseStructure.id,
-          chapter_id: chapterId,
-        },
-        chapterId,
-        activityName: values.name,
+      const res = await createAssignmentAssessment({
+        title: values.name,
+        description: values.description,
+        due_at: values.dueDate || null,
+        grading_type: values.gradingType,
+        course_id: course?.courseStructure.id,
+        chapter_id: chapterId,
       });
 
       if (res.success) {

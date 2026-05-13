@@ -46,8 +46,7 @@ export default function InlineQuizAttempt({ assessmentUuid }: InlineQuizAttemptP
         onClick={async () => {
           setIsSubmitting(true);
           try {
-            // TODO: Call POST /assessments/{assessmentUuid}/submit
-            // const result = await submitAssessment(assessmentUuid, answers);
+            // TODO: Call POST /assessments/{assessmentUuid}/submit.
             // setScore(result.final_score ?? result.auto_score ?? 0);
             setSubmitted(true);
           } finally {

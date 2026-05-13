@@ -3,6 +3,7 @@
 from collections.abc import Sequence
 from typing import Any
 
+from pydantic import BaseModel
 from sqlmodel import Session, select
 
 from src.db.assessments import Assessment, AssessmentItem
@@ -108,23 +109,23 @@ def _extract_assignment_answers(answers_json: object) -> dict[str, dict[str, Any
     raw_answers = answers_json.get("answers")
     if isinstance(raw_answers, dict):
         return {
-            str(item_uuid): answer
+            str(item_uuid): _answer_to_dict(answer)
             for item_uuid, answer in raw_answers.items()
-            if isinstance(answer, dict)
+            if _answer_to_dict(answer) is not None
         }
 
-    raw_tasks = answers_json.get("tasks", [])
-    if not isinstance(raw_tasks, list):
-        return {}
+    if isinstance(raw_answers, list):
+        answers: dict[str, dict[str, Any]] = {}
+        for entry in raw_answers:
+            if not isinstance(entry, dict):
+                continue
+            item_uuid = entry.get("item_uuid")
+            answer = _answer_to_dict(entry.get("answer"))
+            if isinstance(item_uuid, str) and answer is not None:
+                answers[item_uuid] = answer
+        return answers
 
-    answers: dict[str, dict[str, Any]] = {}
-    for raw_task in raw_tasks:
-        if not isinstance(raw_task, dict):
-            continue
-        task_uuid = raw_task.get("task_uuid")
-        if isinstance(task_uuid, str) and task_uuid:
-            answers[task_uuid] = raw_task
-    return answers
+    return {}
 
 
 def _normalize_assignment_answer(
@@ -133,27 +134,12 @@ def _normalize_assignment_answer(
     if raw_task_answer is None:
         return None
 
-    normalized: dict[str, Any] = {}
+    return dict(raw_task_answer)
 
-    content_type = raw_task_answer.get("content_type")
-    if isinstance(content_type, str) and content_type:
-        normalized["content_type"] = content_type
 
-    if "file_key" in raw_task_answer:
-        normalized["file_key"] = raw_task_answer.get("file_key")
-    if "text_content" in raw_task_answer:
-        normalized["text_content"] = raw_task_answer.get("text_content")
-
-    form_data = raw_task_answer.get("form_data")
-    if isinstance(form_data, dict):
-        normalized["form_data"] = form_data
-
-    quiz_answers = raw_task_answer.get("quiz_answers")
-    if isinstance(quiz_answers, dict):
-        normalized["quiz_answers"] = quiz_answers
-
-    answer_metadata = raw_task_answer.get("answer_metadata")
-    if isinstance(answer_metadata, dict):
-        normalized["answer_metadata"] = answer_metadata
-
-    return normalized or raw_task_answer
+def _answer_to_dict(answer: object) -> dict[str, Any] | None:
+    if isinstance(answer, BaseModel):
+        return answer.model_dump()
+    if isinstance(answer, dict):
+        return answer
+    return None
