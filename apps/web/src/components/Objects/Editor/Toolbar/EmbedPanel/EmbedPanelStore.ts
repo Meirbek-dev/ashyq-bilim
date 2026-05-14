@@ -3,10 +3,11 @@
 import type { RefObject } from 'react';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
+import type { EmbedType } from '@components/Objects/Editor/Extensions/EmbedBlock/embed-options';
+
+export type { EmbedType } from '@components/Objects/Editor/Extensions/EmbedBlock/embed-options';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-
-export type EmbedType = 'youtube' | 'excalidraw' | 'tldraw';
 
 interface EmbedPanelState {
   isOpen: boolean;
@@ -14,7 +15,7 @@ interface EmbedPanelState {
   nodePos: number | null;
   initialType: EmbedType | null;
   initialUrl: string;
-  triggerRef: RefObject<HTMLButtonElement> | null;
+  triggerRef: RefObject<HTMLButtonElement | null> | null;
 }
 
 interface EmbedPanelActions {
@@ -23,7 +24,7 @@ interface EmbedPanelActions {
    * @param triggerRef - Ref to the button that triggered the panel, used to
    *   return focus on close (Requirement 12.6).
    */
-  open: (triggerRef: RefObject<HTMLButtonElement>) => void;
+  open: (triggerRef: RefObject<HTMLButtonElement | null>) => void;
 
   /**
    * Open the panel in edit mode, pre-populated with the existing embed's
@@ -36,7 +37,7 @@ interface EmbedPanelActions {
   openForEdit: (
     nodePos: number,
     attrs: { type: EmbedType; url: string },
-    triggerRef: RefObject<HTMLButtonElement>,
+    triggerRef: RefObject<HTMLButtonElement | null>,
   ) => void;
 
   /**

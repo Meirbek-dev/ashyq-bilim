@@ -3,19 +3,20 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useTiptap } from '@tiptap/react';
+import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useEmbedPanelStore } from './EmbedPanelStore';
 import { EmbedTypeSelector } from './EmbedTypeSelector';
-import { YouTubeEmbedForm } from './YouTubeEmbedForm';
-import { ExcalidrawEmbedForm } from './ExcalidrawEmbedForm';
-import { TldrawEmbedForm } from './TldrawEmbedForm';
+import { EmbedUrlForm } from './EmbedUrlForm';
 import {
-  parseYouTubeUrl,
-  validateExcalidrawUrl,
-  validateTldrawUrl,
+  DEFAULT_EMBED_TYPE,
+  getEmbedProvider,
+} from '@components/Objects/Editor/Extensions/EmbedBlock/embed-options';
+import type { EmbedType } from '@components/Objects/Editor/Extensions/EmbedBlock/embed-options';
+import {
+  normalizeEmbedUrl,
+  validateEmbedUrl,
 } from '@components/Objects/Editor/Extensions/EmbedBlock/embed-validators';
-import type { EmbedType } from './EmbedPanelStore';
-
-// ── Focusable element selector ────────────────────────────────────────────────
 
 const FOCUSABLE_SELECTOR = [
   'a[href]',
@@ -27,98 +28,67 @@ const FOCUSABLE_SELECTOR = [
 ].join(', ');
 
 function getFocusableElements(container: HTMLElement): HTMLElement[] {
-  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter((el) => {
-    if (el.hasAttribute('disabled')) return false;
-    // Use getComputedStyle for visibility — works in both browser and jsdom
-    const style = getComputedStyle(el);
+  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter((element) => {
+    if (element.hasAttribute('disabled')) return false;
+    const style = getComputedStyle(element);
     return style.display !== 'none' && style.visibility !== 'hidden';
   });
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
-
-/**
- * EmbedPanel — modal dialog for inserting or editing an EmbedBlock node.
- *
- * Fully driven by `EmbedPanelStore` — no props required.
- *
- * Accessibility:
- * - `role="dialog"`, `aria-modal="true"`, `aria-labelledby` → title element id
- * - Focus moves to first focusable element within 100ms of opening
- * - Tab / Shift+Tab cycle within the dialog (focus trap)
- * - Escape closes and returns focus to the trigger
- * - Focus returns to `triggerRef` on any close path
- *
- * Requirements: 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 12.2, 12.3, 12.4, 12.5, 12.6
- */
 export function EmbedPanel() {
   const t = useTranslations('DashPage.Editor.EmbedPanel');
   const { editor } = useTiptap();
+  const isOpen = useEmbedPanelStore((state) => state.isOpen);
+  const mode = useEmbedPanelStore((state) => state.mode);
+  const nodePos = useEmbedPanelStore((state) => state.nodePos);
+  const initialType = useEmbedPanelStore((state) => state.initialType);
+  const initialUrl = useEmbedPanelStore((state) => state.initialUrl);
+  const triggerRef = useEmbedPanelStore((state) => state.triggerRef);
+  const close = useEmbedPanelStore((state) => state.close);
 
-  // ── Store ──────────────────────────────────────────────────────────────────
-  const isOpen = useEmbedPanelStore((s) => s.isOpen);
-  const mode = useEmbedPanelStore((s) => s.mode);
-  const nodePos = useEmbedPanelStore((s) => s.nodePos);
-  const initialType = useEmbedPanelStore((s) => s.initialType);
-  const initialUrl = useEmbedPanelStore((s) => s.initialUrl);
-  const triggerRef = useEmbedPanelStore((s) => s.triggerRef);
-  const close = useEmbedPanelStore((s) => s.close);
-
-  // ── Local state ────────────────────────────────────────────────────────────
   const [selectedType, setSelectedType] = useState<EmbedType | null>(null);
   const [url, setUrl] = useState('');
   const [typeError, setTypeError] = useState<string | null>(null);
   const [urlError, setUrlError] = useState<string | null>(null);
-
-  // ── Refs ───────────────────────────────────────────────────────────────────
   const dialogRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
+  const descriptionId = useId();
 
-  // ── Sync local state when panel opens ─────────────────────────────────────
   useEffect(() => {
-    if (isOpen) {
-      setSelectedType(initialType);
-      setUrl(initialUrl);
-      setTypeError(null);
-      setUrlError(null);
-    }
-  }, [isOpen, initialType, initialUrl]);
+    if (!isOpen) return;
+    setSelectedType(initialType ?? DEFAULT_EMBED_TYPE);
+    setUrl(initialUrl);
+    setTypeError(null);
+    setUrlError(null);
+  }, [initialType, initialUrl, isOpen]);
 
-  // ── Focus management: move focus to first focusable element on open ────────
   useEffect(() => {
     if (!isOpen) return;
 
     const timer = setTimeout(() => {
-      if (dialogRef.current) {
-        const focusable = getFocusableElements(dialogRef.current);
-        if (focusable.length > 0) {
-          focusable[0].focus();
-        }
-      }
+      if (!dialogRef.current) return;
+      getFocusableElements(dialogRef.current)[0]?.focus();
     }, 100);
 
     return () => clearTimeout(timer);
   }, [isOpen]);
 
-  // ── Close helper: returns focus to trigger ────────────────────────────────
   const handleClose = useCallback(() => {
     close();
-    // Return focus to the trigger button (Req 12.6)
     setTimeout(() => {
       triggerRef?.current?.focus();
     }, 0);
   }, [close, triggerRef]);
 
-  // ── Focus trap: Tab / Shift+Tab cycle within dialog ────────────────────────
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLDivElement>) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
         handleClose();
         return;
       }
 
-      if (e.key !== 'Tab') return;
+      if (event.key !== 'Tab') return;
 
       const container = dialogRef.current;
       if (!container) return;
@@ -126,200 +96,156 @@ export function EmbedPanel() {
       const focusable = getFocusableElements(container);
       if (focusable.length === 0) return;
 
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
+      const first = focusable[0]!;
+      const last = focusable[focusable.length - 1]!;
       const active = document.activeElement as HTMLElement;
 
-      if (e.shiftKey) {
-        // Shift+Tab: if focus is on first element, wrap to last
+      if (event.shiftKey) {
         if (active === first || !container.contains(active)) {
-          e.preventDefault();
+          event.preventDefault();
           last.focus();
         }
-      } else {
-        // Tab: if focus is on last element, wrap to first
-        if (active === last || !container.contains(active)) {
-          e.preventDefault();
-          first.focus();
-        }
+        return;
+      }
+
+      if (active === last || !container.contains(active)) {
+        event.preventDefault();
+        first.focus();
       }
     },
     [handleClose],
   );
 
-  // ── Focus trap: return focus if it escapes the dialog (Req 12.5) ──────────
   useEffect(() => {
     if (!isOpen) return;
 
-    const handleFocusIn = (e: FocusEvent) => {
+    const handleFocusIn = (event: FocusEvent) => {
       const container = dialogRef.current;
-      if (!container) return;
-      if (!container.contains(e.target as Node)) {
-        const focusable = getFocusableElements(container);
-        if (focusable.length > 0) {
-          focusable[0].focus();
-        }
-      }
+      if (!container || container.contains(event.target as Node)) return;
+      getFocusableElements(container)[0]?.focus();
     };
 
     document.addEventListener('focusin', handleFocusIn);
     return () => document.removeEventListener('focusin', handleFocusIn);
   }, [isOpen]);
 
-  // ── Insert handler ─────────────────────────────────────────────────────────
-  const handleInsert = useCallback(() => {
-    // Validate: type must be selected
-    if (!selectedType) {
-      setTypeError(t('errorEmpty'));
-      return;
-    }
-
-    // Validate: URL must be valid for the selected type
-    let validationError: string | null = null;
-
-    if (selectedType === 'youtube') {
-      const videoId = parseYouTubeUrl(url);
-      if (url.trim() === '') {
-        validationError = 'errorEmpty';
-      } else if (videoId === null) {
-        validationError = 'errorInvalid';
-      }
-
-      if (validationError) {
-        setUrlError(validationError);
-        return;
-      }
-
-      // For YouTube: store the video ID as the url attribute
-      const videoIdValue = parseYouTubeUrl(url)!;
-
-      if (mode === 'edit' && nodePos !== null) {
-        editor.commands.updateEmbedBlock(nodePos, { type: 'youtube', url: videoIdValue });
-      } else {
-        editor.commands.insertEmbedBlock({ type: 'youtube', url: videoIdValue });
-      }
-    } else if (selectedType === 'excalidraw') {
-      validationError = validateExcalidrawUrl(url);
-      if (validationError) {
-        setUrlError(validationError);
-        return;
-      }
-
-      if (mode === 'edit' && nodePos !== null) {
-        editor.commands.updateEmbedBlock(nodePos, { type: 'excalidraw', url });
-      } else {
-        editor.commands.insertEmbedBlock({ type: 'excalidraw', url });
-      }
-    } else if (selectedType === 'tldraw') {
-      validationError = validateTldrawUrl(url);
-      if (validationError) {
-        setUrlError(validationError);
-        return;
-      }
-
-      if (mode === 'edit' && nodePos !== null) {
-        editor.commands.updateEmbedBlock(nodePos, { type: 'tldraw', url });
-      } else {
-        editor.commands.insertEmbedBlock({ type: 'tldraw', url });
-      }
-    }
-
-    handleClose();
-  }, [selectedType, url, mode, nodePos, editor, handleClose, t]);
-
-  // ── Type selection: clear type error when a type is selected ──────────────
   const handleTypeSelect = useCallback((type: EmbedType) => {
     setSelectedType(type);
     setTypeError(null);
-    // Reset URL and URL error when switching types
     setUrl('');
     setUrlError(null);
   }, []);
 
-  // ── Don't render when closed ───────────────────────────────────────────────
+  const handleInsert = useCallback(() => {
+    if (!editor) return;
+
+    if (!selectedType) {
+      setTypeError(t('errorSelectType'));
+      return;
+    }
+
+    const validationError = validateEmbedUrl(selectedType, url);
+    if (validationError) {
+      setUrlError(validationError);
+      return;
+    }
+
+    const normalizedUrl = normalizeEmbedUrl(selectedType, url);
+    const provider = getEmbedProvider(selectedType);
+    const attrs = {
+      type: selectedType,
+      url: normalizedUrl,
+      height: provider?.defaultHeight ?? 520,
+    };
+
+    if (mode === 'edit' && nodePos !== null) {
+      editor.commands.updateEmbedBlock(nodePos, attrs);
+    } else {
+      editor.chain().focus().insertEmbedBlock(attrs).run();
+    }
+
+    handleClose();
+  }, [editor, handleClose, mode, nodePos, selectedType, t, url]);
+
   if (!isOpen) return null;
 
   return (
-    /* Backdrop */
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onClick={handleClose}
     >
-      {/* Dialog */}
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="bg-background border-border relative z-50 w-full max-w-lg rounded-xl border p-6 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
+        aria-describedby={descriptionId}
+        className="bg-background border-border relative z-50 flex max-h-[min(860px,calc(100vh-2rem))] w-full max-w-5xl flex-col overflow-hidden rounded-lg border shadow-xl"
+        onClick={(event) => event.stopPropagation()}
         onKeyDown={handleKeyDown}
       >
-        {/* Title */}
-        <h2
-          id={titleId}
-          className="text-foreground mb-5 text-lg font-semibold"
-        >
-          {t('title')}
-        </h2>
+        <div className="border-border flex items-start justify-between gap-4 border-b px-5 py-4">
+          <div>
+            <h2
+              id={titleId}
+              className="text-foreground text-lg font-semibold"
+            >
+              {mode === 'edit' ? t('editTitle') : t('title')}
+            </h2>
+            <p
+              id={descriptionId}
+              className="text-muted-foreground mt-1 text-sm"
+            >
+              {t('description')}
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={handleClose}
+            aria-label={t('cancelButton')}
+          >
+            <X className="size-4" />
+          </Button>
+        </div>
 
-        {/* Embed type selector */}
-        <div className="mb-4">
+        <div className="grid min-h-0 flex-1 gap-5 overflow-y-auto p-5 lg:grid-cols-[minmax(0,1fr)_320px]">
           <EmbedTypeSelector
             selectedType={selectedType}
             onSelect={handleTypeSelect}
             error={typeError}
           />
+
+          <div className="border-border bg-muted/20 h-fit rounded-lg border p-4">
+            {selectedType ? (
+              <EmbedUrlForm
+                type={selectedType}
+                url={url}
+                onChange={setUrl}
+                error={urlError}
+                onErrorChange={setUrlError}
+              />
+            ) : (
+              <p className="text-muted-foreground text-sm">{t('selectServiceFirst')}</p>
+            )}
+          </div>
         </div>
 
-        {/* Per-type URL form */}
-        {selectedType === 'youtube' && (
-          <div className="mb-5">
-            <YouTubeEmbedForm
-              url={url}
-              onChange={setUrl}
-              error={urlError}
-              onErrorChange={setUrlError}
-            />
-          </div>
-        )}
-        {selectedType === 'excalidraw' && (
-          <div className="mb-5">
-            <ExcalidrawEmbedForm
-              url={url}
-              onChange={setUrl}
-              error={urlError}
-              onErrorChange={setUrlError}
-            />
-          </div>
-        )}
-        {selectedType === 'tldraw' && (
-          <div className="mb-5">
-            <TldrawEmbedForm
-              url={url}
-              onChange={setUrl}
-              error={urlError}
-              onErrorChange={setUrlError}
-            />
-          </div>
-        )}
-
-        {/* Action buttons */}
-        <div className="flex justify-end gap-3">
-          <button
+        <div className="border-border bg-background flex justify-end gap-3 border-t px-5 py-4">
+          <Button
             type="button"
+            variant="outline"
             onClick={handleClose}
-            className="border-border text-foreground hover:bg-accent rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
           >
             {t('cancelButton')}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={handleInsert}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
           >
-            {t('insertButton')}
-          </button>
+            {mode === 'edit' ? t('updateButton') : t('insertButton')}
+          </Button>
         </div>
       </div>
     </div>

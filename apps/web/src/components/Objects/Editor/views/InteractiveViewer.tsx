@@ -1,7 +1,7 @@
 'use client';
 
 import EditorOptionsProvider from '@components/Contexts/Editor/EditorContext';
-import { EditorContent } from '@tiptap/react';
+import { Tiptap } from '@tiptap/react';
 import { useEditorInstance } from '@components/Objects/Editor/core';
 import type { ActivityRef } from '@components/Objects/Editor/core';
 import AICanvaToolkit from '@components/Objects/Activities/DynamicCanva/AI/AICanvaToolkit';
@@ -41,7 +41,11 @@ export function InteractiveViewer(props: InteractiveViewerProps) {
             </div>
           )}
           <div className="prosemirror-interactive-layout-content">
-            <EditorContent editor={editor} />
+            {editor ? (
+              <Tiptap instance={editor}>
+                <Tiptap.Content />
+              </Tiptap>
+            ) : null}
           </div>
         </div>
       </div>

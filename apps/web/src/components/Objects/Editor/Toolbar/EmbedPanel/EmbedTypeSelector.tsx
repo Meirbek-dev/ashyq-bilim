@@ -1,98 +1,113 @@
 'use client';
 
-import { SiYoutube } from '@icons-pack/react-simple-icons';
-import { Globe, PenLine } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
-import type { EmbedType } from './EmbedPanelStore';
-
-// ── Props ─────────────────────────────────────────────────────────────────────
+import {
+  EMBED_CATEGORIES,
+  EMBED_PROVIDERS,
+} from '@components/Objects/Editor/Extensions/EmbedBlock/embed-options';
+import type { EmbedCategoryId, EmbedType } from '@components/Objects/Editor/Extensions/EmbedBlock/embed-options';
 
 interface EmbedTypeSelectorProps {
-  /** Currently selected embed type, or null if none selected yet. */
   selectedType: EmbedType | null;
-  /** Called when the user clicks a card. */
   onSelect: (type: EmbedType) => void;
-  /** Inline validation error shown below the cards (e.g. "Please select a type"). */
   error?: string | null;
 }
 
-// ── Card config ───────────────────────────────────────────────────────────────
-
-interface EmbedTypeCard {
-  type: EmbedType;
-  labelKey: 'youtubeLabel' | 'excalidrawLabel' | 'tldrawLabel';
-  icon: React.ReactNode;
-}
-
-const EMBED_TYPE_CARDS: EmbedTypeCard[] = [
-  {
-    type: 'youtube',
-    labelKey: 'youtubeLabel',
-    icon: <SiYoutube className="size-6 text-[#FF0000]" />,
-  },
-  {
-    type: 'excalidraw',
-    labelKey: 'excalidrawLabel',
-    icon: <PenLine className="size-6 text-violet-500" />,
-  },
-  {
-    type: 'tldraw',
-    labelKey: 'tldrawLabel',
-    icon: <Globe className="size-6 text-blue-500" />,
-  },
-];
-
-// ── Component ─────────────────────────────────────────────────────────────────
-
-/**
- * Renders three selectable cards — YouTube, Excalidraw, tldraw — for the
- * Embed Panel type selection step.
- *
- * This is a controlled component: the parent owns `selectedType` and
- * `onSelect`. An optional `error` string is displayed below the cards when
- * the user attempts to insert without selecting a type (Requirement 3.5).
- */
 export function EmbedTypeSelector({ selectedType, onSelect, error }: EmbedTypeSelectorProps) {
   const t = useTranslations('DashPage.Editor.EmbedPanel');
+  const [activeCategory, setActiveCategory] = useState<EmbedCategoryId>('visual');
+  const [query, setQuery] = useState('');
+
+  const filteredProviders = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    return EMBED_PROVIDERS.filter((provider) => {
+      if (provider.category !== activeCategory) return false;
+      if (!normalizedQuery) return true;
+      return (
+        provider.label.toLowerCase().includes(normalizedQuery) ||
+        provider.description.toLowerCase().includes(normalizedQuery)
+      );
+    });
+  }, [activeCategory, query]);
 
   return (
-    <div className="flex flex-col gap-2">
-      {/* Card row */}
-      <div
-        role="radiogroup"
-        aria-label={t('youtubeLabel')}
-        className="grid grid-cols-3 gap-3"
-      >
-        {EMBED_TYPE_CARDS.map(({ type, labelKey, icon }) => {
-          const isSelected = selectedType === type;
-          return (
-            <button
-              key={type}
-              type="button"
-              role="radio"
-              aria-checked={isSelected}
-              onClick={() => onSelect(type)}
-              className={cn(
-                // Base card styles
-                'flex flex-col items-center justify-center gap-2 rounded-xl border px-4 py-5 text-sm font-medium transition-all',
-                'hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                // Unselected state
-                'border-border bg-background text-muted-foreground',
-                // Selected state — highlighted border + background tint
-                isSelected && 'border-primary bg-primary/5 text-foreground ring-2 ring-primary/20',
-                // Error state — show destructive border when no type selected and error present
-                !isSelected && error && 'border-destructive/50',
-              )}
-            >
-              {icon}
-              <span>{t(labelKey)}</span>
-            </button>
-          );
-        })}
+    <div className="space-y-3">
+      <div className="grid gap-3 md:grid-cols-[180px_minmax(0,1fr)]">
+        <div
+          role="tablist"
+          aria-label={t('categoryLabel')}
+          className="border-border bg-muted/30 flex max-h-[360px] flex-col gap-1 overflow-y-auto rounded-lg border p-1"
+        >
+          {EMBED_CATEGORIES.map((category) => {
+            const isActive = category.id === activeCategory;
+            return (
+              <button
+                key={category.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setActiveCategory(category.id)}
+                className={cn(
+                  'rounded-md px-3 py-2 text-left text-sm transition-colors',
+                  isActive
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:bg-background/70 hover:text-foreground',
+                )}
+              >
+                <span className="block font-medium">{category.label}</span>
+                <span className="line-clamp-2 text-xs leading-4">{category.description}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="min-w-0 space-y-3">
+          <label className="border-input bg-background focus-within:ring-ring flex items-center gap-2 rounded-md border px-3 py-2 focus-within:ring-2">
+            <Search className="text-muted-foreground size-4" />
+            <span className="sr-only">{t('searchPlaceholder')}</span>
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={t('searchPlaceholder')}
+              className="placeholder:text-muted-foreground w-full bg-transparent text-sm outline-none"
+            />
+          </label>
+
+          <div
+            role="radiogroup"
+            aria-label={t('serviceLabel')}
+            className="grid max-h-[360px] grid-cols-1 gap-2 overflow-y-auto pr-1 md:grid-cols-2"
+          >
+            {filteredProviders.map((provider) => {
+              const isSelected = selectedType === provider.type;
+              return (
+                <button
+                  key={provider.type}
+                  type="button"
+                  role="radio"
+                  aria-checked={isSelected}
+                  onClick={() => onSelect(provider.type)}
+                  className={cn(
+                    'border-border bg-background hover:bg-accent/60 hover:text-foreground rounded-lg border p-3 text-left transition-colors',
+                    'focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none',
+                    isSelected && 'border-primary bg-primary/5 text-foreground ring-primary/25 ring-2',
+                    !isSelected && error && 'border-destructive/60',
+                  )}
+                >
+                  <span className="text-sm font-semibold">{provider.label}</span>
+                  <span className="text-muted-foreground mt-1 line-clamp-2 block text-xs leading-4">
+                    {provider.description}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
-      {/* Inline validation error */}
       {error ? (
         <p
           role="alert"

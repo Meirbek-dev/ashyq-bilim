@@ -8,6 +8,8 @@ import type { EmbedBlockAttrs } from './EmbedBlock';
 import YouTubeNodeView from './YouTubeNodeView';
 import ExcalidrawNodeView from './ExcalidrawNodeView';
 import TldrawNodeView from './TldrawNodeView';
+import GenericEmbedNodeView from './GenericEmbedNodeView';
+import { getEmbedProvider } from './embed-options';
 
 // ============================================================================
 // clampEmbedHeight utility
@@ -43,11 +45,11 @@ class EmbedErrorBoundary extends Component<EmbedErrorBoundaryProps, EmbedErrorBo
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error, info: ErrorInfo) {
+  override componentDidCatch(error: Error, info: ErrorInfo) {
     console.error('[EmbedBlock] NodeView render error:', error, info);
   }
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       const label = this.props.embedType ?? 'embed';
       return (
@@ -75,6 +77,7 @@ class EmbedErrorBoundary extends Component<EmbedErrorBoundaryProps, EmbedErrorBo
 
 const EmbedBlockNodeView = (props: TypedNodeViewProps<EmbedBlockAttrs>) => {
   const { type } = props.node.attrs;
+  const provider = getEmbedProvider(type);
 
   const renderSubView = () => {
     switch (type) {
@@ -97,6 +100,14 @@ const EmbedBlockNodeView = (props: TypedNodeViewProps<EmbedBlockAttrs>) => {
           </EmbedErrorBoundary>
         );
       default:
+        if (provider) {
+          return (
+            <EmbedErrorBoundary embedType={provider.label}>
+              <GenericEmbedNodeView {...props} />
+            </EmbedErrorBoundary>
+          );
+        }
+
         return (
           <div className="flex min-h-[120px] w-full items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-6 text-center">
             <p className="text-sm text-gray-500">

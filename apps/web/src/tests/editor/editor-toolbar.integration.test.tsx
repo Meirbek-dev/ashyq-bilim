@@ -197,11 +197,11 @@ function ParentWithAIState({ onAIToggle }: { onAIToggle: () => void }) {
 // ---------------------------------------------------------------------------
 
 describe('EditorToolbar — no re-render when isAIOpen changes (Requirement 2.4)', () => {
-  let onAIToggle: ReturnType<typeof vi.fn>;
+  let onAIToggle: () => void;
 
   beforeEach(() => {
     renderCount = 0;
-    onAIToggle = vi.fn();
+    onAIToggle = vi.fn(() => undefined);
   });
 
   afterEach(() => {
@@ -258,7 +258,7 @@ describe('EditorToolbar — no re-render when isAIOpen changes (Requirement 2.4)
     // This test verifies the precondition: if onAIToggle were a new function
     // reference on every parent render, React.memo would not protect against
     // re-renders. We confirm the stable ref pattern works.
-    const stableCallback = vi.fn();
+    const stableCallback = vi.fn(() => undefined);
 
     function ParentWithStableCallback() {
       const [isAIOpen, setIsAIOpen] = useState(false);

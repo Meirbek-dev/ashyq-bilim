@@ -138,7 +138,7 @@ export function createInsertItems(t: ToolbarTranslator): InsertItem[] {
       category: 'media',
       includeInToolbar: false,
       run: (_editor: Editor) => {
-        const nullRef = { current: null } as RefObject<HTMLButtonElement>;
+        const nullRef: RefObject<HTMLButtonElement | null> = { current: null };
         useEmbedPanelStore.getState().open(nullRef);
       },
     },

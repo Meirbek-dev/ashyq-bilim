@@ -4160,7 +4160,18 @@
         "insertButton": "Кірістіру",
         "cancelButton": "Бас тарту",
         "editButton": "Өңдеу",
-        "deleteButton": "Жою"
+        "deleteButton": "Жою",
+        "editTitle": "Edit Embed",
+        "description": "Choose a trusted service, then paste a share or embed URL.",
+        "categoryLabel": "Embed categories",
+        "serviceLabel": "Embed services",
+        "searchPlaceholder": "Search services...",
+        "urlLabel": "URL",
+        "urlForService": "{service} URL",
+        "selectServiceFirst": "Select a service to continue.",
+        "embedUrlHint": "Use the service embed/share URL for the most reliable result.",
+        "errorSelectType": "Please select an embed service",
+        "updateButton": "Update"
       },
       "UserBlock": {
         "errorNotFound": "Пайдаланушы табылмады",

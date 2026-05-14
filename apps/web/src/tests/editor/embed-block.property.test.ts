@@ -14,6 +14,7 @@ import * as fc from 'fast-check';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { EmbedBlock } from '../../components/Objects/Editor/Extensions/EmbedBlock/EmbedBlock';
+import type { EmbedType } from '../../components/Objects/Editor/Extensions/EmbedBlock/embed-options';
 
 // ---------------------------------------------------------------------------
 // Schema setup — StarterKit provides the required doc/text/paragraph nodes
@@ -33,7 +34,7 @@ const schema = getSchema([StarterKit, EmbedBlock]);
  * Returns the parsed node's attrs.
  */
 function htmlRoundTrip(attrs: {
-  type: 'youtube' | 'excalidraw' | 'tldraw';
+  type: EmbedType;
   url: string;
   width: string;
   height: number;
@@ -81,7 +82,7 @@ describe('EmbedBlock HTML round-trip (Property 7)', () => {
   it('preserves type, url, width, and height through renderHTML → parseHTML', () => {
     fc.assert(
       fc.property(
-        fc.constantFrom('youtube' as const, 'excalidraw' as const, 'tldraw' as const),
+        fc.constantFrom<EmbedType>('youtube', 'excalidraw', 'tldraw', 'figma', 'desmos'),
         fc.string({ minLength: 1 }),
         fc.constantFrom('100%' as const, '80%' as const, '60%' as const),
         fc.integer({ min: 200, max: 1200 }),

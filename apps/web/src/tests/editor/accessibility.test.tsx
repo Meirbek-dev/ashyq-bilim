@@ -161,6 +161,9 @@ vi.mock(
   '../../components/Objects/Editor/Extensions/EmbedBlock/embed-validators',
   () => ({
     parseYouTubeUrl: (url: string) => (url.includes('youtube') ? 'dQw4w9WgXcQ' : null),
+    validateEmbedUrl: (_type: string, url: string) =>
+      url.trim() === '' ? 'errorEmpty' : url.includes('invalid') ? 'errorInvalid' : null,
+    normalizeEmbedUrl: (_type: string, url: string) => url.trim(),
     validateExcalidrawUrl: (url: string) =>
       url.trim() === '' ? 'errorEmpty' : url.includes('excalidraw.com') ? null : 'errorInvalid',
     validateTldrawUrl: (url: string) =>
@@ -376,7 +379,7 @@ describe('EmbedPanel Escape key behavior (Requirements 12.6)', () => {
       useEmbedPanelStore.setState({
         isOpen: true,
         mode: 'insert',
-        triggerRef: triggerRef as React.RefObject<HTMLButtonElement>,
+        triggerRef,
       });
     });
 

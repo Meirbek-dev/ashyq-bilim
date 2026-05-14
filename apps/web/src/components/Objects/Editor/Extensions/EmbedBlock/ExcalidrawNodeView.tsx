@@ -103,7 +103,7 @@ const ExcalidrawNodeView = (props: TypedNodeViewProps<EmbedBlockAttrs>) => {
   const handleEdit = useCallback(() => {
     const pos = typeof getPos === 'function' ? getPos() : undefined;
     if (pos === undefined || !url) return;
-    openForEdit(pos, { type: 'excalidraw', url }, editTriggerRef as React.RefObject<HTMLButtonElement>);
+    openForEdit(pos, { type: 'excalidraw', url }, editTriggerRef);
   }, [getPos, openForEdit, url]);
 
   const handleDelete = useCallback(() => {

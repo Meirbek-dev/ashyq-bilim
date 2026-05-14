@@ -1,37 +1,36 @@
 'use client';
 
+import { useCallback, useRef } from 'react';
 import { YouTubeEmbed } from '@next/third-parties/google';
-import { useEditorProvider } from '@components/Contexts/Editor/EditorContext';
+import { Pencil, Trash2 } from 'lucide-react';
 import { NodeViewWrapper } from '@tiptap/react';
 import type { TypedNodeViewProps } from '@components/Objects/Editor/core';
+import { useEmbedPanelStore } from '../../Toolbar/EmbedPanel/EmbedPanelStore';
 import type { EmbedBlockAttrs } from './EmbedBlock';
+import { resolveYouTubeVideoId } from './embed-validators';
 
-/**
- * YouTubeNodeView
- *
- * Renders a YouTube video embed using `<YouTubeEmbed>` from `@next/third-parties/google`
- * in a responsive 16:9 container with rounded corners.
- *
- * - `node.attrs.url` contains the extracted video ID (not the full URL).
- * - No overlay toolbar in either authoring or read-only mode (YouTube embeds are view-only).
- *
- * Requirements: 4.4, 4.7, 4.8
- */
 const YouTubeNodeView = (props: TypedNodeViewProps<EmbedBlockAttrs>) => {
-  const { url } = props.node.attrs;
-  const { isEditable } = useEditorProvider();
+  const { node, editor, deleteNode, getPos } = props;
+  const { url } = node.attrs;
+  const isEditable = editor.isEditable;
+  const videoId = url ? resolveYouTubeVideoId(url) : null;
+  const openForEdit = useEmbedPanelStore((state) => state.openForEdit);
+  const editButtonRef = useRef<HTMLButtonElement>(null);
 
-  // `url` stores the extracted video ID from parseYouTubeUrl
-  const videoId = url;
+  const handleEdit = useCallback(() => {
+    const pos = typeof getPos === 'function' ? getPos() : undefined;
+    if (pos === undefined || !url) return;
+    openForEdit(pos, { type: 'youtube', url }, editButtonRef);
+  }, [getPos, openForEdit, url]);
 
   if (!videoId) {
     return (
       <NodeViewWrapper className="youtube-node-view w-full">
         <div
-          className="flex min-h-[200px] w-full items-center justify-center rounded-md border border-red-200 bg-red-50 p-6 text-center"
+          className="border-destructive/30 bg-destructive/5 text-destructive flex min-h-[200px] w-full items-center justify-center rounded-md border p-6 text-center text-sm"
           role="alert"
         >
-          <p className="text-sm text-red-600">Invalid or missing YouTube video ID.</p>
+          Invalid or missing YouTube video ID.
         </div>
       </NodeViewWrapper>
     );
@@ -39,11 +38,9 @@ const YouTubeNodeView = (props: TypedNodeViewProps<EmbedBlockAttrs>) => {
 
   return (
     <NodeViewWrapper
-      className="youtube-node-view w-full"
-      // Prevent the editor from intercepting pointer events on the embed in read-only mode
+      className="youtube-node-view relative my-4 w-full"
       data-drag-handle={isEditable ? '' : undefined}
     >
-      {/* 16:9 responsive container with border-radius ≥ 4px (rounded-md = 6px) */}
       <div className="aspect-video w-full overflow-hidden rounded-md">
         <YouTubeEmbed
           videoid={videoId}
@@ -51,6 +48,31 @@ const YouTubeNodeView = (props: TypedNodeViewProps<EmbedBlockAttrs>) => {
           params="rel=0"
         />
       </div>
+
+      {isEditable ? (
+        <div
+          className="absolute right-2 top-2 flex items-center gap-1 rounded-md border border-black/10 bg-white/95 p-1 text-gray-700 shadow-sm backdrop-blur"
+          contentEditable={false}
+        >
+          <button
+            ref={editButtonRef}
+            type="button"
+            aria-label="Edit YouTube embed"
+            onClick={handleEdit}
+            className="flex size-8 items-center justify-center rounded hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500"
+          >
+            <Pencil className="size-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Delete YouTube embed"
+            onClick={deleteNode}
+            className="flex size-8 items-center justify-center rounded text-red-600 hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-500"
+          >
+            <Trash2 className="size-4" />
+          </button>
+        </div>
+      ) : null}
     </NodeViewWrapper>
   );
 };

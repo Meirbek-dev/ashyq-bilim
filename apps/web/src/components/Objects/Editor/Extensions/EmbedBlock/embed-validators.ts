@@ -1,3 +1,8 @@
+import { getEmbedProvider, isEmbedType } from './embed-options';
+import type { EmbedType } from './embed-options';
+
+export type EmbedValidationError = 'errorEmpty' | 'errorInvalid';
+
 /**
  * Pure URL validation and transformation helpers for the EmbedBlock extension.
  *
@@ -70,6 +75,14 @@ export function parseYouTubeUrl(url: string): string | null {
   return null;
 }
 
+export function resolveYouTubeVideoId(value: string): string | null {
+  const parsed = parseYouTubeUrl(value);
+  if (parsed) return parsed;
+
+  const trimmed = value.trim();
+  return /^[a-zA-Z0-9_-]{6,}$/.test(trimmed) ? trimmed : null;
+}
+
 // ---------------------------------------------------------------------------
 // Excalidraw
 // ---------------------------------------------------------------------------
@@ -85,7 +98,7 @@ export function parseYouTubeUrl(url: string): string | null {
  */
 export function validateExcalidrawUrl(
   url: string,
-): null | 'errorEmpty' | 'errorInvalid' {
+): null | EmbedValidationError {
   if (url.trim() === '') return 'errorEmpty';
 
   let parsed: URL;
@@ -129,7 +142,7 @@ export function buildExcalidrawSrc(url: string): string {
  */
 export function validateTldrawUrl(
   url: string,
-): null | 'errorEmpty' | 'errorInvalid' {
+): null | EmbedValidationError {
   if (url.trim() === '') return 'errorEmpty';
 
   let parsed: URL;
@@ -155,4 +168,138 @@ export function validateTldrawUrl(
  */
 export function buildTldrawSrc(url: string): string {
   return url.includes('?') ? `${url}&embed=1` : `${url}?embed=1`;
+}
+
+// ---------------------------------------------------------------------------
+// Provider-driven validation
+// ---------------------------------------------------------------------------
+
+function parseAbsoluteUrl(url: string): URL | null {
+  try {
+    return new URL(url);
+  } catch {
+    return null;
+  }
+}
+
+function hostnameMatches(hostname: string, allowedHost: string): boolean {
+  return hostname === allowedHost || hostname.endsWith(`.${allowedHost}`);
+}
+
+function validateProviderUrl(type: EmbedType, url: string): null | EmbedValidationError {
+  if (url.trim() === '') return 'errorEmpty';
+
+  if (type === 'youtube') {
+    return resolveYouTubeVideoId(url) ? null : 'errorInvalid';
+  }
+
+  if (type === 'excalidraw') {
+    return validateExcalidrawUrl(url);
+  }
+
+  if (type === 'tldraw') {
+    return validateTldrawUrl(url);
+  }
+
+  const provider = getEmbedProvider(type);
+  const parsed = parseAbsoluteUrl(url);
+
+  if (!provider || !parsed || parsed.protocol !== 'https:') {
+    return 'errorInvalid';
+  }
+
+  const hostname = parsed.hostname.toLowerCase();
+  const isAllowedHost = provider.hostnames.some((allowedHost) =>
+    hostnameMatches(hostname, allowedHost.toLowerCase()),
+  );
+
+  return isAllowedHost ? null : 'errorInvalid';
+}
+
+export function validateEmbedUrl(
+  type: EmbedType | string | null | undefined,
+  url: string,
+): null | EmbedValidationError {
+  if (!type || !isEmbedType(type)) return 'errorInvalid';
+  return validateProviderUrl(type, url);
+}
+
+function appendQueryParam(url: string, key: string, value: string): string {
+  const [withoutHash = '', hash = ''] = url.split('#');
+  const separator = withoutHash.includes('?') ? '&' : '?';
+  return `${withoutHash}${separator}${key}=${encodeURIComponent(value)}${hash ? `#${hash}` : ''}`;
+}
+
+function buildVimeoSrc(url: string): string {
+  const parsed = parseAbsoluteUrl(url);
+  if (!parsed) return url;
+
+  if (parsed.hostname === 'player.vimeo.com') return url;
+
+  const id = parsed.pathname.split('/').filter(Boolean)[0];
+  return id ? `https://player.vimeo.com/video/${id}` : url;
+}
+
+function buildCodePenSrc(url: string): string {
+  const parsed = parseAbsoluteUrl(url);
+  if (!parsed) return url;
+
+  const path = parsed.pathname.replace('/pen/', '/embed/');
+  return `${parsed.origin}${path}${parsed.search}`;
+}
+
+function buildFigmaSrc(url: string): string {
+  return `https://www.figma.com/embed?embed_host=ashyk-bilim&url=${encodeURIComponent(url)}`;
+}
+
+function buildGistSrc(url: string): string {
+  return url.endsWith('.pibb') ? url : `${url}.pibb`;
+}
+
+function buildSpotifySrc(url: string): string {
+  const parsed = parseAbsoluteUrl(url);
+  if (!parsed || parsed.pathname.startsWith('/embed/')) return url;
+  return `${parsed.origin}/embed${parsed.pathname}${parsed.search}`;
+}
+
+function buildGenericEmbeddableSrc(type: EmbedType, url: string): string {
+  switch (type) {
+    case 'youtube': {
+      const videoId = resolveYouTubeVideoId(url);
+      return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0` : url;
+    }
+    case 'excalidraw':
+      return buildExcalidrawSrc(url);
+    case 'tldraw':
+      return buildTldrawSrc(url);
+    case 'vimeo':
+      return buildVimeoSrc(url);
+    case 'codepen':
+      return buildCodePenSrc(url);
+    case 'figma':
+      return buildFigmaSrc(url);
+    case 'github-gist':
+      return buildGistSrc(url);
+    case 'spotify':
+      return buildSpotifySrc(url);
+    default:
+      return url;
+  }
+}
+
+export function buildEmbedSrc(type: EmbedType | string | null | undefined, url: string): string {
+  if (!type || !isEmbedType(type)) return url;
+  return buildGenericEmbeddableSrc(type, url);
+}
+
+export function normalizeEmbedUrl(type: EmbedType, url: string): string {
+  if (type === 'youtube') {
+    return resolveYouTubeVideoId(url) ?? url.trim();
+  }
+
+  if (type === 'phet' && !url.includes('fullscreen')) {
+    return appendQueryParam(url.trim(), 'simulation', 'true');
+  }
+
+  return url.trim();
 }

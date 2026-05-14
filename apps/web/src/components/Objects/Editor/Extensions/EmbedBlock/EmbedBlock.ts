@@ -1,9 +1,8 @@
 import { Node, mergeAttributes } from '@tiptap/core';
 import type { CommandProps } from '@tiptap/core';
-import { ReactNodeViewRenderer } from '@tiptap/react';
+import { nodeView } from '@components/Objects/Editor/core';
 import EmbedBlockNodeView from './EmbedBlockNodeView';
-
-export type EmbedType = 'youtube' | 'excalidraw' | 'tldraw';
+import type { EmbedType } from './embed-options';
 
 export interface EmbedBlockAttrs {
   type: EmbedType | null;
@@ -25,12 +24,15 @@ export const EmbedBlock = Node.create({
   name: 'embedBlock',
   group: 'block',
   atom: true,
+  defining: true,
+  isolating: true,
+  draggable: true,
 
   addAttributes() {
     return {
       type: {
         default: null,
-        parseHTML: (element) => element.getAttribute('data-embed-type') ?? null,
+        parseHTML: (element) => element.getAttribute('data-embed-type') as EmbedType | null,
         renderHTML: (attributes) => {
           if (!attributes.type) return {};
           return { 'data-embed-type': attributes.type };
@@ -79,7 +81,7 @@ export const EmbedBlock = Node.create({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(EmbedBlockNodeView);
+    return nodeView<EmbedBlockAttrs>(EmbedBlockNodeView);
   },
 
   addCommands() {
@@ -94,7 +96,7 @@ export const EmbedBlock = Node.create({
         ({ tr, dispatch }: CommandProps) => {
           // Guard against out-of-bounds positions — nodeAt throws a RangeError
           // for positions outside the document, so we check bounds first.
-          let node: ReturnType<typeof tr.doc.nodeAt> = null;
+          let node: ReturnType<typeof tr.doc.nodeAt>;
           try {
             node = tr.doc.nodeAt(pos);
           } catch {

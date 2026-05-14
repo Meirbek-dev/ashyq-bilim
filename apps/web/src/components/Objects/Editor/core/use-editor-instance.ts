@@ -35,6 +35,8 @@ export function useEditorInstance(options: UseEditorInstanceOptions) {
     extensions,
     content: resolvedContent,
     immediatelyRender: false,
+    injectCSS: false,
+    shouldRerenderOnTransaction: preset === 'discussion',
     editable: presetDef.isEditable,
     onUpdate: onUpdate ? ({ editor }) => onUpdate(editor.getJSON()) : undefined,
     ...overrides,

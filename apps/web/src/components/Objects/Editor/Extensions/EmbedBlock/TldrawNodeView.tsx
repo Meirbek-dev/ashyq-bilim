@@ -99,7 +99,7 @@ const TldrawNodeView = (props: TypedNodeViewProps<EmbedBlockAttrs>) => {
   const handleEdit = useCallback(() => {
     const pos = typeof getPos === 'function' ? getPos() : undefined;
     if (pos === undefined || !url) return;
-    openForEdit(pos, { type: 'tldraw', url }, editButtonRef as React.RefObject<HTMLButtonElement>);
+    openForEdit(pos, { type: 'tldraw', url }, editButtonRef);
   }, [getPos, openForEdit, url]);
 
   // ── Delete button ──────────────────────────────────────────────────────────

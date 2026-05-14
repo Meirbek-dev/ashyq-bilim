@@ -293,7 +293,8 @@ export async function getCourseUserRights(course_uuid: string) {
 
 export async function searchCourses(query: string, page = 1, limit = 20, next: any) {
   const result = await apiFetch(`courses/search?query=${encodeURIComponent(query)}&page=${page}&limit=${limit}`);
-  return (await errorHandling(result)).map((course) => normalizeCourse(course));
+  const courses: CourseRead[] = await errorHandling(result);
+  return courses.map((course) => normalizeCourse(course));
 }
 
 /**

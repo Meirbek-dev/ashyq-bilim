@@ -127,15 +127,20 @@ describe('AuthoringEditor integration: mixed blockEmbed + embedBlock document', 
     expect(editor).not.toBeNull();
 
     const json = editor!.getJSON();
-    expect(json.content).toHaveLength(4);
+    const content = json.content ?? [];
+    expect(content).toHaveLength(4);
 
     // Verify blockEmbed node is present and intact
-    const blockEmbedNode = json.content![1];
+    const blockEmbedNode = content[1];
+    expect(blockEmbedNode).toBeDefined();
+    if (!blockEmbedNode) throw new Error('Expected blockEmbed node');
     expect(blockEmbedNode.type).toBe('blockEmbed');
     expect(blockEmbedNode.attrs?.embedUrl).toBe('https://example.com/embed');
 
     // Verify embedBlock node is present and intact
-    const embedBlockNode = json.content![2];
+    const embedBlockNode = content[2];
+    expect(embedBlockNode).toBeDefined();
+    if (!embedBlockNode) throw new Error('Expected embedBlock node');
     expect(embedBlockNode.type).toBe('embedBlock');
     expect(embedBlockNode.attrs?.type).toBe('youtube');
     expect(embedBlockNode.attrs?.url).toBe('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
@@ -178,7 +183,7 @@ describe('AuthoringEditor integration: mixed blockEmbed + embedBlock document', 
     expect(result).toBe(true);
 
     const json = editor.getJSON();
-    const nodeTypes = json.content!.map((n) => n.type);
+    const nodeTypes = (json.content ?? []).map((n) => n.type);
 
     // Both node types should coexist in the document
     expect(nodeTypes).toContain('blockEmbed');

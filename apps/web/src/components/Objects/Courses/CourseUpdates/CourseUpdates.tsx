@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { createCourseUpdate, deleteCourseUpdate } from '@services/courses/updates';
 import { AlertTriangle, Loader2, PencilLine, Rss, TentTree } from 'lucide-react';
-import { useEffectEvent, useLayoutEffect, useState, useTransition } from 'react';
+import { useEffect, useEffectEvent, useLayoutEffect, useState, useTransition } from 'react';
 import { Field, FieldContent, FieldError, FieldLabel } from '@components/ui/field';
 import { queryKeys } from '@/lib/react-query/queryKeys';
 import { Actions, Resources, Scopes } from '@/types/permissions';
