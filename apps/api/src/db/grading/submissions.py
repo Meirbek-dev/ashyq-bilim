@@ -187,8 +187,6 @@ class TeacherGradeInput(PydanticStrictBaseModel):
 
 
 class SubmissionBase(SQLModelStrictBaseModel):
-    model_config = ConfigDict(use_enum_values=True)
-
     # What was submitted
     assessment_type: AssessmentType
     activity_id: int
@@ -289,8 +287,6 @@ class SubmissionRead(SubmissionBase):
 
 class SubmissionUpdate(SQLModelStrictBaseModel):
     """Partial update model for a submission (teacher grading)."""
-
-    model_config = ConfigDict(use_enum_values=True)
 
     final_score: float | None = None
     status: SubmissionStatus | None = None

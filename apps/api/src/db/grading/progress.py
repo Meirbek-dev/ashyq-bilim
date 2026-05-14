@@ -124,8 +124,6 @@ class AssessmentPolicy(SQLModelStrictBaseModel, table=True):
         Index("ix_assessment_policy_assessment_type", "assessment_type"),
     )
 
-    model_config = ConfigDict(use_enum_values=True)
-
     id: int | None = Field(default=None, primary_key=True)
     policy_uuid: str
     activity_id: int = Field(
@@ -250,8 +248,6 @@ class ActivityProgress(SQLModelStrictBaseModel, table=True):
             "teacher_action_required",
         ),
     )
-
-    model_config = ConfigDict(use_enum_values=True)
 
     id: int | None = Field(default=None, primary_key=True)
     course_id: int = Field(

@@ -38,8 +38,6 @@ class Permission(SQLModelStrictBaseModel, table=True):
         Index("idx_permissions_name", "name", unique=True),
     )
 
-    model_config = ConfigDict(use_enum_values=True)
-
     id: int | None = Field(default=None, primary_key=True)
     name: str = Field(max_length=100, description="resource:action:scope")
     resource_type: str = Field(max_length=50)
@@ -76,8 +74,6 @@ class Role(SQLModelStrictBaseModel, table=True):
         UniqueConstraint("slug", name="uq_roles_slug"),
         Index("idx_roles_slug", "slug"),
     )
-
-    model_config = ConfigDict(use_enum_values=True)
 
     id: int | None = Field(default=None, primary_key=True)
     slug: str = Field(max_length=100)
@@ -165,7 +161,7 @@ class RoleCreate(PydanticStrictBaseModel):
 
 
 class RoleRead(PydanticStrictBaseModel):
-    model_config = ConfigDict(from_attributes=True, use_enum_values=True)
+    model_config = ConfigDict(from_attributes=True)
 
     id: int
     slug: str
@@ -186,7 +182,7 @@ class RoleUpdate(PydanticStrictBaseModel):
 
 
 class PermissionRead(PydanticStrictBaseModel):
-    model_config = ConfigDict(from_attributes=True, use_enum_values=True)
+    model_config = ConfigDict(from_attributes=True)
 
     id: int
     name: str

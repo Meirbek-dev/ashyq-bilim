@@ -2,6 +2,7 @@ import logging
 
 from openai import AsyncOpenAI
 from pydantic_ai import Agent, RunContext
+from pydantic_ai.capabilities import Instrumentation
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.providers.openai import OpenAIProvider
 from pydantic_ai.settings import ModelSettings
@@ -33,7 +34,7 @@ _AGENT = Agent(
     deps_type=AgentDependencies,
     output_type=str,
     tool_retries=1,
-    instrument=get_settings().general_config.logfire_enabled,
+    capabilities=[Instrumentation()] if get_settings().general_config.logfire_enabled else [],
 )
 
 

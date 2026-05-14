@@ -37,7 +37,11 @@ from src.db.grading.submissions import (
     SubmissionListResponse,
     SubmissionRead,
 )
-from src.db.strict_base_model import PydanticStrictBaseModel, SQLModelStrictBaseModel
+from src.db.strict_base_model import (
+    PydanticStrictBaseModel,
+    SQLModelStrictBaseModel,
+    coerce_date_to_end_of_day,
+)
 
 
 class AssessmentLifecycle(StrEnum):
@@ -242,8 +246,6 @@ class Assessment(SQLModelStrictBaseModel, table=True):
         Index("ix_assessment_lifecycle", "lifecycle"),
     )
 
-    model_config = ConfigDict(use_enum_values=True)
-
     id: int | None = SQLField(default=None, primary_key=True)
     assessment_uuid: str
     activity_id: int = SQLField(
@@ -359,8 +361,6 @@ class AssessmentItem(SQLModelStrictBaseModel, table=True):
         Index("ix_assessment_item_assessment_order", "assessment_id", "order"),
     )
 
-    model_config = ConfigDict(use_enum_values=True)
-
     id: int | None = SQLField(default=None, primary_key=True)
     item_uuid: str
     assessment_id: int = SQLField(
@@ -426,6 +426,11 @@ class AssessmentPolicyPatch(PydanticStrictBaseModel):
     anti_cheat_json: dict[str, object] | None = None
     # Arbitrary extension fields
     settings_json: dict[str, object] | None = None
+
+    @field_validator("due_at", mode="before")
+    @classmethod
+    def validate_due_at(cls, v: Any) -> Any:
+        return coerce_date_to_end_of_day(v)
 
     @field_validator("late_policy", mode="before")
     @classmethod
@@ -547,8 +552,6 @@ class AssessmentEffectivePolicy(PydanticStrictBaseModel):
 
 
 class AttemptStateRead(PydanticStrictBaseModel):
-    model_config = ConfigDict(use_enum_values=True)
-
     assessment_uuid: str
     submission_uuid: str | None = None
     submission_status: str | None = None
@@ -604,8 +607,6 @@ class AssessmentAttemptProjection(AttemptStateRead):
 
 
 class AssessmentReviewProjection(PydanticStrictBaseModel):
-    model_config = ConfigDict(use_enum_values=True)
-
     assessment_uuid: str
     activity_id: int
     activity_uuid: str
@@ -640,8 +641,6 @@ class AssessmentReviewProjection(PydanticStrictBaseModel):
 
 
 class AssessmentDetailRead(PydanticStrictBaseModel):
-    model_config = ConfigDict(use_enum_values=True)
-
     id: int
     assessment_uuid: str
     activity_id: int
@@ -819,6 +818,11 @@ class StudentPolicyOverrideCreate(PydanticStrictBaseModel):
     note: str = ""
     expires_at: datetime | None = None
 
+    @field_validator("due_at_override", mode="before")
+    @classmethod
+    def validate_due_at_override(cls, v: Any) -> Any:
+        return coerce_date_to_end_of_day(v)
+
 
 class StudentPolicyOverrideUpdate(PydanticStrictBaseModel):
     max_attempts_override: int | None = None
@@ -827,6 +831,11 @@ class StudentPolicyOverrideUpdate(PydanticStrictBaseModel):
     waive_late_penalty: bool | None = None
     note: str | None = None
     expires_at: datetime | None = None
+
+    @field_validator("due_at_override", mode="before")
+    @classmethod
+    def validate_due_at_override(cls, v: Any) -> Any:
+        return coerce_date_to_end_of_day(v)
 
 
 class StudentPolicyOverrideRead(PydanticStrictBaseModel):

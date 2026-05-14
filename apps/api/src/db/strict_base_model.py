@@ -1,8 +1,23 @@
 import os
 import warnings
+from datetime import UTC, date, datetime
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 from sqlmodel import SQLModel
+
+
+def coerce_date_to_end_of_day(value: Any) -> Any:
+    """Coerce date strings (YYYY-MM-DD) to end-of-day datetimes (UTC)."""
+    if isinstance(value, str) and len(value) == 10:
+        try:
+            d = date.fromisoformat(value)
+            return datetime.combine(
+                d, datetime.max.time().replace(microsecond=0), tzinfo=UTC
+            )
+        except ValueError:
+            pass
+    return value
 
 
 def _parse_env_bool(value: str | None) -> bool:
@@ -18,7 +33,6 @@ if _dev:
 
 
 _PYDANTIC_CONFIG: ConfigDict = ConfigDict(
-    use_enum_values=True,
     str_strip_whitespace=True,
     ser_json_bytes="base64",
     regex_engine="rust-regex",
@@ -33,7 +47,6 @@ _PYDANTIC_CONFIG: ConfigDict = ConfigDict(
 )
 
 _SQLMODEL_CONFIG: ConfigDict = ConfigDict(
-    use_enum_values=True,
     str_strip_whitespace=True,
     # slots=True is intentionally omitted: SQLModel table models rely on
     # SQLAlchemy instrumented descriptors which are incompatible with __slots__.
@@ -59,4 +72,5 @@ __all__: list[str] = [
     "SQLModelDefaultBase",
     "SQLModelStrictBaseModel",
     "is_dev_mode",
+    "coerce_date_to_end_of_day",
 ]

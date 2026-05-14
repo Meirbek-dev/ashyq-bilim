@@ -1,6 +1,6 @@
 """First-class file submission activity models."""
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from enum import StrEnum
 from typing import Any, Literal
 
@@ -20,7 +20,11 @@ from sqlalchemy import (
 )
 from sqlmodel import Field as SQLField
 
-from src.db.strict_base_model import PydanticStrictBaseModel, SQLModelStrictBaseModel
+from src.db.strict_base_model import (
+    PydanticStrictBaseModel,
+    SQLModelStrictBaseModel,
+    coerce_date_to_end_of_day,
+)
 
 
 class FileSubmissionLifecycle(StrEnum):
@@ -54,8 +58,6 @@ class FileSubmissionActivity(SQLModelStrictBaseModel, table=True):
         Index("ix_file_submission_activity_uuid", "file_submission_uuid"),
         Index("ix_file_submission_activity_lifecycle", "lifecycle"),
     )
-
-    model_config = ConfigDict(use_enum_values=True)
 
     id: int | None = SQLField(default=None, primary_key=True)
     file_submission_uuid: str
@@ -140,8 +142,6 @@ class FileSubmissionAttempt(SQLModelStrictBaseModel, table=True):
         Index("ix_file_submission_attempt_submission", "file_submission_id", "status"),
     )
 
-    model_config = ConfigDict(use_enum_values=True)
-
     id: int | None = SQLField(default=None, primary_key=True)
     attempt_uuid: str
     file_submission_id: int = SQLField(
@@ -223,8 +223,6 @@ class FileSubmissionAttemptFile(SQLModelStrictBaseModel, table=True):
         Index("ix_file_submission_file_attempt", "attempt_id", "position"),
     )
 
-    model_config = ConfigDict(use_enum_values=True)
-
     id: int | None = SQLField(default=None, primary_key=True)
     attempt_file_uuid: str
     attempt_id: int = SQLField(
@@ -283,6 +281,11 @@ class FileSubmissionConfig(PydanticStrictBaseModel):
     rubric: dict[str, Any] = Field(default_factory=dict)
     settings: dict[str, Any] = Field(default_factory=dict)
 
+    @field_validator("due_at", mode="before")
+    @classmethod
+    def validate_due_at(cls, v: Any) -> Any:
+        return coerce_date_to_end_of_day(v)
+
 
 class FileSubmissionCreate(FileSubmissionConfig):
     title: str
@@ -303,6 +306,11 @@ class FileSubmissionUpdate(PydanticStrictBaseModel):
     grade_release_mode: Literal["IMMEDIATE", "BATCH"] | None = None
     rubric: dict[str, Any] | None = None
     settings: dict[str, Any] | None = None
+
+    @field_validator("due_at", mode="before")
+    @classmethod
+    def validate_due_at(cls, v: Any) -> Any:
+        return coerce_date_to_end_of_day(v)
 
 
 class FileSubmissionFilePatch(PydanticStrictBaseModel):

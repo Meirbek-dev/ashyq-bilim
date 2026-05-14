@@ -18,8 +18,6 @@ class BlockTypeEnum(StrEnum):
 class BlockBase(SQLModelStrictBaseModel):
     """Base model for Block with common fields."""
 
-    model_config = ConfigDict(use_enum_values=True)
-
     block_type: BlockTypeEnum = BlockTypeEnum.BLOCK_CUSTOM
     content: dict = Field(default_factory=dict, sa_column=Column(JSON))
 

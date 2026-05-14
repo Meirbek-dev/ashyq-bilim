@@ -177,8 +177,8 @@ const NewActivityButton = (props: NewActivityButtonProps) => {
         </DialogTrigger>
         <DialogContent className="max-h-[85vh] max-w-full min-w-fit overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-base font-semibold text-gray-900">{t('title')}</DialogTitle>
-            <DialogDescription className="text-sm text-gray-500">{t('description')}</DialogDescription>
+            <DialogTitle className="text-base font-semibold">{t('title')}</DialogTitle>
+            <DialogDescription className="text-sm ">{t('description')}</DialogDescription>
           </DialogHeader>
           <NewActivityModal
             closeModal={closeNewActivityModal}
