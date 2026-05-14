@@ -85,7 +85,6 @@ from src.services.assessments.settings import validate_settings
 from src.services.code_execution import get_code_execution_service
 from src.services.courses._utils import _next_activity_order
 from src.services.courses.access import user_has_course_access
-from src.services.grading.assignment_breakdown import build_effective_grading_breakdown
 from src.services.grading.pipeline.orchestrator import (
     submit_assessment as submit_assessment_pipeline,
 )

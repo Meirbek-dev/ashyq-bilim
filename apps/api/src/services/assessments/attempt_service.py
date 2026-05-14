@@ -54,7 +54,6 @@ from src.services.assessments._shared import (
 )
 from src.services.cache.redis_client import get_async_redis_client
 from src.services.code_execution import get_code_execution_service
-from src.services.grading.assignment_breakdown import build_effective_grading_breakdown
 from src.services.grading.pipeline.orchestrator import (
     submit_assessment as submit_assessment_pipeline,
 )
@@ -495,7 +494,6 @@ async def save_grading_draft(
     if refreshed is None:
         raise HTTPException(status_code=500, detail="Отправка не была сохранена")
     result = _build_teacher_submission_read(refreshed, assessment, db_session)
-    result.grading_json = build_effective_grading_breakdown(refreshed, db_session)
     return result
 
 

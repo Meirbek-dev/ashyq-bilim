@@ -39,7 +39,6 @@ from src.db.grading.submissions import (
 from src.db.users import PublicUser, User
 from src.security.rbac import PermissionChecker
 from src.services.gamification.service import award_xp as _gamification_award_xp
-from src.services.grading.assignment_breakdown import build_effective_grading_breakdown
 from src.services.grading.events import publish_grading_event
 from src.services.progress.submissions import (
     _attach_policy,
@@ -299,7 +298,6 @@ async def get_submission_for_teacher(
     )
 
     result = SubmissionRead.model_validate(submission)
-    result.grading_json = build_effective_grading_breakdown(submission, db_session)
     users_by_id = _batch_fetch_users({submission.user_id}, db_session)
     user = users_by_id.get(submission.user_id)
     if user:
@@ -696,7 +694,7 @@ def _save_teacher_grade(
             )
 
     # ── Merge item feedback into grading breakdown ────────────────────────────
-    existing = build_effective_grading_breakdown(submission, db_session)
+    existing = GradingBreakdown.model_validate(submission.grading_json or {})
     item_map = {item.item_id: item for item in existing.items}
 
     for fb in grade_input.item_feedback:

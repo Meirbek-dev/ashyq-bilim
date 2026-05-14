@@ -41,7 +41,6 @@ from src.services.assessments._shared import (
     _require_grade,
     _submission_user,
 )
-from src.services.grading.assignment_breakdown import build_effective_grading_breakdown
 from src.services.grading.teacher import _save_teacher_grade, bulk_publish_grades
 
 # ── Policy override ceilings ──────────────────────────────────────────────────
@@ -250,7 +249,6 @@ async def get_assessment_submission(
         )
 
     result = _build_teacher_submission_read(submission, assessment, db_session)
-    result.grading_json = build_effective_grading_breakdown(submission, db_session)
     users = _batch_fetch_users({submission.user_id}, db_session)
     user = users.get(submission.user_id)
     if user is not None:

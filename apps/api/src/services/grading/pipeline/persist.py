@@ -14,7 +14,6 @@ from ulid import ULID
 from src.db.grading.entries import GradingEntry
 from src.db.grading.progress import AssessmentPolicy, GradeReleaseMode
 from src.db.grading.submissions import Submission, SubmissionStatus
-from src.services.grading.assignment_breakdown import build_effective_grading_breakdown
 from src.services.grading.pipeline.context import EffectivePolicy, PenaltyResult
 from src.services.grading.registry import GradingResult
 from src.services.progress.submissions import (
@@ -46,8 +45,7 @@ def persist_submission(
     draft.answers_json = answers_payload
     draft.raw_grading_json = raw_breakdown
     draft.grading_json = raw_breakdown
-    effective_breakdown = build_effective_grading_breakdown(draft, db_session).model_dump()
-    draft.grading_json = effective_breakdown
+    effective_breakdown = raw_breakdown
     draft.auto_score = result.auto_score if not penalty.violation_zeroed else 0.0
     draft.late_penalty_pct = penalty.late_penalty_pct
     draft.final_score = penalty.final_score if not result.needs_manual_review else None

@@ -19,18 +19,6 @@ from src.services.grading.settings_loader import CanonicalAssessmentItem
 # Hard limit on open-text answer length to prevent DoS via huge payloads.
 _OPEN_TEXT_MAX_CHARS: int = 50_000
 
-LEGACY_ANSWER_KEYS = frozenset(
-    {
-        "submitted_answers",
-        "questions",
-        "user_answers",
-        "test_results",
-        "tasks",
-        "assignmentTaskSubmission",
-        "quiz_answers",
-    }
-)
-
 
 def validate_and_parse(
     answers_payload: dict,
@@ -49,14 +37,6 @@ def validate_and_parse(
     """
     if not isinstance(answers_payload, dict):
         _raise_invalid("Answers payload must be an object")
-
-    legacy_keys = sorted(LEGACY_ANSWER_KEYS.intersection(answers_payload.keys()))
-    if legacy_keys:
-        _raise_invalid(
-            "Legacy answer payload fields are not accepted",
-            code="legacy_answer_payload",
-            extra={"fields": legacy_keys},
-        )
 
     answers_by_item_uuid = _extract_canonical_answers(answers_payload)
     if not answers_by_item_uuid:
