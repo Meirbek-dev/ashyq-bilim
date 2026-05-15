@@ -22,7 +22,10 @@ from src.db.courses.courses import Course
 from src.db.users import AnonymousUser, PublicUser
 from src.security.rbac import PermissionChecker
 from src.services.courses._auth import require_course_permission
-from src.services.courses._utils import _next_activity_order
+from src.services.courses._utils import (
+    _get_activity_by_uuid_or_404,
+    _next_activity_order,
+)
 
 
 def _get_chapter_by_uuid(chapter_uuid: str, db_session) -> Chapter:
@@ -220,11 +223,7 @@ async def move_activity_to_order(
     db_session: Session,
 ):
     """Move an activity to a new position, optionally into a different chapter."""
-    activity = db_session.exec(
-        select(Activity).where(Activity.activity_uuid == activity_uuid)
-    ).first()
-    if not activity:
-        raise HTTPException(status_code=404, detail="Activity not found")
+    activity = _get_activity_by_uuid_or_404(activity_uuid, db_session)
 
     # Resolve source chapter and its course for permission check.
     source_chapter = _get_chapter_by_uuid(

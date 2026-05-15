@@ -39,6 +39,10 @@ from src.services.ai.session_store import (
     build_chat_messages,
     load_chat_session,
 )
+from src.services.courses._utils import (
+    _get_activity_by_uuid_or_404,
+    _get_course_for_activity_or_404,
+)
 from src.services.courses.activities.utils import (
     serialize_activity_text_to_ai_comprehensible_text,
     structure_activity_content_by_type,
@@ -328,21 +332,14 @@ async def _get_activity_data(
         return cast("tuple[ActivityRead, CourseRead]", cached_pair)
 
     try:
-        activity = db_session.exec(
-            select(Activity).where(Activity.activity_uuid == activity_uuid)
-        ).first()
-        if not activity:
-            raise ActivityNotFoundError(activity_uuid)
-
-        course = db_session.get(Course, activity.course_id)
-        if not course:
-            raise ActivityNotFoundError(
-                activity_uuid, details={"course_not_found": True}
-            )
+        activity = _get_activity_by_uuid_or_404(activity_uuid, db_session)
+        course = _get_course_for_activity_or_404(activity, db_session)
 
         cache_manager.db_cache.set(cache_key, (activity, course))
         return cast("ActivityRead", activity), cast("CourseRead", course)
-    except ActivityNotFoundError, RetrievalError:
+    except HTTPException as exc:
+        if exc.status_code == 404:
+            raise ActivityNotFoundError(activity_uuid) from exc
         raise
     except Exception as exc:
         raise ActivityNotFoundError(

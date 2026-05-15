@@ -149,28 +149,21 @@ async def check_trail_presence(
     return trail
 
 
+from src.services.courses._utils import (
+    _get_activity_by_uuid_or_404,
+    _get_course_for_activity_or_404,
+)
+
+
 async def add_activity_to_trail(
     request: Request,
     user: PublicUser,
     activity_uuid: str,
     db_session: Session,
 ) -> TrailRead:
-    # Look for the activity
-    statement = select(Activity).where(Activity.activity_uuid == activity_uuid)
-    activity = db_session.exec(statement).first()
-
-    if not activity:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Activity not found"
-        )
-
-    statement = select(Course).where(Course.id == activity.course_id)
-    course = db_session.exec(statement).first()
-
-    if not course:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Course not found"
-        )
+    # Look for the activity robustly
+    activity = _get_activity_by_uuid_or_404(activity_uuid, db_session)
+    course = _get_course_for_activity_or_404(activity, db_session)
 
     trail = await check_trail_presence(
         user_id=user.id,
@@ -263,22 +256,9 @@ async def remove_activity_from_trail(
     activity_uuid: str,
     db_session: Session,
 ) -> TrailRead:
-    # Look for the activity
-    statement = select(Activity).where(Activity.activity_uuid == activity_uuid)
-    activity = db_session.exec(statement).first()
-
-    if not activity:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Activity not found"
-        )
-
-    statement = select(Course).where(Course.id == activity.course_id)
-    course = db_session.exec(statement).first()
-
-    if not course:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Course not found"
-        )
+    # Look for the activity robustly
+    activity = _get_activity_by_uuid_or_404(activity_uuid, db_session)
+    course = _get_course_for_activity_or_404(activity, db_session)
 
     statement = select(Trail).where(Trail.user_id == user.id)
     trail = db_session.exec(statement).first()

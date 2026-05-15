@@ -49,7 +49,10 @@ from src.db.grading.progress import (
 from src.db.uploads import Upload, UploadStatus
 from src.db.users import AnonymousUser, PublicUser, User
 from src.security.rbac import PermissionChecker
-from src.services.courses._utils import _next_activity_order
+from src.services.courses._utils import (
+    _get_activity_by_uuid_or_404,
+    _next_activity_order,
+)
 from src.services.courses.access import user_has_course_access
 from src.services.events import get_event_bus
 from src.services.events.types import (
@@ -851,16 +854,7 @@ def _get_context_by_activity_uuid(
     activity_uuid: str,
     db_session: Session,
 ) -> tuple[FileSubmissionActivity, Activity, Course]:
-    normalized = (
-        activity_uuid
-        if activity_uuid.startswith("activity_")
-        else f"activity_{activity_uuid}"
-    )
-    activity = db_session.exec(
-        select(Activity).where(Activity.activity_uuid == normalized)
-    ).first()
-    if activity is None:
-        raise HTTPException(status_code=404, detail="Activity not found")
+    activity = _get_activity_by_uuid_or_404(activity_uuid, db_session)
     file_submission = db_session.exec(
         select(FileSubmissionActivity).where(
             FileSubmissionActivity.activity_id == activity.id

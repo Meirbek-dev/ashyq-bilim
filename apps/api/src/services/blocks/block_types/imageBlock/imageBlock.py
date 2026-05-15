@@ -11,27 +11,17 @@ from src.services.blocks.utils.upload_files import upload_file_and_return_file_o
 from src.services.users.users import PublicUser
 
 
+from src.services.courses._utils import (
+    _get_activity_by_uuid_or_404,
+    _get_course_for_activity_or_404,
+)
+
+
 async def create_image_block(
     request: Request, image_file: UploadFile, activity_uuid: str, db_session: Session
 ):
-    statement = select(Activity).where(Activity.activity_uuid == activity_uuid)
-    activity = db_session.exec(statement).first()
-
-    if not activity:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Activity not found"
-        )
-
-    block_type = "imageBlock"
-
-    # get course
-    statement = select(Course).where(Course.id == activity.course_id)
-    course = db_session.exec(statement).first()
-
-    if not course:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Course not found"
-        )
+    activity = _get_activity_by_uuid_or_404(activity_uuid, db_session)
+    course = _get_course_for_activity_or_404(activity, db_session)
 
     # get block id
     block_uuid = f"block_{ULID()}"

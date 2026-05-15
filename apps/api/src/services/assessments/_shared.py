@@ -83,7 +83,10 @@ from src.db.users import AnonymousUser, PublicUser, User
 from src.security.rbac import PermissionChecker
 from src.services.assessments.settings import validate_settings
 from src.services.code_execution import get_code_execution_service
-from src.services.courses._utils import _next_activity_order
+from src.services.courses._utils import (
+    _get_activity_by_uuid_or_404,
+    _next_activity_order,
+)
 from src.services.courses.access import user_has_course_access
 from src.services.grading.pipeline.orchestrator import (
     submit_assessment as submit_assessment_pipeline,
@@ -609,23 +612,6 @@ def _get_assessment_by_uuid_or_404(
     if assessment is None:
         raise HTTPException(status_code=404, detail="Оценивание не найдено")
     return assessment
-
-
-def _get_activity_by_uuid_or_404(activity_uuid: str, db_session: Session) -> Activity:
-    # Try multiple variations to be robust against different ID formats
-    variations = [activity_uuid]
-    if activity_uuid.startswith("activity_"):
-        variations.append(activity_uuid.removeprefix("activity_"))
-    else:
-        variations.append(f"activity_{activity_uuid}")
-
-    activity = db_session.exec(
-        select(Activity).where(Activity.activity_uuid.in_(variations))
-    ).first()
-
-    if activity is None:
-        raise HTTPException(status_code=404, detail="Активность не найдена")
-    return activity
 
 
 def _get_activity_and_course(

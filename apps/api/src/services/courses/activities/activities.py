@@ -23,40 +23,21 @@ from src.db.grading.progress import AssessmentPolicy
 from src.db.users import AnonymousUser, PublicUser
 from src.security.rbac import PermissionChecker
 from src.services.courses._auth import require_course_permission
-from src.services.courses._utils import _next_activity_order
+from src.services.courses._utils import (
+    _get_activity_by_uuid_or_404,
+    _get_course_for_activity_or_404,
+    _next_activity_order,
+)
 
 logger = logging.getLogger(__name__)
 
 
-def _normalize_activity_uuid(activity_uuid: str) -> str:
-    if activity_uuid.startswith("activity_"):
-        return activity_uuid
-    return f"activity_{activity_uuid}"
-
-
 def _get_activity_by_uuid(activity_uuid: str, db_session: Session) -> Activity:
-    normalized_uuid = _normalize_activity_uuid(activity_uuid)
-    activity = db_session.exec(
-        select(Activity).where(Activity.activity_uuid == normalized_uuid)
-    ).first()
-    if not activity:
-        raise HTTPException(status_code=404, detail="Activity not found")
-    return activity
+    return _get_activity_by_uuid_or_404(activity_uuid, db_session)
 
 
 def _get_course_for_activity(activity: Activity, db_session: Session) -> Course:
-    """Resolve course from activity via chapter."""
-    if activity.chapter_id:
-        chapter = db_session.exec(
-            select(Chapter).where(Chapter.id == activity.chapter_id)
-        ).first()
-        if chapter:
-            course = db_session.exec(
-                select(Course).where(Course.id == chapter.course_id)
-            ).first()
-            if course:
-                return course
-    raise HTTPException(status_code=404, detail="Course not found")
+    return _get_course_for_activity_or_404(activity, db_session)
 
 
 ####################################################
