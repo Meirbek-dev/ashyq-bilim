@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import * as Si from '@icons-pack/react-simple-icons';
 import { cn } from '@/lib/utils';
 import { EMBED_CATEGORIES, EMBED_PROVIDERS } from '@components/Objects/Editor/Extensions/EmbedBlock/embed-options';
 import type { EmbedCategoryId, EmbedType } from '@components/Objects/Editor/Extensions/EmbedBlock/embed-options';
@@ -23,12 +24,17 @@ export function EmbedTypeSelector({ selectedType, onSelect, error }: EmbedTypeSe
     return EMBED_PROVIDERS.filter((provider) => {
       if (!(provider.categories as readonly EmbedCategoryId[]).includes(activeCategory)) return false;
       if (!normalizedQuery) return true;
+
+      const translatedLabel = t(`providers.${provider.type}.label`);
+      const translatedDescription = t(`providers.${provider.type}.description`);
+
       return (
-        provider.label.toLowerCase().includes(normalizedQuery) ||
-        provider.description.toLowerCase().includes(normalizedQuery)
+        translatedLabel.toLowerCase().includes(normalizedQuery) ||
+        translatedDescription.toLowerCase().includes(normalizedQuery)
       );
     });
-  }, [activeCategory, query]);
+  }, [activeCategory, query, t]);
+
 
   return (
     <div className="space-y-3">
@@ -80,6 +86,8 @@ export function EmbedTypeSelector({ selectedType, onSelect, error }: EmbedTypeSe
           >
             {filteredProviders.map((provider) => {
               const isSelected = selectedType === provider.type;
+              const Icon = provider.iconName ? (Si as Record<string, React.ElementType>)[provider.iconName] : null;
+
               return (
                 <button
                   key={provider.type}
@@ -88,16 +96,26 @@ export function EmbedTypeSelector({ selectedType, onSelect, error }: EmbedTypeSe
                   aria-checked={isSelected}
                   onClick={() => onSelect(provider.type)}
                   className={cn(
-                    'border-border bg-background hover:bg-accent/60 hover:text-foreground rounded-lg border p-3 text-left transition-colors',
+                    'border-border bg-background hover:bg-accent/60 hover:text-foreground group flex items-start gap-3 rounded-lg border p-3 text-left transition-colors',
                     'focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none',
                     isSelected && 'border-primary bg-primary/5 text-foreground ring-primary/25 ring-2',
                     !isSelected && error && 'border-destructive/60',
                   )}
                 >
-                  <span className="text-sm font-semibold">{provider.label}</span>
-                  <span className="text-muted-foreground mt-1 line-clamp-2 block text-xs leading-4">
-                    {provider.description}
-                  </span>
+                  <div className="bg-muted/50 group-hover:bg-background flex size-10 shrink-0 items-center justify-center rounded-md border transition-colors">
+                    {Icon ? (
+                      <Icon className="size-5" />
+                    ) : (
+                      <div className="bg-muted-foreground/20 size-4 rounded-full" />
+                    )}
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <span className="text-sm font-semibold">{t(`providers.${provider.type}.label`)}</span>
+                    <span className="text-muted-foreground mt-0.5 line-clamp-2 block text-xs leading-4">
+                      {t(`providers.${provider.type}.description`)}
+                    </span>
+                  </div>
                 </button>
               );
             })}
@@ -116,3 +134,4 @@ export function EmbedTypeSelector({ selectedType, onSelect, error }: EmbedTypeSe
     </div>
   );
 }
+

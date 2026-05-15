@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { NodeViewWrapper } from '@tiptap/react';
 import { useTranslations } from 'next-intl';
+import * as Si from '@icons-pack/react-simple-icons';
 import type { TypedNodeViewProps } from '@components/Objects/Editor/core';
 import { useEmbedPanelStore } from '../../Toolbar/EmbedPanel/EmbedPanelStore';
 import { buildExcalidrawSrc } from './embed-validators';
@@ -126,7 +127,7 @@ const ExcalidrawNodeView = (props: TypedNodeViewProps<EmbedBlockAttrs>) => {
         {mounted && url ? (
           <iframe
             src={iframeSrc}
-            title={t('excalidrawLabel')}
+            title={t('providers.excalidraw.label')}
             className="h-full w-full border-0"
             style={{
               pointerEvents: isEditable ? 'none' : 'auto',
@@ -136,9 +137,10 @@ const ExcalidrawNodeView = (props: TypedNodeViewProps<EmbedBlockAttrs>) => {
           />
         ) : (
           /* Placeholder shown during SSR or when URL is missing */
-          <div className="flex h-full w-full items-center justify-center">
+          <div className="flex h-full w-full flex-col items-center justify-center gap-3">
+            <Si.SiExcalidraw className="size-10 text-gray-300" />
             <p className="text-sm text-gray-400">
-              {url ? `${tCommon('loading')} ${t('excalidrawLabel')}…` : t('noUrlConfigured')}
+              {url ? `${tCommon('loading')} ${t('providers.excalidraw.label')}…` : t('noUrlConfigured')}
             </p>
           </div>
         )}
@@ -152,7 +154,7 @@ const ExcalidrawNodeView = (props: TypedNodeViewProps<EmbedBlockAttrs>) => {
             <button
               ref={editTriggerRef}
               type="button"
-              aria-label={`${t('editButton')} ${t('excalidrawLabel')}`}
+              aria-label={`${t('editButton')} ${t('providers.excalidraw.label')}`}
               onClick={handleEdit}
               className="flex h-7 w-7 items-center justify-center rounded-md text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
             >
@@ -176,7 +178,7 @@ const ExcalidrawNodeView = (props: TypedNodeViewProps<EmbedBlockAttrs>) => {
 
             <button
               type="button"
-              aria-label={`${t('deleteButton')} ${t('excalidrawLabel')}`}
+              aria-label={`${t('deleteButton')} ${t('providers.excalidraw.label')}`}
               onClick={handleDelete}
               className="flex h-7 w-7 items-center justify-center rounded-md text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600"
             >
@@ -207,7 +209,7 @@ const ExcalidrawNodeView = (props: TypedNodeViewProps<EmbedBlockAttrs>) => {
         {isEditable && (
           <div
             role="separator"
-            aria-label={`${t('resize')} ${t('excalidrawLabel')}`}
+            aria-label={`${t('resize')} ${t('providers.excalidraw.label')}`}
             aria-orientation="horizontal"
             className="absolute right-0 bottom-0 left-0 flex h-3 cursor-ns-resize items-center justify-center"
             style={{ pointerEvents: 'auto' }}
@@ -222,3 +224,4 @@ const ExcalidrawNodeView = (props: TypedNodeViewProps<EmbedBlockAttrs>) => {
 };
 
 export default ExcalidrawNodeView;
+

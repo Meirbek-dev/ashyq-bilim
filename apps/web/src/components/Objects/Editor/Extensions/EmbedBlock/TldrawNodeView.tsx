@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { NodeViewWrapper } from '@tiptap/react';
 import { useTranslations } from 'next-intl';
+import * as Si from '@icons-pack/react-simple-icons';
 import type { TypedNodeViewProps } from '@components/Objects/Editor/core';
 import { useEmbedPanelStore } from '../../Toolbar/EmbedPanel/EmbedPanelStore';
 import type { EmbedBlockAttrs } from './EmbedBlock';
@@ -125,11 +126,10 @@ const TldrawNodeView = (props: TypedNodeViewProps<EmbedBlockAttrs>) => {
             title={t('tldrawLabel')}
           />
         ) : (
-          !mounted && (
-            <div className="flex h-full w-full items-center justify-center bg-gray-50">
-              <p className="text-sm text-gray-400">{`${tCommon('loading')} ${t('tldrawLabel')}…`}</p>
-            </div>
-          )
+          <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gray-50">
+            <Si.SiTldraw className="size-10 text-gray-300" />
+            <p className="text-sm text-gray-400">{`${tCommon('loading')} ${t('tldrawLabel')}…`}</p>
+          </div>
         )}
 
         {/* Overlay toolbar — authoring mode only */}
@@ -176,3 +176,4 @@ const TldrawNodeView = (props: TypedNodeViewProps<EmbedBlockAttrs>) => {
 };
 
 export default TldrawNodeView;
+

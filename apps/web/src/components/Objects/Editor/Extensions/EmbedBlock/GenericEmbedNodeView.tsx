@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ExternalLink, GripHorizontal, Pencil, Trash2 } from 'lucide-react';
+import * as Si from '@icons-pack/react-simple-icons';
 import { NodeViewWrapper } from '@tiptap/react';
 import type { TypedNodeViewProps } from '@components/Objects/Editor/core';
 import { useEmbedPanelStore } from '../../Toolbar/EmbedPanel/EmbedPanelStore';
@@ -92,6 +93,8 @@ export default function GenericEmbedNodeView(props: TypedNodeViewProps<EmbedBloc
     );
   }
 
+  const Icon = provider.iconName ? (Si as Record<string, React.ElementType>)[provider.iconName] : null;
+
   return (
     <NodeViewWrapper
       className="embed-block-node-view my-4 w-full"
@@ -115,9 +118,15 @@ export default function GenericEmbedNodeView(props: TypedNodeViewProps<EmbedBloc
           />
         ) : (
           <div className="bg-muted/30 flex h-full min-h-[240px] flex-col items-center justify-center gap-4 p-6 text-center">
+            {Icon && (
+              <div className="bg-background flex size-16 items-center justify-center rounded-2xl border shadow-sm transition-colors group-hover:bg-accent">
+                <Icon className="size-8" />
+              </div>
+            )}
+
             <div className="space-y-1.5">
-              <p className="text-foreground text-sm font-semibold">{provider.label}</p>
-              <p className="text-muted-foreground max-w-md text-sm">{provider.description}</p>
+              <p className="text-foreground text-sm font-semibold">{t(`providers.${provider.type}.label`)}</p>
+              <p className="text-muted-foreground max-w-md text-sm">{t(`providers.${provider.type}.description`)}</p>
               <a
                 href={url}
                 target="_blank"
@@ -187,3 +196,4 @@ export default function GenericEmbedNodeView(props: TypedNodeViewProps<EmbedBloc
     </NodeViewWrapper>
   );
 }
+
