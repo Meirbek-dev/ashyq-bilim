@@ -55,6 +55,9 @@ const MIME_TYPE_PRESETS = [
       'application/msword',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/vnd.oasis.opendocument.text',
+      'application/rtf',
+      'application/epub+zip',
+      'application/x-mobipocket-ebook',
     ],
   },
   {
@@ -63,6 +66,7 @@ const MIME_TYPE_PRESETS = [
       'text/csv',
       'application/vnd.ms-excel',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.oasis.opendocument.spreadsheet',
     ],
   },
   {
@@ -74,11 +78,33 @@ const MIME_TYPE_PRESETS = [
   },
   {
     id: 'archives',
-    mimes: ['application/zip', 'application/x-zip-compressed', 'application/x-rar-compressed'],
+    mimes: [
+      'application/zip',
+      'application/x-zip-compressed',
+      'application/x-rar-compressed',
+      'application/vnd.rar',
+      'application/x-7z-compressed',
+      'application/x-tar',
+      'application/gzip',
+      'application/x-gzip',
+    ],
   },
   {
     id: 'text',
-    mimes: ['text/plain', 'text/markdown', 'application/json'],
+    mimes: [
+      'text/plain',
+      'text/markdown',
+      'application/json',
+      'text/x-python',
+      'text/javascript',
+      'text/typescript',
+      'text/css',
+      'text/html',
+      'application/xml',
+      'text/x-c++src',
+      'text/x-csrc',
+      'text/x-java-source',
+    ],
   },
 ] as const;
 

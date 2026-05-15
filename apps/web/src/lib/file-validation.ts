@@ -8,31 +8,76 @@ export const FILE_TYPES = {
   image: {
     extensions: ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'],
     mimeTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif'],
-    maxSize: 10 * 1024 * 1024, // 10MB
+    maxSize: 20 * 1024 * 1024, // 20MB
   },
   video: {
     extensions: ['.mp4', '.webm', '.mkv', '.mov', '.avi', '.flv'],
     mimeTypes: ['video/mp4', 'video/webm', 'video/x-matroska', 'video/quicktime', 'video/x-msvideo', 'video/x-flv'],
-    maxSize: 1000 * 1024 * 1024, // 1000MB
+    maxSize: 2000 * 1024 * 1024, // 2GB
   },
   audio: {
-    extensions: ['.mp3', '.wav', '.ogg', '.m4a', '.opus', '.oga'],
-    mimeTypes: ['audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/ogg', 'audio/opus', 'audio/mp4', 'audio/x-m4a'],
-    maxSize: 100 * 1024 * 1024, // 100MB
+    extensions: ['.mp3', '.wav', '.ogg', '.m4a', '.opus', '.oga', '.flac'],
+    mimeTypes: ['audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/ogg', 'audio/opus', 'audio/mp4', 'audio/x-m4a', 'audio/flac'],
+    maxSize: 200 * 1024 * 1024, // 200MB
   },
   document: {
-    extensions: ['.pdf', '.pptx', '.docx', '.zip', '.srt', '.vtt', '.txt'],
+    extensions: ['.pdf', '.pptx', '.docx', '.doc', '.ppt', '.odt', '.rtf', '.epub', '.mobi'],
     mimeTypes: [
       'application/pdf',
       'application/vnd.openxmlformats-officedocument.presentationml.presentation',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/zip',
-      'application/x-zip-compressed',
-      'text/vtt',
-      'text/plain',
-      'application/octet-stream',
+      'application/msword',
+      'application/vnd.ms-powerpoint',
+      'application/vnd.oasis.opendocument.text',
+      'application/rtf',
+      'application/epub+zip',
+      'application/x-mobipocket-ebook',
+    ],
+    maxSize: 200 * 1024 * 1024, // 200MB
+  },
+  spreadsheet: {
+    extensions: ['.csv', '.xls', '.xlsx', '.ods'],
+    mimeTypes: [
+      'text/csv',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.oasis.opendocument.spreadsheet',
     ],
     maxSize: 100 * 1024 * 1024, // 100MB
+  },
+  archive: {
+    extensions: ['.zip', '.rar', '.7z', '.tar', '.gz'],
+    mimeTypes: [
+      'application/zip',
+      'application/x-zip-compressed',
+      'application/x-rar-compressed',
+      'application/vnd.rar',
+      'application/x-7z-compressed',
+      'application/x-tar',
+      'application/gzip',
+      'application/x-gzip',
+    ],
+    maxSize: 1000 * 1024 * 1024, // 1GB
+  },
+  text: {
+    extensions: ['.txt', '.md', '.json', '.srt', '.vtt', '.py', '.js', '.ts', '.css', '.html', '.xml', '.cpp', '.c', '.java'],
+    mimeTypes: [
+      'text/plain',
+      'text/markdown',
+      'application/json',
+      'text/vtt',
+      'application/x-subrip',
+      'text/x-python',
+      'text/javascript',
+      'text/typescript',
+      'text/css',
+      'text/html',
+      'application/xml',
+      'text/x-c++src',
+      'text/x-csrc',
+      'text/x-java-source',
+    ],
+    maxSize: 20 * 1024 * 1024, // 20MB
   },
 } as const;
 
@@ -144,11 +189,17 @@ export const MIME_TO_FRIENDLY_NAME: Record<string, string> = {
   'text/csv': 'CSV',
   'application/vnd.ms-excel': 'XLS',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'XLSX',
+  'application/vnd.oasis.opendocument.spreadsheet': 'ODS',
   'application/vnd.ms-powerpoint': 'PPT',
   'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PPTX',
   'application/zip': 'ZIP',
   'application/x-zip-compressed': 'ZIP',
   'application/x-rar-compressed': 'RAR',
+  'application/vnd.rar': 'RAR',
+  'application/x-7z-compressed': '7Z',
+  'application/x-tar': 'TAR',
+  'application/gzip': 'GZ',
+  'application/x-gzip': 'GZ',
   'text/plain': 'TXT',
   'text/markdown': 'MD',
   'application/json': 'JSON',
@@ -158,6 +209,18 @@ export const MIME_TO_FRIENDLY_NAME: Record<string, string> = {
   'video/quicktime': 'MOV',
   'audio/mpeg': 'MP3',
   'audio/wav': 'WAV',
+  'audio/flac': 'FLAC',
+  'application/epub+zip': 'EPUB',
+  'application/x-mobipocket-ebook': 'MOBI',
+  'text/x-python': 'PY',
+  'text/javascript': 'JS',
+  'text/typescript': 'TS',
+  'text/css': 'CSS',
+  'text/html': 'HTML',
+  'application/xml': 'XML',
+  'text/x-c++src': 'CPP',
+  'text/x-csrc': 'C',
+  'text/x-java-source': 'JAVA',
   'image/*': 'Images',
   'video/*': 'Videos',
   'audio/*': 'Audio',

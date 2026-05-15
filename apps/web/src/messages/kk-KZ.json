@@ -7221,15 +7221,15 @@
             },
             "images": {
               "label": "Суреттер",
-              "description": "JPG, PNG, WebP және GIF"
+              "description": "JPG, PNG, WebP, GIF және Avif"
             },
             "documents": {
               "label": "Құжаттар",
-              "description": "Word және OpenDocument мәтін файлдары"
+              "description": "Word, OpenDocument, RTF және Электронды кітаптар"
             },
             "spreadsheets": {
               "label": "Кестелер",
-              "description": "CSV, XLS және XLSX"
+              "description": "CSV, XLS, XLSX және ODS"
             },
             "presentations": {
               "label": "Презентациялар",
@@ -7237,11 +7237,11 @@
             },
             "archives": {
               "label": "Архивтер",
-              "description": "ZIP және RAR жинақтары"
+              "description": "ZIP, RAR, 7Z, TAR және GZ"
             },
             "text": {
               "label": "Мәтін және код",
-              "description": "Қарапайым мәтін, Markdown және JSON"
+              "description": "Қарапайым мәтін, Markdown, JSON және Бастапқы код"
             }
           },
           "referenceFile": "Анықтамалық файл",

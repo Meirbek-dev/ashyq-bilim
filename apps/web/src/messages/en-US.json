@@ -7172,15 +7172,15 @@
             },
             "images": {
               "label": "Images",
-              "description": "JPG, PNG, WebP, and GIF"
+              "description": "JPG, PNG, WebP, GIF, and Avif"
             },
             "documents": {
               "label": "Documents",
-              "description": "Word and OpenDocument text files"
+              "description": "Word, OpenDocument, RTF, and E-books"
             },
             "spreadsheets": {
               "label": "Spreadsheets",
-              "description": "CSV, XLS, and XLSX"
+              "description": "CSV, XLS, XLSX, and ODS"
             },
             "presentations": {
               "label": "Presentations",
@@ -7188,11 +7188,11 @@
             },
             "archives": {
               "label": "Archives",
-              "description": "ZIP and RAR bundles"
+              "description": "ZIP, RAR, 7Z, TAR, and GZ"
             },
             "text": {
               "label": "Text and code",
-              "description": "Plain text, Markdown, and JSON"
+              "description": "Plain text, Markdown, JSON, and Source code"
             }
           },
           "referenceFile": "Reference file",

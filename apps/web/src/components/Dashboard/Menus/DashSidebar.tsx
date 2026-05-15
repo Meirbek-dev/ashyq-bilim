@@ -13,7 +13,8 @@ import {
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { BarChart3, BookCopy, Home, LogOut, School, Settings, ShieldCheck, Users } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { BarChart3, BookCopy, Home, LogOut, Moon, School, Settings, ShieldCheck, Sun, Users } from 'lucide-react';
 import { useNavigationPermissions } from '@/hooks/useNavigationPermissions';
 import { useSession } from '@/hooks/useSession';
 import platformLogo from '@public/platform_logo.svg';
@@ -24,7 +25,7 @@ import { getAbsoluteUrl } from '@services/config/config';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import UserAvatar from '../../Objects/UserAvatar';
-import { useEffect, useEffectEvent } from 'react';
+import { useCallback, useEffect, useEffectEvent } from 'react';
 import AppLink from '@/components/ui/AppLink';
 import { Badge } from '@/components/ui/badge';
 import { usePathname } from 'next/navigation';
@@ -200,9 +201,10 @@ const NavItem = ({ item, isCollapsed }: { item: NavigationItem; isCollapsed: boo
 const DashSidebar = ({ className }: SidebarProps) => {
   const { user } = useSession();
   const { state, toggleSidebar } = useSidebar();
-  const { resolvedTheme } = useTheme();
+  const { resolvedTheme, isDark, toggleMode } = useTheme();
   const logoSrc = resolvedTheme === 'dark' ? platformLogo : platformLogoLight;
   const t = useTranslations('SidebarMenu');
+  const tThemeSelector = useTranslations('DashPage.UserAccountSettings.generalSection.themeSelector');
   const navigationItems = useNavigationItems();
 
   const isCollapsed = state === 'collapsed';
@@ -216,6 +218,13 @@ const DashSidebar = ({ className }: SidebarProps) => {
       // Could add toast notification here
     }
   }
+
+  const handleModeToggle = useCallback(
+    (e: React.MouseEvent) => {
+      toggleMode({ x: e.clientX, y: e.clientY });
+    },
+    [toggleMode],
+  );
 
   // Keyboard shortcut handler - useEffectEvent so the handler is stable and reads latest toggleSidebar
   const handleKeyDown = useEffectEvent((event: KeyboardEvent) => {
@@ -280,12 +289,28 @@ const DashSidebar = ({ className }: SidebarProps) => {
             </div>
           </AppLink>
 
-          <SidebarTrigger
-            className={`hover:bg-sidebar-accent h-8 w-8 rounded-md transition-all duration-200 ${
-              isCollapsed ? 'opacity-100' : 'opacity-100'
-            }`}
-            aria-label={isExpanded ? t('ariaLabels.collapseSidebar') : t('ariaLabels.expandSidebar')}
-          />
+          <div className={`flex items-center ${isCollapsed ? 'flex-col ' : ''}`}>
+            <Tooltip>
+              <TooltipTrigger
+                type="button"
+                onClick={handleModeToggle}
+                aria-label={tThemeSelector('toggleMode')}
+                className={`hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-sidebar-ring inline-flex h-8 w-8 items-center justify-center rounded-md outline-hidden transition-all duration-200 focus-visible:ring-2 [&_svg]:size-4 [&_svg]:shrink-0 ${
+                  isCollapsed ? 'order-2' : 'order-1'
+                }`}
+              >
+                {isDark ? <Moon aria-hidden="true" /> : <Sun aria-hidden="true" />}
+              </TooltipTrigger>
+              <TooltipContent>{tThemeSelector('toggleMode')}</TooltipContent>
+            </Tooltip>
+
+            <SidebarTrigger
+              className={`hover:bg-sidebar-accent h-8 w-8 rounded-md transition-all duration-200 ${
+                isCollapsed ? 'order-1' : 'order-2'
+              }`}
+              aria-label={isExpanded ? t('ariaLabels.collapseSidebar') : t('ariaLabels.expandSidebar')}
+            />
+          </div>
         </div>
       </SidebarHeader>
 

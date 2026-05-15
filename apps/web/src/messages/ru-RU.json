@@ -7213,15 +7213,15 @@
             },
             "images": {
               "label": "Изображения",
-              "description": "JPG, PNG, WebP и GIF"
+              "description": "JPG, PNG, WebP, GIF и Avif"
             },
             "documents": {
               "label": "Документы",
-              "description": "Word и текстовые OpenDocument-файлы"
+              "description": "Word, OpenDocument, RTF и Электронные книги"
             },
             "spreadsheets": {
               "label": "Таблицы",
-              "description": "CSV, XLS и XLSX"
+              "description": "CSV, XLS, XLSX и ODS"
             },
             "presentations": {
               "label": "Презентации",
@@ -7229,11 +7229,11 @@
             },
             "archives": {
               "label": "Архивы",
-              "description": "ZIP и RAR-архивы"
+              "description": "ZIP, RAR, 7Z, TAR и GZ"
             },
             "text": {
               "label": "Текст и код",
-              "description": "Обычный текст, Markdown и JSON"
+              "description": "Обычный текст, Markdown, JSON и Исходный код"
             }
           },
           "referenceFile": "Справочный файл",

@@ -18,6 +18,7 @@ import {
   updateFileSubmissionActivity,
 } from '@/features/file-submissions/services/file-submissions';
 import { getFriendlyMimeName } from '@/lib/file-validation';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface FileSubmissionStudioProps {
   courseUuid: string;
@@ -25,6 +26,69 @@ interface FileSubmissionStudioProps {
 }
 
 const queryKey = (activityUuid: string) => ['file-submission', 'studio', activityUuid] as const;
+
+const MIME_PRESETS = [
+  { id: 'pdf', label: 'PDF', mimes: ['application/pdf'] },
+  {
+    id: 'documents',
+    label: 'Documents',
+    mimes: [
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.oasis.opendocument.text',
+      'application/rtf',
+      'application/epub+zip',
+      'application/x-mobipocket-ebook',
+    ],
+  },
+  {
+    id: 'images',
+    label: 'Images',
+    mimes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'],
+  },
+  {
+    id: 'spreadsheets',
+    label: 'Spreadsheets',
+    mimes: [
+      'text/csv',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.oasis.opendocument.spreadsheet',
+    ],
+  },
+  {
+    id: 'archives',
+    label: 'Archives',
+    mimes: [
+      'application/zip',
+      'application/x-zip-compressed',
+      'application/x-rar-compressed',
+      'application/vnd.rar',
+      'application/x-7z-compressed',
+      'application/x-tar',
+      'application/gzip',
+      'application/x-gzip',
+    ],
+  },
+  {
+    id: 'text',
+    label: 'Text and code',
+    mimes: [
+      'text/plain',
+      'text/markdown',
+      'application/json',
+      'text/x-python',
+      'text/javascript',
+      'text/typescript',
+      'text/css',
+      'text/html',
+      'application/xml',
+      'text/x-c++src',
+      'text/x-csrc',
+      'text/x-java-source',
+    ],
+  },
+];
 
 export default function FileSubmissionStudio({ courseUuid, activityUuid }: FileSubmissionStudioProps) {
   const cleanActivityUuid = activityUuid.replace(/^activity_/, '');
@@ -34,6 +98,7 @@ export default function FileSubmissionStudio({ courseUuid, activityUuid }: FileS
   const [dueAt, setDueAt] = useState('');
   const [maxFiles, setMaxFiles] = useState(1);
   const [maxFileSizeMb, setMaxFileSizeMb] = useState<number | ''>('');
+  const [allowedMimeTypes, setAllowedMimeTypes] = useState<string[]>([]);
 
   const { data, isLoading, error } = useQuery({
     queryKey: queryKey(cleanActivityUuid),
@@ -48,7 +113,19 @@ export default function FileSubmissionStudio({ courseUuid, activityUuid }: FileS
     setDueAt(data.due_at ? toDateTimeLocal(data.due_at) : '');
     setMaxFiles(data.max_files);
     setMaxFileSizeMb(data.max_file_size_mb ?? '');
+    setAllowedMimeTypes(data.allowed_mime_types ?? []);
   }, [data]);
+
+  const togglePreset = (mimes: string[], checked: boolean) => {
+    setAllowedMimeTypes((current) => {
+      const next = new Set(current);
+      for (const mime of mimes) {
+        if (checked) next.add(mime);
+        else next.delete(mime);
+      }
+      return [...next];
+    });
+  };
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -59,6 +136,7 @@ export default function FileSubmissionStudio({ courseUuid, activityUuid }: FileS
         due_at: dueAt ? new Date(dueAt).toISOString() : null,
         max_files: maxFiles,
         max_file_size_mb: maxFileSizeMb === '' ? null : maxFileSizeMb,
+        allowed_mime_types: allowedMimeTypes,
       });
     },
     onSuccess: async () => {
@@ -217,6 +295,34 @@ export default function FileSubmissionStudio({ courseUuid, activityUuid }: FileS
               />
             </Field>
           </div>
+
+          <Field>
+            <FieldLabel>Allowed file types</FieldLabel>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {MIME_PRESETS.map((preset) => {
+                const checked = preset.mimes.every((mime) => allowedMimeTypes.includes(mime));
+                return (
+                  <label
+                    key={preset.id}
+                    className="hover:bg-muted/50 flex cursor-pointer items-start gap-3 rounded-md border p-3 transition"
+                  >
+                    <Checkbox
+                      checked={checked}
+                      onCheckedChange={(nextChecked) => togglePreset(preset.mimes, Boolean(nextChecked))}
+                      className="mt-0.5"
+                    />
+                    <div className="grid gap-0.5">
+                      <span className="text-sm font-medium leading-none">{preset.label}</span>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+            <p className="text-muted-foreground mt-2 text-xs">
+              Leave all unchecked to allow any file type. When specific types are selected, only those will be accepted
+              during submission.
+            </p>
+          </Field>
         </form>
 
         <aside className="space-y-4">
