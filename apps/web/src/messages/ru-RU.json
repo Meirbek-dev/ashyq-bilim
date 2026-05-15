@@ -4229,7 +4229,405 @@
         "selectServiceFirst": "Select a service to continue.",
         "embedUrlHint": "Use the service embed/share URL for the most reliable result.",
         "errorSelectType": "Please select an embed service",
-        "updateButton": "Update"
+        "updateButton": "Update",
+        "providers": {
+          "figma": {
+            "label": "Figma",
+            "description": "Живые файлы дизайна и интерактивные прототипы."
+          },
+          "canva": {
+            "label": "Canva",
+            "description": "Плакаты, инфографика, презентации и элементы дизайна."
+          },
+          "miro": {
+            "label": "Miro",
+            "description": "Совместные воркшопы, карты и доски групп."
+          },
+          "excalidraw": {
+            "label": "Excalidraw",
+            "description": "Нарисованные от руки диаграммы и доски для мозгового штурма."
+          },
+          "tldraw": {
+            "label": "tldraw",
+            "description": "Быстрый бесконечный холст для эскизов и визуального мышления."
+          },
+          "mural": {
+            "label": "Mural",
+            "description": "Визуальное сотрудничество предприятия и холсты для воркшопов."
+          },
+          "spline": {
+            "label": "Spline",
+            "description": "Интерактивные 3D-сцены и объекты."
+          },
+          "lottiefiles": {
+            "label": "LottieFiles",
+            "description": "Легкая анимация для пояснений и обратной связи."
+          },
+          "sketchpad": {
+            "label": "Sketchpad",
+            "description": "Простой холст в браузере для быстрых набросков."
+          },
+          "prezi": {
+            "label": "Prezi",
+            "description": "Масштабируемые нелинейные презентации для динамичного сторителлинга."
+          },
+          "pitch": {
+            "label": "Pitch",
+            "description": "Совместные колоды слайдов с редактированием в реальном времени."
+          },
+          "gamma": {
+            "label": "Gamma",
+            "description": "Созданные ИИ презентации, документы и веб-страницы."
+          },
+          "google-slides": {
+            "label": "Google Слайды",
+            "description": "Облачные презентации с совместной работой в реальном времени."
+          },
+          "powerpoint": {
+            "label": "PowerPoint Online",
+            "description": "Презентации Microsoft PowerPoint для веба."
+          },
+          "ms-whiteboard": {
+            "label": "Microsoft Whiteboard",
+            "description": "Цифровой холст для сотрудничества и идей."
+          },
+          "explain-everything": {
+            "label": "Explain Everything",
+            "description": "Интерактивная доска и инструмент записи экрана."
+          },
+          "slides-com": {
+            "label": "Slides.com",
+            "description": "Презентации на базе reveal.js с просмотром в реальном времени."
+          },
+          "jsfiddle": {
+            "label": "JSFiddle",
+            "description": "Быстрые примеры HTML, CSS и JavaScript."
+          },
+          "codepen": {
+            "label": "CodePen",
+            "description": "Визуальные фронтенд-демо и интерактивные ручки."
+          },
+          "replit": {
+            "label": "Replit",
+            "description": "Полноценные интерактивные IDE для многих языков программирования."
+          },
+          "stackblitz": {
+            "label": "StackBlitz",
+            "description": "Песочницы для веб-проектов с полным стеком."
+          },
+          "github-gist": {
+            "label": "GitHub Gist",
+            "description": "Чистые фрагменты кода с подсветкой синтаксиса."
+          },
+          "glitch": {
+            "label": "Glitch",
+            "description": "Ремиксируемые веб-приложения и демо проектов."
+          },
+          "codesnip": {
+            "label": "CodeSnip",
+            "description": "Современные фрагменты кода с пояснениями ИИ."
+          },
+          "codesandbox": {
+            "label": "CodeSandbox",
+            "description": "Сложные фронтенд-архитектуры и шаблоны."
+          },
+          "observable": {
+            "label": "Observable",
+            "description": "Реактивные блокноты для обработки данных с живыми графиками D3/Plot."
+          },
+          "mybinder": {
+            "label": "MyBinder",
+            "description": "Общие среды блокнотов Jupyter из любого Git-репозитория."
+          },
+          "kaggle": {
+            "label": "Kaggle",
+            "description": "Публичные блокноты для обработки данных и ядра соревнований."
+          },
+          "huggingface": {
+            "label": "Hugging Face",
+            "description": "Живые демо-версии моделей ML и пространства Gradio/Streamlit."
+          },
+          "wandb": {
+            "label": "Weights & Biases",
+            "description": "Отчеты об экспериментах ML с интерактивными графиками."
+          },
+          "gitpod": {
+            "label": "Gitpod",
+            "description": "Мгновенные облачные среды разработки из любого репозитория."
+          },
+          "google-colab": {
+            "label": "Google Colab",
+            "description": "Облачные блокноты Jupyter для обработки данных и ИИ."
+          },
+          "youtube": {
+            "label": "YouTube",
+            "description": "Образовательные видео, лекции и скринкасты."
+          },
+          "vimeo": {
+            "label": "Vimeo",
+            "description": "Высококачественное видео и частные медиа курсов."
+          },
+          "loom": {
+            "label": "Loom",
+            "description": "Записанные прохождения и обучающие видео."
+          },
+          "google-vids": {
+            "label": "Google Vids",
+            "description": "Образовательные видео и слайд-видео с помощью ИИ."
+          },
+          "wistia": {
+            "label": "Wistia",
+            "description": "Видео курсов с аналитикой и инструментами вовлечения."
+          },
+          "spotify": {
+            "label": "Spotify",
+            "description": "Подкасты и кураторские учебные плейлисты."
+          },
+          "soundcloud": {
+            "label": "SoundCloud",
+            "description": "Примеры аудио, уроки музыки и задания на прослушивание."
+          },
+          "suno": {
+            "label": "Suno",
+            "description": "Песни, созданные ИИ, и творческие аудиозадания."
+          },
+          "sodaphonic": {
+            "label": "Sodaphonic",
+            "description": "Браузерный аудиоредактор для модулей подкастинга."
+          },
+          "rutube": {
+            "label": "RuTube",
+            "description": "Российский видеохостинг — зеркала или дополнения к YouTube."
+          },
+          "vk-video": {
+            "label": "VK Видео",
+            "description": "Видео ВКонтакте — широко просматривается в СНГ."
+          },
+          "vk-clips": {
+            "label": "VK Клипы / Посты",
+            "description": "Короткие видео и объявления из VK."
+          },
+          "ted": {
+            "label": "TED / TEDx",
+            "description": "Конференции о науке, дизайне, обществе и инновациях."
+          },
+          "deezer": {
+            "label": "Deezer",
+            "description": "Музыкальные и подкаст-плейлисты для заданий на понимание."
+          },
+          "mixcloud": {
+            "label": "Mixcloud",
+            "description": "Радиошоу и длинные аудиомиксы для фонового прослушивания."
+          },
+          "panopto": {
+            "label": "Panopto",
+            "description": "Записи университетских лекций с главами и тестами."
+          },
+          "kaltura": {
+            "label": "Kaltura",
+            "description": "Институциональная видеоплатформа, интегрированная с LMS."
+          },
+          "h5p": {
+            "label": "H5P",
+            "description": "Интерактивный контент LMS, такой как викторины и задания."
+          },
+          "genially": {
+            "label": "Genially",
+            "description": "Геймифицированные презентации и интерактивные изображения."
+          },
+          "typeform": {
+            "label": "Typeform",
+            "description": "Опросы с высоким уровнем вовлеченности и входные билеты."
+          },
+          "jotform": {
+            "label": "Jotform",
+            "description": "Формы с логикой, загрузками и рабочими процессами оплаты."
+          },
+          "google-forms": {
+            "label": "Google Формы",
+            "description": "Быстрые викторины и опросы по курсу."
+          },
+          "tally": {
+            "label": "Tally",
+            "description": "Формы в стиле Notion, которые кажутся легкими в уроках."
+          },
+          "quizlet": {
+            "label": "Quizlet",
+            "description": "Наборы карточек и учебные игры."
+          },
+          "kahoot": {
+            "label": "Kahoot!",
+            "description": "Соревновательные живые оценки и игровые проверки."
+          },
+          "mentimeter": {
+            "label": "Mentimeter",
+            "description": "Живые опросы, облака слов и обратная связь в классе."
+          },
+          "blooket": {
+            "label": "Blooket",
+            "description": "Геймифицированные викторины и интерактивные обучающие игры."
+          },
+          "quizizz": {
+            "label": "Quizizz",
+            "description": "Интерактивные викторины и асинхронный домашний режим."
+          },
+          "edpuzzle": {
+            "label": "Edpuzzle",
+            "description": "Вставляйте вопросы и закадровый голос в любое видео."
+          },
+          "plickers": {
+            "label": "Plickers",
+            "description": "Низкотехнологичные опросы в классе с бумажными карточками."
+          },
+          "wooclap": {
+            "label": "Wooclap",
+            "description": "Живые опросы, вопросы и облака слов во время лекций."
+          },
+          "slido": {
+            "label": "Slido",
+            "description": "Вопросы и опросы в реальном времени для больших лекций."
+          },
+          "nearpod": {
+            "label": "Nearpod",
+            "description": "Интерактивные уроки с встроенными оценками."
+          },
+          "wordwall": {
+            "label": "Wordwall",
+            "description": "Геймифицированные задания по лексике и грамматике."
+          },
+          "poll-everywhere": {
+            "label": "Poll Everywhere",
+            "description": "Интеграция опросов с PowerPoint и Google Слайдами."
+          },
+          "airtable": {
+            "label": "Airtable",
+            "description": "Уроки на основе баз данных и трекеры проектов."
+          },
+          "google-sheets": {
+            "label": "Google Таблицы",
+            "description": "Живые таблицы, наборы данных и графики."
+          },
+          "trello": {
+            "label": "Trello",
+            "description": "Доски управления проектами и этапы курса."
+          },
+          "notion": {
+            "label": "Notion",
+            "description": "Страницы ресурсов, вики курсов и структурированные документы."
+          },
+          "coda": {
+            "label": "Coda",
+            "description": "Интерактивные документы, которые ведут себя как приложения."
+          },
+          "tableau": {
+            "label": "Tableau",
+            "description": "Продвинутые аналитические дашборды и визуализация данных."
+          },
+          "looker-studio": {
+            "label": "Looker Studio",
+            "description": "Дашборды Google Data Studio для аналитики в реальном времени."
+          },
+          "clickup": {
+            "label": "ClickUp",
+            "description": "Управление проектами и задачами для групповой работы."
+          },
+          "wakelet": {
+            "label": "Wakelet",
+            "description": "Курируемые коллекции ссылок и ресурсов для урока."
+          },
+          "datalens": {
+            "label": "Yandex DataLens",
+            "description": "Сервис бизнес-аналитики и визуализации данных."
+          },
+          "google-docs": {
+            "label": "Google Документы",
+            "description": "Совместное редактирование документов."
+          },
+          "desmos": {
+            "label": "Desmos",
+            "description": "Интерактивный графический калькулятор для математики."
+          },
+          "geogebra": {
+            "label": "GeoGebra",
+            "description": "Геометрия, графики и математические симуляции 3D."
+          },
+          "wolfram-alpha": {
+            "label": "Wolfram Alpha",
+            "description": "Вычислительный интеллект и символьные виджеты."
+          },
+          "phet": {
+            "label": "PhET",
+            "description": "Симуляции по физике, химии и биологии."
+          },
+          "sketchfab": {
+            "label": "Sketchfab",
+            "description": "Интерактивные 3D-модели для артефактов и анатомии."
+          },
+          "texlyre": {
+            "label": "TeXlyre",
+            "description": "Живой рендеринг математики LaTeX и Typst."
+          },
+          "yandex-maps": {
+            "label": "Яндекс Карты",
+            "description": "Подробные карты и географический контекст СНГ."
+          },
+          "brilliant": {
+            "label": "Brilliant.org",
+            "description": "Интерактивное решение задач по математике и науке."
+          },
+          "symbolab": {
+            "label": "Symbolab",
+            "description": "Пошаговый математический решатель и калькулятор."
+          },
+          "stepik": {
+            "label": "Stepik",
+            "description": "Ведущая платформа MOOC в СНГ с курсами по CS и науке."
+          },
+          "overleaf": {
+            "label": "Overleaf",
+            "description": "Совместный редактор LaTeX для отчетов и статей."
+          },
+          "molview": {
+            "label": "MolView",
+            "description": "Просмотр молекулярных структур для химии."
+          },
+          "google-maps": {
+            "label": "Google Карты",
+            "description": "Географический контекст для истории и наук."
+          },
+          "chemtube3d": {
+            "label": "ChemTube3D",
+            "description": "Анимированные 3D-механизмы реакций для химии."
+          },
+          "notebooklm": {
+            "label": "NotebookLM",
+            "description": "Среды для исследований на базе ИИ."
+          },
+          "hyperbeam": {
+            "label": "Hyperbeam",
+            "description": "Сеансы совместного просмотра веб-страниц."
+          },
+          "discord": {
+            "label": "Discord",
+            "description": "Приглашения в сообщество курса и виджеты каналов."
+          },
+          "telegram": {
+            "label": "Telegram Post",
+            "description": "Встроенные сообщения и объявления из Telegram."
+          },
+          "chatgpt": {
+            "label": "ChatGPT Share",
+            "description": "Общие диалоги с ИИ и учебные потоки."
+          },
+          "padlet": {
+            "label": "Padlet",
+            "description": "Общие цифровые стены для мозгового штурма и портфолио."
+          },
+          "flip": {
+            "label": "Flip",
+            "description": "Дискуссионные доски с асинхронным видео."
+          }
+        }
       },
       "Youtube": {
         "invalidUrl": "Недопустимый URL-адрес YouTube"
@@ -7149,9 +7547,187 @@
     },
     "Assessments": {
       "Studio": {
-        "itemsLabel": "Задания",
-        "outlineEmptyMessage": "Заданий пока нет. Нажмите +, чтобы добавить свой первый вопрос или блок.",
-        "itemInfo": "{kind} • {max_score} бал."
+        "kinds": {
+          "ASSIGNMENT": "Задание",
+          "EXAM": "Тест",
+          "CODE_CHALLENGE": "Код задача",
+          "QUIZ": "Квиз",
+          "TYPE_FILE_SUBMISSION": "Отправка файлов",
+          "TYPE_EXAM": "Тест",
+          "TYPE_CODE_CHALLENGE": "Код задача"
+        },
+        "loading": "Загрузка студии",
+        "unavailable": "Студия недоступна для этой активности.",
+        "lifecycle": {
+          "draft": "Черновик",
+          "scheduled": "Запланировано",
+          "published": "Опубликовано",
+          "archived": "В архиве"
+        },
+        "lifecycleChanged": "Этап изменён на {state}",
+        "updateLifecycleFailed": "Не удалось обновить этап",
+        "breadcrumb": {
+          "curriculum": "Учебный план",
+          "studio": "Студия"
+        },
+        "issueCount": "{count} проблем",
+        "preview": "Предпросмотр",
+        "scheduleOptions": "Параметры планирования",
+        "schedulePublication": "Запланировать публикацию",
+        "schedule": "Запланировать",
+        "saveAsDraft": "Сохранить как черновик",
+        "moreOptions": "Дополнительные параметры",
+        "archive": "Архивировать",
+        "hideInspector": "Скрыть инспектор",
+        "showInspector": "Показать инспектор",
+        "publishNow": "Опубликовать сейчас",
+        "issueBlocks": "{count} {count, plural, one {проблема блокирует} few {проблемы блокируют} other {проблем блокируют}} публикацию.",
+        "assessmentLabel": "Активность",
+        "itemsLabel": "Элементы",
+        "outlineEmptyMessage": "Пока нет элементов. Нажмите +, чтобы добавить.",
+        "jumpToItem": "Перейти к элементу",
+        "blockerAlertDescription": "Устраните блокировщики на уровне оценивания перед публикацией. Проблемы на уровне элементов остаются доступными по ссылкам в списке выше.",
+        "loadingEditor": "Загрузка редактора",
+        "NativeItemStudio": {
+          "itemNouns": {
+            "question": "Вопрос",
+            "task": "Задание"
+          },
+          "outlineTitle": "Структура {itemNoun}",
+          "outlinePoints": "Всего баллов: {points}",
+          "outlineDescription": "Добавьте {itemNoun}, чтобы начать.",
+          "kindLabels": {
+            "choice": "Выбор",
+            "openText": "Открытый текст",
+            "fileUpload": "Загрузка файла",
+            "form": "Форма",
+            "matching": "Сопоставление"
+          },
+          "addKind": "Добавить {kind}",
+          "outlineEmptyMessage": "Добавьте {itemNoun}, чтобы начать.",
+          "noItemSelectedTitle": "{itemNoun} не выбран",
+          "noItemSelectedDescription": "Создайте или выберите {itemNoun} из списка.",
+          "untitledItem": "Элемент без названия ({itemNoun})",
+          "itemCreated": "{itemNoun} создан",
+          "itemDeleted": "{itemNoun} удален",
+          "itemDuplicated": "{itemNoun} дублирован",
+          "createFailed": "Не удалось создать {itemNoun}",
+          "deleteFailed": "Не удалось удалить {itemNoun}",
+          "duplicateFailed": "Не удалось дублировать {itemNoun}",
+          "copyOfItem": "Копия {itemNoun}",
+          "assessmentDetailsTitle": "Детали активности",
+          "assessmentDetailsExamDescription": "Название, инструкции, расписание и политика экзамена.",
+          "assessmentDetailsAssignmentDescription": "Название, инструкции, расписание и настройки оценивания.",
+          "itemMetadataTitle": "Метаданные {itemNoun}",
+          "itemMetadataDescription": "Общее название, инструкция и количество баллов.",
+          "titleLabel": "Название",
+          "pointsLabel": "Баллы",
+          "itemContentTitle": "Содержимое {itemNoun}",
+          "itemContentDescription": "Редактирование содержимого.",
+          "pointsAbbreviation": "б.",
+          "weightLabel": "вес",
+          "dueDateLabel": "Срок сдачи",
+          "gradingModeLabel": "Режим оценивания",
+          "gradingModeNumeric": "Числовой",
+          "gradingModePercentage": "Процентный",
+          "examPolicyTitle": "Политика экзамена",
+          "attemptLimitLabel": "Лимит попыток",
+          "timeLimitLabel": "Лимит времени, мин.",
+          "violationThresholdLabel": "Порог нарушений",
+          "copyPasteProtectionLabel": "Защита от копирования/вставки",
+          "tabSwitchDetectionLabel": "Детекция переключения вкладок",
+          "devtoolsDetectionLabel": "Детекция инструментов разработчика",
+          "rightClickDisabledLabel": "Правый клик отключен",
+          "fullscreenEnforcementLabel": "Принудительный полноэкранный режим",
+          "allowResultReviewLabel": "Разрешить просмотр результатов",
+          "showCorrectAnswersLabel": "Показывать правильные ответы",
+          "readOnlyBadge": "Только чтение",
+          "workflowTitle": "Рабочий процесс {itemNoun}",
+          "workflowDescription": "Настройте детали, содержание и проверки публикации в одной студии до того, как это увидят студенты.",
+          "readyToPublish": "Готово к публикации",
+          "needsWork": "Нужно доработать",
+          "noDueDate": "Срок не задан",
+          "itemsMetricLabel": "{itemNoun}",
+          "pointsMetricLabel": "Всего баллов",
+          "publishReadinessLabel": "Готовность",
+          "issuesMetricValue": "{count, plural, =0 {Нет проблем} one {# проблема} few {# проблемы} many {# проблем} other {# проблемы}}",
+          "setupStepLabel": "Настройка",
+          "setupStepDescription": "Назовите активность и задайте правила оценивания.",
+          "contentStepLabel": "Содержание",
+          "contentStepDescription": "Добавьте понятные вопросы, ответы, файлы или поля формы.",
+          "releaseStepLabel": "Публикация",
+          "releaseStepDescription": "Проверьте предпросмотр, расписание или публикацию после успешных проверок.",
+          "validation": {
+            "assessment_empty": "Оценка не содержит заданий.",
+            "assessment_title_missing": "Название обязательно.",
+            "policy_max_attempts_invalid": "Лимит попыток должен быть не менее 1.",
+            "policy_time_limit_invalid": "Ограничение по времени должно быть больше нуля.",
+            "policy_violation_threshold_invalid": "Порог нарушений должен быть не менее 1.",
+            "item_title_missing": "Название элемента обязательно.",
+            "item_prompt_missing": "Требуется формулировка вопроса.",
+            "item_max_score_invalid": "Баллы элемента должны быть больше нуля.",
+            "choice_prompt_missing": "Требуется формулировка вопроса выбора.",
+            "choice_options_missing": "Вопрос выбора должен содержать не менее двух вариантов.",
+            "choice_option_text_missing": "Каждый вариант должен содержать видимый текст.",
+            "choice_option_duplicate": "Варианты ответа должны быть уникальными.",
+            "choice_correct_missing": "Отметьте хотя бы один правильный ответ.",
+            "choice_too_many_correct": "В вопросе с одним ответом может быть только 1 правильный вариант.",
+            "matching_prompt_missing": "Требуется формулировка вопроса сопоставления.",
+            "matching_pairs_missing": "Вопрос сопоставления должен содержать не менее одной пары.",
+            "matching_pair_value_missing": "Каждая пара должна содержать значение слева и справа.",
+            "matching_left_duplicate": "Левые значения должны быть уникальными.",
+            "matching_right_duplicate": "Правые ответы должны быть уникальными.",
+            "open_text_prompt_missing": "Требуется формулировка вопроса свободного ответа.",
+            "open_text_min_words_invalid": "Минимальное количество слов не может быть отрицательным.",
+            "file_prompt_missing": "Требуется формулировка вопроса загрузки файла.",
+            "file_max_files_invalid": "Задание загрузки файлов должно разрешать загрузку хотя бы одного файла.",
+            "file_max_mb_invalid": "Максимальный размер файла должен быть больше нуля.",
+            "file_mime_invalid": "Допустимые типы файлов не могут быть пустыми.",
+            "form_prompt_missing": "Требуется формулировка вопроса формы.",
+            "form_fields_missing": "Форма должна содержать хотя бы одно поле.",
+            "form_field_label_missing": "Каждое поле формы должно иметь метку.",
+            "form_field_id_duplicate": "Поля формы должны иметь уникальные идентификаторы.",
+            "code_languages_missing": "Выберите хотя бы один разрешенный язык",
+            "code_tests_missing": "Добавьте хотя бы один тестовый сценарий"
+          },
+          "duplicate": "Дублировать",
+          "delete": "Удалить",
+          "descriptionLabel": "Описание",
+          "failedToSaveSettings": "Не удалось сохранить параметры задания",
+          "failedToSaveItem": "Не удалось сохранить {itemNoun}",
+          "defaultItemTitle": "Элемент без названия",
+          "copyOf": "Копия {title}",
+          "Form": {
+            "requiredLabel": "Обязательно"
+          },
+          "errorLoading": "Ошибка при загрузке студии",
+          "Items": {
+            "OpenText": {
+              "prompt": "Вопрос",
+              "minWords": "Минимальное количество слов",
+              "rubric": "Рубрика"
+            },
+            "FileUpload": {
+              "prompt": "Вопрос"
+            },
+            "Form": {
+              "prompt": "Вопрос",
+              "fieldHeader": "Поле {number}",
+              "fieldLabel": "Название поля",
+              "fieldType": "Тип",
+              "fieldTypes": {
+                "text": "Текст",
+                "textarea": "Текстовая область",
+                "number": "Число",
+                "date": "Дата"
+              },
+              "requiredLabel": "Обязательно",
+              "addField": "Добавить поле",
+              "unsupportedKind": "Неподдерживаемый тип элемента."
+            }
+          }
+        },
+        "policyTitle": "Политика {kind}"
       },
       "Shared": {
         "AntiCheatOverlay": {
@@ -7668,189 +8244,6 @@
           "visibleTestCases": "Видимые тестовые сценарии",
           "visibleTestCasesDescription": "Тесты, которые студенты могут видеть и запускать"
         }
-      },
-      "Studio": {
-        "kinds": {
-          "ASSIGNMENT": "Задание",
-          "EXAM": "Тест",
-          "CODE_CHALLENGE": "Код задача",
-          "QUIZ": "Квиз",
-          "TYPE_FILE_SUBMISSION": "Отправка файлов",
-          "TYPE_EXAM": "Тест",
-          "TYPE_CODE_CHALLENGE": "Код задача"
-        },
-        "loading": "Загрузка студии",
-        "unavailable": "Студия недоступна для этой активности.",
-        "lifecycle": {
-          "draft": "Черновик",
-          "scheduled": "Запланировано",
-          "published": "Опубликовано",
-          "archived": "В архиве"
-        },
-        "lifecycleChanged": "Этап изменён на {state}",
-        "updateLifecycleFailed": "Не удалось обновить этап",
-        "breadcrumb": {
-          "curriculum": "Учебный план",
-          "studio": "Студия"
-        },
-        "issueCount": "{count} проблем",
-        "preview": "Предпросмотр",
-        "scheduleOptions": "Параметры планирования",
-        "schedulePublication": "Запланировать публикацию",
-        "schedule": "Запланировать",
-        "saveAsDraft": "Сохранить как черновик",
-        "moreOptions": "Дополнительные параметры",
-        "archive": "Архивировать",
-        "hideInspector": "Скрыть инспектор",
-        "showInspector": "Показать инспектор",
-        "publishNow": "Опубликовать сейчас",
-        "issueBlocks": "{count} {count, plural, one {проблема блокирует} few {проблемы блокируют} other {проблем блокируют}} публикацию.",
-        "assessmentLabel": "Активность",
-        "itemsLabel": "Элементы",
-        "outlineEmptyMessage": "Пока нет элементов. Нажмите +, чтобы добавить.",
-        "jumpToItem": "Перейти к элементу",
-        "blockerAlertDescription": "Устраните блокировщики на уровне оценивания перед публикацией. Проблемы на уровне элементов остаются доступными по ссылкам в списке выше.",
-        "loadingEditor": "Загрузка редактора",
-        "NativeItemStudio": {
-          "itemNouns": {
-            "question": "Вопрос",
-            "task": "Задание"
-          },
-          "outlineTitle": "Структура {itemNoun}",
-          "outlinePoints": "Всего баллов: {points}",
-          "outlineDescription": "Добавьте {itemNoun}, чтобы начать.",
-          "kindLabels": {
-            "choice": "Выбор",
-            "openText": "Открытый текст",
-            "fileUpload": "Загрузка файла",
-            "form": "Форма",
-            "matching": "Сопоставление"
-          },
-          "addKind": "Добавить {kind}",
-          "outlineEmptyMessage": "Добавьте {itemNoun}, чтобы начать.",
-          "noItemSelectedTitle": "{itemNoun} не выбран",
-          "noItemSelectedDescription": "Создайте или выберите {itemNoun} из списка.",
-          "untitledItem": "Элемент без названия ({itemNoun})",
-          "itemCreated": "{itemNoun} создан",
-          "itemDeleted": "{itemNoun} удален",
-          "itemDuplicated": "{itemNoun} дублирован",
-          "createFailed": "Не удалось создать {itemNoun}",
-          "deleteFailed": "Не удалось удалить {itemNoun}",
-          "duplicateFailed": "Не удалось дублировать {itemNoun}",
-          "copyOfItem": "Копия {itemNoun}",
-          "assessmentDetailsTitle": "Детали активности",
-          "assessmentDetailsExamDescription": "Название, инструкции, расписание и политика экзамена.",
-          "assessmentDetailsAssignmentDescription": "Название, инструкции, расписание и настройки оценивания.",
-          "itemMetadataTitle": "Метаданные {itemNoun}",
-          "itemMetadataDescription": "Общее название, инструкция и количество баллов.",
-          "titleLabel": "Название",
-          "pointsLabel": "Баллы",
-          "itemContentTitle": "Содержимое {itemNoun}",
-          "itemContentDescription": "Редактирование содержимого.",
-          "pointsAbbreviation": "б.",
-          "weightLabel": "вес",
-          "dueDateLabel": "Срок сдачи",
-          "gradingModeLabel": "Режим оценивания",
-          "gradingModeNumeric": "Числовой",
-          "gradingModePercentage": "Процентный",
-          "examPolicyTitle": "Политика экзамена",
-          "attemptLimitLabel": "Лимит попыток",
-          "timeLimitLabel": "Лимит времени, мин.",
-          "violationThresholdLabel": "Порог нарушений",
-          "copyPasteProtectionLabel": "Защита от копирования/вставки",
-          "tabSwitchDetectionLabel": "Детекция переключения вкладок",
-          "devtoolsDetectionLabel": "Детекция инструментов разработчика",
-          "rightClickDisabledLabel": "Правый клик отключен",
-          "fullscreenEnforcementLabel": "Принудительный полноэкранный режим",
-          "allowResultReviewLabel": "Разрешить просмотр результатов",
-          "showCorrectAnswersLabel": "Показывать правильные ответы",
-          "readOnlyBadge": "Только чтение",
-          "workflowTitle": "Рабочий процесс {itemNoun}",
-          "workflowDescription": "Настройте детали, содержание и проверки публикации в одной студии до того, как это увидят студенты.",
-          "readyToPublish": "Готово к публикации",
-          "needsWork": "Нужно доработать",
-          "noDueDate": "Срок не задан",
-          "itemsMetricLabel": "{itemNoun}",
-          "pointsMetricLabel": "Всего баллов",
-          "publishReadinessLabel": "Готовность",
-          "issuesMetricValue": "{count, plural, =0 {Нет проблем} one {# проблема} few {# проблемы} many {# проблем} other {# проблемы}}",
-          "setupStepLabel": "Настройка",
-          "setupStepDescription": "Назовите активность и задайте правила оценивания.",
-          "contentStepLabel": "Содержание",
-          "contentStepDescription": "Добавьте понятные вопросы, ответы, файлы или поля формы.",
-          "releaseStepLabel": "Публикация",
-          "releaseStepDescription": "Проверьте предпросмотр, расписание или публикацию после успешных проверок.",
-          "validation": {
-            "assessment_empty": "Оценка не содержит заданий.",
-            "assessment_title_missing": "Название обязательно.",
-            "policy_max_attempts_invalid": "Лимит попыток должен быть не менее 1.",
-            "policy_time_limit_invalid": "Ограничение по времени должно быть больше нуля.",
-            "policy_violation_threshold_invalid": "Порог нарушений должен быть не менее 1.",
-            "item_title_missing": "Название элемента обязательно.",
-            "item_prompt_missing": "Требуется формулировка вопроса.",
-            "item_max_score_invalid": "Баллы элемента должны быть больше нуля.",
-            "choice_prompt_missing": "Требуется формулировка вопроса выбора.",
-            "choice_options_missing": "Вопрос выбора должен содержать не менее двух вариантов.",
-            "choice_option_text_missing": "Каждый вариант должен содержать видимый текст.",
-            "choice_option_duplicate": "Варианты ответа должны быть уникальными.",
-            "choice_correct_missing": "Отметьте хотя бы один правильный ответ.",
-            "choice_too_many_correct": "В вопросе с одним ответом может быть только 1 правильный вариант.",
-            "matching_prompt_missing": "Требуется формулировка вопроса сопоставления.",
-            "matching_pairs_missing": "Вопрос сопоставления должен содержать не менее одной пары.",
-            "matching_pair_value_missing": "Каждая пара должна содержать значение слева и справа.",
-            "matching_left_duplicate": "Левые значения должны быть уникальными.",
-            "matching_right_duplicate": "Правые ответы должны быть уникальными.",
-            "open_text_prompt_missing": "Требуется формулировка вопроса свободного ответа.",
-            "open_text_min_words_invalid": "Минимальное количество слов не может быть отрицательным.",
-            "file_prompt_missing": "Требуется формулировка вопроса загрузки файла.",
-            "file_max_files_invalid": "Задание загрузки файлов должно разрешать загрузку хотя бы одного файла.",
-            "file_max_mb_invalid": "Максимальный размер файла должен быть больше нуля.",
-            "file_mime_invalid": "Допустимые типы файлов не могут быть пустыми.",
-            "form_prompt_missing": "Требуется формулировка вопроса формы.",
-            "form_fields_missing": "Форма должна содержать хотя бы одно поле.",
-            "form_field_label_missing": "Каждое поле формы должно иметь метку.",
-            "form_field_id_duplicate": "Поля формы должны иметь уникальные идентификаторы.",
-            "code_languages_missing": "Выберите хотя бы один разрешенный язык",
-            "code_tests_missing": "Добавьте хотя бы один тестовый сценарий"
-          },
-          "duplicate": "Дублировать",
-          "delete": "Удалить",
-          "descriptionLabel": "Описание",
-          "failedToSaveSettings": "Не удалось сохранить параметры задания",
-          "failedToSaveItem": "Не удалось сохранить {itemNoun}",
-          "defaultItemTitle": "Элемент без названия",
-          "copyOf": "Копия {title}",
-          "Form": {
-            "requiredLabel": "Обязательно"
-          },
-          "errorLoading": "Ошибка при загрузке студии",
-          "Items": {
-            "OpenText": {
-              "prompt": "Вопрос",
-              "minWords": "Минимальное количество слов",
-              "rubric": "Рубрика"
-            },
-            "FileUpload": {
-              "prompt": "Вопрос"
-            },
-            "Form": {
-              "prompt": "Вопрос",
-              "fieldHeader": "Поле {number}",
-              "fieldLabel": "Название поля",
-              "fieldType": "Тип",
-              "fieldTypes": {
-                "text": "Текст",
-                "textarea": "Текстовая область",
-                "number": "Число",
-                "date": "Дата"
-              },
-              "requiredLabel": "Обязательно",
-              "addField": "Добавить поле",
-              "unsupportedKind": "Неподдерживаемый тип элемента."
-            }
-          }
-        },
-        "policyTitle": "Политика {kind}"
       },
       "Review": {
         "Gradebook": {

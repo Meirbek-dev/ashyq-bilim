@@ -4208,7 +4208,405 @@
         "updateButton": "Update",
         "cancelButton": "Cancel",
         "editButton": "Edit",
-        "deleteButton": "Delete"
+        "deleteButton": "Delete",
+        "providers": {
+          "figma": {
+            "label": "Figma",
+            "description": "Live design files and clickable prototypes."
+          },
+          "canva": {
+            "label": "Canva",
+            "description": "Posters, infographics, presentations, and design assets."
+          },
+          "miro": {
+            "label": "Miro",
+            "description": "Collaborative workshops, mapping, and group boards."
+          },
+          "excalidraw": {
+            "label": "Excalidraw",
+            "description": "Hand-drawn diagrams and brainstorming boards."
+          },
+          "tldraw": {
+            "label": "tldraw",
+            "description": "Fast infinite canvas for sketches and visual thinking."
+          },
+          "mural": {
+            "label": "Mural",
+            "description": "Enterprise visual collaboration and workshop canvases."
+          },
+          "spline": {
+            "label": "Spline",
+            "description": "Interactive 3D scenes and objects."
+          },
+          "lottiefiles": {
+            "label": "LottieFiles",
+            "description": "Lightweight animations for explainers and feedback."
+          },
+          "sketchpad": {
+            "label": "Sketchpad",
+            "description": "Simple browser sketching canvas for quick drawings."
+          },
+          "prezi": {
+            "label": "Prezi",
+            "description": "Zoomable, non-linear presentations for dynamic storytelling."
+          },
+          "pitch": {
+            "label": "Pitch",
+            "description": "Collaborative slide decks with real-time co-editing."
+          },
+          "gamma": {
+            "label": "Gamma",
+            "description": "AI-generated presentations, docs, and web pages."
+          },
+          "google-slides": {
+            "label": "Google Slides",
+            "description": "Cloud-based presentations with real-time collaboration."
+          },
+          "powerpoint": {
+            "label": "PowerPoint Online",
+            "description": "Microsoft PowerPoint presentations for the web."
+          },
+          "ms-whiteboard": {
+            "label": "Microsoft Whiteboard",
+            "description": "Digital canvas for collaboration and ideation."
+          },
+          "explain-everything": {
+            "label": "Explain Everything",
+            "description": "Interactive whiteboard and screen recording tool."
+          },
+          "slides-com": {
+            "label": "Slides.com",
+            "description": "Reveal.js-powered presentations with live audience view."
+          },
+          "jsfiddle": {
+            "label": "JSFiddle",
+            "description": "Quick HTML, CSS, and JavaScript examples."
+          },
+          "codepen": {
+            "label": "CodePen",
+            "description": "Visual front-end demos and interactive pens."
+          },
+          "replit": {
+            "label": "Replit",
+            "description": "Full interactive IDEs for many programming languages."
+          },
+          "stackblitz": {
+            "label": "StackBlitz",
+            "description": "Full-stack web project sandboxes."
+          },
+          "github-gist": {
+            "label": "GitHub Gist",
+            "description": "Clean code snippets with syntax highlighting."
+          },
+          "glitch": {
+            "label": "Glitch",
+            "description": "Remixable web apps and project demos."
+          },
+          "codesnip": {
+            "label": "CodeSnip",
+            "description": "Modern snippets with AI explanations."
+          },
+          "codesandbox": {
+            "label": "CodeSandbox",
+            "description": "Complex front-end architectures and templates."
+          },
+          "observable": {
+            "label": "Observable",
+            "description": "Reactive data-science notebooks with live D3/Plot charts."
+          },
+          "mybinder": {
+            "label": "MyBinder",
+            "description": "Shareable Jupyter notebook environments from any Git repo."
+          },
+          "kaggle": {
+            "label": "Kaggle",
+            "description": "Public data-science notebooks and competition kernels."
+          },
+          "huggingface": {
+            "label": "Hugging Face",
+            "description": "Live ML model demos and Gradio/Streamlit Spaces."
+          },
+          "wandb": {
+            "label": "Weights & Biases",
+            "description": "ML experiment reports with interactive charts and metrics."
+          },
+          "gitpod": {
+            "label": "Gitpod",
+            "description": "Instant cloud dev environments from any repository."
+          },
+          "google-colab": {
+            "label": "Google Colab",
+            "description": "Cloud-based Jupyter notebooks for data science and AI."
+          },
+          "youtube": {
+            "label": "YouTube",
+            "description": "Educational videos, lectures, and screencasts."
+          },
+          "vimeo": {
+            "label": "Vimeo",
+            "description": "High-quality hosted video and private course media."
+          },
+          "loom": {
+            "label": "Loom",
+            "description": "Recorded walkthroughs and talking-head tutorials."
+          },
+          "google-vids": {
+            "label": "Google Vids",
+            "description": "AI-assisted educational videos and slide-videos."
+          },
+          "wistia": {
+            "label": "Wistia",
+            "description": "Course video with analytics and engagement tooling."
+          },
+          "spotify": {
+            "label": "Spotify",
+            "description": "Podcasts and curated study playlists."
+          },
+          "soundcloud": {
+            "label": "SoundCloud",
+            "description": "Audio examples, music lessons, and listening tasks."
+          },
+          "suno": {
+            "label": "Suno",
+            "description": "AI-generated songs and creative audio assignments."
+          },
+          "sodaphonic": {
+            "label": "Sodaphonic",
+            "description": "Browser audio editor for podcasting modules."
+          },
+          "rutube": {
+            "label": "RuTube",
+            "description": "Russian state-accessible video — mirrors or supplements YouTube."
+          },
+          "vk-video": {
+            "label": "VK Video",
+            "description": "VKontakte video — widely watched across Russia and Kazakhstan."
+          },
+          "vk-clips": {
+            "label": "VK Clips / Posts",
+            "description": "Short-form videos and announcements from VK."
+          },
+          "ted": {
+            "label": "TED / TEDx",
+            "description": "Conference talks on science, design, society, and innovation."
+          },
+          "deezer": {
+            "label": "Deezer",
+            "description": "Music and podcast playlists for listening comprehension tasks."
+          },
+          "mixcloud": {
+            "label": "Mixcloud",
+            "description": "Radio shows and long-form audio mixes for background listening."
+          },
+          "panopto": {
+            "label": "Panopto",
+            "description": "University lecture recordings with chapters and in-video quizzes."
+          },
+          "kaltura": {
+            "label": "Kaltura",
+            "description": "Institutional video platform integrated with Moodle and Canvas."
+          },
+          "h5p": {
+            "label": "H5P",
+            "description": "Interactive LMS content such as quizzes and draft-and-drop tasks."
+          },
+          "genially": {
+            "label": "Genially",
+            "description": "Gamified presentations and interactive images."
+          },
+          "typeform": {
+            "label": "Typeform",
+            "description": "High-engagement surveys and entry or exit tickets."
+          },
+          "jotform": {
+            "label": "Jotform",
+            "description": "Forms with logic, uploads, and payment workflows."
+          },
+          "google-forms": {
+            "label": "Google Forms",
+            "description": "Quick data-driven quizzes and course surveys."
+          },
+          "tally": {
+            "label": "Tally",
+            "description": "Notion-style forms that feel lightweight in lessons."
+          },
+          "quizlet": {
+            "label": "Quizlet",
+            "description": "Flashcard sets and study games."
+          },
+          "kahoot": {
+            "label": "Kahoot!",
+            "description": "Competitive live assessments and game-based checks."
+          },
+          "mentimeter": {
+            "label": "Mentimeter",
+            "description": "Live polls, word clouds, and classroom feedback."
+          },
+          "blooket": {
+            "label": "Blooket",
+            "description": "Gamified quizzes and interactive learning games."
+          },
+          "quizizz": {
+            "label": "Quizizz",
+            "description": "Interactive quizzes and asynchronous homework mode."
+          },
+          "edpuzzle": {
+            "label": "Edpuzzle",
+            "description": "Embed questions and voiceovers into any video."
+          },
+          "plickers": {
+            "label": "Plickers",
+            "description": "Low-tech classroom polling using paper cards."
+          },
+          "wooclap": {
+            "label": "Wooclap",
+            "description": "Live audience polls, MCQs, and word clouds during lectures."
+          },
+          "slido": {
+            "label": "Slido",
+            "description": "Real-time Q&A and polling for large university lectures."
+          },
+          "nearpod": {
+            "label": "Nearpod",
+            "description": "Student-paced interactive lessons with embedded assessments."
+          },
+          "wordwall": {
+            "label": "Wordwall",
+            "description": "Gamified vocabulary and grammar activities — popular in CIS classrooms."
+          },
+          "poll-everywhere": {
+            "label": "Poll Everywhere",
+            "description": "Audience-response activities with PowerPoint/Google Slides integration."
+          },
+          "airtable": {
+            "label": "Airtable",
+            "description": "Database-driven lessons and project trackers."
+          },
+          "google-sheets": {
+            "label": "Google Sheets",
+            "description": "Live tables, datasets, and charts."
+          },
+          "trello": {
+            "label": "Trello",
+            "description": "Project management boards and course milestones."
+          },
+          "notion": {
+            "label": "Notion",
+            "description": "Resource pages, course wikis, and structured docs."
+          },
+          "coda": {
+            "label": "Coda",
+            "description": "Interactive docs that behave like apps."
+          },
+          "tableau": {
+            "label": "Tableau",
+            "description": "Advanced analytics dashboards and data visualization."
+          },
+          "looker-studio": {
+            "label": "Looker Studio",
+            "description": "Google Data Studio dashboards for live research and analytics."
+          },
+          "clickup": {
+            "label": "ClickUp",
+            "description": "All-in-one project and task management for group coursework."
+          },
+          "wakelet": {
+            "label": "Wakelet",
+            "description": "Curated collections of links, videos, and resources for a lesson."
+          },
+          "datalens": {
+            "label": "Yandex DataLens",
+            "description": "Business intelligence and data visualization service."
+          },
+          "google-docs": {
+            "label": "Google Docs",
+            "description": "Collaborative word processing and document editing."
+          },
+          "desmos": {
+            "label": "Desmos",
+            "description": "Interactive graphing calculator for math."
+          },
+          "geogebra": {
+            "label": "GeoGebra",
+            "description": "Geometry, graphing, and 3D math simulations."
+          },
+          "wolfram-alpha": {
+            "label": "Wolfram Alpha",
+            "description": "Computational intelligence and symbolic widgets."
+          },
+          "phet": {
+            "label": "PhET",
+            "description": "Science simulations for physics, chemistry, and biology."
+          },
+          "sketchfab": {
+            "label": "Sketchfab",
+            "description": "Interactive 3D models for artifacts, anatomy, and objects."
+          },
+          "texlyre": {
+            "label": "TeXlyre",
+            "description": "Live LaTeX and Typst math rendering."
+          },
+          "yandex-maps": {
+            "label": "Yandex Maps",
+            "description": "Detailed maps and geographic context for the CIS region."
+          },
+          "brilliant": {
+            "label": "Brilliant.org",
+            "description": "Interactive problem solving in math, science, and CS."
+          },
+          "symbolab": {
+            "label": "Symbolab",
+            "description": "Step-by-step math solver and graphing calculator."
+          },
+          "stepik": {
+            "label": "Stepik",
+            "description": "Leading Russian/CIS MOOC with CS, math, and science courses."
+          },
+          "overleaf": {
+            "label": "Overleaf",
+            "description": "Collaborative LaTeX editor for reports, theses, and papers."
+          },
+          "molview": {
+            "label": "MolView",
+            "description": "Interactive 2D/3D molecular structure viewer for chemistry."
+          },
+          "google-maps": {
+            "label": "Google Maps",
+            "description": "Geographic context for history, social science, and fieldwork."
+          },
+          "chemtube3d": {
+            "label": "ChemTube3D",
+            "description": "Animated 3D reaction mechanisms for university chemistry."
+          },
+          "notebooklm": {
+            "label": "NotebookLM",
+            "description": "AI-grounded research environments for source material."
+          },
+          "hyperbeam": {
+            "label": "Hyperbeam",
+            "description": "Shared co-browsing sessions inside a lesson."
+          },
+          "discord": {
+            "label": "Discord",
+            "description": "Course community invites and channel widgets."
+          },
+          "telegram": {
+            "label": "Telegram Post",
+            "description": "Embedded messages and announcements from Telegram channels."
+          },
+          "chatgpt": {
+            "label": "ChatGPT Share",
+            "description": "Shared AI conversations and guided learning threads."
+          },
+          "padlet": {
+            "label": "Padlet",
+            "description": "Shared digital walls for brainstorming, portfolios, and Q&A."
+          },
+          "flip": {
+            "label": "Flip",
+            "description": "Asynchronous video discussion boards for reflective assignments."
+          }
+        }
       },
       "Youtube": {
         "invalidUrl": "Invalid YouTube URL"
