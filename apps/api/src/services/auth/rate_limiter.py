@@ -67,7 +67,11 @@ async def check_account_locked(email: str) -> bool:
     r = get_async_redis_client()
     if not r:
         return False
-    return bool(await r.exists(f"account_locked:{email.lower()}"))
+    try:
+        return bool(await r.exists(f"account_locked:{email.lower()}"))
+    except Exception:
+        logger.warning("Redis error in check_account_locked — failing open", exc_info=True)
+        return False
 
 
 async def record_login_failure(
