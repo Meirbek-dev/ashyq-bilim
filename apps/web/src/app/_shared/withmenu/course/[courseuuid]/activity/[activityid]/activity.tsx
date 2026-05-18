@@ -136,8 +136,10 @@ function StudentActivityPageShell({
       ) : null}
       <main
         className={cn(
-          'mx-auto grid w-full max-w-[100rem] gap-6 px-4 pb-28 pt-4 sm:px-6 lg:px-8',
-          isFullWidth ? 'grid-cols-1' : 'lg:grid-cols-[16rem_minmax(0,1fr)] xl:grid-cols-[18rem_minmax(0,1fr)_19rem]',
+          'mx-auto grid w-full max-w-[118rem] gap-5 px-4 pb-28 pt-4 sm:px-6 lg:px-8 xl:gap-6',
+          isFullWidth
+            ? 'grid-cols-1'
+            : 'lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[16rem_minmax(0,1fr)_18rem] 2xl:grid-cols-[17rem_minmax(0,1fr)_18rem]',
           isAttemptActive && 'max-w-none px-0 pb-0 pt-0 sm:px-0 lg:px-0',
         )}
       >
@@ -201,7 +203,7 @@ function ActivityHeader({
   const t = useTranslations('ActivityPage');
   return (
     <header className="border-border/70 bg-background/95 sticky top-14 z-30 border-b backdrop-blur">
-      <div className="mx-auto flex w-full max-w-[100rem] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-[118rem] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
         <div className="min-w-0 space-y-1">
           <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
             <Link
@@ -246,7 +248,7 @@ function ActivityHeader({
           </Button>
         </div>
       </div>
-      <div className="mx-auto w-full max-w-[100rem] px-4 pb-3 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-[118rem] px-4 pb-3 sm:px-6 lg:px-8">
         <ActivityProgressSummary vm={vm} />
       </div>
     </header>

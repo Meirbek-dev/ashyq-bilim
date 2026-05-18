@@ -1,7 +1,6 @@
 import { getActivity } from '@services/courses/activities';
 import { getCourseMetadata } from '@services/courses/courses';
 import { getSession } from '@/lib/auth/session';
-import { SessionProvider } from '@/components/providers/session-provider';
 import { jetBrainsMono } from '@/lib/fonts';
 import type { Metadata } from 'next';
 import { cache } from 'react';
@@ -85,17 +84,15 @@ export default async function PlatformActivityPage(props: {
 
   return (
     <div className={jetBrainsMono.variable}>
-      <SessionProvider initialSession={initialSession}>
-        <HydrationBoundary state={dehydrate(queryClient)}>
-          <ActivityClient
-            activityid={activityid}
-            assessmentUuid={assessment?.assessment_uuid ?? null}
-            courseuuid={courseuuid}
-            activity={activity}
-            course={course_meta}
-          />
-        </HydrationBoundary>
-      </SessionProvider>
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <ActivityClient
+          activityid={activityid}
+          assessmentUuid={assessment?.assessment_uuid ?? null}
+          courseuuid={courseuuid}
+          activity={activity}
+          course={course_meta}
+        />
+      </HydrationBoundary>
     </div>
   );
 }

@@ -412,7 +412,7 @@
 }
 
 .prosemirror-interactive-layout-content .ProseMirror > * {
-  max-width: min(100%, 78ch);
+  max-width: min(100%, 92ch);
 }
 
 .prosemirror-interactive-layout-content .ProseMirror > .tableWrapper,
@@ -432,11 +432,11 @@
 }
 
 @media (min-width: 1280px) {
-  .prosemirror-interactive-layout {
+  .prosemirror-interactive--with-toc .prosemirror-interactive-layout {
     grid-template-columns: minmax(0, 1fr) clamp(12rem, 16vw, 16rem);
   }
 
-  .prosemirror-interactive-layout-toc {
+  .prosemirror-interactive--with-toc .prosemirror-interactive-layout-toc {
     display: block;
   }
 }

@@ -78,6 +78,7 @@ export function ActivityContentRenderer({
           <InteractiveViewer
             content={getValidTiptapContent(activity.content)}
             activity={activity}
+            showDesktopTableOfContents={false}
           />
         </div>
       );
